@@ -225,13 +225,15 @@ export const releaseFunds = createServerFn({ method: "POST" })
     const { data: tx, error } = await supabaseAdmin
       .from("transactions")
       .select(
-        "id, status, car_id, payment_method, car_price_usd_cents, stripe_charge_id, stripe_payment_intent_id, stripe_seller_account_id, seller_id, buyer_id, sellers!inner(profile_id, stripe_account_id, stripe_payouts_enabled), cars!inner(title)",
+        "id, status, car_id, handover_ready_at, payment_method, car_price_usd_cents, stripe_charge_id, stripe_payment_intent_id, stripe_seller_account_id, seller_id, buyer_id, sellers!inner(profile_id, stripe_account_id, stripe_payouts_enabled), cars!inner(title)",
       )
       .eq("id", data.transactionId)
       .maybeSingle();
     if (error || !tx) throw new Error("Transaction not found");
-    if (!["payment_received", "admin_reviewing"].includes(tx.status))
-      throw new Error(`Cannot release in status: ${tx.status}`);
+    if (tx.status !== "admin_reviewing")
+      throw new Error("Funds can be released only after the buyer confirms receipt");
+    if (!tx.handover_ready_at)
+      throw new Error("The seller must mark the handover ready before funds are released");
 
     // @ts-expect-error joined
     const sellerAccount = tx.sellers.stripe_account_id;
@@ -364,11 +366,12 @@ export const confirmReceipt = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, buyer_id, status")
+      .select("id, buyer_id, status, handover_ready_at")
       .eq("id", data.transactionId)
       .maybeSingle();
     if (!tx || tx.buyer_id !== user.id) throw new Error("Not your transaction");
     if (tx.status !== "payment_received") throw new Error("Not ready to confirm");
+    if (!tx.handover_ready_at) throw new Error("The seller has not marked the car ready for handover yet");
     await supabaseAdmin
       .from("transactions")
       .update({ status: "admin_reviewing" })

@@ -11,14 +11,13 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
         const { stripe } = await import("@/lib/stripe.server");
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+        if (!secret || !sig) {
+          return new Response("Stripe webhook is not configured", { status: 503 });
+        }
+
         let event: import("stripe").Stripe.Event;
         try {
-          if (secret && sig) {
-            event = stripe().webhooks.constructEvent(body, sig, secret);
-          } else {
-            // Dev fallback when webhook secret not configured yet.
-            event = JSON.parse(body) as import("stripe").Stripe.Event;
-          }
+          event = stripe().webhooks.constructEvent(body, sig, secret);
         } catch (err) {
           return new Response(`Invalid signature: ${(err as Error).message}`, { status: 400 });
         }

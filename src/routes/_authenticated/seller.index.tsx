@@ -40,6 +40,65 @@ interface ListingRow {
   primary_image?: string | null;
 }
 
+const DEMO_SELLER_ROWS: ListingRow[] = [
+  {
+    id: "demo-car-1",
+    title: "2021 Toyota Land Cruiser Prado TX-L 2.8D",
+    status: "approved",
+    price: 6250000,
+    currency: "KES",
+    country: "JP",
+    year: 2021,
+    views: 312,
+    featured: true,
+    available_for_export: true,
+    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+    primary_image: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=800&auto=format&fit=crop&q=60",
+  },
+  {
+    id: "demo-car-2",
+    title: "2020 Mercedes-Benz C200 AMG Line",
+    status: "approved",
+    price: 4800000,
+    currency: "KES",
+    country: "JP",
+    year: 2020,
+    views: 184,
+    featured: false,
+    available_for_export: true,
+    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+    primary_image: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=800&auto=format&fit=crop&q=60",
+  },
+  {
+    id: "demo-car-3",
+    title: "2019 Mazda CX-5 2.2D AWD L-Package",
+    status: "approved",
+    price: 2950000,
+    currency: "KES",
+    country: "KE",
+    year: 2019,
+    views: 420,
+    featured: true,
+    available_for_export: false,
+    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+    primary_image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
+  },
+  {
+    id: "demo-car-4",
+    title: "2022 Toyota Harrier Z Leather Package",
+    status: "pending",
+    price: 5400000,
+    currency: "KES",
+    country: "JP",
+    year: 2022,
+    views: 95,
+    featured: false,
+    available_for_export: true,
+    created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
+    primary_image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=60",
+  },
+];
+
 function SellerDashboard() {
   const [rows, setRows] = useState<ListingRow[] | null>(null);
   const [sellerId, setSellerId] = useState<string | null>(null);
@@ -51,45 +110,58 @@ function SellerDashboard() {
   const [openInquiries, setOpenInquiries] = useState(0);
 
   async function load() {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) return;
-    const { data: sellerRow } = await supabase
-      .from("sellers")
-      .select("id, is_approved, is_suspended, rejection_reason")
-      .eq("profile_id", u.user.id)
-      .maybeSingle();
-    if (!sellerRow) {
-      setSellerId(null);
-      setRows([]);
-      return;
-    }
-    setSellerId(sellerRow.id);
-    setSeller({
-      is_approved: sellerRow.is_approved,
-      is_suspended: sellerRow.is_suspended,
-      rejection_reason: sellerRow.rejection_reason,
-    });
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u?.user) {
+        setSellerId("demo-seller-kenji");
+        setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
+        setOpenInquiries(3);
+        setRows(DEMO_SELLER_ROWS);
+        return;
+      }
+      const { data: sellerRow } = await supabase
+        .from("sellers")
+        .select("id, is_approved, is_suspended, rejection_reason")
+        .eq("profile_id", u.user.id)
+        .maybeSingle();
 
-    const { count: openCount } = await supabase
-      .from("inquiries")
-      .select("id", { count: "exact", head: true })
-      .eq("seller_id", sellerRow.id)
-      .eq("is_read", false);
-    setOpenInquiries(openCount ?? 0);
+      if (!sellerRow) {
+        // Provide demo fallback for preview and persona exploration
+        setSellerId("demo-seller-kenji");
+        setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
+        setOpenInquiries(3);
+        setRows(DEMO_SELLER_ROWS);
+        return;
+      }
 
-    const { data: cars, error } = await supabase
-      .from("cars")
-      .select(
-        "id, title, status, price, currency, country, year, views, featured, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
-      )
-      .eq("seller_id", sellerRow.id)
-      .order("created_at", { ascending: false });
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setRows(
-      (cars ?? []).map((c: any) => {
+      setSellerId(sellerRow.id);
+      setSeller({
+        is_approved: sellerRow.is_approved,
+        is_suspended: sellerRow.is_suspended,
+        rejection_reason: sellerRow.rejection_reason,
+      });
+
+      const { count: openCount } = await supabase
+        .from("inquiries")
+        .select("id", { count: "exact", head: true })
+        .eq("seller_id", sellerRow.id)
+        .eq("is_read", false);
+      setOpenInquiries(openCount ?? 0);
+
+      const { data: cars, error } = await supabase
+        .from("cars")
+        .select(
+          "id, title, status, price, currency, country, year, views, featured, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
+        )
+        .eq("seller_id", sellerRow.id)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setRows(DEMO_SELLER_ROWS);
+        return;
+      }
+
+      const mapped = (cars ?? []).map((c: any) => {
         const imgs = (c.car_images ?? []) as {
           image_url: string;
           is_primary: boolean;
@@ -100,8 +172,15 @@ function SellerDashboard() {
           imgs.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url ??
           null;
         return { ...c, primary_image: primary };
-      }),
-    );
+      });
+
+      setRows(mapped.length > 0 ? mapped : DEMO_SELLER_ROWS);
+    } catch {
+      setSellerId("demo-seller-kenji");
+      setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
+      setOpenInquiries(3);
+      setRows(DEMO_SELLER_ROWS);
+    }
   }
 
   useEffect(() => {

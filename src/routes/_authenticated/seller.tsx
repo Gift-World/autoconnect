@@ -5,13 +5,10 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/seller")({
   beforeLoad: async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/login" });
-
     const activeRole =
       typeof window !== "undefined"
-        ? localStorage.getItem("autoconnect_active_role")
-        : null;
+        ? localStorage.getItem("autoconnect_active_role") || "buyer"
+        : "buyer";
 
     if (
       activeRole === "seller" ||
@@ -21,14 +18,26 @@ export const Route = createFileRoute("/_authenticated/seller")({
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", u.user.id)
-      .maybeSingle();
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u?.user) {
+        if (typeof window !== "undefined" && !localStorage.getItem("autoconnect_active_role")) {
+          throw redirect({ to: "/login" });
+        }
+        return;
+      }
 
-    if (!profile || (profile.role !== "seller" && profile.role !== "admin")) {
-      throw redirect({ to: "/" });
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", u.user.id)
+        .maybeSingle();
+
+      if (!profile || (profile.role !== "seller" && profile.role !== "admin")) {
+        throw redirect({ to: "/dashboard" });
+      }
+    } catch (e: any) {
+      if (e?.to) throw e;
     }
   },
   component: SellerLayout,

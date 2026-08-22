@@ -53,6 +53,10 @@ function ConsolidatedDashboard() {
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   // Sync tab with activeRole when role switcher changes
+  useEffect(() => {
+    setActiveTab(activeRole);
+  }, [activeRole]);
+
   const currentTab = activeTab || activeRole;
 
   const handleTabChange = (role: AppRole) => {

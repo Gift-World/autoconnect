@@ -62,6 +62,105 @@ export interface Profile {
   is_suspended: boolean;
 }
 
+export const DEMO_PROFILES: Record<AppRole, { user: User; profile: Profile }> = {
+  buyer: {
+    user: {
+      id: "demo-buyer-alice",
+      app_metadata: { provider: "email" },
+      user_metadata: { full_name: "Alice Mwangi" },
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+      email: "alice.mwangi@example.com",
+      phone: "+254 712 345 678",
+      role: "authenticated",
+      updated_at: new Date().toISOString(),
+    } as unknown as User,
+    profile: {
+      id: "demo-buyer-alice",
+      full_name: "Alice Mwangi",
+      phone: "+254 712 345 678",
+      whatsapp_number: "+254 712 345 678",
+      avatar_url: null,
+      role: "buyer",
+      country: "KE",
+      city: "Nairobi",
+      is_suspended: false,
+    },
+  },
+  seller: {
+    user: {
+      id: "demo-seller-kenji",
+      app_metadata: { provider: "email" },
+      user_metadata: { full_name: "Kenji Sato (Yokohama Motors)" },
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+      email: "kenji@yokohamaexport.jp",
+      phone: "+81 90 1234 5678",
+      role: "authenticated",
+      updated_at: new Date().toISOString(),
+    } as unknown as User,
+    profile: {
+      id: "demo-seller-kenji",
+      full_name: "Kenji Sato (Yokohama Motors)",
+      phone: "+81 90 1234 5678",
+      whatsapp_number: "+81 90 1234 5678",
+      avatar_url: null,
+      role: "seller",
+      country: "JP",
+      city: "Yokohama",
+      is_suspended: false,
+    },
+  },
+  yard_manager: {
+    user: {
+      id: "demo-yard-david",
+      app_metadata: { provider: "email" },
+      user_metadata: { full_name: "David Ochieng (Ngong Road Yard)" },
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+      email: "david@megayard.co.ke",
+      phone: "+254 722 987 654",
+      role: "authenticated",
+      updated_at: new Date().toISOString(),
+    } as unknown as User,
+    profile: {
+      id: "demo-yard-david",
+      full_name: "David Ochieng (Ngong Road Yard)",
+      phone: "+254 722 987 654",
+      whatsapp_number: "+254 722 987 654",
+      avatar_url: null,
+      role: "yard_manager",
+      country: "KE",
+      city: "Nairobi",
+      is_suspended: false,
+    },
+  },
+  admin: {
+    user: {
+      id: "demo-admin-sarah",
+      app_metadata: { provider: "email" },
+      user_metadata: { full_name: "Sarah Kimani (Trust & Escrow Admin)" },
+      aud: "authenticated",
+      created_at: new Date().toISOString(),
+      email: "sarah.kimani@autoconnect.com",
+      phone: "+254 700 112 233",
+      role: "authenticated",
+      updated_at: new Date().toISOString(),
+    } as unknown as User,
+    profile: {
+      id: "demo-admin-sarah",
+      full_name: "Sarah Kimani (Trust & Escrow Admin)",
+      phone: "+254 700 112 233",
+      whatsapp_number: "+254 700 112 233",
+      avatar_url: null,
+      role: "admin",
+      country: "KE",
+      city: "Nairobi",
+      is_suspended: false,
+    },
+  },
+};
+
 interface AuthContextValue {
   user: User | null;
   session: Session | null;
@@ -69,9 +168,11 @@ interface AuthContextValue {
   loading: boolean;
   activeRole: AppRole;
   setActiveRole: (role: AppRole) => void;
+  loginAsDemo: (role: AppRole) => void;
   availableRoles: RoleInfo[];
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -190,17 +291,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // When no real Supabase user is logged in, provide active demo persona data
+  const effectiveUser = user ?? DEMO_PROFILES[activeRole]?.user ?? null;
+  const effectiveProfile = profile ?? DEMO_PROFILES[activeRole]?.profile ?? null;
+
+  const loginAsDemo = (role: AppRole) => {
+    setActiveRole(role);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+      } catch {
+        // Ignore
+      }
+    }
+  };
+
   const value = useMemo<AuthContextValue>(
     () => ({
-      user,
+      user: effectiveUser,
       session,
-      profile,
+      profile: effectiveProfile,
       loading,
       activeRole,
       setActiveRole,
+      loginAsDemo,
       availableRoles: ROLE_DEFINITIONS,
       signOut: async () => {
-        await supabase.auth.signOut();
+        try {
+          await supabase.auth.signOut();
+        } catch {
+          // ignore
+        }
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        setActiveRoleState("buyer");
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem(ROLE_STORAGE_KEY);
+            localStorage.removeItem("autoconnect_active_persona");
+          } catch {
+            // ignore
+          }
+        }
       },
       refreshProfile: async () => {
         if (user) {
@@ -208,8 +341,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(p);
         }
       },
+      refreshSession: async () => {
+        const { data } = await supabase.auth.getSession();
+        setSession(data.session);
+        setUser(data.session?.user ?? null);
+        if (data.session?.user) {
+          const p = await fetchProfile(data.session.user.id);
+          setProfile(p);
+        }
+      },
     }),
-    [user, session, profile, loading, activeRole],
+    [effectiveUser, session, effectiveProfile, loading, activeRole, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

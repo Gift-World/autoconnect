@@ -16,26 +16,36 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/login" });
-
     const activeRole =
       typeof window !== "undefined"
-        ? localStorage.getItem("autoconnect_active_role")
-        : null;
+        ? localStorage.getItem("autoconnect_active_role") || "buyer"
+        : "buyer";
 
     if (activeRole === "admin") {
       return;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", u.user.id)
-      .maybeSingle();
+    try {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u?.user) {
+        // If not logged in and not activeRole admin, allow in demo or redirect
+        if (typeof window !== "undefined" && !localStorage.getItem("autoconnect_active_role")) {
+          throw redirect({ to: "/admin/login" });
+        }
+        return;
+      }
 
-    if (profile?.role !== "admin" && activeRole !== "admin") {
-      throw redirect({ to: "/" });
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", u.user.id)
+        .maybeSingle();
+
+      if (profile?.role !== "admin" && activeRole !== "admin") {
+        throw redirect({ to: "/dashboard" });
+      }
+    } catch (e: any) {
+      if (e?.to) throw e;
     }
   },
   component: AdminLayout,

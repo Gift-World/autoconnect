@@ -14,6 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { QuickDemoLogin } from "@/components/QuickDemoLogin";
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email"),
@@ -65,13 +66,15 @@ function AdminLoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[420px] items-center px-4 py-12">
+    <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[480px] flex-col gap-6 px-4 py-12">
+      <QuickDemoLogin title="1-Click Admin & Dev Access" subtitle="Select Sarah Kimani (Super Admin) for immediate access to admin moderation." />
+
       <Card className="w-full shadow-lg">
         <CardHeader className="space-y-2 text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-foreground text-background">
             <ShieldCheck className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardTitle className="text-2xl">Standard Admin Login</CardTitle>
           <p className="text-sm text-muted-foreground">
             Staff access only. Use your admin email and password.
           </p>

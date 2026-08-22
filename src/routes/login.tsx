@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { roleHomePath } from "@/contexts/AuthContext";
+import { QuickDemoLogin } from "@/components/QuickDemoLogin";
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email"),
@@ -63,15 +64,17 @@ function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[420px] items-center px-4 py-12">
+    <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[480px] flex-col gap-6 px-4 py-12">
+      <QuickDemoLogin />
+
       <Card className="w-full shadow-lg">
         <CardHeader className="space-y-2 text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground">
             <Globe className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <CardTitle className="text-2xl">Standard Account Login</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Sign in to your AutoConnect account
+            Sign in with email and password
           </p>
         </CardHeader>
         <CardContent>

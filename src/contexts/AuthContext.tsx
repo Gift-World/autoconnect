@@ -105,26 +105,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Initialize active role from localStorage or default to buyer
-  const [activeRole, setActiveRoleState] = useState<AppRole>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(ROLE_STORAGE_KEY) as AppRole | null;
-      if (saved && ["buyer", "seller", "yard_manager", "admin"].includes(saved)) {
-        return saved;
-      }
-    }
-    return "buyer";
-  });
+  // Initialize active role default to buyer for SSR/hydration consistency
+  const [activeRole, setActiveRoleState] = useState<AppRole>("buyer");
 
   const setActiveRole = (role: AppRole) => {
     setActiveRoleState(role);
     if (typeof window !== "undefined") {
-      localStorage.setItem(ROLE_STORAGE_KEY, role);
+      try {
+        localStorage.setItem(ROLE_STORAGE_KEY, role);
+      } catch {
+        // Ignore storage errors
+      }
     }
   };
 
   useEffect(() => {
     let mounted = true;
+
+    // Restore saved role on client mount safely after hydration
+    try {
+      const saved = localStorage.getItem(ROLE_STORAGE_KEY) as AppRole | null;
+      if (saved && ["buyer", "seller", "yard_manager", "admin"].includes(saved)) {
+        setActiveRoleState(saved);
+      }
+    } catch {
+      // Ignore storage errors
+    }
 
     // Listener FIRST (avoids missing initial event)
     const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {

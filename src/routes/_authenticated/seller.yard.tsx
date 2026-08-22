@@ -18,6 +18,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { YardInventoryManager } from "@/components/yard/YardInventoryManager";
+
 export const Route = createFileRoute("/_authenticated/seller/yard")({
   head: () => ({ meta: [{ title: "My car yard — Seller — AutoConnect" }] }),
   component: SellerYardPage,
@@ -392,12 +394,23 @@ function SellerYardPage() {
       </section>
 
       {yard && (
-        <section className="rounded-xl border border-border bg-card p-6">
-          <h2 className="text-lg font-semibold">Inventory in this yard</h2>
-          <p className="text-sm text-muted-foreground">
-            Choose which of your listings appear on the yard page.
-          </p>
-          <div className="mt-4 divide-y divide-border">
+        <>
+          <section className="rounded-xl border border-border bg-card p-6">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold">Live Bay Allocation & Inventory Operations</h2>
+              <p className="text-sm text-muted-foreground">
+                Assign vehicles to physical yard bays, update inspection certifications, and issue digital gate passes.
+              </p>
+            </div>
+            <YardInventoryManager yardName={yard.name} />
+          </section>
+
+          <section className="rounded-xl border border-border bg-card p-6">
+            <h2 className="text-lg font-semibold">Listing Storefront Sync</h2>
+            <p className="text-sm text-muted-foreground">
+              Choose which of your listings appear on the yard public page.
+            </p>
+            <div className="mt-4 divide-y divide-border">
             {(listings.data ?? []).length === 0 && (
               <p className="py-4 text-sm text-muted-foreground">
                 No listings yet.{" "}
@@ -438,8 +451,9 @@ function SellerYardPage() {
                 </div>
               );
             })}
-          </div>
-        </section>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

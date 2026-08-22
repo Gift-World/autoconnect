@@ -20,6 +20,7 @@ import { Route as YardsRouteImport } from './routes/yards'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCompleteProfileRouteImport } from './routes/_authenticated/complete-profile'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CarsIndexRouteImport } from './routes/cars.index'
@@ -113,6 +114,11 @@ const AuthenticatedCompleteProfileRoute =
     path: '/complete-profile',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSellerRoute = AuthenticatedSellerRouteImport.update({
   id: '/seller',
   path: '/seller',
@@ -336,6 +342,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/complete-profile': typeof AuthenticatedCompleteProfileRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
@@ -481,6 +490,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/complete-profile'
+    | '/dashboard'
     | '/seller'
     | '/admin/login'
     | '/cars/$id'
@@ -526,6 +536,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/complete-profile'
+    | '/dashboard'
     | '/admin/login'
     | '/cars/$id'
     | '/yards/$slug'
@@ -574,6 +585,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account'
     | '/_authenticated/admin'
     | '/_authenticated/complete-profile'
+    | '/_authenticated/dashboard'
     | '/_authenticated/seller'
     | '/admin/login'
     | '/cars/$id'
@@ -703,6 +715,13 @@ declare module '@tanstack/react-router' {
       path: '/complete-profile'
       fullPath: '/complete-profile'
       preLoaderRoute: typeof AuthenticatedCompleteProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/seller': {
@@ -1073,6 +1092,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCompleteProfileRoute: typeof AuthenticatedCompleteProfileRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedSellerRoute: typeof AuthenticatedSellerRouteWithChildren
   AuthenticatedTransactionsIdRoute: typeof AuthenticatedTransactionsIdRoute
 }
@@ -1081,6 +1101,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRouteWithChildren,
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCompleteProfileRoute: AuthenticatedCompleteProfileRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedSellerRoute: AuthenticatedSellerRouteWithChildren,
   AuthenticatedTransactionsIdRoute: AuthenticatedTransactionsIdRoute,
 }

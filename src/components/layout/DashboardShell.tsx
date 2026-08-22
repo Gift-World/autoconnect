@@ -43,8 +43,14 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
               {areaSubtitle && (
                 <p className="mt-0.5 text-[11px] text-muted-foreground/80">{areaSubtitle}</p>
               )}
-              <div className="mt-2.5 pt-2 border-t border-border/60">
+              <div className="mt-2.5 pt-2 border-t border-border/60 flex flex-col gap-1.5">
                 <RoleSwitcher className="w-full justify-between" />
+                <Link
+                  to="/dashboard"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                >
+                  <span>All-in-One Portal</span>
+                </Link>
               </div>
             </div>
 

@@ -7,6 +7,7 @@ import {
   Check,
   ChevronDown,
   Sparkles,
+  Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { useAuth, type AppRole, roleHomePath } from "@/contexts/AuthContext";
+import { DEMO_PERSONAS } from "@/components/DemoPersonaSwitcher";
 
 interface RoleSwitcherProps {
   variant?: "navbar" | "compact" | "banner";
@@ -43,11 +45,11 @@ export function RoleSwitcher({ variant = "navbar", className = "" }: RoleSwitche
       icon: <Sparkles className="h-4 w-4 text-primary" />,
     });
 
-    // If currently on an authenticated dashboard or login, navigate to the role's home view
     if (
       pathname.startsWith("/account") ||
       pathname.startsWith("/seller") ||
       pathname.startsWith("/admin") ||
+      pathname.startsWith("/dashboard") ||
       pathname === "/login" ||
       pathname === "/register"
     ) {
@@ -69,20 +71,6 @@ export function RoleSwitcher({ variant = "navbar", className = "" }: RoleSwitche
     }
   };
 
-  const getBadgeColor = (role: AppRole) => {
-    switch (role) {
-      case "admin":
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
-      case "seller":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
-      case "yard_manager":
-        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-      case "buyer":
-      default:
-        return "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
-    }
-  };
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -99,20 +87,23 @@ export function RoleSwitcher({ variant = "navbar", className = "" }: RoleSwitche
           <ChevronDown className="h-3 w-3 text-muted-foreground opacity-70" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 p-1.5">
+      <DropdownMenuContent align="end" className="w-72 p-2">
         <DropdownMenuLabel className="px-2 py-1.5 text-xs">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-foreground">Switch Account Perspective</span>
-            <Badge variant="outline" className="text-[10px] uppercase font-mono">
-              Unified Role
+            <span className="font-semibold text-foreground">Switch Account Mode</span>
+            <Badge variant="outline" className="text-[10px] uppercase font-mono bg-primary/10 text-primary border-primary/30">
+              Consolidated
             </Badge>
           </div>
           <p className="mt-1 text-[11px] font-normal text-muted-foreground">
-            Test and view the application from any account role without re-logging in.
+            Switch perspectives or simulate real test scenarios in 1 click.
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
+        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Platform Perspectives
+        </div>
         {availableRoles.map((r) => {
           const isSelected = r.role === activeRole;
           return (
@@ -140,13 +131,40 @@ export function RoleSwitcher({ variant = "navbar", className = "" }: RoleSwitche
         })}
 
         <DropdownMenuSeparator />
-        <div className="px-2 py-1 flex items-center justify-between text-[10px] text-muted-foreground">
-          <span>Connected: {user?.email || "Guest Preview"}</span>
+
+        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+          <span>1-Click Test Personas</span>
+          <Sparkles className="h-3 w-3 text-primary" />
+        </div>
+        <div className="grid grid-cols-2 gap-1 p-1">
+          {DEMO_PERSONAS.map((dp) => (
+            <button
+              key={dp.id}
+              onClick={() => {
+                setActiveRole(dp.role);
+                toast.success(`Switched to ${dp.name}`, { description: dp.scenario });
+                void navigate({ to: "/dashboard" as never });
+              }}
+              className="flex flex-col items-start rounded-lg border border-border/70 bg-card p-1.5 text-left hover:border-primary/50 hover:bg-muted/40 transition"
+            >
+              <span className="text-[11px] font-medium text-foreground truncate w-full">
+                {dp.avatarText} · {dp.name.split(" (")[0]}
+              </span>
+              <span className="text-[9px] text-muted-foreground truncate w-full">{dp.badge}</span>
+            </button>
+          ))}
+        </div>
+
+        <DropdownMenuSeparator />
+        <div className="px-2 py-1.5 flex items-center justify-between text-[11px] bg-muted/40 rounded-md">
+          <span className="text-muted-foreground truncate text-[10px]">
+            {user?.email || "Guest"}
+          </span>
           <button
-            onClick={() => void navigate({ to: roleHomePath(activeRole) as never })}
-            className="text-primary hover:underline font-medium"
+            onClick={() => void navigate({ to: "/dashboard" as never })}
+            className="text-primary hover:underline font-semibold flex items-center gap-1 text-[11px]"
           >
-            Go to {currentRoleInfo.shortLabel} Dashboard →
+            <Layers className="h-3 w-3" /> All-in-One Portal →
           </button>
         </div>
       </DropdownMenuContent>

@@ -21,6 +21,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { EscrowMilestoneTracker } from "@/components/payments/EscrowMilestoneTracker";
 
 export const Route = createFileRoute("/_authenticated/transactions/$id")({
   component: TransactionDetail,
@@ -115,6 +116,21 @@ function TransactionDetail() {
       <Link to="/account" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ChevronLeft className="h-4 w-4" /> Back to account
       </Link>
+
+      <EscrowMilestoneTracker
+        currentStatus={
+          tx.status === "completed" || tx.status === "funds_released"
+            ? "funds_released"
+            : tx.handover_ready_at
+            ? "handover_completed"
+            : tx.status === "payment_received"
+            ? "full_payment_held"
+            : "deposit_paid"
+        }
+        carTitle={tx.cars?.title}
+        totalAmount={fmt(Number(tx.display_total), tx.display_currency)}
+        currency={tx.display_currency}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         <div className="space-y-6">

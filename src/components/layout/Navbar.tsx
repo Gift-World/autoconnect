@@ -118,6 +118,11 @@ export function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link to="/dashboard">
+                      <Globe className="mr-2 h-4 w-4 text-primary" /> Consolidated Portal
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link to={roleHomePath(activeRole) as never}>
                       <UserIcon className="mr-2 h-4 w-4 text-primary" /> Active Dashboard
                     </Link>

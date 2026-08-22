@@ -7,4 +7,12 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  react: {
+    jsxRuntime: "automatic",
+  },
+  vite: {
+    esbuild: {
+      jsxDev: false,
+    },
+  },
 });

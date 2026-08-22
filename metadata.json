@@ -1,0 +1,6 @@
+{
+  "name": "AutoConnect",
+  "description": "Global car marketplace connecting verified buyers and sellers worldwide with direct Supabase integration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

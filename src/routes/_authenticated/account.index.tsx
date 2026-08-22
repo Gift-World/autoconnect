@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { COUNTRIES } from "@/lib/countries";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 
 export const Route = createFileRoute("/_authenticated/account/")({
   component: ProfilePage,
@@ -100,14 +101,15 @@ function ProfilePage() {
 
   return (
     <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
-      <div className="mb-5 flex items-center justify-between">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold">Profile</h2>
+          <h2 className="text-lg font-semibold">Profile & Permissions</h2>
           <p className="text-xs text-muted-foreground">{user?.email}</p>
         </div>
-        <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium capitalize text-secondary-foreground">
-          {profile?.role ?? "buyer"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground hidden sm:inline">Active Mode:</span>
+          <RoleSwitcher />
+        </div>
       </div>
       <Form {...form}>
         <form

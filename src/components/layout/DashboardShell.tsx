@@ -1,5 +1,6 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 
 export type DashboardNavItem = {
   to: string;
@@ -34,12 +35,17 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
         <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-6rem)] lg:w-[260px] lg:shrink-0">
           <div className="rounded-2xl border border-border/70 bg-card/80 p-3 shadow-sm backdrop-blur lg:p-4">
             <div className="mb-3 hidden px-2 lg:block">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                {area}
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                  {area}
+                </div>
               </div>
               {areaSubtitle && (
                 <p className="mt-0.5 text-[11px] text-muted-foreground/80">{areaSubtitle}</p>
               )}
+              <div className="mt-2.5 pt-2 border-t border-border/60">
+                <RoleSwitcher className="w-full justify-between" />
+              </div>
             </div>
 
             {/* Mobile: horizontal scroll */}

@@ -7,6 +7,8 @@ import {
   ShieldCheck,
   Heart,
   Car,
+  Store,
+  Compass,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,16 +24,17 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth, roleHomePath } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
+import { RoleSwitcher } from "@/components/RoleSwitcher";
 
 const navLinks = [
   { to: "/cars", label: "Browse Cars" },
   { to: "/yards", label: "Car Yards" },
   { to: "/import", label: "Import a Car" },
-  { to: "/import", label: "How It Works" },
+  { to: "/how-payments-work", label: "How Payments Work" },
 ] as const;
 
 export function Navbar() {
-  const { user, profile, signOut, loading } = useAuth();
+  const { user, profile, signOut, loading, activeRole, setActiveRole } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -66,7 +69,7 @@ export function Navbar() {
             <Globe className="h-4 w-4 opacity-70" />
             <Car className="absolute h-3.5 w-3.5 translate-y-[1px]" />
           </span>
-          <span className="font-display text-lg text-foreground">
+          <span className="font-display text-lg text-foreground font-semibold tracking-tight">
             AutoConnect
           </span>
         </Link>
@@ -77,62 +80,83 @@ export function Navbar() {
               key={l.label}
               to={l.to as never}
               className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              activeProps={{ className: "text-foreground" }}
+              activeProps={{ className: "text-foreground font-semibold" }}
             >
               {l.label}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {/* Universal Role Perspective Switcher */}
+          <RoleSwitcher />
+
           {loading ? (
             <div className="h-9 w-20 animate-pulse rounded-md bg-muted" />
           ) : user ? (
             <>
               <NotificationBell />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 px-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-primary text-xs text-primary-foreground">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="hidden text-sm font-medium sm:inline">
-                    {profile?.full_name || user.email}
-                  </span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="flex flex-col">
-                  <span className="text-sm">{profile?.full_name || user.email}</span>
-                  <span className="text-xs font-normal capitalize text-muted-foreground">
-                    {profile?.role ?? "buyer"}
-                  </span>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to={roleHomePath(profile?.role) as never}>
-                    <UserIcon className="mr-2 h-4 w-4" /> Dashboard
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/account/favorites">
-                    <Heart className="mr-2 h-4 w-4" /> Favorites
-                  </Link>
-                </DropdownMenuItem>
-                {profile?.role === "admin" && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="gap-2 px-2 h-9 rounded-full">
+                    <Avatar className="h-7 w-7">
+                      <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden text-sm font-medium sm:inline">
+                      {profile?.full_name || user.email}
+                    </span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-60">
+                  <DropdownMenuLabel className="flex flex-col">
+                    <span className="text-sm font-medium truncate">{profile?.full_name || user.email}</span>
+                    <span className="text-[11px] font-normal capitalize text-muted-foreground">
+                      Active: {activeRole.replace("_", " ")}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/admin">
-                      <ShieldCheck className="mr-2 h-4 w-4" /> Admin
+                    <Link to={roleHomePath(activeRole) as never}>
+                      <UserIcon className="mr-2 h-4 w-4 text-primary" /> Active Dashboard
                     </Link>
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onSelect={() => void signOut()}>
-                  <LogOut className="mr-2 h-4 w-4" /> Sign out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <DropdownMenuItem asChild>
+                    <Link to="/account/favorites">
+                      <Heart className="mr-2 h-4 w-4 text-rose-500" /> Favorites
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-[10px] uppercase font-semibold text-muted-foreground">
+                    Quick Navigation
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link to="/account">
+                      <Compass className="mr-2 h-4 w-4 text-purple-500" /> Buyer Account
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/seller">
+                      <Car className="mr-2 h-4 w-4 text-blue-500" /> Seller Portal
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/seller/yard">
+                      <Store className="mr-2 h-4 w-4 text-emerald-500" /> Car Yard Admin
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/admin">
+                      <ShieldCheck className="mr-2 h-4 w-4 text-amber-500" /> Super Admin
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => void signOut()} className="text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
@@ -156,34 +180,40 @@ export function Navbar() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
-              <div className="mt-8 flex flex-col gap-1">
+              <div className="mt-6 flex flex-col gap-1">
+                <div className="mb-4 pb-3 border-b">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block mb-2">
+                    Current Perspective
+                  </span>
+                  <RoleSwitcher className="w-full justify-between" />
+                </div>
                 {navLinks.map((l) => (
                   <Link
                     key={l.label}
                     to={l.to as never}
                     onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-3 text-base font-medium text-foreground hover:bg-muted"
+                    className="rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
                   >
                     {l.label}
                   </Link>
                 ))}
                 {!user && (
-                  <>
+                  <div className="mt-4 flex flex-col gap-2">
                     <Link
                       to="/login"
                       onClick={() => setMobileOpen(false)}
-                      className="mt-4 rounded-md border border-input px-3 py-3 text-center text-base font-medium"
+                      className="rounded-md border border-input px-3 py-2.5 text-center text-base font-medium"
                     >
                       Login
                     </Link>
                     <Link
                       to="/register"
                       onClick={() => setMobileOpen(false)}
-                      className="rounded-md bg-primary px-3 py-3 text-center text-base font-medium text-primary-foreground"
+                      className="rounded-md bg-primary px-3 py-2.5 text-center text-base font-medium text-primary-foreground"
                     >
                       Register
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </SheetContent>

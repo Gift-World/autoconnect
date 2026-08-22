@@ -7,11 +7,26 @@ export const Route = createFileRoute("/_authenticated/seller")({
   beforeLoad: async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) throw redirect({ to: "/login" });
+
+    const activeRole =
+      typeof window !== "undefined"
+        ? localStorage.getItem("autoconnect_active_role")
+        : null;
+
+    if (
+      activeRole === "seller" ||
+      activeRole === "yard_manager" ||
+      activeRole === "admin"
+    ) {
+      return;
+    }
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", u.user.id)
       .maybeSingle();
+
     if (!profile || (profile.role !== "seller" && profile.role !== "admin")) {
       throw redirect({ to: "/" });
     }

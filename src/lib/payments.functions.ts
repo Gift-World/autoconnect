@@ -27,7 +27,7 @@ async function notify(userId: string, type: string, title: string, body: string,
 /* ================================================================== */
 
 export const createPaymentIntent = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({
       accessToken: z.string(),
       carId: z.string().uuid(),
@@ -135,7 +135,7 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const createSellerConnectAccount = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ accessToken: z.string(), origin: z.string().url() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -178,7 +178,7 @@ export const createSellerConnectAccount = createServerFn({ method: "POST" })
   });
 
 export const refreshSellerStripeStatus = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ accessToken: z.string() }).parse(input))
+  .validator((input: unknown) => z.object({ accessToken: z.string() }).parse(input))
   .handler(async ({ data }) => {
     const { user } = await requireUser(data.accessToken);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -213,7 +213,7 @@ export const refreshSellerStripeStatus = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const releaseFunds = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ accessToken: z.string(), transactionId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -298,7 +298,7 @@ export const releaseFunds = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const refundPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         accessToken: z.string(),
@@ -358,7 +358,7 @@ export const refundPayment = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const confirmReceipt = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ accessToken: z.string(), transactionId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data }) => {
@@ -384,7 +384,7 @@ export const confirmReceipt = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const raiseDispute = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         accessToken: z.string(),
@@ -428,7 +428,7 @@ export const raiseDispute = createServerFn({ method: "POST" })
 /* ================================================================== */
 
 export const createManualReservation = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         accessToken: z.string(),
@@ -524,7 +524,7 @@ export const createManualReservation = createServerFn({ method: "POST" })
 
 /* Admin confirms a manual payment was actually received */
 export const confirmManualPayment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         accessToken: z.string(),
@@ -586,7 +586,7 @@ export const confirmManualPayment = createServerFn({ method: "POST" })
 
 /* Seller marks the car ready for handover */
 export const markHandoverReady = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         accessToken: z.string(),

@@ -29,7 +29,7 @@ const SmartSearchSchema = z.object({
 });
 
 export const aiSmartSearch = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => z.object({ query: z.string().min(2).max(400) }).parse(input))
+  .validator((input: unknown) => z.object({ query: z.string().min(2).max(400) }).parse(input))
   .handler(async ({ data }) => {
     const { output } = await generateText({
       model: gateway()(MODEL),
@@ -52,7 +52,7 @@ const QualitySchema = z.object({
 });
 
 export const aiListingQuality = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         title: z.string(),
@@ -91,7 +91,7 @@ const ExplainSchema = z.object({
 });
 
 export const aiExplainVerification = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         verificationLevel: z.number().int().min(0).max(4),
@@ -126,7 +126,7 @@ const DocGuidanceSchema = z.object({
 });
 
 export const aiDocGuidance = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         car_title: z.string(),
@@ -154,7 +154,7 @@ export const aiDocGuidance = createServerFn({ method: "POST" })
 /* ------------------------------------------------------------------ */
 
 export const aiGenerateDescription = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         make: z.string().min(1),
@@ -196,7 +196,7 @@ const FraudSchema = z.object({
 });
 
 export const aiFraudCheck = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         title: z.string(),

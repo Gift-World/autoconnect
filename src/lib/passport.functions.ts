@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
  * no document URLs, ID/chassis numbers, admin notes, fraud notes or personal data.
  */
 export const getVehiclePassport = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => {
+  .validator((input: unknown) => {
     const carId = (input as { carId?: string } | undefined)?.carId;
     if (!carId || typeof carId !== "string") throw new Error("carId is required");
     return { carId };

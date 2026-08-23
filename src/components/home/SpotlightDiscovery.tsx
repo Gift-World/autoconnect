@@ -142,7 +142,7 @@ export function SpotlightDiscovery() {
                 <div className="mt-6 flex flex-wrap gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Verified Logbook & NTSA
+                    Verified Logbook & Title
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300">
                     <Lock className="h-3.5 w-3.5" />

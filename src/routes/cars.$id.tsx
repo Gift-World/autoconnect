@@ -54,9 +54,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { COUNTRIES, countryByCode } from "@/lib/countries";
+import { DEMO_CARS } from "@/lib/demo-inventory";
 import { useAuth } from "@/contexts/AuthContext";
 import { CheckoutModal } from "@/components/payments/CheckoutModal";
 import { calculateBreakdown, fromUsdCents, SERVICE_FEE_PERCENT } from "@/lib/stripe-config";
+import { VehiclePlaceholder } from "@/components/VehicleImage";
 
 type CarDetail = {
   id: string;
@@ -145,9 +147,18 @@ async function fetchCar(id: string): Promise<CarDetail> {
     .eq("id", id)
     .eq("status", "approved")
     .maybeSingle();
-  if (error) throw error;
-  if (!data) throw notFound();
-  return data as unknown as CarDetail;
+
+  if (data) {
+    return data as unknown as CarDetail;
+  }
+
+  const demo = DEMO_CARS.find((c) => c.id === id);
+  if (demo) {
+    return demo as unknown as CarDetail;
+  }
+
+  if (error) console.error("Error fetching car:", error);
+  throw notFound();
 }
 
 export const Route = createFileRoute("/cars/$id")({
@@ -680,7 +691,7 @@ function Gallery({
     setIdx((i) => (i + dir + images.length) % images.length);
   return (
     <div>
-      <div className="overflow-hidden rounded-xl border border-border bg-muted">
+      <div className="overflow-hidden rounded-xl border border-border bg-slate-900">
         <div className="relative aspect-[16/10]">
           {current ? (
             <img
@@ -689,9 +700,7 @@ function Gallery({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-              No photos available
-            </div>
+            <VehiclePlaceholder title={title} className="h-full w-full" />
           )}
           {images.length > 1 && current && (
             <>

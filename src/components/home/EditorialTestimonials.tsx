@@ -13,7 +13,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "Sold my Mercedes E300 in just 11 days. The buyer paid into escrow, came to view the car at our Karen residence, we did the logbook transfer via NTSA TIMS, and the funds hit my bank account the second he entered his handover code.",
+      "Sold my Mercedes E300 in just 11 days. The buyer paid into escrow, came to view the car at our Karen residence, we completed the official title handover, and the funds hit my bank account the moment he entered his handover release PIN.",
     author: "Fatima Al-Mansoor",
     location: "Mombasa & Dubai",
     vehicle: "2021 Mercedes-Benz E300 AMG Line",

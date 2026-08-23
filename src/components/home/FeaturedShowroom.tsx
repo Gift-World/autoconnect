@@ -17,6 +17,7 @@ import { countryByCode } from "@/lib/countries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { VehicleImage } from "@/components/VehicleImage";
 
 export function FeaturedShowroom() {
   const [filterType, setFilterType] = useState<string>("all");
@@ -115,7 +116,7 @@ export function FeaturedShowroom() {
               const primaryImg =
                 imgList.find((i: any) => i.is_primary)?.image_url ||
                 imgList[0]?.image_url ||
-                "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1000&auto=format&fit=crop&q=80";
+                null;
 
               return (
                 <Link
@@ -126,10 +127,13 @@ export function FeaturedShowroom() {
                 >
                   {/* Large Cinematic Image Container */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-900">
-                    <img
+                    <VehicleImage
                       src={primaryImg}
                       alt={car.title}
-                      loading="lazy"
+                      make={car.make_name}
+                      model={car.model_name}
+                      year={car.year}
+                      bodyType={car.body_type}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
 

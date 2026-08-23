@@ -49,13 +49,13 @@ export function DealershipShowroom() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-              <Store className="h-3.5 w-3.5" /> Accredited Dealer Network
+              <Store className="h-3.5 w-3.5" /> Certified Digital Showrooms
             </div>
             <h2 className="font-display mt-2 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Explore trusted dealerships.
+              Tour premier dealer showrooms.
             </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-              Meet verified dealers and explore their complete verified inventory with physical diagnostics bays, on-site viewing, and escrow guarantees.
+              Explore verified dealer car yards with live physical inventory, certified diagnostics bays, on-site viewing, and bank-grade escrow protection.
             </p>
           </div>
 
@@ -65,7 +65,7 @@ export function DealershipShowroom() {
             className="rounded-2xl border-border hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 self-start md:self-auto"
           >
             <Link to="/yards">
-              View All Dealerships <ArrowRight className="ml-2 h-4 w-4" />
+              Browse All Showrooms <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

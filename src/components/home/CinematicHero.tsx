@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Search,
@@ -7,14 +7,12 @@ import {
   ShieldCheck,
   Globe,
   Lock,
-  ChevronDown,
   MapPin,
   Car,
   Plane,
   ArrowUpRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -22,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { COUNTRIES } from "@/lib/countries";
 
 type HeroTab = "buy" | "import" | "sell";
 
@@ -36,8 +33,20 @@ const POPULAR_AI_PROMPTS = [
 export function CinematicHero() {
   const [activeTab, setActiveTab] = useState<HeroTab>("buy");
   const [aiQuery, setAiQuery] = useState("");
-  const [isAiFocused, setIsAiFocused] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const navigate = useNavigate();
+
+  // Subtle parallax tracker on desktop
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { innerWidth, innerHeight } = window;
+      const x = (e.clientX / innerWidth - 0.5) * 16;
+      const y = (e.clientY / innerHeight - 0.5) * 12;
+      setMousePos({ x, y });
+    };
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
 
   // Buy filters
   const [location, setLocation] = useState("Nairobi, KE");
@@ -50,9 +59,9 @@ export function CinematicHero() {
     navigate({
       to: "/cars",
       search: {
-        ...(make ? { make } : {}),
-        ...(bodyType ? { body: bodyType } : {}),
-        ...(budget ? { max_price: Number(budget) } : {}),
+        ...(make && make !== "all" ? { make } : {}),
+        ...(bodyType && bodyType !== "all" ? { body: bodyType } : {}),
+        ...(budget && budget !== "all" ? { max_price: Number(budget) } : {}),
       } as never,
     });
   };
@@ -66,35 +75,54 @@ export function CinematicHero() {
   };
 
   return (
-    <section className="relative min-h-[92vh] overflow-hidden bg-[#070b14] text-white flex flex-col justify-between">
-      {/* Cinematic Background with multi-stop rich dark overlay & lighting effects */}
-      <div className="absolute inset-0 select-none pointer-events-none">
-        <img
-          src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=2400&auto=format&fit=crop&q=85"
-          alt="Luxury performance vehicle on highway at twilight"
-          className="h-full w-full object-cover object-center scale-105 animate-[pulse_10s_ease-in-out_infinite] opacity-60 brightness-[0.75] contrast-[1.1]"
+    <section className="relative min-h-[94vh] overflow-hidden bg-[#050811] text-white flex flex-col justify-between">
+      {/* Cinematic Background with dynamic depth and automotive light streaks */}
+      <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
+        {/* Parallax Moving Hero Car Image Layer */}
+        <div
+          className="absolute inset-0 transition-transform duration-700 ease-out scale-105"
+          style={{
+            transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(1.04)`,
+          }}
+        >
+          <img
+            src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=2400&auto=format&fit=crop&q=85"
+            alt="Luxury performance vehicle gliding on twilight highway"
+            className="h-full w-full object-cover object-center opacity-65 brightness-[0.72] contrast-[1.15]"
+          />
+        </div>
+
+        {/* Multi-layered cinematic darkness & atmospheric gradients */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#050811] via-[#050811]/85 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050811] via-[#050811]/40 to-[#050811]/90" />
+
+        {/* Dynamic Headlight beam & road reflection glow effects */}
+        <div
+          className="absolute top-1/3 left-1/3 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-400/12 blur-[120px] pointer-events-none transition-transform duration-500"
+          style={{
+            transform: `translate3d(${mousePos.x * -1.2}px, ${mousePos.y * -1.2}px, 0)`,
+          }}
         />
+        <div className="absolute bottom-1/4 right-1/4 h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[140px] pointer-events-none" />
 
-        {/* Cinematic multi-stop gradient overlays for Apple-level contrast and atmosphere */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#070b14]/95 via-[#070b14]/80 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-[#070b14]/40 to-[#070b14]/80" />
-
-        {/* Ambient atmospheric teal and deep navy glow */}
-        <div className="absolute top-1/4 left-1/4 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-teal-500/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 h-[450px] w-[450px] rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
+        {/* Subtle horizon road sheen reflection line */}
+        <div className="absolute bottom-20 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
       </div>
 
       {/* Main Hero Content */}
-      <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pt-16 pb-12 sm:px-6 lg:pt-24 lg:pb-16 flex-1 flex flex-col justify-center">
+      <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pt-14 pb-10 sm:px-6 lg:pt-20 lg:pb-14 flex-1 flex flex-col justify-center">
         <div className="max-w-3xl">
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-950/40 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-300 backdrop-blur-md shadow-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-teal-400 animate-ping" />
-            The New Way to Buy Cars
+          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-950/50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-teal-300 backdrop-blur-xl shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400" />
+            </span>
+            The Future of Car Buying
           </div>
 
           {/* Large confident headline */}
-          <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl leading-[1.05]">
+          <h1 className="mt-6 font-display text-4xl sm:text-6xl lg:text-[72px] font-extrabold tracking-tight leading-[1.05] text-white">
             Find the car.
             <br />
             Know the story.
@@ -105,8 +133,8 @@ export function CinematicHero() {
           </h1>
 
           {/* Supporting copy */}
-          <p className="mt-6 max-w-2xl text-base sm:text-xl font-normal leading-relaxed text-slate-300">
-            Verified vehicles, trusted sellers and secure escrow payments — all in one seamless global automotive marketplace.
+          <p className="mt-6 max-w-2xl text-base sm:text-lg font-normal leading-relaxed text-slate-300">
+            Verified vehicles, trusted sellers, secure payments and intelligent search — all in one automotive marketplace.
           </p>
 
           {/* Primary & Secondary CTAs */}
@@ -126,7 +154,7 @@ export function CinematicHero() {
               asChild
               size="lg"
               variant="outline"
-              className="h-13 rounded-2xl border-white/20 bg-white/5 px-7 text-base font-semibold text-white backdrop-blur-md transition-all duration-200 hover:bg-white/15 hover:border-white/40"
+              className="h-13 rounded-2xl border-white/20 bg-white/5 px-7 text-base font-semibold text-white backdrop-blur-md transition-all duration-200 hover:bg-white/15 hover:border-white/40 hover:-translate-y-0.5"
             >
               <Link to="/import">
                 <Plane className="mr-2 h-4 w-4 text-teal-300" />
@@ -136,8 +164,8 @@ export function CinematicHero() {
           </div>
         </div>
 
-        {/* Integrated Floating Search & AI Experience */}
-        <div className="mt-12 w-full max-w-5xl">
+        {/* Integrated Floating Search & Concierge Experience */}
+        <div className="mt-10 w-full max-w-5xl">
           {/* Tab selector */}
           <div className="flex items-center gap-1.5 pl-1">
             {[
@@ -149,7 +177,7 @@ export function CinematicHero() {
                 key={t.id}
                 type="button"
                 onClick={() => setActiveTab(t.id)}
-                className={`flex items-center gap-2 rounded-t-2xl px-5 py-3 text-xs sm:text-sm font-semibold transition-all duration-200 ${
+                className={`flex items-center gap-2 rounded-t-2xl px-5 py-3 text-xs sm:text-sm font-bold transition-all duration-200 ${
                   activeTab === t.id
                     ? "bg-slate-900/90 text-teal-400 border-t border-x border-teal-500/30 shadow-xl backdrop-blur-xl"
                     : "bg-slate-950/40 text-slate-400 hover:text-white hover:bg-slate-900/50 backdrop-blur-md"
@@ -162,12 +190,12 @@ export function CinematicHero() {
           </div>
 
           {/* Search container */}
-          <div className="rounded-2xl rounded-tl-none border border-white/15 bg-slate-900/85 p-3 sm:p-5 shadow-2xl backdrop-blur-xl">
+          <div className="rounded-3xl rounded-tl-none border border-white/15 bg-slate-900/90 p-4 sm:p-5 shadow-2xl backdrop-blur-2xl">
             {activeTab === "buy" && (
-              <form onSubmit={handleSearch} className="space-y-3">
+              <form onSubmit={handleSearch} className="space-y-3.5">
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-5">
                   {/* Location field */}
-                  <div className="relative rounded-xl border border-white/10 bg-slate-950/60 p-2 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
+                  <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 p-2.5 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Location
                     </label>
@@ -184,7 +212,7 @@ export function CinematicHero() {
                   </div>
 
                   {/* Make/Model selector */}
-                  <div className="relative rounded-xl border border-white/10 bg-slate-950/60 p-2 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
+                  <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 p-2.5 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Make / Model
                     </label>
@@ -192,7 +220,7 @@ export function CinematicHero() {
                       <SelectTrigger className="h-6 border-0 bg-transparent p-0 text-sm font-medium text-white shadow-none focus:ring-0">
                         <SelectValue placeholder="All Makes" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-white/10 text-white">
+                      <SelectContent className="bg-slate-900 border-white/10 text-white rounded-2xl">
                         <SelectItem value="all">All Makes</SelectItem>
                         {["Toyota", "Land Cruiser", "Prado", "Harrier", "Mercedes-Benz", "BMW", "Nissan", "Subaru", "Porsche", "Audi", "Lexus", "Ford"].map(
                           (m) => (
@@ -206,7 +234,7 @@ export function CinematicHero() {
                   </div>
 
                   {/* Body Type */}
-                  <div className="relative rounded-xl border border-white/10 bg-slate-950/60 p-2 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
+                  <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 p-2.5 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Body Type
                     </label>
@@ -214,7 +242,7 @@ export function CinematicHero() {
                       <SelectTrigger className="h-6 border-0 bg-transparent p-0 text-sm font-medium text-white shadow-none focus:ring-0">
                         <SelectValue placeholder="All Types" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-white/10 text-white">
+                      <SelectContent className="bg-slate-900 border-white/10 text-white rounded-2xl">
                         <SelectItem value="all">All Body Types</SelectItem>
                         {[
                           { id: "suv", label: "SUV / 4x4" },
@@ -233,7 +261,7 @@ export function CinematicHero() {
                   </div>
 
                   {/* Price budget */}
-                  <div className="relative rounded-xl border border-white/10 bg-slate-950/60 p-2 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
+                  <div className="relative rounded-2xl border border-white/10 bg-slate-950/70 p-2.5 transition-colors hover:border-teal-500/40 focus-within:border-teal-400">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Max Price
                     </label>
@@ -241,7 +269,7 @@ export function CinematicHero() {
                       <SelectTrigger className="h-6 border-0 bg-transparent p-0 text-sm font-medium text-white shadow-none focus:ring-0">
                         <SelectValue placeholder="Any Budget" />
                       </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-white/10 text-white">
+                      <SelectContent className="bg-slate-900 border-white/10 text-white rounded-2xl">
                         <SelectItem value="all">Any Budget</SelectItem>
                         <SelectItem value="1500000">Under KSh 1.5M</SelectItem>
                         <SelectItem value="3000000">Under KSh 3.0M</SelectItem>
@@ -256,7 +284,7 @@ export function CinematicHero() {
                   {/* Search Button */}
                   <Button
                     type="submit"
-                    className="h-full min-h-[52px] rounded-xl bg-teal-500 font-bold text-slate-950 shadow-md transition-all duration-200 hover:bg-teal-400 hover:shadow-teal-500/25"
+                    className="h-full min-h-[52px] rounded-2xl bg-teal-500 font-bold text-slate-950 shadow-md transition-all duration-200 hover:bg-teal-400 hover:shadow-teal-500/25"
                   >
                     <Search className="mr-2 h-4 w-4" />
                     Search Cars
@@ -264,24 +292,24 @@ export function CinematicHero() {
                 </div>
 
                 {/* Natural-Language AI Search Prompt Bar */}
-                <div className="relative mt-3 rounded-xl border border-teal-500/25 bg-teal-950/20 p-2.5 sm:p-3">
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-teal-300 shrink-0">
-                      <Sparkles className="h-3.5 w-3.5 text-teal-400 animate-pulse" />
-                      <span>Natural AI Search:</span>
+                <div className="relative rounded-2xl border border-teal-500/30 bg-teal-950/25 p-3">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                    <div className="flex items-center gap-2 text-xs font-bold text-teal-300 shrink-0">
+                      <Sparkles className="h-4 w-4 text-teal-400 animate-pulse" />
+                      <span>AI Concierge:</span>
                     </div>
                     <input
                       type="text"
                       value={aiQuery}
                       onChange={(e) => setAiQuery(e.target.value)}
-                      placeholder="Describe the car you're looking for (e.g., 'Black Toyota Prado 2021+ under KSh 7M')"
+                      placeholder="Describe the car you're looking for (e.g., 'Black Toyota Prado, 2021+, under KSh 7M')"
                       className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none"
                     />
                     <Button
                       type="button"
                       size="sm"
                       onClick={() => handleAiSearch(aiQuery || POPULAR_AI_PROMPTS[0])}
-                      className="h-8 rounded-lg bg-teal-500/20 border border-teal-400/40 text-teal-300 hover:bg-teal-500 hover:text-slate-950 text-xs font-semibold transition"
+                      className="h-8.5 rounded-xl bg-teal-500/20 border border-teal-400/50 text-teal-300 hover:bg-teal-500 hover:text-slate-950 text-xs font-bold transition shadow-sm"
                     >
                       AI Match
                     </Button>
@@ -289,7 +317,7 @@ export function CinematicHero() {
 
                   {/* Quick prompt suggestions */}
                   <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-                    <span className="text-slate-500">Try:</span>
+                    <span className="text-slate-500 font-medium">Examples:</span>
                     {POPULAR_AI_PROMPTS.map((prompt) => (
                       <button
                         key={prompt}
@@ -306,36 +334,36 @@ export function CinematicHero() {
             )}
 
             {activeTab === "import" && (
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-2">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-2.5">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Destination Country
+                      Destination Port
                     </label>
                     <p className="mt-0.5 text-sm font-semibold text-white">🇰🇪 Kenya (Mombasa Port)</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-2">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-2.5">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                      Source Country
+                      Source Markets
                     </label>
                     <p className="mt-0.5 text-sm font-semibold text-white">🇯🇵 Japan / 🇬🇧 UK / 🇦🇪 UAE</p>
                   </div>
-                  <div className="rounded-xl border border-white/10 bg-slate-950/60 p-2">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/70 p-2.5">
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       Target Vehicle
                     </label>
-                    <p className="mt-0.5 text-sm font-semibold text-slate-300">e.g. Land Cruiser, Harrier</p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-300">Land Cruiser, Harrier, Defender</p>
                   </div>
                   <Button
                     asChild
-                    className="h-full min-h-[52px] rounded-xl bg-teal-500 font-bold text-slate-950 hover:bg-teal-400"
+                    className="h-full min-h-[52px] rounded-2xl bg-teal-500 font-bold text-slate-950 hover:bg-teal-400 shadow-md"
                   >
                     <Link to="/import">
                       Start Import Quote <ArrowRight className="ml-1.5 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-400 font-medium">
                   Direct corridor sourcing with full Japanese export inspection & duty calculations.
                 </p>
               </div>
@@ -344,14 +372,14 @@ export function CinematicHero() {
             {activeTab === "sell" && (
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-2">
                 <div className="space-y-1">
-                  <h4 className="text-sm font-bold text-white">List your vehicle to 50,000+ verified buyers</h4>
+                  <h4 className="text-sm font-bold text-white">List your vehicle to verified buyers</h4>
                   <p className="text-xs text-slate-400">
                     Get an instant AI valuation, verified seller protection, and guaranteed escrow payout.
                   </p>
                 </div>
                 <Button
                   asChild
-                  className="rounded-xl bg-teal-500 px-6 font-bold text-slate-950 hover:bg-teal-400 shrink-0"
+                  className="rounded-2xl bg-teal-500 px-6 font-bold text-slate-950 hover:bg-teal-400 shrink-0 shadow-md"
                 >
                   <Link to="/seller">
                     Start Free Listing <ArrowRight className="ml-2 h-4 w-4" />
@@ -363,8 +391,8 @@ export function CinematicHero() {
         </div>
       </div>
 
-      {/* Architectural Trust Strip (Seamless, refined, non-boxy) */}
-      <div className="relative z-10 border-t border-white/10 bg-slate-950/80 backdrop-blur-xl">
+      {/* Editorial Trust Metrics Strip (Integrated, seamless, non-dashboard) */}
+      <div className="relative z-10 border-t border-white/10 bg-slate-950/80 backdrop-blur-2xl">
         <div className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6">
           <div className="grid grid-cols-2 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-white/10 sm:grid-cols-4">
             <div className="flex items-center gap-3.5 pt-2 sm:pt-0 sm:pr-4">
@@ -372,8 +400,8 @@ export function CinematicHero() {
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-xl font-bold tracking-tight text-white">5,000+</p>
-                <p className="text-xs font-medium text-slate-400">Verified Listings</p>
+                <p className="font-display text-2xl font-extrabold tracking-tight text-white">5,000+</p>
+                <p className="text-xs font-semibold text-slate-400">Verified Listings</p>
               </div>
             </div>
 
@@ -382,8 +410,8 @@ export function CinematicHero() {
                 <Globe className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-xl font-bold tracking-tight text-white">124</p>
-                <p className="text-xs font-medium text-slate-400">Global Markets Active</p>
+                <p className="font-display text-2xl font-extrabold tracking-tight text-white">124</p>
+                <p className="text-xs font-semibold text-slate-400">Countries</p>
               </div>
             </div>
 
@@ -392,8 +420,8 @@ export function CinematicHero() {
                 <Lock className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-xl font-bold tracking-tight text-white">1,892+</p>
-                <p className="text-xs font-medium text-slate-400">Escrow Transactions</p>
+                <p className="font-display text-2xl font-extrabold tracking-tight text-white">1,892+</p>
+                <p className="text-xs font-semibold text-slate-400">Successful Sales</p>
               </div>
             </div>
 
@@ -402,8 +430,8 @@ export function CinematicHero() {
                 <Sparkles className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-xl font-bold tracking-tight text-white">9.7 / 10</p>
-                <p className="text-xs font-medium text-slate-400">Buyer Trust Rating</p>
+                <p className="font-display text-2xl font-extrabold tracking-tight text-white">9.7 / 10</p>
+                <p className="text-xs font-semibold text-slate-400">Buyer Rating</p>
               </div>
             </div>
           </div>

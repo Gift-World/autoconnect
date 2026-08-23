@@ -151,33 +151,33 @@ export function AIMatchExperience() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-slate-950 py-20 lg:py-28 text-white">
-      {/* Subtle ambient lighting */}
-      <div className="pointer-events-none absolute top-0 left-1/3 h-[500px] w-[500px] rounded-full bg-teal-500/10 blur-[120px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-cyan-500/10 blur-[100px]" />
+    <section className="relative overflow-hidden bg-[#070b14] py-20 lg:py-28 text-white">
+      {/* Refined ambient automotive lighting */}
+      <div className="pointer-events-none absolute top-0 left-1/3 h-[500px] w-[500px] rounded-full bg-teal-500/10 blur-[130px]" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-cyan-500/10 blur-[110px]" />
 
       <div className="relative mx-auto max-w-[1280px] px-4 sm:px-6">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-950/40 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-300 backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-teal-400 animate-pulse" />
-            Automotive AI Match
+          <div className="inline-flex items-center gap-2 rounded-full border border-teal-500/30 bg-teal-950/40 px-3.5 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-teal-300 backdrop-blur-md">
+            <Bot className="h-3.5 w-3.5 text-teal-400" />
+            Automotive Concierge
           </div>
 
           <h2 className="font-display mt-4 text-3xl font-extrabold tracking-tight sm:text-5xl">
-            Tell us what you're looking for.
+            Meet your digital car advisor.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
-            Skip dozens of dropdown filters. Just type what you need in natural everyday language, and our neural engine scans thousands of verified local & export listings.
+            Skip complex filters. Tell our concierge exactly what your lifestyle, budget, and driving conditions require — and receive curated, verified recommendations in seconds.
           </p>
         </div>
 
-        {/* Interactive Query Input */}
+        {/* Concierge Interactive Consultation Box */}
         <div className="mx-auto mt-10 max-w-3xl">
-          <form onSubmit={handleRunAi} className="relative rounded-2xl border border-teal-500/30 bg-slate-900/90 p-2 shadow-2xl backdrop-blur-xl">
+          <form onSubmit={handleRunAi} className="relative rounded-3xl border border-teal-500/30 bg-slate-900/90 p-2 shadow-2xl backdrop-blur-xl">
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="flex w-full items-center gap-3 px-3 py-2">
-                <Bot className="h-5 w-5 text-teal-400 shrink-0" />
+                <Sparkles className="h-5 w-5 text-teal-400 shrink-0 animate-pulse" />
                 <input
                   type="text"
                   value={customInput}
@@ -189,16 +189,16 @@ export function AIMatchExperience() {
 
               <Button
                 type="submit"
-                className="w-full sm:w-auto h-12 rounded-xl bg-teal-500 px-7 font-bold text-slate-950 hover:bg-teal-400 shadow-md transition-all shrink-0"
+                className="w-full sm:w-auto h-12 rounded-2xl bg-teal-500 px-7 font-bold text-slate-950 hover:bg-teal-400 shadow-md transition-all shrink-0"
               >
-                <Sparkles className="mr-2 h-4 w-4" /> Match Vehicles
+                Consult Concierge <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </form>
 
           {/* Quick preset chips */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs text-slate-400 font-medium">Try scenarios:</span>
+            <span className="text-xs text-slate-400 font-semibold">Consultation Scenarios:</span>
             {AI_PRESETS.map((preset, idx) => (
               <button
                 key={idx}
@@ -207,13 +207,13 @@ export function AIMatchExperience() {
                   setSelectedPresetIdx(idx);
                   setCustomInput("");
                 }}
-                className={`rounded-full border px-3 py-1 text-xs font-medium transition-all ${
+                className={`rounded-full border px-3.5 py-1 text-xs font-semibold transition-all duration-200 ${
                   selectedPresetIdx === idx
                     ? "border-teal-400 bg-teal-500/20 text-teal-300 shadow-sm"
                     : "border-white/10 bg-white/5 text-slate-300 hover:border-teal-400/40 hover:bg-white/10"
                 }`}
               >
-                {preset.prompt.slice(0, 42)}...
+                {preset.prompt.slice(0, 44)}...
               </button>
             ))}
           </div>
@@ -223,16 +223,19 @@ export function AIMatchExperience() {
         <div className="mt-12 rounded-3xl border border-white/10 bg-slate-900/60 p-6 sm:p-8 backdrop-blur-md">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-6 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-teal-400 animate-ping" />
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400" />
+              </span>
               <span className="text-xs font-bold uppercase tracking-wider text-teal-400">
-                AI Match Assessment
+                Curated Concierge Selections
               </span>
               <Badge className="bg-teal-500/20 text-teal-300 border-teal-500/30 text-xs font-semibold">
-                {currentPreset.matches.length} Vehicles Matched
+                {currentPreset.matches.length} Recommended Matches
               </Badge>
             </div>
             <p className="text-xs text-slate-400">
-              Ranked by verified condition, budget compatibility, and owner inspection status
+              Evaluated for mechanical integrity, verified odometer history, and real value
             </p>
           </div>
 
@@ -241,17 +244,17 @@ export function AIMatchExperience() {
             {currentPreset.matches.map((match) => (
               <div
                 key={match.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-slate-950/80 p-4 transition-all duration-300 hover:border-teal-500/50 hover:bg-slate-950"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-slate-950/80 p-4 transition-all duration-300 hover:border-teal-500/50 hover:bg-slate-950 hover:-translate-y-1 hover:shadow-xl"
               >
                 <div>
                   {/* Image container */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-slate-900">
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-2xl bg-slate-900">
                     <img
                       src={match.image}
                       alt={match.title}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-2 right-2 rounded-full bg-teal-500 px-2.5 py-0.5 text-xs font-extrabold text-slate-950 shadow-md">
+                    <div className="absolute top-2.5 right-2.5 rounded-full bg-teal-500 px-2.5 py-0.5 text-xs font-extrabold text-slate-950 shadow-md">
                       {match.matchScore}% Match
                     </div>
                   </div>
@@ -273,8 +276,8 @@ export function AIMatchExperience() {
                     </div>
 
                     {/* Match reason tag */}
-                    <div className="mt-3 rounded-xl bg-teal-950/40 border border-teal-500/20 p-2 text-xs text-teal-200">
-                      <span className="font-semibold text-teal-300">Why matched: </span>
+                    <div className="mt-3 rounded-2xl bg-teal-950/40 border border-teal-500/20 p-2.5 text-xs text-teal-200">
+                      <span className="font-bold text-teal-300">Advisor Note: </span>
                       {match.matchReason}
                     </div>
                   </div>
@@ -283,14 +286,14 @@ export function AIMatchExperience() {
                 {/* Footer link */}
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between">
                   <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 font-medium">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Verified Sourced
+                    <ShieldCheck className="h-3.5 w-3.5" /> Verified Inspection
                   </span>
                   <Link
                     to="/cars"
                     search={{ q: match.title } as never}
-                    className="inline-flex items-center text-xs font-bold text-teal-400 hover:text-teal-300 transition"
+                    className="inline-flex items-center text-xs font-bold text-teal-400 hover:text-teal-300 group-hover:translate-x-0.5 transition-transform"
                   >
-                    View Match <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                    View Vehicle <ArrowRight className="ml-1 h-3.5 w-3.5" />
                   </Link>
                 </div>
               </div>

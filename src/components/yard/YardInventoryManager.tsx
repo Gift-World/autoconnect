@@ -33,6 +33,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { VehicleImage } from "@/components/VehicleImage";
 
 export interface YardVehicle {
   id: string;
@@ -50,10 +51,10 @@ export interface YardVehicle {
 const INITIAL_YARD_VEHICLES: YardVehicle[] = [
   {
     id: "yard-car-1",
-    title: "Toyota Land Cruiser Prado TX-L",
+    title: "Toyota Land Cruiser Prado TX-L 2.8D",
     year: 2021,
-    price: "KES 6,250,000",
-    vin: "JTE-PRADO-99201",
+    price: "KES 6,850,000",
+    vin: "JTEBX3FJ8M0291844",
     bayNumber: "Bay A-01 (Showroom Front)",
     inspectionStatus: "verified",
     reservationStatus: "reserved",
@@ -65,45 +66,45 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     title: "Mercedes-Benz C200 AMG Line",
     year: 2020,
     price: "KES 4,800,000",
-    vin: "WDD-205042-882",
+    vin: "WDD2050772R189421",
     bayNumber: "Bay A-04 (Executive Row)",
     inspectionStatus: "verified",
     reservationStatus: "available",
-    imageUrl: "https://images.unsplash.com/photo-1617788138017-80ad40651399?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=60",
     updatedAt: "25 mins ago",
   },
   {
     id: "yard-car-3",
-    title: "Subaru Forester 2.0XT EyeSight",
-    year: 2019,
-    price: "KES 2,950,000",
-    vin: "SJG-049821-X7",
+    title: "Toyota Harrier Hybrid G-Edition",
+    year: 2021,
+    price: "KES 4,450,000",
+    vin: "AXUH80-0042918",
     bayNumber: "Bay B-02 (Yard Central)",
-    inspectionStatus: "in_progress",
+    inspectionStatus: "verified",
     reservationStatus: "available",
-    imageUrl: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
     updatedAt: "1 hour ago",
   },
   {
     id: "yard-car-4",
-    title: "Mazda CX-5 2.2D AWD L-Package",
-    year: 2020,
-    price: "KES 3,350,000",
-    vin: "KF2P-302194-M2",
+    title: "BMW 530i M Sport",
+    year: 2021,
+    price: "KES 5,400,000",
+    vin: "WBAJA7200M0829141",
     bayNumber: "Bay B-07 (Inspection Staging)",
     inspectionStatus: "verified",
     reservationStatus: "gate_pass_issued",
-    imageUrl: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=800&auto=format&fit=crop&q=60",
+    imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop&q=60",
     updatedAt: "2 hours ago",
   },
   {
     id: "yard-car-5",
-    title: "Nissan X-Trail 20X Hybrid",
-    year: 2018,
-    price: "KES 2,450,000",
-    vin: "HT32-109382-N1",
+    title: "Toyota Hilux Double Cab 4x4",
+    year: 2021,
+    price: "KES 4,600,000",
+    vin: "AHTBA3CD907812903",
     bayNumber: "Bay C-01 (Arrival Bay)",
-    inspectionStatus: "pending",
+    inspectionStatus: "verified",
     reservationStatus: "available",
     imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=60",
     updatedAt: "Today",
@@ -283,14 +284,13 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
           >
             {/* Left: Car info */}
             <div className="flex items-center gap-3.5">
-              <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-muted">
-                {car.imageUrl ? (
-                  <img src={car.imageUrl} alt={car.title} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="grid h-full w-full place-items-center text-muted-foreground">
-                    <Car className="h-5 w-5" />
-                  </div>
-                )}
+              <div className="h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-slate-900">
+                <VehicleImage
+                  src={car.imageUrl}
+                  alt={car.title}
+                  year={car.year}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div>
                 <div className="flex flex-wrap items-center gap-2">

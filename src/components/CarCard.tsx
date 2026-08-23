@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Star, Gauge, Fuel, Settings2 } from "lucide-react";
 import { countryByCode } from "@/lib/countries";
+import { VehicleImage } from "@/components/VehicleImage";
 
 export type CarCardData = {
   id: string;
@@ -17,6 +18,9 @@ export type CarCardData = {
   mileage_unit?: string | null;
   transmission?: string | null;
   fuel_type?: string | null;
+  make_name?: string | null;
+  model_name?: string | null;
+  body_type?: string | null;
   car_images?: { image_url: string; is_primary?: boolean; sort_order?: number }[];
 };
 
@@ -46,19 +50,16 @@ export function CarCard({ car, distanceKm }: { car: CarCardData; distanceKm?: nu
       params={{ id: car.id }}
       className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-card card-lift"
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {img ? (
-          <img
-            src={img}
-            alt={car.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="grid h-full place-items-center text-xs text-muted-foreground">
-            No photo
-          </div>
-        )}
+      <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
+        <VehicleImage
+          src={img}
+          alt={car.title}
+          make={car.make_name}
+          model={car.model_name}
+          year={car.year}
+          bodyType={car.body_type}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
         {/* gradient overlay */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 

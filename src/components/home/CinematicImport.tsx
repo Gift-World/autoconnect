@@ -35,8 +35,8 @@ const CORRIDORS: ImportCorridor[] = [
     popularModels: "Toyota Land Cruiser, Harrier, Prado, Subaru Outback",
     shippingTime: "21–28 Days RoRo Freight",
     savings: "Save 20–28% vs local showroom retail",
-    dutyStatus: "Full KRA CRSP Customs Clearance Handled",
-    inspection: "JEVIC / QISJ Pre-Export Mileage Certification",
+    dutyStatus: "Full CRSP Duty & Customs Clearance Processing",
+    inspection: "Pre-Export Mileage & Condition Certification",
   },
   {
     id: "uk-ke",
@@ -45,8 +45,8 @@ const CORRIDORS: ImportCorridor[] = [
     popularModels: "Range Rover Sport, Defender, BMW X5, Mercedes GLE",
     shippingTime: "28–35 Days Containerized",
     savings: "Save 18–25% on British Luxury Specifications",
-    dutyStatus: "UK VAT Export Reclaim Support & Clearances",
-    inspection: "HPI Clear & AA UK 150-Point Multi-Check",
+    dutyStatus: "UK Export Processing & Customs Clearances",
+    inspection: "Independent 150-Point Multi-Check & History Audit",
   },
   {
     id: "ae-ke",
@@ -55,8 +55,8 @@ const CORRIDORS: ImportCorridor[] = [
     popularModels: "Lexus LX600, Nissan Patrol V8, Toyota LC300 GR-Sport",
     shippingTime: "14–21 Days Express Sea Freight",
     savings: "Direct Access to GCC Desert & Heavy-Duty Specs",
-    dutyStatus: "Direct Port-to-Port Documentation",
-    inspection: "Dubai RTA Certificate & Physical Appraisal",
+    dutyStatus: "Direct Port-to-Port Documentation & Clearances",
+    inspection: "GCC Technical Appraisal & Verification Report",
   },
   {
     id: "de-ke",
@@ -65,8 +65,8 @@ const CORRIDORS: ImportCorridor[] = [
     popularModels: "Porsche Cayenne, Audi Q7, BMW M-Performance",
     shippingTime: "30–35 Days Maritime Transit",
     savings: "Save on High-End European Executive Lineup",
-    dutyStatus: "EU Certificate of Conformity & Customs Bond",
-    inspection: "TÜV Rheinland Comprehensive Technical Report",
+    dutyStatus: "EU Certificate of Conformity & Customs Processing",
+    inspection: "Comprehensive Technical Roadworthiness Report",
   },
 ];
 

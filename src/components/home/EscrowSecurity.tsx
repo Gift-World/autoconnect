@@ -71,7 +71,7 @@ export function EscrowSecurity() {
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-teal-500/30 text-[11px] font-medium text-teal-300 flex items-center gap-1">
-                <ShieldCheck className="h-3.5 w-3.5" /> 100% Protection
+                <ShieldCheck className="h-3.5 w-3.5" /> Escrow Protected
               </div>
             </div>
 
@@ -140,7 +140,7 @@ export function EscrowSecurity() {
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <p className="text-xs sm:text-sm text-slate-300">
-                <span className="font-bold text-white">100% Refund Guarantee:</span> If the car fails physical inspection or title checks, your funds are immediately refunded.
+                <span className="font-bold text-white">Buyer Escrow Protection:</span> If the vehicle fails physical inspection or title checks, your funds remain protected and are refunded.
               </p>
             </div>
 

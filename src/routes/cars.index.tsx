@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
 import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -152,14 +151,13 @@ function CarsListPage() {
     staleTime: 5 * 60_000,
   });
 
-  const smartSearchFn = useServerFn(aiSmartSearch);
   const [aiSearching, setAiSearching] = useState(false);
   const runSmartSearch = async () => {
     const q = qInput.trim();
     if (!q) return;
     setAiSearching(true);
     try {
-      const filters = await smartSearchFn({ data: { query: q } });
+      const filters = await aiSmartSearch({ data: { query: q } });
       const patch: Record<string, unknown> = {
         q: filters.q ?? "",
         country: filters.country ?? "",

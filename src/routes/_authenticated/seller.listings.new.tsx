@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Loader2, Sparkles, ArrowLeft } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
 import { aiGenerateDescription } from "@/lib/ai.functions";
 import { COUNTRIES, CURRENCIES } from "@/lib/countries";
 import {
@@ -94,7 +93,6 @@ function NewListing() {
   const [yardId, setYardId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [genDesc, setGenDesc] = useState(false);
-  const generateDescFn = useServerFn(aiGenerateDescription);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema) as never,
@@ -762,7 +760,7 @@ function NewListing() {
                   }
                   setGenDesc(true);
                   try {
-                    const { description } = await generateDescFn({
+                    const { description } = await aiGenerateDescription({
                       data: {
                         make: v.make_name,
                         model: v.model_name,

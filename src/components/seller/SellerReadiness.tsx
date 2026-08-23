@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -53,7 +52,6 @@ export function SellerReadiness({ sellerId }: { sellerId: string }) {
   const [verified, setVerified] = useState<{ approved: boolean; level: number } | null>(null);
   const [listings, setListings] = useState<ListingGap[]>([]);
   const [quality, setQuality] = useState<Record<string, Quality | "loading">>({});
-  const qualityFn = useServerFn(aiListingQuality);
 
   useEffect(() => {
     let active = true;
@@ -112,7 +110,7 @@ export function SellerReadiness({ sellerId }: { sellerId: string }) {
   async function runQuality(l: ListingGap) {
     setQuality((s) => ({ ...s, [l.id]: "loading" }));
     try {
-      const result = await qualityFn({
+      const result = await aiListingQuality({
         data: {
           title: l.title,
           year: l.year,

@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, FileText, ExternalLink, Loader2, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
 import { aiDocGuidance } from "@/lib/ai.functions";
 import { QueueToolbar } from "@/components/admin/QueueToolbar";
 import { REQUIRED_DOC_KINDS, DOC_LABELS, missingDocKinds } from "@/lib/listing-checklist";
@@ -43,7 +42,6 @@ function AdminDocuments() {
   const [search, setSearch] = useState("");
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [guidance, setGuidance] = useState<Record<string, Guidance | "loading">>({});
-  const guidanceFn = useServerFn(aiDocGuidance);
 
   async function load() {
     setLoading(true);
@@ -99,7 +97,7 @@ function AdminDocuments() {
         supabase.from("cars").select("country").eq("id", r.car_id).maybeSingle(),
       ]);
       const kinds = ((docs ?? []) as { kind: string }[]).map((d) => d.kind);
-      const result = await guidanceFn({
+      const result = await aiDocGuidance({
         data: {
           car_title: r.car?.title ?? "Listing",
           country: (car as { country?: string } | null)?.country ?? "KE",

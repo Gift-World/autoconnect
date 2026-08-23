@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import {
   Accordion,
   AccordionContent,
@@ -82,8 +81,6 @@ const SECTION_LABEL: Record<string, string> = {
 };
 
 export function VehiclePassport({ carId }: { carId: string }) {
-  const fetchPassport = useServerFn(getVehiclePassport);
-  const explainFn = useServerFn(aiExplainVerification);
   const [explain, setExplain] = useState<
     | { headline: string; what_is_checked: string[]; what_to_watch: string[]; next_step: string }
     | "loading"
@@ -91,7 +88,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
   >(null);
   const { data, isLoading } = useQuery({
     queryKey: ["vehicle-passport", carId],
-    queryFn: () => fetchPassport({ data: { carId } }),
+    queryFn: () => getVehiclePassport({ data: { carId } }),
   });
 
   if (isLoading) {
@@ -257,7 +254,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
               onClick={async () => {
                 setExplain("loading");
                 try {
-                  const res = await explainFn({
+                  const res = await aiExplainVerification({
                     data: {
                       verificationLevel: data.verificationLevel,
                       sellerVerified: data.seller.verified,

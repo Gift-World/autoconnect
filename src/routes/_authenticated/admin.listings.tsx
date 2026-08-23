@@ -3,7 +3,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Star, Eye, Sparkles, Loader2, ShieldAlert, FileCheck2, BadgeCheck, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useServerFn } from "@tanstack/react-start";
 import { aiFraudCheck } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +61,6 @@ function AdminListingsPage() {
   const [rejecting, setRejecting] = useState<CarRow | null>(null);
   const [reason, setReason] = useState("");
   const [scans, setScans] = useState<Record<string, FraudResult | "loading">>({});
-  const fraudCheckFn = useServerFn(aiFraudCheck);
 
   async function runScan(c: CarRow) {
     setScans((s) => ({ ...s, [c.id]: "loading" }));
@@ -73,7 +71,7 @@ function AdminListingsPage() {
         .select("description,mileage,condition")
         .eq("id", c.id)
         .maybeSingle();
-      const result = await fraudCheckFn({
+      const result = await aiFraudCheck({
         data: {
           title: c.title,
           make: c.make_name,

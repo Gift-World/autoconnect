@@ -54,7 +54,7 @@ function CompleteProfilePage() {
       setWhatsappSame(!profile.whatsapp_number || profile.whatsapp_number === profile.phone);
       setCountry(profile.country ?? "");
       setCity(profile.city ?? "");
-      setRole(profile.role === "admin" ? null : profile.role);
+      setRole(profile.role === "buyer" || profile.role === "seller" ? profile.role : null);
       hydratedFromProfile.current = true;
     }
 

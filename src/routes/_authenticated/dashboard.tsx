@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import {
   User as UserIcon,

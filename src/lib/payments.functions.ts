@@ -522,6 +522,166 @@ export const createManualReservation = createServerFn({ method: "POST" })
     return { transactionId: tx.id, breakdown, channel: data.channel };
   });
 
+/* ================================================================== */
+/* 8. SAFARICOM M-PESA DARAJA 2.0 (DIRECT STK PUSH)                   */
+/* ================================================================== */
+
+export const initiateDarajaStkPush = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z
+      .object({
+        accessToken: z.string(),
+        carId: z.string().uuid(),
+        paymentPlan: z.enum(["full", "deposit", "installments"]).default("full"),
+        phone: z.string().min(9).max(20),
+        amount: z.number().positive().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { user, profile } = await requireUser(data.accessToken);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { sendMpesaStkPush, formatKenyanPhone } = await import("./mpesa.server");
+
+    const { data: car, error } = await supabaseAdmin
+      .from("cars")
+      .select(
+        "id, title, price, currency, status, seller_id, pay_full, pay_deposit, pay_installments, deposit_percent, installment_months, installment_monthly, sellers!inner(id, profile_id)",
+      )
+      .eq("id", data.carId)
+      .maybeSingle();
+    if (error || !car) throw new Error("Car not found");
+    if (car.status !== "approved") throw new Error("Car is not available for purchase");
+    // @ts-expect-error joined
+    if (car.sellers.profile_id === user.id) throw new Error("You cannot buy your own listing");
+
+    const price = Number(car.price);
+    let chargeAmount = price;
+    if (data.paymentPlan === "deposit") {
+      chargeAmount = Math.round((price * Number(car.deposit_percent ?? 20)) / 100 * 100) / 100;
+    } else if (data.paymentPlan === "installments") {
+      chargeAmount = Number(car.installment_monthly ?? price / Number(car.installment_months ?? 12));
+      chargeAmount = Math.round(chargeAmount * 100) / 100;
+    }
+    const breakdown = calculateBreakdown(chargeAmount, car.currency);
+
+    // KES amount for STK push
+    let mpesaKesAmount = breakdown.total;
+    if (car.currency.toUpperCase() !== "KES") {
+      mpesaKesAmount = Math.round(breakdown.total * (breakdown.fxRate || 130));
+    }
+
+    // Insert pending transaction
+    const { data: tx, error: txErr } = await supabaseAdmin
+      .from("transactions")
+      .insert({
+        car_id: car.id,
+        buyer_id: user.id,
+        // @ts-expect-error joined
+        seller_id: car.sellers.id,
+        display_currency: breakdown.currency,
+        display_car_price: breakdown.carPrice,
+        display_service_fee: breakdown.serviceFee,
+        display_total: breakdown.total,
+        fx_rate: breakdown.fxRate,
+        car_price_usd_cents: breakdown.carPriceUsdCents,
+        service_fee_usd_cents: breakdown.serviceFeeUsdCents,
+        total_usd_cents: breakdown.totalUsdCents,
+        service_fee_percent: breakdown.feePercent,
+        payment_plan: data.paymentPlan,
+        plan_amount: chargeAmount,
+        payment_method: "mpesa",
+        manual_channel: "mpesa",
+        manual_payer_name: profile.full_name ?? user.email ?? "Buyer",
+        manual_phone: data.phone,
+        status: "pending",
+      })
+      .select("id")
+      .single();
+
+    if (txErr || !tx) throw new Error(txErr?.message ?? "Could not create transaction");
+
+    const formattedPhone = formatKenyanPhone(data.phone);
+
+    // Send M-Pesa STK Push
+    const stk = await sendMpesaStkPush({
+      phone: formattedPhone,
+      amount: mpesaKesAmount,
+      accountReference: `AC-${tx.id.slice(0, 8)}`,
+      transactionDesc: `AutoConnect: ${car.title}`.slice(0, 13),
+    });
+
+    return {
+      transactionId: tx.id,
+      checkoutRequestId: stk.checkoutRequestId,
+      customerMessage: stk.customerMessage,
+      formattedPhone,
+      kesAmount: mpesaKesAmount,
+      mode: stk.mode,
+    };
+  });
+
+export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z
+      .object({
+        accessToken: z.string(),
+        transactionId: z.string().uuid(),
+        checkoutRequestId: z.string(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data }) => {
+    const { user } = await requireUser(data.accessToken);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { queryMpesaStkPush } = await import("./mpesa.server");
+
+    const result = await queryMpesaStkPush({ checkoutRequestId: data.checkoutRequestId });
+
+    if (result.status === "success") {
+      const { data: tx } = await supabaseAdmin
+        .from("transactions")
+        .select("id, status, car_id, cars!inner(title), sellers!inner(profile_id)")
+        .eq("id", data.transactionId)
+        .maybeSingle();
+
+      if (tx && tx.status !== "payment_received" && tx.status !== "completed") {
+        await supabaseAdmin
+          .from("transactions")
+          .update({
+            status: "payment_received",
+            paid_at: new Date().toISOString(),
+            manual_reference: result.mpesaReceiptNumber || `MPESA-${Date.now().toString().slice(-6)}`,
+          })
+          .eq("id", data.transactionId);
+
+        if (tx.car_id) {
+          await supabaseAdmin.from("cars").update({ status: "under_transaction" }).eq("id", tx.car_id);
+        }
+
+        // @ts-expect-error joined
+        const carTitle = tx.cars.title;
+        await notify(
+          user.id,
+          "payment_confirmed",
+          "M-Pesa payment received",
+          `Your M-Pesa payment for "${carTitle}" was received and held safely in AutoConnect Escrow. Receipt: ${result.mpesaReceiptNumber}.`,
+          `/transactions/${tx.id}`,
+        );
+        await notify(
+          // @ts-expect-error joined
+          tx.sellers.profile_id,
+          "payment_received",
+          "Payment received — prepare handover",
+          `Payment for "${carTitle}" is confirmed via M-Pesa. Prepare the car and paperwork for handover.`,
+          `/seller/transactions`,
+        );
+      }
+    }
+
+    return result;
+  });
+
 /* Admin confirms a manual payment was actually received */
 export const confirmManualPayment = createServerFn({ method: "POST" })
   .validator((input: unknown) =>

@@ -10,9 +10,4 @@ export default defineConfig({
   react: {
     jsxRuntime: "automatic",
   },
-  vite: {
-    esbuild: {
-      jsxDev: false,
-    },
-  },
 });

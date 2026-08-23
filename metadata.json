@@ -1,6 +1,6 @@
 {
   "name": "AutoConnect",
-  "description": "Global car marketplace connecting verified buyers and sellers worldwide with direct Supabase integration.",
+  "description": "Premium global automotive marketplace connecting verified buyers, dealers, and importers with escrow protection and AI vehicle matching.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

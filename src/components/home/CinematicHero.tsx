@@ -40,7 +40,6 @@ export function CinematicHero() {
   const [activeTab, setActiveTab] = useState<HeroTab>("buy");
   const [aiQuery, setAiQuery] = useState("");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [heroFrame, setHeroFrame] = useState(0);
   const navigate = useNavigate();
 
   // Subtle parallax tracker on desktop
@@ -53,15 +52,6 @@ export function CinematicHero() {
     };
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const interval = window.setInterval(
-      () => setHeroFrame((current) => (current + 1) % HERO_FRAMES.length),
-      7000,
-    );
-    return () => window.clearInterval(interval);
   }, []);
 
   // Buy filters
@@ -94,7 +84,7 @@ export function CinematicHero() {
     <section className="relative min-h-[94vh] overflow-hidden bg-[#050811] text-white flex flex-col justify-between">
       {/* Cinematic Background with dynamic depth and automotive light streaks */}
       <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
-        {/* Original driving-car frames rotate slowly; motion blur in each frame makes the reel feel kinetic without video weight. */}
+        {/* Poster/fallback for slow connections and reduced-motion preferences. */}
         {HERO_FRAMES.map((src, index) => (
           <img
             key={src}
@@ -103,12 +93,25 @@ export function CinematicHero() {
             aria-hidden="true"
             className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.82] contrast-[1.05] transition-[opacity,transform,filter] duration-[1800ms] ease-out motion-reduce:transition-none"
             style={{
-              opacity: heroFrame === index ? 0.84 : 0,
-              filter: heroFrame === index ? "saturate(1.04)" : "saturate(.9)",
-              transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(${heroFrame === index ? 1.09 : 1.03})`,
+              opacity: index === 0 ? 0.84 : 0,
+              filter: index === 0 ? "saturate(1.04)" : "saturate(.9)",
+              transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(${index === 0 ? 1.09 : 1.03})`,
             }}
           />
         ))}
+
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster="/images/hero-driving-suv.jpg"
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.72] contrast-[1.05] motion-reduce:hidden"
+        >
+          <source src="/videos/hero-driving-car.mp4" type="video/mp4" />
+        </video>
 
         <div className="absolute inset-x-0 bottom-[16%] h-px bg-gradient-to-r from-transparent via-cyan-200/35 to-transparent blur-[1px]" />
 
@@ -130,7 +133,7 @@ export function CinematicHero() {
 
         <div className="absolute bottom-28 right-4 hidden items-center gap-2 rounded-full border border-white/15 bg-slate-950/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-200 backdrop-blur-md sm:flex">
           <span className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_12px_rgba(45,212,191,0.9)]" />
-          Driving reel {heroFrame + 1}/{HERO_FRAMES.length}
+          Live drive
         </div>
       </div>
 

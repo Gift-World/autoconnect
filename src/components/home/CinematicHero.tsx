@@ -23,6 +23,12 @@ import {
 
 type HeroTab = "buy" | "import" | "sell";
 
+const HERO_FRAMES = [
+  "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=2400&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=2400&auto=format&fit=crop&q=85",
+  "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=2400&auto=format&fit=crop&q=85",
+];
+
 const POPULAR_AI_PROMPTS = [
   "Toyota Harrier under KSh 4M in Nairobi",
   "Land Cruiser 300 Diesel with sunroof",
@@ -34,6 +40,7 @@ export function CinematicHero() {
   const [activeTab, setActiveTab] = useState<HeroTab>("buy");
   const [aiQuery, setAiQuery] = useState("");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [heroFrame, setHeroFrame] = useState(0);
   const navigate = useNavigate();
 
   // Subtle parallax tracker on desktop
@@ -46,6 +53,15 @@ export function CinematicHero() {
     };
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const interval = window.setInterval(
+      () => setHeroFrame((current) => (current + 1) % HERO_FRAMES.length),
+      7000,
+    );
+    return () => window.clearInterval(interval);
   }, []);
 
   // Buy filters
@@ -78,19 +94,20 @@ export function CinematicHero() {
     <section className="relative min-h-[94vh] overflow-hidden bg-[#050811] text-white flex flex-col justify-between">
       {/* Cinematic Background with dynamic depth and automotive light streaks */}
       <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
-        {/* Parallax Moving Hero Car Image Layer */}
-        <div
-          className="absolute inset-0 transition-transform duration-700 ease-out scale-105"
-          style={{
-            transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(1.04)`,
-          }}
-        >
+        {/* Slow-changing automotive reel gives the hero motion without distracting from search. */}
+        {HERO_FRAMES.map((src, index) => (
           <img
-            src="https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=2400&auto=format&fit=crop&q=85"
-            alt="Luxury performance vehicle gliding on twilight highway"
-            className="h-full w-full object-cover object-center opacity-65 brightness-[0.72] contrast-[1.15]"
+            key={src}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.78] contrast-[1.08] transition-[opacity,transform] duration-[1800ms] ease-out motion-reduce:transition-none"
+            style={{
+              opacity: heroFrame === index ? 0.7 : 0,
+              transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(${heroFrame === index ? 1.08 : 1.03})`,
+            }}
           />
-        </div>
+        ))}
 
         {/* Multi-layered cinematic darkness & atmospheric gradients */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#050811] via-[#050811]/85 to-transparent" />
@@ -107,6 +124,11 @@ export function CinematicHero() {
 
         {/* Subtle horizon road sheen reflection line */}
         <div className="absolute bottom-20 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
+
+        <div className="absolute bottom-28 right-4 hidden items-center gap-2 rounded-full border border-white/15 bg-slate-950/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-200 backdrop-blur-md sm:flex">
+          <span className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_12px_rgba(45,212,191,0.9)]" />
+          Vehicle reel {heroFrame + 1}/{HERO_FRAMES.length}
+        </div>
       </div>
 
       {/* Main Hero Content */}

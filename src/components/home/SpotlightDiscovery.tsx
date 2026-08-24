@@ -18,15 +18,15 @@ import { Badge } from "@/components/ui/badge";
 const SPOTLIGHT_IMAGES = [
   {
     url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1600&auto=format&fit=crop&q=85",
-    label: "Exterior Front 3/4",
+    label: "Curated exterior view",
   },
   {
     url: "https://images.unsplash.com/photo-1563720223185-11003d516935?w=1600&auto=format&fit=crop&q=85",
-    label: "Cockpit & Leather",
+    label: "Interior detail",
   },
   {
     url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1600&auto=format&fit=crop&q=85",
-    label: "Road Profile",
+    label: "Road profile",
   },
 ];
 
@@ -61,7 +61,7 @@ export function SpotlightDiscovery() {
             <div className="relative lg:col-span-7 bg-slate-950 min-h-[360px] sm:min-h-[480px] flex flex-col justify-between overflow-hidden">
               <img
                 src={SPOTLIGHT_IMAGES[activeImgIdx].url}
-                alt="2024 Toyota Land Cruiser Prado TX-L"
+                alt="Curated vehicle gallery"
                 className="h-full w-full object-cover transition-all duration-700 hover:scale-105"
               />
 
@@ -74,7 +74,7 @@ export function SpotlightDiscovery() {
                   ★ SPOTLIGHT OF THE WEEK
                 </Badge>
                 <span className="rounded-full bg-black/60 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                  🇰🇪 Nairobi Stock · Immediate Handover
+                  Editorial showcase · Explore current inventory
                 </span>
               </div>
 
@@ -109,7 +109,7 @@ export function SpotlightDiscovery() {
                 {/* Year and Title */}
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    2024 · TX-L Edition
+                    Current inventory, independently verified
                   </span>
                   <Badge variant="outline" className="border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold">
                     Right Hand Drive
@@ -117,36 +117,34 @@ export function SpotlightDiscovery() {
                 </div>
 
                 <h3 className="font-display mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                  Toyota Land Cruiser Prado
+                  Find your next verified vehicle
                 </h3>
 
                 {/* Price Display */}
                 <div className="mt-4 flex items-baseline gap-2">
                   <span className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-teal-600 dark:text-teal-400">
-                    KSh 8,900,000
+                    Browse live availability
                   </span>
                   <span className="text-xs font-medium text-muted-foreground">
-                    (Approx. $68,500 USD)
+                    Every price and specification is confirmed on its listing.
                   </span>
                 </div>
 
                 {/* Location and Verified Seller */}
                 <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="h-4 w-4 text-teal-500 shrink-0" />
-                  <span>Nairobi, Kenya</span>
-                  <span>•</span>
-                  <span className="font-semibold text-foreground">Capital Motors Dealership</span>
+                  <span>Use the marketplace to compare current stock.</span>
                 </div>
 
                 {/* Trust and status pills */}
                 <div className="mt-6 flex flex-wrap gap-2">
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Verified Logbook & Title
+                    Listing-by-listing verification
                   </span>
                   <span className="inline-flex items-center gap-1.5 rounded-xl border border-teal-500/20 bg-teal-500/10 px-3 py-1.5 text-xs font-semibold text-teal-700 dark:text-teal-300">
                     <Lock className="h-3.5 w-3.5" />
-                    Escrow Protection Ready
+                    Escrow guidance available
                   </span>
                 </div>
 
@@ -155,32 +153,32 @@ export function SpotlightDiscovery() {
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Gauge className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Mileage</p>
-                      <p className="text-sm font-bold text-foreground">12,400 km</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Vehicle data</p>
+                      <p className="text-sm font-bold text-foreground">Shown on each listing</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Fuel className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Engine & Fuel</p>
-                      <p className="text-sm font-bold text-foreground">2.8L Diesel Turbo</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Photos</p>
+                      <p className="text-sm font-bold text-foreground">Reviewed per vehicle</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Settings2 className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Transmission</p>
-                      <p className="text-sm font-bold text-foreground">6-Speed Auto 4x4</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">History</p>
+                      <p className="text-sm font-bold text-foreground">Passport available</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Condition</p>
-                      <p className="text-sm font-bold text-foreground">Mint / Grade 4.5</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Protection</p>
+                      <p className="text-sm font-bold text-foreground">Escrow-aware checkout</p>
                     </div>
                   </div>
                 </div>
@@ -192,8 +190,8 @@ export function SpotlightDiscovery() {
                   asChild
                   className="w-full sm:flex-1 h-12 rounded-2xl bg-teal-500 font-bold text-slate-950 hover:bg-teal-400 shadow-md transition-all duration-200"
                 >
-                  <Link to="/cars" search={{ q: "Prado" } as never}>
-                    View Vehicle Specification
+                  <Link to="/cars">
+                    Browse verified vehicles
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>

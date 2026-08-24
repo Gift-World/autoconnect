@@ -48,7 +48,7 @@ export function CarCard({ car, distanceKm }: { car: CarCardData; distanceKm?: nu
     <Link
       to="/cars/$id"
       params={{ id: car.id }}
-      className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-card card-lift"
+      className="group relative block overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card card-lift transition-[border-color,box-shadow,transform] duration-300 hover:border-teal-400/50 hover:shadow-xl"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
         <VehicleImage
@@ -106,7 +106,7 @@ export function CarCard({ car, distanceKm }: { car: CarCardData; distanceKm?: nu
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="p-4 sm:p-[18px]">
         <h3 className="line-clamp-1 text-sm font-bold text-foreground">{car.title}</h3>
         <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
           {car.mileage != null && (

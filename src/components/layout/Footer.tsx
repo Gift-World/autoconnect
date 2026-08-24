@@ -3,7 +3,7 @@ import { Car, Globe, ShieldCheck, Lock, Twitter, Instagram, Linkedin, Facebook, 
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/10 bg-[#070b14] text-white">
+    <footer className="border-t border-slate-200 bg-white text-slate-900">
       <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6">
         <div className="grid gap-10 md:grid-cols-5">
           {/* Brand Col */}
@@ -13,11 +13,11 @@ export function Footer() {
                 <Globe className="h-5 w-5 opacity-40" />
                 <Car className="absolute h-4 w-4" />
               </span>
-              <span className="font-display text-xl font-bold tracking-tight text-white">
+              <span className="font-display text-xl font-bold tracking-tight text-slate-900">
                 AutoConnect
               </span>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-slate-400">
+            <p className="max-w-sm text-sm leading-relaxed text-slate-600">
               The trusted global marketplace for buying, selling, and importing verified vehicles across borders with full escrow protection.
             </p>
             <div className="flex gap-2.5 pt-2">
@@ -26,7 +26,7 @@ export function Footer() {
                   key={i}
                   type="button"
                   aria-label="social link"
-                  className="grid h-9 w-9 place-items-center rounded-xl bg-white/5 border border-white/10 text-slate-400 transition hover:border-teal-400/40 hover:bg-teal-500/10 hover:text-teal-300"
+                  className="grid h-9 w-9 place-items-center rounded-xl bg-slate-50 border border-slate-200 text-slate-500 transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"
                 >
                   <I className="h-4 w-4" />
                 </button>
@@ -69,14 +69,14 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-white/10 pt-8 text-xs text-slate-400 sm:flex-row sm:items-center">
+        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-slate-200 pt-8 text-xs text-slate-500 sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-500/30 bg-teal-950/40 px-3 py-1.5 text-teal-300">
-              <Lock className="h-3 w-3 text-teal-400" /> Bank-Grade Escrow Custody
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-teal-700">
+              <Lock className="h-3 w-3 text-teal-600" /> Bank-Grade Escrow Custody
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-slate-300">
-              <ShieldCheck className="h-3 w-3 text-teal-400" /> NTSA & JEVIC Certified
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-600">
+              <ShieldCheck className="h-3 w-3 text-teal-600" /> NTSA & JEVIC Certified
             </span>
           </div>
         </div>
@@ -94,7 +94,7 @@ function FooterCol({
 }) {
   return (
     <div>
-      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-200">
+      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
         {title}
       </h4>
       <ul className="mt-4 space-y-2.5">
@@ -102,7 +102,7 @@ function FooterCol({
           <li key={`${l.to}-${i}`}>
             <Link
               to={l.to as never}
-              className="text-xs font-medium text-slate-400 transition hover:text-teal-300"
+              className="text-xs font-medium text-slate-600 transition hover:text-teal-700"
             >
               {l.label}
             </Link>

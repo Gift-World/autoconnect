@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function FinalCinematicCTA() {
   return (
-    <section className="relative overflow-hidden bg-[#070b14] py-24 sm:py-32 text-white">
+    <section className="relative overflow-hidden bg-slate-950 py-24 sm:py-32 text-white">
       {/* Background cinematic imagery with deep midnight gradient */}
       <div className="absolute inset-0 select-none pointer-events-none">
         <img
@@ -12,7 +12,7 @@ export function FinalCinematicCTA() {
           alt="Cinematic luxury car rear at sunset"
           className="h-full w-full object-cover object-center opacity-40 brightness-75 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-[#070b14]/70 to-[#070b14]/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-slate-950/85" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[500px] w-[500px] rounded-full bg-teal-500/10 blur-[140px]" />
       </div>
 

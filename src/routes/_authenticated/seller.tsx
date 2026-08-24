@@ -5,39 +5,22 @@ import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/seller")({
   beforeLoad: async () => {
-    const activeRole =
-      typeof window !== "undefined"
-        ? localStorage.getItem("autoconnect_active_role") || "buyer"
-        : "buyer";
+    const { data: u } = await supabase.auth.getUser();
+    if (!u?.user) throw redirect({ to: "/login" });
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", u.user.id)
+      .maybeSingle();
 
     if (
-      activeRole === "seller" ||
-      activeRole === "yard_manager" ||
-      activeRole === "admin"
+      !profile ||
+      (profile.role !== "seller" &&
+        profile.role !== "yard_manager" &&
+        profile.role !== "admin")
     ) {
-      return;
-    }
-
-    try {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u?.user) {
-        if (typeof window !== "undefined" && !localStorage.getItem("autoconnect_active_role")) {
-          throw redirect({ to: "/login" });
-        }
-        return;
-      }
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", u.user.id)
-        .maybeSingle();
-
-      if (!profile || (profile.role !== "seller" && profile.role !== "admin")) {
-        throw redirect({ to: "/dashboard" });
-      }
-    } catch (e: any) {
-      if (e?.to) throw e;
+      throw redirect({ to: "/dashboard" });
     }
   },
   component: SellerLayout,

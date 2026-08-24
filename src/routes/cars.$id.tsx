@@ -27,6 +27,7 @@ import {
   BadgeCheck,
   Phone,
   Store,
+  CalendarCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +39,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
+import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
 import {
   Form,
   FormControl,
@@ -370,6 +372,12 @@ function CarDetailPage() {
             <VerifiedDocsBadge carId={car.id} />
           </div>
           <VehiclePassport carId={car.id} />
+          <VehicleDecisionChecklist
+            carId={car.id}
+            documentsVerified={car.documents_verified}
+            titleVerified={car.ntsa_verified}
+            inspectionVerified={car.inspection_verified}
+          />
           <BuyerNextSteps />
           <TrustPanel />
 
@@ -998,6 +1006,18 @@ function InquiryForm({ car }: { car: CarDetail }) {
     document.getElementById("inquiry-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const requestViewing = () => {
+    form.setValue("inquiry_type", "general");
+    const current = form.getValues("message");
+    if (!current) {
+      form.setValue(
+        "message",
+        `Hi, I'd like to arrange a viewing and inspection for the ${car.year} ${car.title}. Please share the available dates, location, and any requirements. Thanks!`,
+      );
+    }
+    document.getElementById("inquiry-form")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <div id="inquiry-form" className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <h3 className="text-base font-semibold">Contact seller</h3>
@@ -1015,6 +1035,15 @@ function InquiryForm({ car }: { car: CarDetail }) {
           <Ship className="mr-2 h-4 w-4 text-accent" /> Request shipping quote
         </Button>
       )}
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={requestViewing}
+        className="mt-3 w-full justify-center border-teal-200 text-foreground hover:bg-teal-50"
+      >
+        <CalendarCheck className="mr-2 h-4 w-4 text-teal-700" /> Request a viewing appointment
+      </Button>
 
       <Form {...form}>
         <form

@@ -12,10 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CarsRouteImport } from './routes/cars'
+import { Route as DisputesRouteImport } from './routes/disputes'
 import { Route as HowPaymentsWorkRouteImport } from './routes/how-payments-work'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as YardsRouteImport } from './routes/yards'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -73,6 +78,11 @@ const CarsRoute = CarsRouteImport.update({
   path: '/cars',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DisputesRoute = DisputesRouteImport.update({
+  id: '/disputes',
+  path: '/disputes',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HowPaymentsWorkRoute = HowPaymentsWorkRouteImport.update({
   id: '/how-payments-work',
   path: '/how-payments-work',
@@ -88,9 +98,29 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
   getParentRoute: () => rootRouteImport,
 } as any)
 const YardsRoute = YardsRouteImport.update({
@@ -334,10 +364,15 @@ const AuthenticatedSellerListingsNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cars': typeof CarsRouteWithChildren
+  '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/yards': typeof YardsRouteWithChildren
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -383,10 +418,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/admin/login': typeof AdminLoginRoute
@@ -430,10 +470,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/cars': typeof CarsRouteWithChildren
+  '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
   '/login': typeof LoginRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
+  '/trust': typeof TrustRoute
   '/yards': typeof YardsRouteWithChildren
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -482,10 +527,15 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cars'
+    | '/disputes'
     | '/how-payments-work'
     | '/import'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/support'
+    | '/terms'
+    | '/trust'
     | '/yards'
     | '/account'
     | '/admin'
@@ -531,10 +581,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/disputes'
     | '/how-payments-work'
     | '/import'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/support'
+    | '/terms'
+    | '/trust'
     | '/complete-profile'
     | '/dashboard'
     | '/admin/login'
@@ -577,10 +632,15 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/cars'
+    | '/disputes'
     | '/how-payments-work'
     | '/import'
     | '/login'
+    | '/privacy'
     | '/register'
+    | '/support'
+    | '/terms'
+    | '/trust'
     | '/yards'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -629,10 +689,15 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CarsRoute: typeof CarsRouteWithChildren
+  DisputesRoute: typeof DisputesRoute
   HowPaymentsWorkRoute: typeof HowPaymentsWorkRoute
   ImportRoute: typeof ImportRoute
   LoginRoute: typeof LoginRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
+  SupportRoute: typeof SupportRoute
+  TermsRoute: typeof TermsRoute
+  TrustRoute: typeof TrustRoute
   YardsRoute: typeof YardsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
@@ -661,6 +726,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CarsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/disputes': {
+      id: '/disputes'
+      path: '/disputes'
+      fullPath: '/disputes'
+      preLoaderRoute: typeof DisputesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/how-payments-work': {
       id: '/how-payments-work'
       path: '/how-payments-work'
@@ -682,11 +754,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/yards': {
@@ -1137,10 +1237,15 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CarsRoute: CarsRouteWithChildren,
+  DisputesRoute: DisputesRoute,
   HowPaymentsWorkRoute: HowPaymentsWorkRoute,
   ImportRoute: ImportRoute,
   LoginRoute: LoginRoute,
+  PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
+  SupportRoute: SupportRoute,
+  TermsRoute: TermsRoute,
+  TrustRoute: TrustRoute,
   YardsRoute: YardsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,

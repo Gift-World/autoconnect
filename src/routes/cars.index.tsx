@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles } from "lucide-react";
+import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -117,6 +117,26 @@ function CarsListPage() {
   const [qInput, setQInput] = useState(search.q);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
+
+  const saveSearch = () => {
+    const params = new URLSearchParams();
+    Object.entries(search).forEach(([key, value]) => {
+      if (value !== "" && value !== false && value !== 0 && value != null) params.set(key, String(value));
+    });
+    let saved: { label: string; query: string; savedAt: string }[] = [];
+    try {
+      const stored = JSON.parse(localStorage.getItem("autoconnect_saved_searches") ?? "[]");
+      if (Array.isArray(stored)) saved = stored;
+    } catch {
+      // Ignore malformed browser storage and start a new saved-search list.
+    }
+    const query = params.toString();
+    if (!saved.some((item) => item.query === query)) {
+      saved.unshift({ label: qInput.trim() || "Vehicle search", query, savedAt: new Date().toISOString() });
+      localStorage.setItem("autoconnect_saved_searches", JSON.stringify(saved.slice(0, 12)));
+    }
+    toast.success("Search saved in this browser", { description: "Sign in and connect notification delivery before offering email or WhatsApp alerts." });
+  };
 
   useEffect(() => {
     setQInput(search.q);
@@ -313,6 +333,9 @@ function CarsListPage() {
         </Button>
         <Button type="submit" className="h-11">
           <Search className="mr-2 h-4 w-4" /> Search
+        </Button>
+        <Button type="button" variant="outline" className="h-11" onClick={saveSearch}>
+          <BookmarkPlus className="mr-2 h-4 w-4" /> Save search
         </Button>
       </form>
 

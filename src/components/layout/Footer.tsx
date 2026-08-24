@@ -42,6 +42,7 @@ export function Footer() {
               { to: "/yards", label: "Accredited Dealerships" },
               { to: "/import", label: "Global Import Corridors" },
               { to: "/how-payments-work", label: "How Escrow Works" },
+              { to: "/trust", label: "Trust Center" },
             ]}
           />
 
@@ -60,23 +61,27 @@ export function Footer() {
           <FooterCol
             title="Trust & Security"
             links={[
-              { to: "/how-payments-work", label: "100% Escrow Guarantee" },
-              { to: "/how-payments-work", label: "150-Point Inspection" },
-              { to: "/how-payments-work", label: "NTSA Title Verification" },
-              { to: "/how-payments-work", label: "Buyer Dispute Resolution" },
+              { to: "/trust", label: "Seller & Vehicle Verification" },
+              { to: "/how-payments-work", label: "Payment & Handover" },
+              { to: "/disputes", label: "Buyer Dispute Process" },
+              { to: "/support", label: "Support & Contact" },
             ]}
           />
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-slate-200 pt-8 text-xs text-slate-500 sm:flex-row sm:items-center">
-          <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
+            <Link to="/privacy" className="hover:text-teal-700">Privacy</Link>
+            <Link to="/terms" className="hover:text-teal-700">Terms</Link>
+          </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-50 px-3 py-1.5 text-teal-700">
-              <Lock className="h-3 w-3 text-teal-600" /> Bank-Grade Escrow Custody
+              <Lock className="h-3 w-3 text-teal-600" /> Protected payment workflow
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-600">
-              <ShieldCheck className="h-3 w-3 text-teal-600" /> NTSA & JEVIC Certified
+              <ShieldCheck className="h-3 w-3 text-teal-600" /> Evidence shown per listing
             </span>
           </div>
         </div>

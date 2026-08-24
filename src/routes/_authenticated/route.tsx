@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -10,22 +10,10 @@ export const Route = createFileRoute("/_authenticated")({
         return { user: data.user };
       }
     } catch {
-      // Ignore network errors in demo mode
+      // Treat an unavailable or invalid session as unauthenticated.
     }
 
-    // In demo/interactive simulator mode, create fallback simulated user
-    const activeRole =
-      typeof window !== "undefined"
-        ? localStorage.getItem("autoconnect_active_role") || "buyer"
-        : "buyer";
-
-    return {
-      user: {
-        id: `demo-${activeRole}`,
-        email: `demo-${activeRole}@autoconnect.dev`,
-        user_metadata: { full_name: `Demo ${activeRole.toUpperCase()}` },
-      },
-    };
+    throw redirect({ to: "/login" });
   },
   component: () => <Outlet />,
 });

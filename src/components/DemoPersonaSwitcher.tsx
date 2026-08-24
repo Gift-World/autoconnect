@@ -1,4 +1,4 @@
-import { useAuth, type AppRole } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth, type AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -95,6 +95,8 @@ export function DemoPersonaSwitcher({
 }: DemoPersonaSwitcherProps) {
   const { activeRole, setActiveRole } = useAuth();
   const navigate = useNavigate();
+
+  if (!DEMO_MODE) return null;
 
   const handleSelectPersona = (persona: DemoPersona) => {
     setActiveRole(persona.role);

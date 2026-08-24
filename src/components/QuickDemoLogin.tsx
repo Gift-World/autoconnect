@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useAuth, type AppRole } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth, type AppRole } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,11 +74,13 @@ export function QuickDemoLogin({
   const { loginAsDemo, activeRole } = useAuth();
   const navigate = useNavigate();
 
+  if (!DEMO_MODE) return null;
+
   const handleSelect = (p: PersonaOption) => {
     loginAsDemo(p.role);
     toast.success(`Switched persona to ${p.name} (${p.badge})`);
     if (redirectAfterLogin) {
-      navigate({ to: p.targetPath as any });
+      navigate({ to: p.targetPath as never });
     }
   };
 

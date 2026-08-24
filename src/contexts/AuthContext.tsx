@@ -11,6 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "buyer" | "seller" | "yard_manager" | "admin";
 
+// Demo identities must never become implicit production accounts. They are only
+// available when deliberately enabled in a local development environment.
+export const DEMO_MODE =
+  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+
 export interface RoleInfo {
   role: AppRole;
   label: string;
@@ -291,11 +296,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // When no real Supabase user is logged in, provide active demo persona data
-  const effectiveUser = user ?? DEMO_PROFILES[activeRole]?.user ?? null;
-  const effectiveProfile = profile ?? DEMO_PROFILES[activeRole]?.profile ?? null;
+  // A real Supabase session is required outside explicitly enabled local demos.
+  const effectiveUser = user ?? (DEMO_MODE ? DEMO_PROFILES[activeRole]?.user : null) ?? null;
+  const effectiveProfile =
+    profile ?? (DEMO_MODE ? DEMO_PROFILES[activeRole]?.profile : null) ?? null;
 
   const loginAsDemo = (role: AppRole) => {
+    if (!DEMO_MODE) return;
     setActiveRole(role);
     if (typeof window !== "undefined") {
       try {

@@ -24,9 +24,9 @@ import {
 type HeroTab = "buy" | "import" | "sell";
 
 const HERO_FRAMES = [
-  "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=2400&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=2400&auto=format&fit=crop&q=85",
-  "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=2400&auto=format&fit=crop&q=85",
+  "/images/hero-driving-suv.jpg",
+  "/images/hero-driving-sedan.jpg",
+  "/images/hero-driving-crossover.jpg",
 ];
 
 const POPULAR_AI_PROMPTS = [
@@ -94,20 +94,23 @@ export function CinematicHero() {
     <section className="relative min-h-[94vh] overflow-hidden bg-[#050811] text-white flex flex-col justify-between">
       {/* Cinematic Background with dynamic depth and automotive light streaks */}
       <div className="absolute inset-0 select-none pointer-events-none overflow-hidden">
-        {/* Slow-changing automotive reel gives the hero motion without distracting from search. */}
+        {/* Original driving-car frames rotate slowly; motion blur in each frame makes the reel feel kinetic without video weight. */}
         {HERO_FRAMES.map((src, index) => (
           <img
             key={src}
             src={src}
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.78] contrast-[1.08] transition-[opacity,transform] duration-[1800ms] ease-out motion-reduce:transition-none"
+            className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.82] contrast-[1.05] transition-[opacity,transform,filter] duration-[1800ms] ease-out motion-reduce:transition-none"
             style={{
-              opacity: heroFrame === index ? 0.7 : 0,
-              transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(${heroFrame === index ? 1.08 : 1.03})`,
+              opacity: heroFrame === index ? 0.84 : 0,
+              filter: heroFrame === index ? "saturate(1.04)" : "saturate(.9)",
+              transform: `translate3d(${mousePos.x * 0.6}px, ${mousePos.y * 0.6}px, 0) scale(${heroFrame === index ? 1.09 : 1.03})`,
             }}
           />
         ))}
+
+        <div className="absolute inset-x-0 bottom-[16%] h-px bg-gradient-to-r from-transparent via-cyan-200/35 to-transparent blur-[1px]" />
 
         {/* Multi-layered cinematic darkness & atmospheric gradients */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#050811] via-[#050811]/85 to-transparent" />
@@ -127,7 +130,7 @@ export function CinematicHero() {
 
         <div className="absolute bottom-28 right-4 hidden items-center gap-2 rounded-full border border-white/15 bg-slate-950/45 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-200 backdrop-blur-md sm:flex">
           <span className="h-1.5 w-1.5 rounded-full bg-teal-400 shadow-[0_0_12px_rgba(45,212,191,0.9)]" />
-          Vehicle reel {heroFrame + 1}/{HERO_FRAMES.length}
+          Driving reel {heroFrame + 1}/{HERO_FRAMES.length}
         </div>
       </div>
 
@@ -422,8 +425,8 @@ export function CinematicHero() {
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-2xl font-extrabold tracking-tight text-white">5,000+</p>
-                <p className="text-xs font-semibold text-slate-400">Verified Listings</p>
+                <p className="font-display text-base font-extrabold tracking-tight text-white">Evidence-led</p>
+                <p className="text-xs font-semibold text-slate-400">Vehicle listings</p>
               </div>
             </div>
 
@@ -432,8 +435,8 @@ export function CinematicHero() {
                 <Globe className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-2xl font-extrabold tracking-tight text-white">124</p>
-                <p className="text-xs font-semibold text-slate-400">Countries</p>
+                <p className="font-display text-base font-extrabold tracking-tight text-white">Seller checks</p>
+                <p className="text-xs font-semibold text-slate-400">Before approval</p>
               </div>
             </div>
 
@@ -442,8 +445,8 @@ export function CinematicHero() {
                 <Lock className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-2xl font-extrabold tracking-tight text-white">1,892+</p>
-                <p className="text-xs font-semibold text-slate-400">Successful Sales</p>
+                <p className="font-display text-base font-extrabold tracking-tight text-white">Clear milestones</p>
+                <p className="text-xs font-semibold text-slate-400">Payment workflow</p>
               </div>
             </div>
 
@@ -452,8 +455,8 @@ export function CinematicHero() {
                 <Sparkles className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-display text-2xl font-extrabold tracking-tight text-white">9.7 / 10</p>
-                <p className="text-xs font-semibold text-slate-400">Buyer Rating</p>
+                <p className="font-display text-base font-extrabold tracking-tight text-white">Import support</p>
+                <p className="text-xs font-semibold text-slate-400">Local or global</p>
               </div>
             </div>
           </div>

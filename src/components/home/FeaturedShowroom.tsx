@@ -10,6 +10,9 @@ import {
   Sparkles,
   MapPin,
   Car as CarIcon,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_CARS } from "@/lib/demo-inventory";
@@ -18,9 +21,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleImage } from "@/components/VehicleImage";
+import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer";
 
 export function FeaturedShowroom() {
   const [filterType, setFilterType] = useState<string>("all");
+  const [drawerCar, setDrawerCar] = useState<DrawerCar | null>(null);
 
   const { data: cars, isLoading } = useQuery({
     queryKey: ["featured_showroom_cars"],
@@ -194,14 +199,23 @@ export function FeaturedShowroom() {
                       </div>
                     </div>
 
-                    {/* Trust footer */}
+                    {/* Trust footer & Quick Specs action */}
                     <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px]">
                       <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                         <ShieldCheck className="h-3.5 w-3.5" /> Escrow Protected
                       </span>
-                      <span className="text-muted-foreground font-medium group-hover:text-teal-600 dark:group-hover:text-teal-400 font-bold transition-colors">
-                        View Details →
-                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setDrawerCar(car as DrawerCar);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500/10 hover:bg-teal-500 hover:text-slate-950 text-teal-600 dark:text-teal-400 font-bold transition-colors shadow-sm"
+                      >
+                        <Eye className="w-3 h-3" />
+                        <span>Quick Specs</span>
+                      </button>
                     </div>
                   </div>
                 </Link>
@@ -224,6 +238,13 @@ export function FeaturedShowroom() {
           </Button>
         </div>
       </div>
+
+      {/* Interactive Quick-View Detail Drawer */}
+      <VehicleDrawer
+        car={drawerCar}
+        isOpen={!!drawerCar}
+        onClose={() => setDrawerCar(null)}
+      />
     </section>
   );
 }

@@ -11,6 +11,7 @@ import {
   Car,
   Plane,
   ArrowUpRight,
+  PlusCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { QuickListingModal } from "@/components/listing/QuickListingModal";
 
 type HeroTab = "buy" | "import" | "sell";
 
@@ -40,6 +42,7 @@ export function CinematicHero() {
   const [activeTab, setActiveTab] = useState<HeroTab>("buy");
   const [aiQuery, setAiQuery] = useState("");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [quickListOpen, setQuickListOpen] = useState(false);
   const navigate = useNavigate();
 
   // Subtle parallax tracker on desktop
@@ -405,14 +408,25 @@ export function CinematicHero() {
                     Get an instant AI valuation, verified seller protection, and guaranteed escrow payout.
                   </p>
                 </div>
-                <Button
-                  asChild
-                  className="rounded-2xl bg-teal-500 px-6 font-bold text-slate-950 hover:bg-teal-400 shrink-0 shadow-md"
-                >
-                  <Link to="/seller">
-                    Start Free Listing <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => setQuickListOpen(true)}
+                    className="rounded-2xl bg-teal-500 px-5 font-bold text-slate-950 hover:bg-teal-400 shrink-0 shadow-md gap-1.5"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Quick List Now</span>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="rounded-2xl border-white/20 px-5 font-bold text-white hover:bg-white/10 shrink-0"
+                  >
+                    <Link to="/seller">
+                      Full Seller Portal <ArrowRight className="ml-1.5 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -465,6 +479,12 @@ export function CinematicHero() {
           </div>
         </div>
       </div>
+
+      {/* Quick Registry Listing Modal */}
+      <QuickListingModal
+        isOpen={quickListOpen}
+        onClose={() => setQuickListOpen(false)}
+      />
     </section>
   );
 }

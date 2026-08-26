@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus } from "lucide-react";
+import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -29,6 +29,10 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FavoriteButton } from "@/components/FavoriteButton";
+import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer";
+import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
+import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
+import { QuickListingModal } from "@/components/listing/QuickListingModal";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -117,6 +121,8 @@ function CarsListPage() {
   const [qInput, setQInput] = useState(search.q);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
+  const [drawerCar, setDrawerCar] = useState<DrawerCar | null>(null);
+  const [quickListOpen, setQuickListOpen] = useState(false);
 
   const saveSearch = () => {
     const params = new URLSearchParams();
@@ -269,11 +275,18 @@ function CarsListPage() {
   );
 
   const displayedCars = useMemo(() => {
-    if (!cars) return cars;
-    if (!search.near || !userCoords) return cars;
+    let list = cars ? [...cars] : [];
+    try {
+      const custom = JSON.parse(localStorage.getItem("autoconnect_custom_listings") || "[]");
+      if (Array.isArray(custom) && custom.length > 0) {
+        list = [...custom, ...list];
+      }
+    } catch (_) {}
+
+    if (!search.near || !userCoords) return list;
     const R = 6371; // km
     const toRad = (n: number) => (n * Math.PI) / 180;
-    return cars
+    return list
       .map((c) => {
         if (c.latitude == null || c.longitude == null) return { c, d: Infinity };
         const dLat = toRad(c.latitude - userCoords.lat);
@@ -293,11 +306,20 @@ function CarsListPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-col gap-1">
-        <h1 className="text-3xl font-bold tracking-tight">Browse Cars</h1>
-        <p className="text-sm text-muted-foreground">
-          Verified listings from sellers worldwide.
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight">Browse Cars</h1>
+          <p className="text-sm text-muted-foreground">
+            Verified listings from sellers worldwide.
+          </p>
+        </div>
+        <Button 
+          onClick={() => setQuickListOpen(true)} 
+          className="gap-2 self-start sm:self-auto font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md"
+        >
+          <PlusCircle className="w-4 h-4" />
+          <span>List a Vehicle</span>
+        </Button>
       </div>
 
       <form
@@ -370,6 +392,13 @@ function CarsListPage() {
         </aside>
 
         <section>
+          {/* Active Filter Chips Bar */}
+          <ActiveFilterChips
+            search={search}
+            onRemove={(key) => updateSearch({ [key]: undefined })}
+            onResetAll={() => navigate({ search: {} as never })}
+          />
+
           <div className="mb-3 flex items-center justify-between gap-2 text-sm text-muted-foreground">
             <span className="truncate">
               {isLoading
@@ -453,12 +482,29 @@ function CarsListPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {displayedCars.map((car) => (
-                <CarCard key={car.id} car={car} />
+                <CarCard 
+                  key={car.id} 
+                  car={car} 
+                  onQuickView={(c) => setDrawerCar(c as any)}
+                />
               ))}
             </div>
           )}
         </section>
       </div>
+
+      {/* Interactive Detail Drawer */}
+      <VehicleDrawer
+        car={drawerCar}
+        isOpen={!!drawerCar}
+        onClose={() => setDrawerCar(null)}
+      />
+
+      {/* Quick Showroom Listing Modal */}
+      <QuickListingModal
+        isOpen={quickListOpen}
+        onClose={() => setQuickListOpen(false)}
+      />
     </div>
   );
 }
@@ -535,40 +581,13 @@ function FilterFields({
           </SelectContent>
         </Select>
       </div>
-      <div className="grid grid-cols-2 gap-2">
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Min price
-          </Label>
-          <Input
-            type="number"
-            inputMode="numeric"
-            placeholder="0"
-            value={search.minPrice ?? ""}
-            onChange={(e) =>
-              updateSearch({
-                minPrice: e.target.value ? Number(e.target.value) : undefined,
-              })
-            }
-          />
-        </div>
-        <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Max price
-          </Label>
-          <Input
-            type="number"
-            inputMode="numeric"
-            placeholder="Any"
-            value={search.maxPrice ?? ""}
-            onChange={(e) =>
-              updateSearch({
-                maxPrice: e.target.value ? Number(e.target.value) : undefined,
-              })
-            }
-          />
-        </div>
-      </div>
+      <PriceRangeSlider
+        maxPrice={search.maxPrice}
+        onChange={(val) => updateSearch({ maxPrice: val })}
+        min={0}
+        max={100000}
+        step={2500}
+      />
       <div className="grid grid-cols-2 gap-2">
         <div className="space-y-2">
           <Label className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -638,72 +657,145 @@ function FilterFields({
   );
 }
 
-function CarCard({ car }: { car: CarRow }) {
-  const img = primaryImage(car);
+function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow) => void }) {
+  const sorted = [...(car.car_images ?? [])].sort(
+    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
+  );
+  const [imgIdx, setImgIdx] = useState(0);
+  const images = sorted.length > 0 ? sorted.map(i => i.image_url) : [];
+  const img = images[imgIdx] ?? primaryImage(car);
   const country = countryByCode(car.country);
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setImgIdx((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setImgIdx((prev) => (prev + 1) % images.length);
+  };
+
   return (
-    <Link
-      to="/cars/$id"
-      params={{ id: car.id }}
-      className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {img ? (
-          <img
-            src={img}
-            alt={car.title}
-            loading="lazy"
-            className="h-full w-full object-cover transition group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-            No photo
+    <div className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <Link
+        to="/cars/$id"
+        params={{ id: car.id }}
+        className="block"
+      >
+        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+          {img ? (
+            <img
+              src={img}
+              alt={car.title}
+              loading="lazy"
+              className="h-full w-full object-cover transition group-hover:scale-[1.03]"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+              No photo
+            </div>
+          )}
+
+          <div className="absolute left-2 top-2 flex flex-wrap gap-1.5 z-10">
+            {car.featured && (
+              <Badge className="bg-accent text-accent-foreground hover:bg-accent">
+                Featured
+              </Badge>
+            )}
+            {car.available_for_export && (
+              <Badge variant="secondary" className="bg-white/95 text-foreground">
+                <Plane className="mr-1 h-3 w-3" /> Exportable
+              </Badge>
+            )}
           </div>
-        )}
-        <div className="absolute left-2 top-2 flex flex-wrap gap-1.5">
-          {car.featured && (
-            <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-              Featured
+          <div className="absolute right-2 top-2 flex items-center gap-2 z-10">
+            <Badge
+              variant="outline"
+              className="border-white/40 bg-black/50 text-white backdrop-blur"
+            >
+              {car.right_hand_drive ? "RHD" : "LHD"}
             </Badge>
+          </div>
+          <FavoriteButton carId={car.id} className="absolute bottom-2 right-2 z-10" />
+
+          {/* Multi-Photo Carousel Controls */}
+          {images.length > 1 && (
+            <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
+              <button
+                type="button"
+                onClick={handlePrev}
+                className="p-1 rounded-full bg-black/75 text-white hover:bg-black border border-white/20 transition-transform active:scale-90"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleNext}
+                className="p-1 rounded-full bg-black/75 text-white hover:bg-black border border-white/20 transition-transform active:scale-90"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           )}
-          {car.available_for_export && (
-            <Badge variant="secondary" className="bg-white/95 text-foreground">
-              <Plane className="mr-1 h-3 w-3" /> Exportable
-            </Badge>
+
+          {/* Dots Indicator */}
+          {images.length > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+              {images.slice(0, 5).map((_, idx) => (
+                <span
+                  key={idx}
+                  className={`h-1 rounded-full transition-all ${
+                    idx === imgIdx ? "w-3 bg-teal-400" : "w-1 bg-white/60"
+                  }`}
+                />
+              ))}
+            </div>
           )}
         </div>
-        <div className="absolute right-2 top-2 flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="border-white/40 bg-black/50 text-white backdrop-blur"
-          >
-            {car.right_hand_drive ? "RHD" : "LHD"}
-          </Badge>
-        </div>
-        <FavoriteButton carId={car.id} className="absolute bottom-2 right-2" />
-      </div>
-      <div className="p-4">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {car.year} · {car.condition ?? "—"}
-        </p>
-        <h3 className="mt-1 line-clamp-1 text-base font-semibold">{car.title}</h3>
-        <p className="mt-2 text-lg font-bold text-primary">
-          {formatPrice(Number(car.price), car.currency)}
-        </p>
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            {country?.flag} {car.location_display ?? country?.name ?? car.country}
-          </span>
-          {car.mileage != null && (
+        <div className="p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {car.year} · {car.condition ?? "—"}
+          </p>
+          <h3 className="mt-1 line-clamp-1 text-base font-semibold">{car.title}</h3>
+          <p className="mt-2 text-lg font-bold text-primary">
+            {formatPrice(Number(car.price), car.currency)}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <Gauge className="h-3 w-3" />
-              {car.mileage.toLocaleString()} {car.mileage_unit}
+              <MapPin className="h-3 w-3" />
+              {country?.flag} {car.location_display ?? country?.name ?? car.country}
             </span>
-          )}
+            {car.mileage != null && (
+              <span className="inline-flex items-center gap-1">
+                <Gauge className="h-3 w-3" />
+                {car.mileage.toLocaleString()} {car.mileage_unit}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+
+      {/* Quick View Button */}
+      {onQuickView && (
+        <div className="px-4 pb-3">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onQuickView(car);
+            }}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-secondary/80 hover:bg-teal-500 hover:text-slate-950 text-xs font-semibold text-muted-foreground transition-all duration-200 border border-border"
+          >
+            <Eye className="w-3.5 h-3.5" />
+            <span>Quick Specs & Inquiry</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

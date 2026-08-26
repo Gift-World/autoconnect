@@ -64,7 +64,7 @@ export function FinalCinematicCTA() {
               variant="ghost"
               className="h-14 rounded-2xl px-6 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/10"
             >
-              <Link to="/seller">
+              <Link to="/register" search={{ role: 'seller' } as any}>
                 Sell Your Car <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>

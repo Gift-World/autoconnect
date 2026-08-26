@@ -372,6 +372,7 @@ function CarDetailPage() {
             <VerifiedDocsBadge carId={car.id} />
           </div>
           <VehiclePassport carId={car.id} />
+          <InspectionSummary carId={car.id} />
           <VehicleDecisionChecklist
             carId={car.id}
             documentsVerified={car.documents_verified}
@@ -397,18 +398,11 @@ function CarDetailPage() {
 
       {/* Sticky mobile contact bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
-        <div className="mx-auto flex max-w-[1280px] items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs text-muted-foreground">
-              {car.year} · {car.make_name}
-            </p>
-            <p className="truncate text-base font-bold text-primary">
-              {formatPrice(Number(car.price), car.currency)}
-            </p>
-          </div>
+        <div className="mx-auto flex max-w-[1280px] items-center gap-2 sm:gap-3">
           <FavoriteButton carId={car.id} />
           <Button
             type="button"
+            variant="outline"
             onClick={() =>
               document
                 .getElementById("inquiry-form")
@@ -416,7 +410,17 @@ function CarDetailPage() {
             }
             className="shrink-0"
           >
-            <Send className="mr-2 h-4 w-4" /> Contact
+            <Send className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Contact</span>
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              const el = document.querySelector("aside");
+              el?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}
+            className="flex-1 bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 text-sm sm:text-base py-5 sm:py-2"
+          >
+            Start Secure Purchase
           </Button>
         </div>
       </div>

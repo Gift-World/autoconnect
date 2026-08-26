@@ -27,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { COUNTRIES } from "@/lib/countries";
+import { KraCrspCalculator } from "@/components/import/KraCrspCalculator";
 
 const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AED", "KES", "NGN", "GHS", "ZAR", "CNY", "INR", "AUD", "CAD"] as const;
 
@@ -159,13 +160,15 @@ function ImportPage() {
               <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
               <h3 className="mt-3 text-xl font-semibold">Request received</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Verified exporters will be notified. You'll receive proposals
-                by email within 24–72 hours.
+                Verified exporters will be notified. Our import specialists typically respond within 24-48 hours.
               </p>
-              <div className="mt-5 flex justify-center gap-3">
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <Button variant="outline" onClick={() => setSubmitted(false)}>
                   Submit another
                 </Button>
+                <Link to="/account/import-requests">
+                  <Button variant="outline">Track your request</Button>
+                </Link>
                 <Link to="/cars">
                   <Button>Browse cars</Button>
                 </Link>
@@ -364,6 +367,19 @@ function ImportPage() {
           </div>
         </aside>
       </div>
+
+      {/* Duty Calculator Section */}
+      <section className="border-t bg-muted/10 py-16">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-bold">Calculate Your Import Duty</h2>
+            <p className="mt-2 text-muted-foreground">
+              Use our built-in KRA CRSP calculator to estimate the total duty payable for your imported vehicle based on current rates.
+            </p>
+          </div>
+          <KraCrspCalculator />
+        </div>
+      </section>
 
       {/* How importing works */}
       <section className="border-t bg-background py-16">

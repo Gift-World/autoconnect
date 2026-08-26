@@ -27,6 +27,16 @@ const FinalCinematicCTA = lazy(() =>
     default: FinalCinematicCTA,
   })),
 );
+const EditorialTestimonials = lazy(() =>
+  import("@/components/home/EditorialTestimonials").then(({ EditorialTestimonials }) => ({
+    default: EditorialTestimonials,
+  })),
+);
+const EscrowSecurity = lazy(() =>
+  import("@/components/home/EscrowSecurity").then(({ EscrowSecurity }) => ({
+    default: EscrowSecurity,
+  })),
+);
 
 function HomeSection({ children }: { children: ReactNode }) {
   return (
@@ -67,6 +77,8 @@ function HomePage() {
       <CinematicHero />
       <HomeSection><FeaturedShowroom /></HomeSection>
       <HomeSection><TrustPipeline /></HomeSection>
+      <HomeSection><EditorialTestimonials /></HomeSection>
+      <HomeSection><EscrowSecurity /></HomeSection>
       <HomeSection><DealershipShowroom /></HomeSection>
       <HomeSection><CinematicImport /></HomeSection>
       <HomeSection><FinalCinematicCTA /></HomeSection>

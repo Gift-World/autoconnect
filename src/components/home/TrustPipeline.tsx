@@ -7,11 +7,7 @@ import {
   Lock,
   Handshake,
   CheckCircle2,
-  ArrowRight,
-  Sparkles,
 } from "lucide-react";
-import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 
 const VERIFICATION_STEPS = [
   {
@@ -91,6 +87,7 @@ export function TrustPipeline() {
               <div
                 key={s.step}
                 onMouseEnter={() => setActiveStep(idx)}
+                onClick={() => setActiveStep(idx)}
                 className={`relative flex flex-col justify-between rounded-3xl border p-7 transition-all duration-300 ${
                   isHovered
                     ? "border-teal-500/50 bg-card shadow-xl -translate-y-1"

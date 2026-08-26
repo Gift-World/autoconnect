@@ -25,6 +25,7 @@ import { useAuth, roleHomePath } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const navLinks = [
   { to: "/cars", label: "Browse Cars" },
@@ -103,6 +104,7 @@ export function Navbar() {
             <div className="h-9 w-20 animate-pulse rounded-xl bg-muted" />
           ) : user ? (
             <>
+              <ThemeToggle />
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -173,8 +175,12 @@ export function Navbar() {
             </>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
+              <ThemeToggle />
               <Button asChild variant="ghost" size="sm" className="rounded-xl font-semibold text-xs h-9 px-4">
                 <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="rounded-xl font-semibold text-xs h-9 px-4">
+                <Link to="/register">Register</Link>
               </Button>
               <Button
                 asChild
@@ -199,7 +205,8 @@ export function Navbar() {
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-teal-400">
                     <Car className="h-4 w-4" />
                   </span>
-                  <span className="font-display font-extrabold text-lg">AutoConnect</span>
+                  <span className="font-display font-extrabold text-lg flex-1">AutoConnect</span>
+                  <ThemeToggle />
                 </div>
 
                 <div className="mb-4 pb-4 border-b border-border">

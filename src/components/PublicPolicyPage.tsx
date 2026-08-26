@@ -18,20 +18,20 @@ export function PublicPolicyPage({
   return (
     <main className="bg-gradient-to-b from-slate-50 via-white to-teal-50/40 py-12 sm:py-16">
       <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+        <div className="rounded-3xl border border-border bg-card p-7 shadow-sm sm:p-10">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">{eyebrow}</p>
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
             {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">{intro}</p>
-          <p className="mt-5 text-xs text-slate-500">Last updated: 24 August 2026. Obtain local legal review before public launch.</p>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">{intro}</p>
+          <p className="mt-5 text-xs text-muted-foreground">Last updated: 24 August 2026. Obtain local legal review before public launch.</p>
         </div>
 
         <div className="mt-6 space-y-4">
           {sections.map((section) => (
-            <section key={section.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="text-lg font-bold text-slate-900">{section.title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{section.body}</p>
+            <section key={section.title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <h2 className="text-lg font-bold text-foreground">{section.title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{section.body}</p>
             </section>
           ))}
         </div>
@@ -48,7 +48,7 @@ export function PublicPolicyPage({
 
 function Action({ icon: Icon, label, to }: { icon: typeof CircleHelp; label: string; to: string }) {
   return (
-    <Button asChild variant="outline" className="h-11 justify-between rounded-xl border-slate-200 bg-white font-semibold hover:border-teal-300 hover:bg-teal-50">
+    <Button asChild variant="outline" className="h-11 justify-between rounded-xl border-border bg-card font-semibold hover:border-teal-300 hover:bg-teal-500/10">
       <Link to={to as never}>{label}<Icon className="h-4 w-4 text-teal-600" /><ArrowRight className="hidden" /></Link>
     </Button>
   );

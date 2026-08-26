@@ -20,15 +20,15 @@ function TrustPage() {
       <div className="mx-auto max-w-[1120px] px-4 sm:px-6">
         <div className="max-w-3xl">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">Trust center</p>
-          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">Evidence before a decision.</h1>
-          <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">AutoConnect is designed to make the information behind a vehicle visible. Treat every status as evidence to review—not a substitute for your own inspection or professional advice.</p>
+          <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">Evidence before a decision.</h1>
+          <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">AutoConnect is designed to make the information behind a vehicle visible. Treat every status as evidence to review—not a substitute for your own inspection or professional advice.</p>
         </div>
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
           {checks.map(({ icon: Icon, title, body }) => (
-            <section key={title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-50 text-teal-700"><Icon className="h-5 w-5" /></span>
-              <h2 className="mt-4 text-lg font-bold text-slate-900">{title}</h2>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>
+            <section key={title} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-500/10 text-teal-700"><Icon className="h-5 w-5" /></span>
+              <h2 className="mt-4 text-lg font-bold text-foreground">{title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
             </section>
           ))}
         </div>

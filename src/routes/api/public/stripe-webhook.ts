@@ -37,16 +37,21 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .eq("id", txId)
             .maybeSingle();
 
-          await supabaseAdmin
+          const { data: updated } = await supabaseAdmin
             .from("transactions")
             .update({
               status: "payment_received",
               paid_at: new Date().toISOString(),
               stripe_charge_id: typeof pi.latest_charge === "string" ? pi.latest_charge : pi.latest_charge?.id ?? null,
             })
-            .eq("id", txId);
+            .eq("id", txId)
+            .eq("status", "pending")
+            .select("id")
+            .maybeSingle();
 
-          if (tx) {
+          // Stripe retries webhooks. Only the first successful transition can
+          // update the listing and notify users.
+          if (tx && updated) {
             // @ts-expect-error joined
             await supabaseAdmin.from("cars").update({ status: "under_transaction" }).eq("id", tx.cars.id);
             // @ts-expect-error joined

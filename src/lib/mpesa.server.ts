@@ -24,6 +24,21 @@ function getDarajaConfig(): DarajaConfig {
   };
 }
 
+function hasLiveCredentials(config: DarajaConfig) {
+  return (
+    config.consumerKey !== "test_consumer_key" &&
+    config.consumerSecret !== "test_consumer_secret" &&
+    Boolean(process.env.MPESA_CONSUMER_KEY) &&
+    Boolean(process.env.MPESA_CONSUMER_SECRET) &&
+    Boolean(process.env.MPESA_PASSKEY) &&
+    Boolean(process.env.MPESA_SHORTCODE)
+  );
+}
+
+function allowSimulation() {
+  return process.env.MPESA_ALLOW_SIMULATION === "true";
+}
+
 function getBaseUrl(env: "sandbox" | "production") {
   return env === "production"
     ? "https://api.safaricom.co.ke"
@@ -128,10 +143,7 @@ export async function sendMpesaStkPush({
   const roundedAmount = Math.max(1, Math.round(amount));
 
   // If live keys are configured and not placeholder test keys, perform real HTTP call
-  const isRealConfig =
-    config.consumerKey !== "test_consumer_key" &&
-    config.consumerSecret !== "test_consumer_secret" &&
-    Boolean(process.env.MPESA_CONSUMER_KEY);
+  const isRealConfig = hasLiveCredentials(config);
 
   if (isRealConfig) {
     try {
@@ -186,8 +198,12 @@ export async function sendMpesaStkPush({
         mode: "live",
       };
     } catch (err) {
-      console.warn("Daraja Live API call failed, falling back to sandbox simulator:", err);
+      throw new Error(`M-Pesa STK push failed: ${(err as Error).message}`);
     }
+  }
+
+  if (!allowSimulation()) {
+    throw new Error("M-Pesa is not configured. Contact AutoConnect support or choose another payment method.");
   }
 
   // High-fidelity Sandbox Simulator for development & preview
@@ -228,9 +244,7 @@ export async function queryMpesaStkPush({
   checkoutRequestId: string;
 }): Promise<StkQueryStatus> {
   const config = getDarajaConfig();
-  const isRealConfig =
-    config.consumerKey !== "test_consumer_key" &&
-    Boolean(process.env.MPESA_CONSUMER_KEY);
+  const isRealConfig = hasLiveCredentials(config);
 
   if (isRealConfig) {
     try {
@@ -270,9 +284,13 @@ export async function queryMpesaStkPush({
         }
         return { status: "failed", resultCode: json.ResultCode, resultDesc: json.ResultDesc };
       }
-    } catch {
-      // Continue to simulator
+    } catch (err) {
+      throw new Error(`M-Pesa payment status check failed: ${(err as Error).message}`);
     }
+  }
+
+  if (!allowSimulation()) {
+    throw new Error("M-Pesa is not configured.");
   }
 
   // Sandbox simulation: transitions from pending to success after 3.5 seconds

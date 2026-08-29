@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight, Scale } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -33,6 +33,8 @@ import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer
 import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
 import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
 import { QuickListingModal } from "@/components/listing/QuickListingModal";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useVehicleComparison } from "@/contexts/ComparisonContext";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -658,6 +660,9 @@ function FilterFields({
 }
 
 function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow) => void }) {
+  const { formatPrice } = useCurrency();
+  const { toggleCompare, isInComparison } = useVehicleComparison();
+
   const sorted = [...(car.car_images ?? [])].sort(
     (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
@@ -665,6 +670,9 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
   const images = sorted.length > 0 ? sorted.map(i => i.image_url) : [];
   const img = images[imgIdx] ?? primaryImage(car);
   const country = countryByCode(car.country);
+
+  const numericPrice = Number(car.price) || 0;
+  const isCompared = isInComparison(car.id);
 
   const handlePrev = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -676,6 +684,25 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
     e.preventDefault();
     e.stopPropagation();
     setImgIdx((prev) => (prev + 1) % images.length);
+  };
+
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCompare({
+      id: car.id,
+      make: car.make_name || car.title.split(" ")[0] || "Vehicle",
+      model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
+      year: car.year,
+      price: numericPrice,
+      mileage: car.mileage,
+      fuel_type: car.fuel_type,
+      transmission: car.transmission,
+      body_type: car.body_type,
+      country: car.country,
+      image_url: img,
+      verified: car.featured,
+    });
   };
 
   return (
@@ -711,10 +738,22 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
               </Badge>
             )}
           </div>
-          <div className="absolute right-2 top-2 flex items-center gap-2 z-10">
+          <div className="absolute right-2 top-2 flex items-center gap-1.5 z-10">
+            <button
+              type="button"
+              onClick={handleCompareClick}
+              className={`p-1.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
+                isCompared
+                  ? "bg-accent text-accent-foreground font-bold ring-2 ring-accent"
+                  : "bg-black/60 hover:bg-black text-white/90 border border-white/20"
+              }`}
+              title={isCompared ? "Remove from comparison" : "Add to comparison"}
+            >
+              <Scale className="h-3.5 w-3.5" />
+            </button>
             <Badge
               variant="outline"
-              className="border-white/40 bg-black/50 text-white backdrop-blur"
+              className="border-white/40 bg-black/50 text-white backdrop-blur text-[11px]"
             >
               {car.right_hand_drive ? "RHD" : "LHD"}
             </Badge>
@@ -760,8 +799,8 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
             {car.year} · {car.condition ?? "—"}
           </p>
           <h3 className="mt-1 line-clamp-1 text-base font-semibold">{car.title}</h3>
-          <p className="mt-2 text-lg font-bold text-primary">
-            {formatPrice(Number(car.price), car.currency)}
+          <p className="mt-2 text-lg font-bold text-accent font-mono">
+            {formatPrice(numericPrice)}
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">

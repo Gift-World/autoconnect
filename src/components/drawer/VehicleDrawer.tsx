@@ -15,7 +15,8 @@ import {
   Share2,
   FileCheck,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  Scale
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +25,9 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { countryByCode } from "@/lib/countries";
 import { DrawerInquiryForm } from "./DrawerInquiryForm";
 import { VehicleImage } from "@/components/VehicleImage";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useVehicleComparison } from "@/contexts/ComparisonContext";
+import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
 
 export type DrawerCar = {
   id: string;
@@ -61,6 +65,8 @@ interface VehicleDrawerProps {
 }
 
 export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
+  const { formatPrice } = useCurrency();
+  const { toggleCompare, isInComparison } = useVehicleComparison();
   const [selectedImgIndex, setSelectedImgIndex] = useState(0);
 
   useEffect(() => {
@@ -75,9 +81,25 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
     : ["/images/hero-driving-suv.jpg"];
 
   const country = countryByCode(car.country);
-  const formattedPrice = typeof car.price === "number"
-    ? `${car.currency || "USD"} ${car.price.toLocaleString()}`
-    : `${car.currency || ""} ${car.price}`;
+  const numericPrice = typeof car.price === "number" ? car.price : parseFloat(car.price) || 0;
+  const isCompared = isInComparison(car.id);
+
+  const handleCompareClick = () => {
+    toggleCompare({
+      id: car.id,
+      make: car.make_name || car.title.split(" ")[0] || "Vehicle",
+      model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
+      year: car.year,
+      price: numericPrice,
+      mileage: car.mileage,
+      fuel_type: car.fuel_type,
+      transmission: car.transmission,
+      body_type: car.body_type,
+      country: car.country,
+      image_url: images[0],
+      verified: car.featured,
+    });
+  };
 
   const handlePrev = () => {
     setSelectedImgIndex((prev) => (prev - 1 + images.length) % images.length);
@@ -112,6 +134,19 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCompareClick}
+              className={`rounded-xl h-9 px-2.5 gap-1 text-xs border-border ${
+                isCompared ? "bg-accent text-accent-foreground font-bold border-accent" : ""
+              }`}
+              title="Compare vehicle"
+            >
+              <Scale className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{isCompared ? "Compared" : "Compare"}</span>
+            </Button>
             <FavoriteButton carId={car.id} />
             <Button
               variant="ghost"
@@ -188,21 +223,30 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
               <span className="text-[11px] uppercase font-bold text-muted-foreground block tracking-wider">
                 Listed Price
               </span>
-              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                {formattedPrice}
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight font-mono">
+                {formatPrice(numericPrice)}
               </span>
             </div>
 
-            <div className="flex flex-col items-end gap-1">
+            <div className="flex flex-col items-end gap-1.5">
               <Badge className="bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30 font-bold text-xs">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1" />
                 Escrow Protected
               </Badge>
-              {car.available_for_export && (
-                <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-1">
-                  <Plane className="w-3 h-3" /> Export Ready
-                </span>
-              )}
+              <WhatsAppConcierge
+                car={{
+                  id: car.id,
+                  make: car.make_name || car.title.split(" ")[0] || "Vehicle",
+                  model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
+                  year: car.year,
+                  price: numericPrice,
+                  location: car.location_display || car.country,
+                  seller_phone: car.seller?.phone,
+                  seller_whatsapp: car.seller?.phone,
+                }}
+                compact
+                className="h-8 text-xs py-1 px-2.5 rounded-lg"
+              />
             </div>
           </div>
 

@@ -30,6 +30,9 @@ import {
   CalendarCheck,
   X,
   CheckCircle2,
+  Scale,
+  RotateCcw,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +45,10 @@ import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
 import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
+import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
+import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useVehicleComparison } from "@/contexts/ComparisonContext";
 import {
   Form,
   FormControl,
@@ -214,6 +221,10 @@ export const Route = createFileRoute("/cars/$id")({
 
 function CarDetailPage() {
   const { id } = Route.useParams();
+  const { formatPrice } = useCurrency();
+  const { toggleCompare, isInComparison } = useVehicleComparison();
+  const [mediaTab, setMediaTab] = useState<"photos" | "360">("photos");
+
   const { data: car } = useQuery({
     queryKey: ["car", id],
     queryFn: () => fetchCar(id),
@@ -229,6 +240,27 @@ function CarDetailPage() {
   const images = [...car.car_images].sort((a, b) => a.sort_order - b.sort_order);
   if (images.length === 0) images.push({ image_url: "", is_primary: true, sort_order: 0 });
 
+  const isCompared = isInComparison(car.id);
+
+  const handleCompareToggle = () => {
+    toggleCompare({
+      id: car.id,
+      make: car.make_name || car.title.split(" ")[0] || "Vehicle",
+      model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
+      year: car.year,
+      price: Number(car.price),
+      mileage: car.mileage,
+      fuel_type: car.fuel_type,
+      transmission: car.transmission,
+      body_type: car.body_type,
+      country: car.country,
+      city: car.city,
+      features: car.features,
+      image_url: images[0]?.image_url,
+      verified: car.featured || car.inspection_verified,
+    });
+  };
+
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6">
       <div className="flex items-center justify-between gap-3">
@@ -238,13 +270,69 @@ function CarDetailPage() {
         >
           <ChevronLeft className="h-4 w-4" /> Back to listings
         </Link>
-        <ShareButton title={car.title} />
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleCompareToggle}
+            className={`gap-1.5 text-xs rounded-xl border-border ${
+              isCompared ? "bg-accent text-accent-foreground font-semibold border-accent" : ""
+            }`}
+          >
+            <Scale className="h-3.5 w-3.5" />
+            <span>{isCompared ? "In Comparison" : "Compare"}</span>
+          </Button>
+          <ShareButton title={car.title} />
+        </div>
       </div>
 
       <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_380px]">
         {/* LEFT */}
         <div className="space-y-6">
-          <Gallery images={images} title={car.title} />
+          {/* Media View Mode Switcher */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 p-1 bg-muted/80 rounded-2xl border border-border">
+              <button
+                type="button"
+                onClick={() => setMediaTab("photos")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  mediaTab === "photos"
+                    ? "bg-card text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                <span>Photos ({images.length})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMediaTab("360")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  mediaTab === "360"
+                    ? "bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>360° Studio Spin</span>
+                <span className="bg-teal-400/30 text-teal-950 dark:text-teal-100 text-[9px] px-1.5 py-0.2 rounded-full font-black">
+                  3D
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Interactive Media Stage */}
+          {mediaTab === "photos" ? (
+            <Gallery images={images} title={car.title} />
+          ) : (
+            <StudioSpinViewer
+              images={images.map((i) => i.image_url)}
+              vehicleTitle={car.title}
+              year={car.year}
+            />
+          )}
 
           {/* Title + badges */}
           <div>
@@ -270,8 +358,8 @@ function CarDetailPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {car.year} · {car.make_name} {car.model_name ?? ""}
             </p>
-            <p className="mt-3 text-3xl font-bold text-primary">
-              {formatPrice(Number(car.price), car.currency)}
+            <p className="mt-3 text-3xl font-bold text-accent font-mono">
+              {formatPrice(Number(car.price))}
             </p>
             <p className="mt-2 inline-flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
@@ -418,6 +506,7 @@ function CarDetailPage() {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 sm:gap-3">
           <FavoriteButton carId={car.id} />
+          <WhatsAppConcierge car={car} compact className="h-10 px-3 shrink-0 rounded-xl" />
           <Button
             type="button"
             variant="outline"
@@ -426,7 +515,7 @@ function CarDetailPage() {
                 .getElementById("inquiry-form")
                 ?.scrollIntoView({ behavior: "smooth", block: "start" })
             }
-            className="shrink-0"
+            className="shrink-0 rounded-xl h-10 px-3"
           >
             <Send className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Contact</span>
           </Button>
@@ -436,9 +525,9 @@ function CarDetailPage() {
               const el = document.querySelector("aside");
               el?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
-            className="flex-1 bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 text-sm sm:text-base py-5 sm:py-2"
+            className="flex-1 bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 text-xs sm:text-sm h-10 rounded-xl"
           >
-            Start Secure Purchase
+            Start Purchase
           </Button>
         </div>
       </div>
@@ -1005,8 +1094,9 @@ function BuyBox({ car }: { car: CarDetail }) {
           setOpen(true);
         }}
       >
-        <Lock className="mr-2 h-4 w-4" /> Pay or reserve {formatPrice(breakdown.total, car.currency)}
+        <Lock className="mr-2 h-4 w-4" /> Pay or reserve {formatPrice(breakdown.total)}
       </Button>
+      <WhatsAppConcierge car={car} compact className="mt-2.5 w-full h-11 rounded-xl" />
       <ul className="mt-4 space-y-1.5 text-[11px] text-muted-foreground">
         <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Payment protected</li>
         <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Funds released after verification</li>

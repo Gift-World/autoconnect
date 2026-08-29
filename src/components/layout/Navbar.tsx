@@ -9,6 +9,7 @@ import {
   Car,
   Store,
   Compass,
+  Scale,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -26,11 +27,13 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 
 const navLinks = [
   { to: "/cars", label: "Browse Cars" },
   { to: "/yards", label: "Car Yards" },
   { to: "/import", label: "Import a Car" },
+  { to: "/compare", label: "Compare" },
   { to: "/how-payments-work", label: "How Payments Work" },
 ] as const;
 
@@ -104,6 +107,7 @@ export function Navbar() {
             <div className="h-9 w-20 animate-pulse rounded-xl bg-muted" />
           ) : user ? (
             <>
+              <CurrencySwitcher />
               <ThemeToggle />
               <NotificationBell />
               <DropdownMenu>
@@ -142,6 +146,11 @@ export function Navbar() {
                       <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl">
+                    <Link to="/compare">
+                      <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground px-3">
                     Portals & Management
@@ -175,6 +184,7 @@ export function Navbar() {
             </>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
+              <CurrencySwitcher />
               <ThemeToggle />
               <Button asChild variant="ghost" size="sm" className="rounded-xl font-semibold text-xs h-9 px-4">
                 <Link to="/login">Login</Link>
@@ -206,6 +216,7 @@ export function Navbar() {
                     <Car className="h-4 w-4" />
                   </span>
                   <span className="font-display font-extrabold text-lg flex-1">AutoConnect</span>
+                  <CurrencySwitcher />
                   <ThemeToggle />
                 </div>
 

@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Star, Gauge, Fuel, Settings2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Gauge, Fuel, Settings2, Eye, ChevronLeft, ChevronRight, Scale, Check } from "lucide-react";
 import { countryByCode } from "@/lib/countries";
 import { VehicleImage } from "@/components/VehicleImage";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { useVehicleComparison } from "@/contexts/ComparisonContext";
 
 export type CarCardData = {
   id: string;
@@ -47,6 +49,9 @@ export function CarCard({
   distanceKm?: number;
   onQuickView?: (car: CarCardData) => void;
 }) {
+  const { formatPrice } = useCurrency();
+  const { toggleCompare, isInComparison } = useVehicleComparison();
+
   const sorted = [...(car.car_images ?? [])].sort(
     (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
@@ -55,6 +60,9 @@ export function CarCard({
   const images = sorted.length > 0 ? sorted.map(i => i.image_url) : [];
   const activeImg = images[imgIndex] ?? sorted.find((i) => i.is_primary)?.image_url ?? sorted[0]?.image_url;
   const country = countryByCode(car.country);
+
+  const numericPrice = typeof car.price === "string" ? parseFloat(car.price) || 0 : car.price;
+  const isCompared = isInComparison(car.id);
 
   const handlePrev = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -66,6 +74,25 @@ export function CarCard({
     e.preventDefault();
     e.stopPropagation();
     setImgIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCompare({
+      id: car.id,
+      make: car.make_name || car.title.split(" ")[0] || "Vehicle",
+      model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
+      year: car.year,
+      price: numericPrice,
+      mileage: car.mileage,
+      fuel_type: car.fuel_type,
+      transmission: car.transmission,
+      body_type: car.body_type,
+      country: car.country,
+      image_url: activeImg,
+      verified: car.featured,
+    });
   };
 
   return (
@@ -106,14 +133,27 @@ export function CarCard({
             ) : null}
           </div>
 
-          {/* top right: featured star */}
-          {car.featured ? (
-            <div className="absolute right-3 top-3 z-10">
+          {/* top right: featured star & compare button */}
+          <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleCompareClick}
+              className={`p-1.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
+                isCompared
+                  ? "bg-accent text-accent-foreground font-bold ring-2 ring-accent"
+                  : "bg-black/60 hover:bg-black text-white/90 border border-white/20"
+              }`}
+              title={isCompared ? "Remove from comparison" : "Add to comparison"}
+            >
+              <Scale className="h-3.5 w-3.5" />
+            </button>
+
+            {car.featured ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold text-accent-foreground shadow-sm">
                 <Star className="h-3 w-3 fill-current" /> Featured
               </span>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
 
           {/* Multi-Photo Carousel Controls on Hover */}
           {images.length > 1 && (
@@ -155,7 +195,7 @@ export function CarCard({
           <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-3 text-white z-10">
             <div className="min-w-0">
               <p className="truncate text-base font-bold tabular drop-shadow-sm sm:text-lg">
-                {formatPrice(car.price, car.currency)}
+                {formatPrice(numericPrice)}
               </p>
               <p className="mt-0.5 truncate text-[11px] font-medium text-white/85">
                 {car.year} · {car.right_hand_drive ? "RHD" : "LHD"}

@@ -174,21 +174,32 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { ComparisonProvider } from "@/contexts/ComparisonContext";
+import { CompareFloatingBar } from "@/components/compare/CompareFloatingBar";
+import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <div className="flex min-h-screen flex-col bg-background">
-          <Navbar />
-          <main className="flex-1">
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
-        <Toaster richColors position="top-right" />
+        <CurrencyProvider>
+          <ComparisonProvider>
+            <div className="flex min-h-screen flex-col bg-background">
+              <Navbar />
+              <main className="flex-1">
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </main>
+              <Footer />
+            </div>
+            <CompareFloatingBar />
+            <WhatsAppConcierge />
+            <Toaster richColors position="top-right" />
+          </ComparisonProvider>
+        </CurrencyProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

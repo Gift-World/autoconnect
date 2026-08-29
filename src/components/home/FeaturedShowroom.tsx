@@ -22,8 +22,10 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { VehicleImage } from "@/components/VehicleImage";
 import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 export function FeaturedShowroom() {
+  const { formatPrice } = useCurrency();
   const [filterType, setFilterType] = useState<string>("all");
   const [drawerCar, setDrawerCar] = useState<DrawerCar | null>(null);
 
@@ -162,10 +164,8 @@ export function FeaturedShowroom() {
                     {/* Price Overlay on Image */}
                     <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
                       <div>
-                        <p className="font-display text-lg sm:text-xl font-bold tracking-tight text-white drop-shadow-sm">
-                          {typeof car.price === "number"
-                            ? `${car.currency || "KSh"} ${car.price.toLocaleString()}`
-                            : car.price}
+                        <p className="font-display text-lg sm:text-xl font-bold tracking-tight text-white drop-shadow-sm font-mono">
+                          {formatPrice(typeof car.price === "number" ? car.price : parseFloat(car.price) || 0)}
                         </p>
                         <p className="text-[11px] font-medium text-slate-300">
                           {car.year} • {car.right_hand_drive ? "RHD" : "LHD"}

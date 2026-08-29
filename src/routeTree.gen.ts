@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as CarsRouteImport } from './routes/cars'
+import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DisputesRouteImport } from './routes/disputes'
 import { Route as HowPaymentsWorkRouteImport } from './routes/how-payments-work'
 import { Route as ImportRouteImport } from './routes/import'
@@ -76,6 +77,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const CarsRoute = CarsRouteImport.update({
   id: '/cars',
   path: '/cars',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DisputesRoute = DisputesRouteImport.update({
@@ -364,6 +370,7 @@ const AuthenticatedSellerListingsNewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cars': typeof CarsRouteWithChildren
+  '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
@@ -418,6 +425,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
@@ -470,6 +478,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/cars': typeof CarsRouteWithChildren
+  '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
@@ -527,6 +536,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/cars'
+    | '/compare'
     | '/disputes'
     | '/how-payments-work'
     | '/import'
@@ -581,6 +591,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/compare'
     | '/disputes'
     | '/how-payments-work'
     | '/import'
@@ -632,6 +643,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/cars'
+    | '/compare'
     | '/disputes'
     | '/how-payments-work'
     | '/import'
@@ -689,6 +701,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   CarsRoute: typeof CarsRouteWithChildren
+  CompareRoute: typeof CompareRoute
   DisputesRoute: typeof DisputesRoute
   HowPaymentsWorkRoute: typeof HowPaymentsWorkRoute
   ImportRoute: typeof ImportRoute
@@ -724,6 +737,13 @@ declare module '@tanstack/react-router' {
       path: '/cars'
       fullPath: '/cars'
       preLoaderRoute: typeof CarsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/disputes': {
@@ -1237,6 +1257,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   CarsRoute: CarsRouteWithChildren,
+  CompareRoute: CompareRoute,
   DisputesRoute: DisputesRoute,
   HowPaymentsWorkRoute: HowPaymentsWorkRoute,
   ImportRoute: ImportRoute,

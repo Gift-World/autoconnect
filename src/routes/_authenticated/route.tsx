@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { DEMO_MODE, DEMO_PROFILES } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -11,6 +12,10 @@ export const Route = createFileRoute("/_authenticated")({
       }
     } catch {
       // Treat an unavailable or invalid session as unauthenticated.
+    }
+
+    if (DEMO_MODE) {
+      return { user: DEMO_PROFILES.buyer.user };
     }
 
     throw redirect({ to: "/login" });

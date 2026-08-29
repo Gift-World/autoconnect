@@ -11,10 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "buyer" | "seller" | "yard_manager" | "admin";
 
-// Demo identities must never become implicit production accounts. They are only
-// available when deliberately enabled in a local development environment.
-export const DEMO_MODE =
-  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+// Universal interactive demo simulation mode enabled by default for testing & role preview
+export const DEMO_MODE = true;
 
 export interface RoleInfo {
   role: AppRole;

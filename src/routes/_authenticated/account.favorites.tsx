@@ -21,21 +21,49 @@ function formatPrice(price: number, currency: string) {
   } catch { return `${currency} ${price.toLocaleString()}`; }
 }
 
+import { DEMO_CARS } from "@/lib/demo-inventory";
+
 function FavoritesPage() {
   const { user } = useAuth();
   const { data, isLoading } = useQuery({
     enabled: !!user,
     queryKey: ["favorites", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("favorites")
-        .select(
-          "id, created_at, cars(id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,status,car_images(image_url,is_primary,sort_order))",
-        )
-        .eq("buyer_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
+      try {
+        const { data, error } = await supabase
+          .from("favorites")
+          .select(
+            "id, created_at, cars(id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,status,car_images(image_url,is_primary,sort_order))",
+          )
+          .eq("buyer_id", user!.id)
+          .order("created_at", { ascending: false });
+        if (!error && data && data.length > 0) return data;
+      } catch {
+        // fallback
+      }
+
+      // Demo fallback when testing buyer persona
+      if (user?.id?.startsWith("demo-")) {
+        return DEMO_CARS.slice(0, 2).map((c) => ({
+          id: `fav-${c.id}`,
+          created_at: new Date().toISOString(),
+          cars: {
+            id: c.id,
+            title: c.title,
+            year: c.year,
+            price: c.price,
+            currency: c.currency,
+            country: c.country,
+            location_display: c.location_display,
+            available_for_export: c.available_for_export,
+            right_hand_drive: c.right_hand_drive,
+            status: "approved",
+            car_images: c.car_images,
+          },
+        }));
+      }
+
+      return [];
     },
   });
 

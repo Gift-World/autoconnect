@@ -22,20 +22,52 @@ function fmt(a: number, c: string) {
   catch { return `${c} ${a.toLocaleString()}`; }
 }
 
+import { useAuth } from "@/contexts/AuthContext";
+
 function Purchases() {
+  const { user } = useAuth();
   const [rows, setRows] = useState<Row[] | null>(null);
   useEffect(() => {
     (async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) return;
-      const { data } = await supabase
-        .from("transactions")
-        .select("id, status, display_currency, display_total, initiated_at, cars!inner(title, car_images(image_url, is_primary))")
-        .eq("buyer_id", u.user.id)
-        .order("created_at", { ascending: false });
-      setRows((data ?? []) as unknown as Row[]);
+      try {
+        const { data: u } = await supabase.auth.getUser();
+        const userId = u.user?.id || user?.id;
+        if (userId) {
+          const { data } = await supabase
+            .from("transactions")
+            .select("id, status, display_currency, display_total, initiated_at, cars!inner(title, car_images(image_url, is_primary))")
+            .eq("buyer_id", userId)
+            .order("created_at", { ascending: false });
+          if (data && data.length > 0) {
+            setRows(data as unknown as Row[]);
+            return;
+          }
+        }
+      } catch {
+        // fallback
+      }
+
+      // Demo fallback when exploring Buyer persona
+      if (user?.id?.startsWith("demo-")) {
+        setRows([
+          {
+            id: "demo-tx-prado-1",
+            status: "payment_received",
+            display_currency: "KES",
+            display_total: 7822500,
+            initiated_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+            cars: {
+              title: "2022 Toyota Land Cruiser Prado TX-L",
+              car_images: [{ image_url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80", is_primary: true }],
+            },
+          },
+        ]);
+        return;
+      }
+
+      setRows([]);
     })();
-  }, []);
+  }, [user?.id]);
 
   return (
     <div className="space-y-6">

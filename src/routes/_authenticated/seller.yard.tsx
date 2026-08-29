@@ -79,20 +79,51 @@ function SellerYardPage() {
   const ctx = useQuery({
     queryKey: ["seller-yard"],
     queryFn: async () => {
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) throw new Error("Not signed in");
-      const { data: seller } = await supabase
-        .from("sellers")
-        .select("id, business_name, country, city, is_approved")
-        .eq("profile_id", u.user.id)
-        .maybeSingle();
-      if (!seller) return { seller: null, yard: null as Yard | null };
-      const { data: yard } = await supabase
-        .from("car_yards")
-        .select("*")
-        .eq("seller_id", seller.id)
-        .maybeSingle();
-      return { seller, yard: (yard ?? null) as Yard | null };
+      try {
+        const { data: u } = await supabase.auth.getUser();
+        if (u.user && !u.user.id.startsWith("demo-")) {
+          const { data: seller } = await supabase
+            .from("sellers")
+            .select("id, business_name, country, city, is_approved")
+            .eq("profile_id", u.user.id)
+            .maybeSingle();
+          if (seller) {
+            const { data: yard } = await supabase
+              .from("car_yards")
+              .select("*")
+              .eq("seller_id", seller.id)
+              .maybeSingle();
+            return { seller, yard: (yard ?? null) as Yard | null };
+          }
+        }
+      } catch {
+        // fallback
+      }
+
+      // Demo fallback for Yard Manager exploration
+      return {
+        seller: { id: "demo-seller-david", business_name: "Ngong Road Mega Car Hub", country: "KE", city: "Nairobi", is_approved: true },
+        yard: {
+          id: "demo-yard-ngong",
+          slug: "nairobi-hub",
+          name: "Ngong Road Mega Car Yard",
+          tagline: "Premier East African Vehicle Hub with 24 Inspection Bays",
+          description: "Secure, paved dealership facility with full NTSA diagnostic lanes and 24/7 security.",
+          logo_url: null,
+          cover_url: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80",
+          country: "KE",
+          city: "Nairobi",
+          address: "Ngong Road, Junction 4, Nairobi",
+          phone: "+254 722 987 654",
+          whatsapp: "+254 722 987 654",
+          email: "david@megayard.co.ke",
+          opening_hours: "Mon-Sat: 8:00 AM - 6:30 PM",
+          is_approved: true,
+          is_suspended: false,
+          is_featured: true,
+          rejection_reason: null,
+        } as Yard,
+      };
     },
   });
 

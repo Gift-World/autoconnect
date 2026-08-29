@@ -29,17 +29,42 @@ function InquiriesPage() {
   }>(null);
   const { data, isLoading } = useQuery({
     enabled: !!user,
-    queryKey: ["my-inquiries", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("inquiries")
-        .select(
-          "id, created_at, inquiry_type, message, status, cars(id,title,year,price,currency,car_images(image_url,is_primary,sort_order))",
-        )
-        .eq("buyer_id", user!.id)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
+      try {
+        const { data, error } = await supabase
+          .from("inquiries")
+          .select(
+            "id, created_at, inquiry_type, message, status, cars(id,title,year,price,currency,car_images(image_url,is_primary,sort_order))",
+          )
+          .eq("buyer_id", user!.id)
+          .order("created_at", { ascending: false });
+        if (!error && data && data.length > 0) return data;
+      } catch {
+        // fallback
+      }
+
+      // Demo fallback when testing buyer persona
+      if (user?.id?.startsWith("demo-")) {
+        return [
+          {
+            id: "demo-inquiry-1",
+            created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
+            inquiry_type: "video_inspection",
+            message: "Hi Kenji, could you confirm the chassis inspection rating and provide the KRA duty breakdown for Nairobi delivery?",
+            status: "replied",
+            cars: {
+              id: "demo-car-prado",
+              title: "2022 Toyota Land Cruiser Prado TX-L",
+              year: 2022,
+              price: 7450000,
+              currency: "KES",
+              car_images: [{ image_url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80", is_primary: true, sort_order: 1 }],
+            },
+          },
+        ];
+      }
+
+      return [];
     },
   });
 

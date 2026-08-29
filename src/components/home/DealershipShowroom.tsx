@@ -86,15 +86,16 @@ export function DealershipShowroom() {
             const country = countryByCode(yard.country);
             const coverUrl = yard.cover_url || FALLBACK_COVERS[idx % FALLBACK_COVERS.length];
             
-            const hash = yard.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const slugStr = yard?.slug || yard?.id || `dealership-${idx}`;
+            const hash = slugStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
             const stockCount = (hash % 100) + 30; // 30 to 129
             const rating = ((hash % 10) / 10 + 4.0).toFixed(1); // 4.0 to 4.9
 
             return (
               <Link
-                key={yard.id}
+                key={yard.id || `yard-${idx}`}
                 to="/yards/$slug"
-                params={{ slug: yard.slug }}
+                params={{ slug: yard.slug || "nairobi-hub" }}
                 className="group flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-teal-500/40 hover:shadow-xl"
               >
                 {/* Cover Banner */}

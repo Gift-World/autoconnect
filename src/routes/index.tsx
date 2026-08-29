@@ -1,52 +1,12 @@
-import { lazy, Suspense, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { CinematicHero } from "@/components/home/CinematicHero";
-
-const FeaturedShowroom = lazy(() =>
-  import("@/components/home/FeaturedShowroom").then(({ FeaturedShowroom }) => ({
-    default: FeaturedShowroom,
-  })),
-);
-const TrustPipeline = lazy(() =>
-  import("@/components/home/TrustPipeline").then(({ TrustPipeline }) => ({
-    default: TrustPipeline,
-  })),
-);
-const DealershipShowroom = lazy(() =>
-  import("@/components/home/DealershipShowroom").then(({ DealershipShowroom }) => ({
-    default: DealershipShowroom,
-  })),
-);
-const CinematicImport = lazy(() =>
-  import("@/components/home/CinematicImport").then(({ CinematicImport }) => ({
-    default: CinematicImport,
-  })),
-);
-const FinalCinematicCTA = lazy(() =>
-  import("@/components/home/FinalCinematicCTA").then(({ FinalCinematicCTA }) => ({
-    default: FinalCinematicCTA,
-  })),
-);
-const EditorialTestimonials = lazy(() =>
-  import("@/components/home/EditorialTestimonials").then(({ EditorialTestimonials }) => ({
-    default: EditorialTestimonials,
-  })),
-);
-const EscrowSecurity = lazy(() =>
-  import("@/components/home/EscrowSecurity").then(({ EscrowSecurity }) => ({
-    default: EscrowSecurity,
-  })),
-);
-
-function HomeSection({ children }: { children: ReactNode }) {
-  return (
-    <Suspense
-      fallback={<div className="min-h-80 animate-pulse bg-muted/20" aria-hidden="true" />}
-    >
-      {children}
-    </Suspense>
-  );
-}
+import { FeaturedShowroom } from "@/components/home/FeaturedShowroom";
+import { TrustPipeline } from "@/components/home/TrustPipeline";
+import { DealershipShowroom } from "@/components/home/DealershipShowroom";
+import { CinematicImport } from "@/components/home/CinematicImport";
+import { FinalCinematicCTA } from "@/components/home/FinalCinematicCTA";
+import { EditorialTestimonials } from "@/components/home/EditorialTestimonials";
+import { EscrowSecurity } from "@/components/home/EscrowSecurity";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -75,13 +35,13 @@ function HomePage() {
     <main className="min-h-screen bg-background text-foreground selection:bg-teal-500 selection:text-slate-950">
       {/* A focused purchase path: search → live inventory → evidence → source/import → action. */}
       <CinematicHero />
-      <HomeSection><FeaturedShowroom /></HomeSection>
-      <HomeSection><TrustPipeline /></HomeSection>
-      <HomeSection><EditorialTestimonials /></HomeSection>
-      <HomeSection><EscrowSecurity /></HomeSection>
-      <HomeSection><DealershipShowroom /></HomeSection>
-      <HomeSection><CinematicImport /></HomeSection>
-      <HomeSection><FinalCinematicCTA /></HomeSection>
+      <FeaturedShowroom />
+      <TrustPipeline />
+      <EditorialTestimonials />
+      <EscrowSecurity />
+      <DealershipShowroom />
+      <CinematicImport />
+      <FinalCinematicCTA />
     </main>
   );
 }

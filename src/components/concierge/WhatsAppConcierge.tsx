@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { MessageCircle, X, Send, Sparkles, Calendar, ShieldCheck, Video, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -24,11 +24,18 @@ interface WhatsAppConciergeProps {
 const DEFAULT_CONCIERGE_NUMBER = "+254700000000"; // Platform VIP concierge line
 
 export function WhatsAppConcierge({ car, className = "", compact = false }: WhatsAppConciergeProps) {
+  const [mounted, setMounted] = useState(false);
   const { formatPrice } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [customNote, setCustomNote] = useState("");
   const [selectedIntent, setSelectedIntent] = useState<string>("availability");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted && !compact) return null;
 
   const phoneNumber = (car?.seller_whatsapp || car?.seller_phone || DEFAULT_CONCIERGE_NUMBER).replace(/[^0-9+]/g, "");
 

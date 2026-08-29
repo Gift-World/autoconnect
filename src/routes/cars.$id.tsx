@@ -243,19 +243,17 @@ export const Route = createFileRoute("/cars/$id")({
     const car = loaderData as CarDetail | undefined;
     const title = car ? `${car.title} — AutoConnect` : "Car listing — AutoConnect";
     const desc = car
-      ? `${car.year} ${car.title} for ${formatPrice(Number(car.price), car.currency)} in ${car.location_display ?? car.country}.`
+      ? `${car.year || ""} ${car.title || "Vehicle"} for ${formatPrice(Number(car.price || 0), car.currency || "USD")} in ${car.location_display ?? car.country ?? "Nairobi"}.`
       : "View this car listing on AutoConnect.";
-    const img = car?.car_images?.[0]?.image_url;
+    const img = car?.car_images?.[0]?.image_url || "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80";
     const meta = [
       { title },
       { name: "description", content: desc },
       { property: "og:title", content: title },
       { property: "og:description", content: desc },
+      { property: "og:image", content: img },
+      { name: "twitter:image", content: img },
     ];
-    if (img) {
-      meta.push({ property: "og:image", content: img });
-      meta.push({ name: "twitter:image", content: img });
-    }
     return { meta };
   },
   component: CarDetailPage,
@@ -297,8 +295,9 @@ function CarDetailPage() {
 
   if (!car) return null;
 
-  const images = [...car.car_images].sort((a, b) => a.sort_order - b.sort_order);
-  if (images.length === 0) images.push({ image_url: "", is_primary: true, sort_order: 0 });
+  const rawCarImages = Array.isArray(car.car_images) ? car.car_images : [];
+  const images = [...rawCarImages].sort((a, b) => (a?.sort_order ?? 0) - (b?.sort_order ?? 0));
+  if (images.length === 0) images.push({ image_url: "/images/hero-driving-suv.jpg", is_primary: true, sort_order: 0 });
 
   const isCompared = isInComparison(car.id);
 
@@ -802,9 +801,11 @@ function SimilarCars({ car }: { car: CarDetail }) {
       </div>
       <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {data.map((c) => {
+          const rawImgs = Array.isArray(c.car_images) ? c.car_images : [];
           const img =
-            c.car_images.find((i) => i.is_primary)?.image_url ??
-            c.car_images[0]?.image_url;
+            rawImgs.find((i) => i.is_primary)?.image_url ??
+            rawImgs[0]?.image_url ??
+            "/images/hero-driving-suv.jpg";
           return (
             <Link
               key={c.id}

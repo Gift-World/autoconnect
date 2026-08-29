@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth, AppRole } from "@/contexts/AuthContext";
 import { DEMO_PERSONAS, DemoPersona } from "@/components/DemoPersonaSwitcher";
 import {
@@ -20,9 +20,16 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export function PersonaControlDock() {
+  const [mounted, setMounted] = useState(false);
   const { activeRole, setActiveRole } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   const currentPersona =
     DEMO_PERSONAS.find((p) => p.role === activeRole) || DEMO_PERSONAS[0];

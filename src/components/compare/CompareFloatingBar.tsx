@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -6,10 +6,15 @@ import { X, Scale, ArrowRight, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CompareFloatingBar() {
+  const [mounted, setMounted] = useState(false);
   const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } = useVehicleComparison();
   const { formatPrice } = useCurrency();
 
-  if (comparedVehicles.length === 0) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || comparedVehicles.length === 0) return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-3xl animate-in slide-in-from-bottom-6 duration-300">

@@ -604,12 +604,19 @@ export const initiateDarajaStkPush = createServerFn({ method: "POST" })
     const formattedPhone = formatKenyanPhone(data.phone);
 
     // Send M-Pesa STK Push
-    const stk = await sendMpesaStkPush({
-      phone: formattedPhone,
-      amount: mpesaKesAmount,
-      accountReference: `AC-${tx.id.slice(0, 8)}`,
-      transactionDesc: `AutoConnect: ${car.title}`.slice(0, 13),
-    });
+    let stk;
+    try {
+      stk = await sendMpesaStkPush({
+        phone: formattedPhone,
+        amount: mpesaKesAmount,
+        accountReference: `AC-${tx.id.slice(0, 8)}`,
+        transactionDesc: `AutoConnect: ${car.title}`.slice(0, 13),
+      });
+    } catch (error) {
+      // Do not leave a failed STK request holding the car as an open order.
+      await supabaseAdmin.from("transactions").update({ status: "cancelled" }).eq("id", tx.id);
+      throw error;
+    }
 
     return {
       transactionId: tx.id,
@@ -636,24 +643,33 @@ export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { queryMpesaStkPush } = await import("./mpesa.server");
 
+    const { data: tx } = await supabaseAdmin
+      .from("transactions")
+      .select("id, status, buyer_id, car_id, cars!inner(title), sellers!inner(profile_id)")
+      .eq("id", data.transactionId)
+      .maybeSingle();
+
+    if (!tx || tx.buyer_id !== user.id) throw new Error("Transaction not found");
+
     const result = await queryMpesaStkPush({ checkoutRequestId: data.checkoutRequestId });
 
     if (result.status === "success") {
-      const { data: tx } = await supabaseAdmin
-        .from("transactions")
-        .select("id, status, car_id, cars!inner(title), sellers!inner(profile_id)")
-        .eq("id", data.transactionId)
-        .maybeSingle();
-
-      if (tx && tx.status !== "payment_received" && tx.status !== "completed") {
-        await supabaseAdmin
+      if (tx.status !== "payment_received" && tx.status !== "completed") {
+        const { data: updated } = await supabaseAdmin
           .from("transactions")
           .update({
             status: "payment_received",
             paid_at: new Date().toISOString(),
             manual_reference: result.mpesaReceiptNumber || `MPESA-${Date.now().toString().slice(-6)}`,
           })
-          .eq("id", data.transactionId);
+          .eq("id", data.transactionId)
+          .eq("status", "pending")
+          .select("id")
+          .maybeSingle();
+
+        // A second browser poll or delayed request must not repeat state
+        // changes or notifications after the first successful confirmation.
+        if (!updated) return result;
 
         if (tx.car_id) {
           await supabaseAdmin.from("cars").update({ status: "under_transaction" }).eq("id", tx.car_id);

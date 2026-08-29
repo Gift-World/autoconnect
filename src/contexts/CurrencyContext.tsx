@@ -90,29 +90,52 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const currentConfig = CURRENCIES[currency] || CURRENCIES.KES;
+  const normalizeToKes = (amount: number | null | undefined, baseCurrency?: string): number => {
+    if (amount == null || isNaN(amount)) return 0;
+    if (baseCurrency) {
+      const code = baseCurrency.toUpperCase();
+      if (code === "USD") return amount * 129.5;
+      if (code === "JPY") return amount * 0.86;
+      if (code === "GBP") return amount * 168.0;
+      if (code === "EUR") return amount * 141.0;
+      if (code === "KES" || code === "KSH") return amount;
+    }
+    // Auto-detect: if a car price is under 250,000, it is stored as USD/EUR/GBP, e.g. 58,500 USD
+    if (amount > 0 && amount < 250_000) {
+      return amount * 129.5;
+    }
+    return amount;
+  };
 
-  const convertPrice = (amountInKes: number | null | undefined): number => {
-    if (amountInKes == null || isNaN(amountInKes)) return 0;
+  const convertPrice = (
+    amount: number | null | undefined,
+    baseCurrency?: string
+  ): number => {
+    if (amount == null || isNaN(amount)) return 0;
+    const amountInKes = normalizeToKes(amount, baseCurrency);
     return amountInKes * currentConfig.rateFromKes;
   };
 
   const formatPrice = (
-    amountInKes: number | null | undefined,
+    amount: number | null | undefined,
+    baseCurrencyOrOptions?: string | { compact?: boolean; hidePrefix?: boolean },
     options?: { compact?: boolean; hidePrefix?: boolean }
   ): string => {
-    if (amountInKes == null || isNaN(amountInKes) || amountInKes === 0) {
-      return `${options?.hidePrefix ? "" : currentConfig.prefix}0`;
+    const baseCurrency = typeof baseCurrencyOrOptions === "string" ? baseCurrencyOrOptions : undefined;
+    const opts = typeof baseCurrencyOrOptions === "object" ? baseCurrencyOrOptions : options;
+
+    if (amount == null || isNaN(amount) || amount === 0) {
+      return `${opts?.hidePrefix ? "" : currentConfig.prefix}0`;
     }
 
-    const converted = convertPrice(amountInKes);
+    const converted = convertPrice(amount, baseCurrency);
 
-    if (options?.compact) {
+    if (opts?.compact) {
       if (converted >= 1_000_000) {
-        return `${options?.hidePrefix ? "" : currentConfig.prefix}${(converted / 1_000_000).toFixed(1)}M`;
+        return `${opts?.hidePrefix ? "" : currentConfig.prefix}${(converted / 1_000_000).toFixed(1)}M`;
       }
       if (converted >= 1_000) {
-        return `${options?.hidePrefix ? "" : currentConfig.prefix}${(converted / 1_000).toFixed(0)}k`;
+        return `${opts?.hidePrefix ? "" : currentConfig.prefix}${(converted / 1_000).toFixed(0)}k`;
       }
     }
 
@@ -120,7 +143,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       maximumFractionDigits: currentConfig.decimals,
     });
 
-    return options?.hidePrefix ? formattedNum : `${currentConfig.prefix}${formattedNum}`;
+    return opts?.hidePrefix ? formattedNum : `${currentConfig.prefix}${formattedNum}`;
   };
 
   const value = useMemo(

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { MessageSquare, Mail, Phone } from "lucide-react";
+import { useState } from "react";
+import { MessageSquare, Mail, Phone, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { InquiryThread } from "@/components/InquiryThread";
 import { cn } from "@/lib/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/seller/inquiries")({
   head: () => ({ meta: [{ title: "Inquiries — Seller — AutoConnect" }] }),
@@ -30,47 +32,48 @@ interface InqRow {
 
 function SellerInquiriesPage() {
   const { user } = useAuth();
-  const [items, setItems] = useState<InqRow[] | null>(null);
-  const [active, setActive] = useState<InqRow | null>(null);
+  const queryClient = useQueryClient();
+  const [activeId, setActiveId] = useState<string | null>(null);
 
-  async function load() {
-    if (!user) return;
-    const { data: seller } = await supabase
-      .from("sellers")
-      .select("id")
-      .eq("profile_id", user.id)
-      .maybeSingle();
-    if (!seller) {
-      setItems([]);
-      return;
-    }
-    const { data } = await supabase
-      .from("inquiries")
-      .select(
-        "id, created_at, last_message_at, status, inquiry_type, buyer_name, buyer_email, buyer_phone, message, is_read, cars(id,title,year)",
-      )
-      .eq("seller_id", seller.id)
-      .order("last_message_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false });
-    const rows = (data as unknown as InqRow[]) ?? [];
-    setItems(rows);
-    if (!active && rows[0]) setActive(rows[0]);
-  }
+  const { data: items, isLoading, refetch, isFetching } = useQuery({
+    queryKey: ["seller_inquiries", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data: seller } = await supabase
+        .from("sellers")
+        .select("id")
+        .eq("profile_id", user.id)
+        .maybeSingle();
+      if (!seller) {
+        return [];
+      }
+      const { data } = await supabase
+        .from("inquiries")
+        .select(
+          "id, created_at, last_message_at, status, inquiry_type, buyer_name, buyer_email, buyer_phone, message, is_read, cars(id,title,year)",
+        )
+        .eq("seller_id", seller.id)
+        .order("last_message_at", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      return (data as unknown as InqRow[]) ?? [];
+    },
+    enabled: !!user,
+    refetchInterval: 30000,
+  });
 
-  useEffect(() => {
-    void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
+  const active = items?.find((x) => x.id === activeId) || (items && items[0]) || null;
 
   async function openInquiry(r: InqRow) {
-    setActive(r);
+    setActiveId(r.id);
     if (!r.is_read) {
       await supabase.from("inquiries").update({ is_read: true }).eq("id", r.id);
-      setItems((cur) => cur?.map((x) => (x.id === r.id ? { ...x, is_read: true } : x)) ?? null);
+      queryClient.setQueryData(["seller_inquiries", user?.id], (old: InqRow[] | undefined) => 
+        old?.map((x) => (x.id === r.id ? { ...x, is_read: true } : x))
+      );
     }
   }
 
-  if (items === null) {
+  if (isLoading || items === undefined) {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
@@ -78,7 +81,7 @@ function SellerInquiriesPage() {
     );
   }
 
-  if (items.length === 0) {
+  if (items === null || items.length === 0) {
     return (
       <EmptyState
         icon={<MessageSquare className="h-5 w-5" />}
@@ -90,9 +93,15 @@ function SellerInquiriesPage() {
 
   return (
     <div className="space-y-4">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Inquiries</h1>
-        <p className="text-sm text-muted-foreground">{items.length} conversation{items.length === 1 ? "" : "s"}</p>
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Inquiries</h1>
+          <p className="text-sm text-muted-foreground">{items.length} conversation{items.length === 1 ? "" : "s"}</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+          <RefreshCw className={cn("mr-2 h-4 w-4", isFetching && "animate-spin")} />
+          Refresh
+        </Button>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[340px_1fr]">

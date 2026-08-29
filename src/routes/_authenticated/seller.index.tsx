@@ -290,109 +290,200 @@ function SellerDashboard() {
           </CardContent>
         </Card>
       ) : (
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3">Vehicle</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Price</th>
-                <th className="px-4 py-3">Country</th>
-                <th className="px-4 py-3">Views</th>
-                <th className="px-4 py-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => {
-                const country = countryByCode(r.country);
-                return (
-                  <tr key={r.id} className="border-t">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-12 w-16 overflow-hidden rounded bg-muted">
-                          {r.primary_image ? (
-                            <img
-                              src={r.primary_image}
-                              alt={r.title}
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                              No image
+        <>
+          <div className="hidden sm:block overflow-hidden rounded-lg border bg-card">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-3">Vehicle</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Price</th>
+                  <th className="px-4 py-3">Country</th>
+                  <th className="px-4 py-3">Views</th>
+                  <th className="px-4 py-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => {
+                  const country = countryByCode(r.country);
+                  return (
+                    <tr key={r.id} className="border-t">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-12 w-16 shrink-0 overflow-hidden rounded bg-muted">
+                            {r.primary_image ? (
+                              <img
+                                src={r.primary_image}
+                                alt={r.title}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                                No image
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="truncate font-medium">{r.title}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {r.year}
+                              {r.featured && " · Featured"}
+                              {r.available_for_export && " · Export"}
                             </div>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="truncate font-medium">{r.title}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {r.year}
-                            {r.featured && " · Featured"}
-                            {r.available_for_export && " · Export"}
                           </div>
                         </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusPill status={r.status} />
+                      </td>
+                      <td className="px-4 py-3 font-medium">
+                        {r.currency}{" "}
+                        {Number(r.price).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">
+                        {country ? `${country.flag} ${country.name}` : r.country}
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{r.views}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button asChild size="icon" variant="ghost" title="View">
+                            <Link to="/cars/$id" params={{ id: r.id }}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            title="Edit (coming soon)"
+                            disabled
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button size="icon" variant="ghost" title="Delete">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete listing?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will permanently remove "{r.title}" and its
+                                  photos. This cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => deleteListing(r.id)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="grid gap-3 sm:hidden">
+            {rows.map((r) => {
+              const country = countryByCode(r.country);
+              return (
+                <div key={r.id} className="rounded-lg border bg-card p-4">
+                  <div className="flex gap-3">
+                    <div className="h-20 w-28 shrink-0 overflow-hidden rounded bg-muted">
+                      {r.primary_image ? (
+                        <img
+                          src={r.primary_image}
+                          alt={r.title}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
+                          No image
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <h3 className="line-clamp-2 text-sm font-medium">{r.title}</h3>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <StatusPill status={r.status} />
+                        <span className="text-xs text-muted-foreground">
+                          {r.year}
+                        </span>
                       </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <StatusPill status={r.status} />
-                    </td>
-                    <td className="px-4 py-3 font-medium">
-                      {r.currency}{" "}
-                      {Number(r.price).toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">
-                      {country ? `${country.flag} ${country.name}` : r.country}
-                    </td>
-                    <td className="px-4 py-3 text-muted-foreground">{r.views}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button asChild size="icon" variant="ghost" title="View">
-                          <Link to="/cars/$id" params={{ id: r.id }}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          title="Edit (coming soon)"
-                          disabled
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button size="icon" variant="ghost" title="Delete">
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete listing?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This will permanently remove "{r.title}" and its
-                                photos. This cannot be undone.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteListing(r.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                      <div className="font-semibold text-primary">
+                        {r.currency}{" "}
+                        {Number(r.price).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3.5 w-3.5" /> {r.views}
+                      </span>
+                      <span>•</span>
+                      <span>{country?.name ?? r.country}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button asChild size="icon" variant="ghost" className="h-8 w-8">
+                        <Link to="/cars/$id" params={{ id: r.id }}>
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        disabled
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete listing?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will permanently remove "{r.title}" and its
+                              photos. This cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteListing(r.id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

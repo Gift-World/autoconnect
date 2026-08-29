@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Globe, Loader2, ShoppingCart, Store } from "lucide-react";
+import { Globe, Loader2, ShoppingCart, Store, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,6 +48,7 @@ export const Route = createFileRoute("/register")({
 function RegisterPage() {
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -140,7 +141,7 @@ function RegisterPage() {
           </div>
           <CardTitle className="text-2xl">Create your account</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Just an email and password — no confirmation needed.
+            Create your account to start buying or selling
           </p>
         </CardHeader>
         <CardContent>
@@ -183,12 +184,21 @@ function RegisterPage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="new-password"
-                  {...register("password")}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    {...register("password")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
@@ -243,6 +253,18 @@ function RegisterPage() {
                 </p>
               </div>
             )}
+
+            <div className="flex items-start gap-2 pt-2">
+              <input 
+                type="checkbox" 
+                id="terms" 
+                required 
+                className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
+              />
+              <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-snug">
+                I agree to the <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
+              </Label>
+            </div>
 
             <Button type="submit" disabled={submitting} className="w-full">
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -6,8 +6,6 @@ import {
   Star,
   MapPin,
   ArrowRight,
-  Car as CarIcon,
-  CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_YARDS } from "@/lib/demo-inventory";
@@ -20,6 +18,18 @@ const FALLBACK_COVERS = [
   "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1200&auto=format&fit=crop&q=80",
   "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&auto=format&fit=crop&q=80",
 ];
+
+type Yard = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline?: string | null;
+  logo_url?: string | null;
+  cover_url?: string | null;
+  country: string;
+  city?: string | null;
+  is_featured?: boolean | null;
+};
 
 export function DealershipShowroom() {
   const { data: yards, isLoading } = useQuery({
@@ -34,10 +44,10 @@ export function DealershipShowroom() {
         .limit(3);
 
       if (!error && data && data.length > 0) {
-        return data;
+        return data as Yard[];
       }
 
-      return DEMO_YARDS.slice(0, 3);
+      return DEMO_YARDS.slice(0, 3) as Yard[];
     },
     staleTime: 60_000,
   });
@@ -72,11 +82,13 @@ export function DealershipShowroom() {
 
         {/* Dealership Showcase Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {(yards || DEMO_YARDS.slice(0, 3)).map((yard: any, idx: number) => {
+          {(yards || DEMO_YARDS.slice(0, 3)).map((yard: Yard, idx: number) => {
             const country = countryByCode(yard.country);
             const coverUrl = yard.cover_url || FALLBACK_COVERS[idx % FALLBACK_COVERS.length];
-            const stockCount = yard.slug === "nairobi-hub" ? 128 : yard.slug === "mombasa-port-hub" ? 84 : 45;
-            const rating = yard.slug === "nairobi-hub" ? "4.9" : yard.slug === "mombasa-port-hub" ? "4.8" : "4.7";
+            
+            const hash = yard.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const stockCount = (hash % 100) + 30; // 30 to 129
+            const rating = ((hash % 10) / 10 + 4.0).toFixed(1); // 4.0 to 4.9
 
             return (
               <Link

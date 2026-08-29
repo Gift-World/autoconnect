@@ -28,6 +28,8 @@ import {
   Phone,
   Store,
   CalendarCheck,
+  X,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,6 +85,7 @@ type CarDetail = {
   engine_size: string | null;
   condition: string | null;
   description: string | null;
+  features: string[] | null;
   right_hand_drive: boolean;
   steering_side: string | null;
   available_for_export: boolean;
@@ -144,7 +147,7 @@ async function fetchCar(id: string): Promise<CarDetail> {
   const { data, error } = await supabase
     .from("cars")
     .select(
-      "id,seller_id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,body_type,color,engine_size,condition,description,right_hand_drive,steering_side,available_for_export,shipping_info,import_duties_note,vin,featured,views,created_at,documents_verified,ntsa_verified,inspection_verified,pay_full,pay_deposit,pay_installments,deposit_percent,installment_months,installment_interest_rate,installment_monthly,yard_id,car_images(image_url,is_primary,sort_order),car_yards(id,slug,name,logo_url,city,country,is_approved),sellers(id,business_name,country,city,location_display,is_verified,verification_badge,is_dealer,offers_local_pickup,offers_domestic_shipping,offers_international_shipping)",
+      "id,seller_id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,body_type,color,engine_size,condition,description,features,right_hand_drive,steering_side,available_for_export,shipping_info,import_duties_note,vin,featured,views,created_at,documents_verified,ntsa_verified,inspection_verified,pay_full,pay_deposit,pay_installments,deposit_percent,installment_months,installment_interest_rate,installment_monthly,yard_id,car_images(image_url,is_primary,sort_order),car_yards(id,slug,name,logo_url,city,country,is_approved),sellers(id,business_name,country,city,location_display,is_verified,verification_badge,is_dealer,offers_local_pickup,offers_domestic_shipping,offers_international_shipping)",
     )
     .eq("id", id)
     .eq("status", "approved")
@@ -315,6 +318,21 @@ function CarDetailPage() {
               {car.vin && <Spec icon={ShieldCheck} label="VIN" value={car.vin} />}
             </dl>
           </div>
+
+          {/* Features */}
+          {car.features && car.features.length > 0 && (
+            <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+              <h2 className="text-base font-semibold">Features & Equipment</h2>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {car.features.map((feature, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-teal-500 mt-0.5" />
+                    <span className="text-sm text-muted-foreground">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {car.description && (
@@ -698,13 +716,38 @@ function Gallery({
   title: string;
 }) {
   const [idx, setIdx] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+
   const current = images[idx]?.image_url;
   const go = (dir: 1 | -1) =>
     setIdx((i) => (i + dir + images.length) % images.length);
+
+  const lbCurrent = images[lightboxIdx]?.image_url;
+  const lbGo = (dir: 1 | -1) =>
+    setLightboxIdx((i) => (i + dir + images.length) % images.length);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowLeft") lbGo(-1);
+      if (e.key === "ArrowRight") lbGo(1);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen, images.length]);
+
   return (
     <div>
       <div className="overflow-hidden rounded-xl border border-border bg-slate-900">
-        <div className="relative aspect-[16/10]">
+        <div 
+          className="relative aspect-[16/10] cursor-pointer"
+          onClick={() => {
+            setLightboxIdx(idx);
+            setLightboxOpen(true);
+          }}
+        >
           {current ? (
             <img
               src={current}
@@ -718,7 +761,7 @@ function Gallery({
             <>
               <button
                 type="button"
-                onClick={() => go(-1)}
+                onClick={(e) => { e.stopPropagation(); go(-1); }}
                 aria-label="Previous photo"
                 className="absolute left-3 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-background"
               >
@@ -726,7 +769,7 @@ function Gallery({
               </button>
               <button
                 type="button"
-                onClick={() => go(1)}
+                onClick={(e) => { e.stopPropagation(); go(1); }}
                 aria-label="Next photo"
                 className="absolute right-3 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-background"
               >
@@ -753,6 +796,57 @@ function Gallery({
               <img src={img.image_url} alt="" className="h-full w-full object-cover" />
             </button>
           ))}
+        </div>
+      )}
+
+      {lightboxOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 sm:p-8"
+          onClick={() => setLightboxOpen(false)}
+        >
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(false)}
+            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition z-50"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white z-50">
+            {lightboxIdx + 1} / {images.length}
+          </div>
+
+          <div 
+            className="relative h-full w-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {lbCurrent && (
+              <img
+                src={lbCurrent}
+                alt={`${title} fullscreen`}
+                className="max-h-full max-w-full object-contain"
+              />
+            )}
+
+            {images.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); lbGo(-1); }}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 grid h-12 w-12 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition"
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); lbGo(1); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 grid h-12 w-12 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition"
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </div>

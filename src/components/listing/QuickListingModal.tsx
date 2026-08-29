@@ -141,7 +141,7 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto bg-background text-foreground border border-border">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
             <PlusCircle className="w-5 h-5 text-teal-500" />

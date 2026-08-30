@@ -10,6 +10,7 @@ import {
   Store,
   Compass,
   Scale,
+  Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -123,63 +124,39 @@ export function Navbar() {
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 rounded-2xl p-1.5 shadow-2xl border-border">
-                  <DropdownMenuLabel className="flex flex-col px-3 py-2">
-                    <span className="text-sm font-bold truncate">{profile?.full_name || user.email}</span>
-                    <span className="text-[11px] font-medium capitalize text-teal-500">
-                      Role: {activeRole.replace("_", " ")}
-                    </span>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/dashboard">
-                      <Globe className="mr-2 h-4 w-4 text-primary" /> Consolidated Portal
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to={roleHomePath(activeRole) as never}>
-                      <UserIcon className="mr-2 h-4 w-4 text-teal-500" /> Active Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/account/favorites">
-                      <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/compare">
-                      <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-[10px] uppercase font-bold text-muted-foreground px-3">
-                    Portals & Management
-                  </DropdownMenuLabel>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/account">
-                      <Compass className="mr-2 h-4 w-4 text-purple-500" /> Buyer Account
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/seller">
-                      <Car className="mr-2 h-4 w-4 text-blue-500" /> Seller Inventory
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/seller/yard">
-                      <Store className="mr-2 h-4 w-4 text-emerald-500" /> Dealership Yard Admin
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl">
-                    <Link to="/admin">
-                      <ShieldCheck className="mr-2 h-4 w-4 text-amber-500" /> Super Admin
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => void signOut()} className="text-destructive rounded-xl">
-                    <LogOut className="mr-2 h-4 w-4" /> Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                  <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5 shadow-2xl border-border">
+                    <DropdownMenuLabel className="flex flex-col px-3 py-2">
+                      <span className="text-sm font-bold truncate">{profile?.full_name || user.email}</span>
+                      <span className="text-[11px] font-medium capitalize text-teal-500">
+                        {activeRole.replace("_", " ")} Mode
+                      </span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                      <Link to={roleHomePath(activeRole) as never}>
+                        <UserIcon className="mr-2 h-4 w-4 text-teal-500" /> Active Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                      <Link to="/account/favorites">
+                        <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                      <Link to="/compare">
+                        <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                      <Link to="/account">
+                        <Settings className="mr-2 h-4 w-4 text-primary" /> Account Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => void signOut()} className="text-destructive rounded-xl cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" /> Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (

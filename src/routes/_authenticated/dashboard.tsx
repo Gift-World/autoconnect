@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { DemoPersonaSwitcher } from "@/components/DemoPersonaSwitcher";
 import { EscrowMilestoneTracker } from "@/components/payments/EscrowMilestoneTracker";
 import { YardInventoryManager } from "@/components/yard/YardInventoryManager";
 import {
@@ -197,9 +196,6 @@ function ConsolidatedDashboard() {
             </Button>
           </div>
         </div>
-
-        {/* 1-Click Interactive Demo Persona Switcher */}
-        <DemoPersonaSwitcher />
 
         {/* Adaptive Consolidated Role Tabs */}
         <div className="flex items-center gap-2 border-b border-border/80 pb-3 overflow-x-auto no-scrollbar">

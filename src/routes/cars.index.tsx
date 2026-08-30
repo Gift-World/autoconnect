@@ -34,6 +34,9 @@ import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
 import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
 import { QuickListingModal } from "@/components/listing/QuickListingModal";
 import { AiCarFinderSearchBar, type ParsedAiFilters } from "@/components/search/AiCarFinderSearchBar";
+import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
+import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
+import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
 
@@ -126,6 +129,8 @@ function CarsListPage() {
   const [geoLoading, setGeoLoading] = useState(false);
   const [drawerCar, setDrawerCar] = useState<DrawerCar | null>(null);
   const [quickListOpen, setQuickListOpen] = useState(false);
+  const [tradeInOpen, setTradeInOpen] = useState(false);
+  const [swipeModeOpen, setSwipeModeOpen] = useState(false);
 
   const saveSearch = () => {
     const params = new URLSearchParams();
@@ -330,13 +335,33 @@ function CarsListPage() {
             Verified listings from sellers worldwide.
           </p>
         </div>
-        <Button 
-          onClick={() => setQuickListOpen(true)} 
-          className="gap-2 self-start sm:self-auto font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md"
-        >
-          <PlusCircle className="w-4 h-4" />
-          <span>List a Vehicle</span>
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setTradeInOpen(true)}
+            className="gap-1.5 text-xs font-semibold rounded-xl border-teal-500/40 text-teal-400 hover:bg-teal-500/10"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>What's Your Car Worth?</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setSwipeModeOpen(true)}
+            className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-slate-700 bg-slate-900 text-slate-200"
+          >
+            <Smartphone className="w-3.5 h-3.5 text-teal-400" />
+            <span>Swipe Mode</span>
+          </Button>
+          <Button 
+            onClick={() => setQuickListOpen(true)} 
+            className="gap-2 self-start sm:self-auto font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md rounded-xl text-xs"
+          >
+            <PlusCircle className="w-4 h-4" />
+            <span>List a Vehicle</span>
+          </Button>
+        </div>
       </div>
 
       {/* Prominent Smart AI Car Finder Bar */}
@@ -529,6 +554,33 @@ function CarsListPage() {
         isOpen={quickListOpen}
         onClose={() => setQuickListOpen(false)}
       />
+
+      {/* Trade-In Estimator Modal */}
+      <TradeInEstimatorModal
+        open={tradeInOpen}
+        onOpenChange={setTradeInOpen}
+      />
+
+      {/* Mobile Swipe-to-Browse Experience */}
+      {swipeModeOpen && (
+        <SwipeBrowseMode
+          cars={(cars || []).map((c) => ({
+            id: c.id,
+            title: c.title,
+            year: c.year,
+            price: Number(c.price),
+            currency: c.currency,
+            location_display: c.location_display,
+            country: c.country,
+            mileage: c.mileage,
+            mileage_unit: c.mileage_unit,
+            transmission: c.transmission,
+            fuel_type: c.fuel_type,
+            image_url: primaryImage(c),
+          }))}
+          onExit={() => setSwipeModeOpen(false)}
+        />
+      )}
     </div>
   );
 }
@@ -779,6 +831,20 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
             >
               {car.right_hand_drive ? "RHD" : "LHD"}
             </Badge>
+          </div>
+          <div className="absolute bottom-2 left-2 z-10">
+            <AutoConnectScoreBadge
+              vehicleData={{
+                condition: car.condition,
+                mileage: car.mileage,
+                mileage_unit: car.mileage_unit,
+                photosCount: images.length || 4,
+                isSellerVerified: !!car.featured,
+                documentsVerified: true,
+                hasVideo: car.featured,
+              }}
+              variant="compact"
+            />
           </div>
           <FavoriteButton carId={car.id} className="absolute bottom-2 right-2 z-10" />
 

@@ -34,6 +34,7 @@ const navLinks = [
   { to: "/cars", label: "Browse Cars" },
   { to: "/yards", label: "Car Yards" },
   { to: "/import", label: "Import a Car" },
+  { to: "/import-tracker", label: "Import Tracker" },
   { to: "/compare", label: "Compare" },
   { to: "/how-payments-work", label: "How Payments Work" },
 ] as const;

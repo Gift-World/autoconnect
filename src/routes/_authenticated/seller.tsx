@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Plus, Inbox, MessageSquare, FileBadge, Wallet, ShieldCheck, Wrench, Store } from "lucide-react";
+import { LayoutDashboard, Plus, Inbox, MessageSquare, FileBadge, Wallet, ShieldCheck, Wrench, Store, Sparkles } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/seller")({
@@ -51,9 +51,10 @@ function SellerLayout() {
           ],
         },
         {
-          label: "Finance",
+          label: "Finance & Growth",
           items: [
             { to: "/seller/transactions", icon: <Wallet />, label: "Transactions & payouts" },
+            { to: "/pricing", icon: <Sparkles />, label: "Seller Plans & Pricing" },
           ],
         },
       ]}

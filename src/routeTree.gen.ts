@@ -16,7 +16,9 @@ import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DisputesRouteImport } from './routes/disputes'
 import { Route as HowPaymentsWorkRouteImport } from './routes/how-payments-work'
 import { Route as ImportRouteImport } from './routes/import'
+import { Route as ImportTrackerRouteImport } from './routes/import-tracker'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SupportRouteImport } from './routes/support'
@@ -99,9 +101,19 @@ const ImportRoute = ImportRouteImport.update({
   path: '/import',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImportTrackerRoute = ImportTrackerRouteImport.update({
+  id: '/import-tracker',
+  path: '/import-tracker',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -374,7 +386,9 @@ export interface FileRoutesByFullPath {
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
+  '/import-tracker': typeof ImportTrackerRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/support': typeof SupportRoute
@@ -429,7 +443,9 @@ export interface FileRoutesByTo {
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
+  '/import-tracker': typeof ImportTrackerRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/support': typeof SupportRoute
@@ -482,7 +498,9 @@ export interface FileRoutesById {
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
   '/import': typeof ImportRoute
+  '/import-tracker': typeof ImportTrackerRoute
   '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/support': typeof SupportRoute
@@ -540,7 +558,9 @@ export interface FileRouteTypes {
     | '/disputes'
     | '/how-payments-work'
     | '/import'
+    | '/import-tracker'
     | '/login'
+    | '/pricing'
     | '/privacy'
     | '/register'
     | '/support'
@@ -595,7 +615,9 @@ export interface FileRouteTypes {
     | '/disputes'
     | '/how-payments-work'
     | '/import'
+    | '/import-tracker'
     | '/login'
+    | '/pricing'
     | '/privacy'
     | '/register'
     | '/support'
@@ -647,7 +669,9 @@ export interface FileRouteTypes {
     | '/disputes'
     | '/how-payments-work'
     | '/import'
+    | '/import-tracker'
     | '/login'
+    | '/pricing'
     | '/privacy'
     | '/register'
     | '/support'
@@ -705,7 +729,9 @@ export interface RootRouteChildren {
   DisputesRoute: typeof DisputesRoute
   HowPaymentsWorkRoute: typeof HowPaymentsWorkRoute
   ImportRoute: typeof ImportRoute
+  ImportTrackerRoute: typeof ImportTrackerRoute
   LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
   SupportRoute: typeof SupportRoute
@@ -767,11 +793,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ImportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/import-tracker': {
+      id: '/import-tracker'
+      path: '/import-tracker'
+      fullPath: '/import-tracker'
+      preLoaderRoute: typeof ImportTrackerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -1261,7 +1301,9 @@ const rootRouteChildren: RootRouteChildren = {
   DisputesRoute: DisputesRoute,
   HowPaymentsWorkRoute: HowPaymentsWorkRoute,
   ImportRoute: ImportRoute,
+  ImportTrackerRoute: ImportTrackerRoute,
   LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
   SupportRoute: SupportRoute,

@@ -44,11 +44,17 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
-import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
+import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
+import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
+import { ArPreviewModal } from "@/components/vehicle/ArPreviewModal";
+import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
+import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
+import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
+import { Video, Box } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -293,6 +299,9 @@ function CarDetailPage() {
   const { formatPrice } = useCurrency();
   const { toggleCompare, isInComparison } = useVehicleComparison();
   const [mediaTab, setMediaTab] = useState<"photos" | "360">("photos");
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [arModalOpen, setArModalOpen] = useState(false);
+  const [tradeInOpen, setTradeInOpen] = useState(false);
 
   const { data: car } = useQuery({
     queryKey: ["car", id],
@@ -347,6 +356,16 @@ function CarDetailPage() {
             type="button"
             variant="outline"
             size="sm"
+            onClick={() => setTradeInOpen(true)}
+            className="gap-1.5 text-xs rounded-xl border-teal-500/40 text-teal-400 hover:bg-teal-500/10"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            <span>Trade-In Valuation</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={handleCompareToggle}
             className={`gap-1.5 text-xs rounded-xl border-border ${
               isCompared ? "bg-accent text-accent-foreground font-semibold border-accent" : ""
@@ -362,22 +381,22 @@ function CarDetailPage() {
       <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_380px]">
         {/* LEFT */}
         <div className="space-y-6">
-          {/* Media View Mode Switcher - Only shown when 360 photography (2+ angles) is available */}
-          {has360Spin && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5 p-1 bg-muted/80 rounded-2xl border border-border">
-                <button
-                  type="button"
-                  onClick={() => setMediaTab("photos")}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                    mediaTab === "photos"
-                      ? "bg-card text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Eye className="h-3.5 w-3.5" />
-                  <span>Photos ({images.length})</span>
-                </button>
+          {/* Media View Mode Switcher */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-1.5 p-1 bg-muted/80 rounded-2xl border border-border">
+              <button
+                type="button"
+                onClick={() => setMediaTab("photos")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  mediaTab === "photos"
+                    ? "bg-card text-foreground shadow-sm font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                <span>Photos ({images.length})</span>
+              </button>
+              {has360Spin && (
                 <button
                   type="button"
                   onClick={() => setMediaTab("360")}
@@ -388,14 +407,33 @@ function CarDetailPage() {
                   }`}
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
-                  <span>360° Studio Spin</span>
+                  <span>360° Spin</span>
                   <span className="bg-teal-400/30 text-teal-950 dark:text-teal-100 text-[9px] px-1.5 py-0.2 rounded-full font-black">
                     3D
                   </span>
                 </button>
-              </div>
+              )}
+              <button
+                type="button"
+                onClick={() => setVideoModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-all"
+              >
+                <Video className="h-3.5 w-3.5 text-teal-400" />
+                <span>Watch Video</span>
+                <Badge className="bg-teal-500 text-slate-950 text-[9px] font-bold py-0 px-1">
+                  Verified ✓
+                </Badge>
+              </button>
+              <button
+                type="button"
+                onClick={() => setArModalOpen(true)}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition-all"
+              >
+                <Box className="h-3.5 w-3.5" />
+                <span>AR Preview</span>
+              </button>
             </div>
-          )}
+          </div>
 
           {/* Interactive Media Stage */}
           {mediaTab === "photos" || !has360Spin ? (
@@ -443,6 +481,24 @@ function CarDetailPage() {
                 <Clock className="h-3.5 w-3.5" /> Listed {timeAgo(car.created_at)}
               </span>
             </p>
+
+            {/* AutoConnect Trust Score Section */}
+            <AutoConnectScoreBadge
+              vehicleData={{
+                condition: car.condition,
+                mileage: car.mileage,
+                mileage_unit: car.mileage_unit,
+                photosCount: images.length || 4,
+                isSellerVerified: !!car.sellers?.verification_badge || car.featured,
+                isDealer: car.sellers?.is_dealer,
+                documentsVerified: car.documents_verified,
+                ntsaVerified: car.ntsa_verified,
+                inspectionVerified: car.inspection_verified,
+                hasVideo: car.featured,
+              }}
+              variant="detail"
+              className="mt-4"
+            />
 
             {/* Quick highlights */}
             <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -547,6 +603,16 @@ function CarDetailPage() {
           {/* Payment estimator */}
           <PaymentEstimator price={Number(car.price)} currency={car.currency} />
 
+          {/* Price Trend & Depreciation Forecast Chart */}
+          <PriceDepreciationChart
+            currentPrice={Number(car.price)}
+            year={car.year}
+            make={car.make_name || car.title.split(" ")[0]}
+            model={car.model_name || ""}
+            mileage={car.mileage || 60000}
+            currency={car.currency}
+          />
+
           {/* Trust & Safety */}
           <div className="flex flex-wrap items-center gap-2">
             <VerifiedDocsBadge carId={car.id} />
@@ -571,10 +637,34 @@ function CarDetailPage() {
           <YardCard car={car} />
           <SellerCard car={car} />
           <BuyBox car={car} />
+          <FinancingPreApprovalCard carId={car.id} carTitle={car.title} carPrice={Number(car.price)} />
           <FavoriteButton carId={car.id} variant="full" />
           <InquiryForm car={car} />
         </aside>
       </div>
+
+      {/* Video Verification Walk-Around Modal */}
+      <VideoVerificationModal
+        open={videoModalOpen}
+        onOpenChange={setVideoModalOpen}
+        carTitle={car.title}
+        videoUrl={car.featured ? "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80" : null}
+      />
+
+      {/* AR Driveway Preview Modal */}
+      <ArPreviewModal
+        open={arModalOpen}
+        onOpenChange={setArModalOpen}
+        carTitle={car.title}
+      />
+
+      {/* Trade-In Estimator Modal */}
+      <TradeInEstimatorModal
+        open={tradeInOpen}
+        onOpenChange={setTradeInOpen}
+        targetCarTitle={car.title}
+        targetCarPrice={Number(car.price)}
+      />
 
       {/* Sticky mobile contact bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">

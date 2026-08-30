@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { NotificationPreferences } from "@/components/account/NotificationPreferences";
 
 export const Route = createFileRoute("/_authenticated/account/notifications")({
   head: () => ({ meta: [{ title: "Notifications — AutoConnect" }] }),
@@ -103,6 +104,9 @@ function NotificationsPage() {
           ))}
         </div>
       )}
+
+      {/* Smart Notification Preferences Configurator */}
+      <NotificationPreferences />
     </div>
   );
 }

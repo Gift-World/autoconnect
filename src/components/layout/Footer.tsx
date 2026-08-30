@@ -41,6 +41,7 @@ export function Footer() {
               { to: "/cars", label: "Browse All Cars" },
               { to: "/yards", label: "Accredited Dealerships" },
               { to: "/import", label: "Global Import Corridors" },
+              { to: "/pricing", label: "Seller Plans & Pricing" },
               { to: "/how-payments-work", label: "How Escrow Works" },
               { to: "/trust", label: "Trust Center" },
             ]}

@@ -128,8 +128,16 @@ export function Navbar() {
                   <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5 shadow-2xl border-border">
                     <DropdownMenuLabel className="flex flex-col px-3 py-2">
                       <span className="text-sm font-bold truncate">{profile?.full_name || user.email}</span>
-                      <span className="text-[11px] font-medium capitalize text-teal-500">
-                        {activeRole.replace("_", " ")} Mode
+                      <span className="text-[11px] font-semibold text-teal-400">
+                        {activeRole === "buyer"
+                          ? "Buyer View"
+                          : activeRole === "seller"
+                          ? "Seller / Dealer View"
+                          : activeRole === "yard_manager"
+                          ? "Yard Admin View"
+                          : activeRole === "admin"
+                          ? "Super Admin View"
+                          : `${activeRole.replace("_", " ")} View`}
                       </span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />

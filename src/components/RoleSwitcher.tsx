@@ -119,13 +119,21 @@ interface RoleSwitcherProps {
 }
 
 export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
-  const { activeRole, setActiveRole } = useAuth();
+  const { activeRole, setActiveRole, user, profile } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [showPersonas, setShowPersonas] = useState(false);
 
+  const isDevMode =
+    typeof window !== "undefined" &&
+    (new URLSearchParams(window.location.search).get("dev") === "true" ||
+      new URLSearchParams(window.location.search).get("personas") === "true" ||
+      localStorage.getItem("autoconnect_dev_mode") === "true" ||
+      (import.meta as any).env?.VITE_SHOW_TEST_PERSONAS === "true");
+
   const currentRole = ROLES_LIST.find((r) => r.role === activeRole) || ROLES_LIST[0];
   const CurrentIcon = currentRole.icon;
+  const userName = profile?.full_name || (user?.email ? user.email.split("@")[0] : null);
 
   const handleRoleSelect = (role: AppRole) => {
     if (role === activeRole) return;
@@ -133,8 +141,8 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
     const targetPath = roleHomePath(role);
 
     const matched = ROLES_LIST.find((r) => r.role === role);
-    toast.success(`Switched to ${matched?.label || role}`, {
-      description: `Active perspective changed to ${matched?.label || role}`,
+    toast.success(`Perspective: ${matched?.label || role} View`, {
+      description: `Switched to ${matched?.label || role} view as ${userName || "user"}`,
       icon: <Sparkles className="h-4 w-4 text-primary" />,
     });
 
@@ -181,8 +189,9 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
         >
           <span className="flex items-center gap-1.5">
             <CurrentIcon className={`h-3.5 w-3.5 ${currentRole.colorClass}`} />
-            <span className="font-semibold">{currentRole.shortLabel}</span>
-            <span className="text-[10px] text-muted-foreground hidden sm:inline">View</span>
+            <span className="font-semibold max-w-[180px] truncate">
+              {userName ? `${userName} · ${currentRole.shortLabel} View` : `${currentRole.shortLabel} View`}
+            </span>
           </span>
           <ChevronDown className="h-3 w-3 text-muted-foreground opacity-70" />
         </Button>
@@ -226,64 +235,67 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
           })}
         </div>
 
-        <DropdownMenuSeparator className="my-1.5" />
+        {/* Dev/Demo Only: Collapsible Test Personas Section */}
+        {isDevMode && (
+          <>
+            <DropdownMenuSeparator className="my-1.5" />
+            <div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPersonas((prev) => !prev);
+                }}
+                className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <span>Test Personas (4) [Dev Mode]</span>
+                </span>
+                {showPersonas ? (
+                  <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </button>
 
-        {/* Collapsible Test Personas Section */}
-        <div>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setShowPersonas((prev) => !prev);
-            }}
-            className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-[11px] font-semibold text-muted-foreground hover:bg-muted/50 hover:text-foreground transition"
-          >
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>Test Personas (4)</span>
-            </span>
-            {showPersonas ? (
-              <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-            )}
-          </button>
-
-          {showPersonas && (
-            <div className="mt-1 space-y-1 p-1 animate-in fade-in slide-in-from-top-1 duration-150">
-              {TEST_PERSONAS.map((p) => {
-                const isSelected = activeRole === p.role;
-                return (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handlePersonaSelect(p)}
-                    className={`w-full flex items-center justify-between rounded-xl border p-2 text-left transition ${
-                      isSelected
-                        ? "border-primary/50 bg-primary/5 font-medium"
-                        : "border-border/60 bg-card hover:border-primary/40 hover:bg-muted/40"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[10px] font-bold ${p.avatarBg}`}>
-                        {p.initials}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-semibold text-foreground truncate">{p.name}</span>
-                          <span className="text-[9px] font-medium text-muted-foreground">· {p.badge}</span>
+              {showPersonas && (
+                <div className="mt-1 space-y-1 p-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                  {TEST_PERSONAS.map((p) => {
+                    const isSelected = activeRole === p.role;
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => handlePersonaSelect(p)}
+                        className={`w-full flex items-center justify-between rounded-xl border p-2 text-left transition ${
+                          isSelected
+                            ? "border-primary/50 bg-primary/5 font-medium"
+                            : "border-border/60 bg-card hover:border-primary/40 hover:bg-muted/40"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[10px] font-bold ${p.avatarBg}`}>
+                            {p.initials}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-semibold text-foreground truncate">{p.name}</span>
+                              <span className="text-[9px] font-medium text-muted-foreground">· {p.badge}</span>
+                            </div>
+                            <p className="text-[10px] text-muted-foreground truncate">{p.tagline}</p>
+                          </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground truncate">{p.tagline}</p>
-                      </div>
-                    </div>
-                    {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0 ml-1" />}
-                  </button>
-                );
-              })}
+                        {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0 ml-1" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

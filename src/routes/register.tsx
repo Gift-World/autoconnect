@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Globe, Loader2, ShoppingCart, Store, Eye, EyeOff } from "lucide-react";
+import { Globe, Loader2, ShoppingCart, Store, Eye, EyeOff, Mail, Smartphone } from "lucide-react";
+import { PhoneAuthForm } from "@/components/auth/PhoneAuthForm";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +48,7 @@ export const Route = createFileRoute("/register")({
 
 function RegisterPage() {
   const navigate = useNavigate();
+  const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -134,17 +136,48 @@ function RegisterPage() {
 
   return (
     <div className="mx-auto flex max-w-xl items-center px-4 py-12">
-      <Card className="w-full shadow-lg">
-        <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-primary text-primary-foreground">
+      <Card className="w-full shadow-lg border-border rounded-3xl">
+        <CardHeader className="space-y-2 text-center pb-4">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
             <Globe className="h-6 w-6" />
           </div>
-          <CardTitle className="text-2xl">Create your account</CardTitle>
+          <CardTitle className="text-2xl font-bold">Create your account</CardTitle>
           <p className="text-sm text-muted-foreground">
             Create your account to start buying or selling
           </p>
+
+          {/* Auth Method Switcher Tabs */}
+          <div className="pt-2 flex items-center p-1 bg-muted/80 rounded-2xl border border-border">
+            <button
+              type="button"
+              onClick={() => setAuthMethod("email")}
+              className={`flex-1 py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                authMethod === "email"
+                  ? "bg-card text-foreground shadow-sm font-bold"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Mail className="h-3.5 w-3.5" />
+              <span>Register with Email</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthMethod("phone")}
+              className={`flex-1 py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                authMethod === "phone"
+                  ? "bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Smartphone className="h-3.5 w-3.5" />
+              <span>Register with Phone</span>
+            </button>
+          </div>
         </CardHeader>
         <CardContent>
+          {authMethod === "phone" ? (
+            <PhoneAuthForm mode="register" defaultRole="buyer" />
+          ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <Label className="mb-2 block">I want to…</Label>
@@ -266,11 +299,12 @@ function RegisterPage() {
               </Label>
             </div>
 
-            <Button type="submit" disabled={submitting} className="w-full">
+            <Button type="submit" disabled={submitting} className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md">
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create account
+              Create Account with Email
             </Button>
           </form>
+          )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Already have an account?{" "}

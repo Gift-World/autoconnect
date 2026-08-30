@@ -1189,6 +1189,9 @@ function BuyBox({ car }: { car: CarDetail }) {
         carTitle={car.title}
         carPrice={selected?.amount ?? price}
         currency={car.currency}
+        carImage={images[0]?.image_url}
+        location={car.location_display ?? car.country}
+        year={car.year}
         paymentPlan={selected?.id ?? "full"}
         planLabel={selected?.label ?? "Full payment"}
       />

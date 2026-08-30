@@ -33,6 +33,7 @@ import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer
 import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
 import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
 import { QuickListingModal } from "@/components/listing/QuickListingModal";
+import { AiCarFinderSearchBar, type ParsedAiFilters } from "@/components/search/AiCarFinderSearchBar";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
 
@@ -306,6 +307,20 @@ function CarsListPage() {
       .map((x) => x.c);
   }, [cars, search.near, userCoords]);
 
+  const handleAiFilters = (filters: ParsedAiFilters) => {
+    updateSearch({
+      q: filters.q !== undefined ? filters.q : undefined,
+      make: filters.make !== undefined ? filters.make : undefined,
+      minPrice: filters.minPrice !== undefined ? filters.minPrice : undefined,
+      maxPrice: filters.maxPrice !== undefined ? filters.maxPrice : undefined,
+      minYear: filters.minYear !== undefined ? filters.minYear : undefined,
+      maxYear: filters.maxYear !== undefined ? filters.maxYear : undefined,
+      exportOnly: filters.exportOnly !== undefined ? filters.exportOnly : undefined,
+      rhd: filters.rhd !== undefined ? filters.rhd : undefined,
+      country: filters.country !== undefined ? filters.country : undefined,
+    });
+  };
+
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -323,6 +338,13 @@ function CarsListPage() {
           <span>List a Vehicle</span>
         </Button>
       </div>
+
+      {/* Prominent Smart AI Car Finder Bar */}
+      <AiCarFinderSearchBar
+        onApplyFilters={handleAiFilters}
+        currentSearchQuery={search.q}
+        className="mb-6"
+      />
 
       <form
         onSubmit={(e) => {

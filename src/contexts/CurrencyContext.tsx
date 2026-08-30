@@ -70,7 +70,10 @@ const STORAGE_KEY = "autoconnect_selected_currency";
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>("KES");
 
+  const currentConfig: CurrencyConfig = CURRENCIES[currency] || CURRENCIES.KES;
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
     try {
       const saved = localStorage.getItem(STORAGE_KEY) as CurrencyCode;
       if (saved && CURRENCIES[saved]) {
@@ -83,10 +86,12 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 
   const setCurrency = (code: CurrencyCode) => {
     setCurrencyState(code);
-    try {
-      localStorage.setItem(STORAGE_KEY, code);
-    } catch {
-      // Ignore storage errors
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(STORAGE_KEY, code);
+      } catch {
+        // Ignore storage errors
+      }
     }
   };
 
@@ -161,7 +166,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 }
 
-export function useCurrency() {
+export function useCurrency(): CurrencyContextType {
   const context = useContext(CurrencyContext);
   if (!context) {
     const fallbackConfig = CURRENCIES.KES;
@@ -170,8 +175,17 @@ export function useCurrency() {
       setCurrency: () => {},
       currencies: CURRENCIES,
       currentConfig: fallbackConfig,
-      formatPrice: (amt?: number | null) => (amt ? `KES ${amt.toLocaleString()}` : "KES 0"),
-      convertPrice: (amt?: number | null) => amt || 0,
+      formatPrice: (
+        amount: number | null | undefined,
+        baseCurrencyOrOptions?: string | { compact?: boolean; hidePrefix?: boolean },
+        options?: { compact?: boolean; hidePrefix?: boolean }
+      ) => {
+        if (!amount) return "KES 0";
+        const opts = typeof baseCurrencyOrOptions === "object" ? baseCurrencyOrOptions : options;
+        if (opts?.hidePrefix) return amount.toLocaleString();
+        return `KES ${amount.toLocaleString()}`;
+      },
+      convertPrice: (amount: number | null | undefined) => amount || 0,
     };
   }
   return context;

@@ -188,6 +188,21 @@ export const DEMO_CARS: DemoCar[] = [
         is_primary: true,
         sort_order: 0,
       },
+      {
+        image_url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 1,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 2,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 3,
+      },
     ],
     car_yards: {
       id: "yard-1",
@@ -258,6 +273,16 @@ export const DEMO_CARS: DemoCar[] = [
         image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 1,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 2,
       },
     ],
     car_yards: {
@@ -683,8 +708,23 @@ export const DEMO_CARS: DemoCar[] = [
     installment_months: 24,
     installment_interest_rate: 11.5,
     installment_monthly: 138000,
-    yard_id: "yard-1",
-    car_images: [],
+    car_images: [
+      {
+        image_url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
+        is_primary: true,
+        sort_order: 0,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 1,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 2,
+      },
+    ],
     car_yards: {
       id: "yard-1",
       slug: "nairobi-hub",
@@ -749,7 +789,23 @@ export const DEMO_CARS: DemoCar[] = [
     installment_interest_rate: 12.0,
     installment_monthly: 162000,
     yard_id: "yard-1",
-    car_images: [],
+    car_images: [
+      {
+        image_url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
+        is_primary: true,
+        sort_order: 0,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 1,
+      },
+      {
+        image_url: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80",
+        is_primary: false,
+        sort_order: 2,
+      },
+    ],
     car_yards: {
       id: "yard-1",
       slug: "nairobi-hub",

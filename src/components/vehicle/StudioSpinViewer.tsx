@@ -46,13 +46,16 @@ export function StudioSpinViewer({
   const startAngleRef = useRef(0);
   const autoSpinTimerRef = useRef<any>(null);
 
-  // Available photo angles array
-  const validImages = images && images.length > 0 ? images : ["/placeholder.svg"];
-  const totalFrames = Math.max(validImages.length, 8);
+  // Available photo angles array - strictly filter to valid vehicle photos
+  const validImages = (images && images.length > 0 ? images : []).filter(
+    (url) => url && typeof url === "string" && url.trim().length > 0
+  );
 
   // Map degree to image index
-  const frameIndex = Math.floor((currentAngle / 360) * validImages.length) % validImages.length;
-  const currentImage = validImages[frameIndex] || validImages[0];
+  const frameIndex = validImages.length > 0
+    ? Math.floor((currentAngle / 360) * validImages.length) % validImages.length
+    : 0;
+  const currentImage = validImages[frameIndex] || validImages[0] || "";
 
   const hotspots: Hotspot[] = [
     {

@@ -151,17 +151,35 @@ function formatPrice(price: number, currency: string) {
 }
 
 async function fetchCar(id: string): Promise<CarDetail> {
+  // 1. Check exact demo car ID match first (e.g. "car-1", "car-2", etc.)
+  const exactDemo = DEMO_CARS.find((c) => c.id === id);
+  if (exactDemo) {
+    return exactDemo as unknown as CarDetail;
+  }
+
+  // 2. Fetch exact car record from Supabase
   try {
-    // 1. Fetch core car record and images
     const { data: carData, error } = await supabase
       .from("cars")
-      .select(
-        "id,seller_id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,body_type,color,engine_size,condition,description,features,right_hand_drive,steering_side,available_for_export,shipping_info,import_duties_note,vin,featured,views,created_at,documents_verified,ntsa_verified,inspection_verified,pay_full,pay_deposit,pay_installments,deposit_percent,installment_months,installment_interest_rate,installment_monthly,yard_id,car_images(image_url,is_primary,sort_order)"
-      )
+      .select("*")
       .eq("id", id)
       .maybeSingle();
 
     if (carData) {
+      let carImages: { image_url: string; is_primary: boolean; sort_order: number }[] = [];
+      try {
+        const { data: imgData } = await supabase
+          .from("car_images")
+          .select("image_url, is_primary, sort_order")
+          .eq("car_id", id)
+          .order("sort_order", { ascending: true });
+        if (imgData && imgData.length > 0) {
+          carImages = imgData;
+        }
+      } catch (imgErr) {
+        console.warn("Could not fetch car_images", imgErr);
+      }
+
       let sellerInfo = null;
       let yardInfo = null;
 
@@ -169,10 +187,10 @@ async function fetchCar(id: string): Promise<CarDetail> {
         try {
           const { data: s } = await supabase
             .from("sellers")
-            .select("id,business_name,country,city,location_display,is_verified,verification_badge,is_dealer,offers_local_pickup,offers_domestic_shipping,offers_international_shipping")
+            .select("*")
             .eq("id", carData.seller_id)
             .maybeSingle();
-          sellerInfo = s;
+          if (s) sellerInfo = s;
         } catch {
           // Ignore join failure
         }
@@ -182,10 +200,10 @@ async function fetchCar(id: string): Promise<CarDetail> {
         try {
           const { data: y } = await supabase
             .from("car_yards")
-            .select("id,slug,name,logo_url,city,country,is_approved")
+            .select("*")
             .eq("id", carData.yard_id)
             .maybeSingle();
-          yardInfo = y;
+          if (y) yardInfo = y;
         } catch {
           // Ignore join failure
         }
@@ -193,6 +211,7 @@ async function fetchCar(id: string): Promise<CarDetail> {
 
       return {
         ...carData,
+        car_images: carImages,
         sellers: sellerInfo || {
           id: carData.seller_id || "seller-default",
           business_name: "AutoConnect Certified Dealership",
@@ -213,21 +232,13 @@ async function fetchCar(id: string): Promise<CarDetail> {
     console.warn("Supabase fetch error for car:", err);
   }
 
-  // 2. Check exact demo car ID match
-  const exactDemo = DEMO_CARS.find((c) => c.id === id);
-  if (exactDemo) {
-    return exactDemo as unknown as CarDetail;
-  }
-
-  // 3. Fallback to closest demo car so no car link ever leads to a dead 404
-  if (DEMO_CARS.length > 0) {
-    const charSum = id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    const fallbackIdx = Math.abs(charSum) % DEMO_CARS.length;
-    const baseFallback = DEMO_CARS[fallbackIdx] || DEMO_CARS[0];
-    return {
-      ...baseFallback,
-      id, // Preserve URL ID
-    } as unknown as CarDetail;
+  // 3. Fallback: Check demo inventory by title or model match if ID matches
+  const demoByTitle = DEMO_CARS.find((c) =>
+    id.toLowerCase().includes(c.model_name.toLowerCase()) ||
+    c.title.toLowerCase().includes(id.toLowerCase())
+  );
+  if (demoByTitle) {
+    return demoByTitle as unknown as CarDetail;
   }
 
   throw notFound();
@@ -297,7 +308,9 @@ function CarDetailPage() {
 
   const rawCarImages = Array.isArray(car.car_images) ? car.car_images : [];
   const images = [...rawCarImages].sort((a, b) => (a?.sort_order ?? 0) - (b?.sort_order ?? 0));
-  if (images.length === 0) images.push({ image_url: "/images/hero-driving-suv.jpg", is_primary: true, sort_order: 0 });
+
+  // 360° Studio Spin is available when the vehicle has 2 or more real photos
+  const has360Spin = images.length >= 2;
 
   const isCompared = isInComparison(car.id);
 
@@ -349,41 +362,43 @@ function CarDetailPage() {
       <div className="mt-4 grid gap-8 lg:grid-cols-[1fr_380px]">
         {/* LEFT */}
         <div className="space-y-6">
-          {/* Media View Mode Switcher */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 p-1 bg-muted/80 rounded-2xl border border-border">
-              <button
-                type="button"
-                onClick={() => setMediaTab("photos")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                  mediaTab === "photos"
-                    ? "bg-card text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Eye className="h-3.5 w-3.5" />
-                <span>Photos ({images.length})</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setMediaTab("360")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
-                  mediaTab === "360"
-                    ? "bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <RotateCcw className="h-3.5 w-3.5" />
-                <span>360° Studio Spin</span>
-                <span className="bg-teal-400/30 text-teal-950 dark:text-teal-100 text-[9px] px-1.5 py-0.2 rounded-full font-black">
-                  3D
-                </span>
-              </button>
+          {/* Media View Mode Switcher - Only shown when 360 photography (2+ angles) is available */}
+          {has360Spin && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 p-1 bg-muted/80 rounded-2xl border border-border">
+                <button
+                  type="button"
+                  onClick={() => setMediaTab("photos")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    mediaTab === "photos"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                  <span>Photos ({images.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMediaTab("360")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                    mediaTab === "360"
+                      ? "bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>360° Studio Spin</span>
+                  <span className="bg-teal-400/30 text-teal-950 dark:text-teal-100 text-[9px] px-1.5 py-0.2 rounded-full font-black">
+                    3D
+                  </span>
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Interactive Media Stage */}
-          {mediaTab === "photos" ? (
+          {mediaTab === "photos" || !has360Spin ? (
             <Gallery images={images} title={car.title} />
           ) : (
             <StudioSpinViewer

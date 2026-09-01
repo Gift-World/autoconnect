@@ -1173,6 +1173,9 @@ function BuyBox({ car }: { car: CarDetail }) {
   const { user, profile } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const primaryImage = Array.isArray(car.car_images)
+    ? car.car_images.find((image) => image.is_primary)?.image_url ?? car.car_images[0]?.image_url
+    : undefined;
   const price = Number(car.price);
   // Fallback: if no options set, allow full
   const options: Array<{ id: "full" | "deposit" | "installments"; label: string; amount: number; sub: string }> = [];
@@ -1264,7 +1267,7 @@ function BuyBox({ car }: { car: CarDetail }) {
         carTitle={car.title}
         carPrice={selected?.amount ?? price}
         currency={car.currency}
-        carImage={images[0]?.image_url}
+        carImage={primaryImage}
         location={car.location_display ?? car.country}
         year={car.year}
         paymentPlan={selected?.id ?? "full"}

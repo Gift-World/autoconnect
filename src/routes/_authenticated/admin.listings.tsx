@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { countryByCode } from "@/lib/countries";
 import { ListingChecklist } from "@/components/ListingChecklist";
-import { DEMO_CARS } from "@/lib/demo-inventory";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/admin/listings")({
   head: () => ({ meta: [{ title: "Listings — Admin — AutoConnect" }] }),
@@ -99,36 +99,12 @@ function AdminListingsPage() {
   const carsQuery = useQuery({
     queryKey: ["admin-cars"],
     queryFn: async () => {
-      try {
-        const { data, error } = await supabase
-          .from("cars")
-          .select("id, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)")
-          .order("created_at", { ascending: false });
-        if (!error && data && data.length > 0) return data as CarRow[];
-      } catch {
-        // fallback
-      }
-
-      // Demo fallback for Super Admin moderation testing
-      return DEMO_CARS.map((c, idx) => ({
-        id: c.id,
-        title: c.title,
-        make_name: c.make_name,
-        model_name: c.model_name,
-        year: c.year,
-        price: c.price,
-        currency: c.currency,
-        country: c.country,
-        status: idx === 0 ? "pending" : "approved",
-        featured: c.featured,
-        views: c.views,
-        rejection_reason: null,
-        created_at: c.created_at,
-        documents_verified: c.documents_verified,
-        ntsa_verified: c.ntsa_verified,
-        inspection_verified: c.inspection_verified,
-        car_images: c.car_images,
-      })) as CarRow[];
+      const { data, error } = await supabase
+        .from("cars")
+        .select("id, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as CarRow[];
     },
   });
 

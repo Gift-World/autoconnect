@@ -195,7 +195,7 @@ export function SwipeBrowseMode({ cars, onExit }: SwipeBrowseModeProps) {
           </h3>
 
           <p className="text-2xl font-black text-teal-400 font-mono">
-            {formatPrice(currentCar?.price || 0, currentCar?.currency)}
+            {formatPrice(currentCar?.price || 0)}
           </p>
 
           <div className="flex items-center gap-3 text-xs text-slate-300 pt-1">

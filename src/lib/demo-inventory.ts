@@ -671,6 +671,7 @@ export const DEMO_CARS: DemoCar[] = [
   {
     id: "car-8",
     seller_id: "demo-seller-kenji",
+    yard_id: "yard-1",
     title: "2020 Subaru Outback 2.5i Limited EyeSight",
     make_name: "Subaru",
     model_name: "Outback",

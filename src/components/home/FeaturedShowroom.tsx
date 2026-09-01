@@ -15,7 +15,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_CARS } from "@/lib/demo-inventory";
 import { countryByCode } from "@/lib/countries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,12 +40,8 @@ export function FeaturedShowroom() {
         .order("created_at", { ascending: false })
         .limit(12);
 
-      if (!error && data && data.length > 0) {
-        return data;
-      }
-
-      // High-resolution demo cars fallback
-      return DEMO_CARS;
+      if (error) throw error;
+      return data ?? [];
     },
     staleTime: 60_000,
   });
@@ -233,7 +228,7 @@ export function FeaturedShowroom() {
             className="h-12 rounded-2xl border-border px-8 font-bold hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
           >
             <Link to="/cars">
-              Explore All {cars?.length || 50}+ Verified Cars <ArrowRight className="ml-2 h-4 w-4" />
+              Explore all verified cars <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

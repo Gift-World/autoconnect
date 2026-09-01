@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight, Scale } from "lucide-react";
+import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight, Scale, Smartphone } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -89,6 +89,7 @@ type CarRow = {
   mileage_unit: string;
   transmission: string | null;
   fuel_type: string | null;
+  body_type: string | null;
   condition: string | null;
   steering_side: string | null;
   right_hand_drive: boolean;
@@ -576,7 +577,7 @@ function CarsListPage() {
             mileage_unit: c.mileage_unit,
             transmission: c.transmission,
             fuel_type: c.fuel_type,
-            image_url: primaryImage(c),
+            image_url: primaryImage(c) ?? undefined,
           }))}
           onExit={() => setSwipeModeOpen(false)}
         />

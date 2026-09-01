@@ -241,7 +241,7 @@ function VehicleComparisonPage() {
                 </div>
 
                 <div className="pt-2 flex flex-col gap-1.5">
-                  <Link to={`/cars/${car.id}`}>
+                  <Link to="/cars/$id" params={{ id: car.id }}>
                     <Button size="sm" className="w-full h-8 text-xs rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90">
                       View Details
                       <ArrowRight className="h-3 w-3 ml-1" />

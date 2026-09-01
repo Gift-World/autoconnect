@@ -8,7 +8,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { DEMO_YARDS } from "@/lib/demo-inventory";
 import { countryByCode } from "@/lib/countries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,11 +42,8 @@ export function DealershipShowroom() {
         .order("is_featured", { ascending: false })
         .limit(3);
 
-      if (!error && data && data.length > 0) {
-        return data as Yard[];
-      }
-
-      return DEMO_YARDS.slice(0, 3) as Yard[];
+      if (error) throw error;
+      return (data ?? []) as Yard[];
     },
     staleTime: 60_000,
   });
@@ -82,15 +78,10 @@ export function DealershipShowroom() {
 
         {/* Dealership Showcase Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {(yards || DEMO_YARDS.slice(0, 3)).map((yard: Yard, idx: number) => {
+          {(yards ?? []).map((yard: Yard, idx: number) => {
             const country = countryByCode(yard.country);
             const coverUrl = yard.cover_url || FALLBACK_COVERS[idx % FALLBACK_COVERS.length];
             
-            const slugStr = yard?.slug || yard?.id || `dealership-${idx}`;
-            const hash = slugStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const stockCount = (hash % 100) + 30; // 30 to 129
-            const rating = ((hash % 10) / 10 + 4.0).toFixed(1); // 4.0 to 4.9
-
             return (
               <Link
                 key={yard.id || `yard-${idx}`}
@@ -114,14 +105,16 @@ export function DealershipShowroom() {
                       <ShieldCheck className="mr-1 h-3 w-3" /> Verified Dealer
                     </Badge>
 
-                    <div className="flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.5 text-xs font-bold text-amber-400 backdrop-blur-md">
-                      <Star className="h-3 w-3 fill-current" /> {rating} ★
-                    </div>
+                    {yard.is_featured && (
+                      <div className="flex items-center gap-1 rounded-full bg-black/70 px-2.5 py-0.5 text-xs font-bold text-amber-400 backdrop-blur-md">
+                        <Star className="h-3 w-3 fill-current" /> Featured
+                      </div>
+                    )}
                   </div>
 
                   {/* Bottom stock badge */}
                   <div className="absolute bottom-3 right-3 rounded-full bg-black/75 px-3 py-1 text-xs font-bold text-white backdrop-blur-md">
-                    {stockCount} Vehicles in Stock
+                    Live inventory
                   </div>
                 </div>
 
@@ -180,6 +173,11 @@ export function DealershipShowroom() {
             );
           })}
         </div>
+        {!isLoading && (yards?.length ?? 0) === 0 && (
+          <p className="rounded-2xl border border-dashed p-6 text-center text-sm text-muted-foreground">
+            Accredited showrooms will appear here once their live inventory is approved.
+          </p>
+        )}
       </div>
     </section>
   );

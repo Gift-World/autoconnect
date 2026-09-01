@@ -137,7 +137,7 @@ export function Navbar() {
                           ? "Yard Admin View"
                           : activeRole === "admin"
                           ? "Super Admin View"
-                          : `${activeRole.replace("_", " ")} View`}
+                          : "Member View"}
                       </span>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />

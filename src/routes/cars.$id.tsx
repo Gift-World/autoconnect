@@ -45,6 +45,7 @@ import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
 import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
+import { BuyWithConfidencePlan } from "@/components/buyer/BuyWithConfidencePlan";
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
 import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
@@ -143,6 +144,17 @@ type CarDetail = {
     offers_international_shipping: boolean;
   } | null;
 };
+
+function toConciergeCar(car: CarDetail) {
+  return {
+    id: car.id,
+    make: car.make_name ?? car.title.split(" ")[0] ?? "Vehicle",
+    model: car.model_name ?? car.title.split(" ").slice(1).join(" "),
+    year: car.year,
+    price: Number(car.price),
+    location: car.location_display ?? car.city ?? car.country,
+  };
+}
 
 function formatPrice(price: number, currency: string) {
   try {
@@ -610,6 +622,17 @@ function CarDetailPage() {
             titleVerified={car.ntsa_verified}
             inspectionVerified={car.inspection_verified}
           />
+          <BuyWithConfidencePlan
+            title={car.title}
+            imageCount={images.length}
+            documentsVerified={car.documents_verified}
+            titleVerified={car.ntsa_verified}
+            inspectionVerified={car.inspection_verified}
+            availableForExport={car.available_for_export}
+            onAskSeller={() =>
+              document.getElementById("inquiry-form")?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+          />
           <BuyerNextSteps />
           <TrustPanel />
 
@@ -655,7 +678,7 @@ function CarDetailPage() {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 sm:gap-3">
           <FavoriteButton carId={car.id} />
-          <WhatsAppConcierge car={car} compact className="h-10 px-3 shrink-0 rounded-xl" />
+          <WhatsAppConcierge car={toConciergeCar(car)} compact className="h-10 px-3 shrink-0 rounded-xl" />
           <Button
             type="button"
             variant="outline"
@@ -995,7 +1018,11 @@ function Gallery({
               className="h-full w-full object-cover"
             />
           ) : (
-            <VehiclePlaceholder title={title} className="h-full w-full" />
+            <VehiclePlaceholder
+              make={title.split(" ")[0]}
+              model={title.split(" ").slice(1).join(" ")}
+              className="h-full w-full"
+            />
           )}
           {images.length > 1 && current && (
             <>
@@ -1248,9 +1275,9 @@ function BuyBox({ car }: { car: CarDetail }) {
           setOpen(true);
         }}
       >
-        <Lock className="mr-2 h-4 w-4" /> Pay or reserve {formatPrice(breakdown.total)}
+        <Lock className="mr-2 h-4 w-4" /> Pay or reserve {formatPrice(breakdown.total, car.currency)}
       </Button>
-      <WhatsAppConcierge car={car} compact className="mt-2.5 w-full h-11 rounded-xl" />
+      <WhatsAppConcierge car={toConciergeCar(car)} compact className="mt-2.5 w-full h-11 rounded-xl" />
       <ul className="mt-4 space-y-1.5 text-[11px] text-muted-foreground">
         <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Payment protected</li>
         <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Funds released after verification</li>

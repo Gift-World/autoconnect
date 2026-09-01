@@ -65,7 +65,7 @@ export function DigitalReceiptModal({
     try {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(
-          `AutoConnect Verified Escrow Receipt: ${receipt.transactionId} for ${receipt.carTitle} (${formatPrice(receipt.amount, receipt.currency)})`
+          `AutoConnect Verified Escrow Receipt: ${receipt.transactionId} for ${receipt.carTitle} (${formatPrice(receipt.amount)})`
         );
         toast.success("Receipt details copied to clipboard!");
       }
@@ -136,7 +136,7 @@ export function DigitalReceiptModal({
               Total Amount Secured in Escrow
             </p>
             <p className="text-3xl font-black text-teal-500 font-mono">
-              {formatPrice(receipt.amount, receipt.currency)}
+              {formatPrice(receipt.amount)}
             </p>
             <p className="text-[11px] text-slate-400 font-mono">
               Method: {receipt.paymentMethod.toUpperCase()} · Status: {receipt.escrowStatus}

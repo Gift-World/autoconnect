@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { countryByCode, COUNTRIES } from "@/lib/countries";
-import { DEMO_YARDS, DEMO_CARS } from "@/lib/demo-inventory";
 import {
   Select,
   SelectContent,
@@ -76,12 +75,8 @@ function YardsPage() {
         .order("is_featured", { ascending: false })
         .order("name");
 
-      if (!error && data && data.length > 0) {
-        return data as unknown as YardRow[];
-      }
-
-      // Fallback to demo yards
-      return DEMO_YARDS as unknown as YardRow[];
+      if (error) throw error;
+      return (data ?? []) as unknown as YardRow[];
     },
   });
 
@@ -98,13 +93,6 @@ function YardsPage() {
       if (!error && data) {
         for (const r of (data ?? []) as { yard_id: string }[]) {
           map[r.yard_id] = (map[r.yard_id] ?? 0) + 1;
-        }
-      }
-
-      // Add demo car counts if any yard has 0
-      for (const dc of DEMO_CARS) {
-        if (dc.yard_id) {
-          map[dc.yard_id] = (map[dc.yard_id] ?? 0) + 1;
         }
       }
 

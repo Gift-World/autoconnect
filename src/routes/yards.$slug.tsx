@@ -29,7 +29,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { CarCard, type CarCardData } from "@/components/CarCard";
 import { countryByCode } from "@/lib/countries";
 import { toast } from "sonner";
-import { DEMO_CARS, DEMO_YARDS } from "@/lib/demo-inventory";
 
 // Curated high-resolution automotive dealership fallback covers
 const FALLBACK_COVERS = [
@@ -76,16 +75,6 @@ async function fetchYard(slug: string): Promise<Yard> {
     }
   } catch (err) {
     console.warn("Error fetching yard from database:", err);
-  }
-
-  // Check demo yards
-  const demo = DEMO_YARDS.find((y) => y.slug === slug || y.id === slug);
-  if (demo) {
-    return demo as unknown as Yard;
-  }
-
-  if (DEMO_YARDS.length > 0) {
-    return DEMO_YARDS[0] as unknown as Yard;
   }
 
   throw notFound();
@@ -171,27 +160,8 @@ function YardPage() {
         .order("featured", { ascending: false })
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
-        return data as unknown as (CarCardData & {
-          make_name: string | null;
-          model_name: string | null;
-        })[];
-      }
-
-      // Fallback to demo inventory for this yard if database has no rows
-      const demoMatches = DEMO_CARS.filter(
-        (c) => c.yard_id === yard.id || c.car_yards?.slug === yard.slug || c.car_yards?.id === yard.id,
-      );
-      if (demoMatches.length > 0) {
-        return demoMatches as unknown as (CarCardData & {
-          make_name: string | null;
-          model_name: string | null;
-        })[];
-      }
-
-      // If still empty, return sample cars from demo inventory matching the country
-      const countryMatches = DEMO_CARS.filter((c) => c.country === yard.country);
-      return (countryMatches.length > 0 ? countryMatches : DEMO_CARS) as unknown as (CarCardData & {
+      if (error) throw error;
+      return (data ?? []) as unknown as (CarCardData & {
         make_name: string | null;
         model_name: string | null;
       })[];

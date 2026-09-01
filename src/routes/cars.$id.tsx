@@ -44,6 +44,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
+import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
 import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
@@ -71,7 +72,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { COUNTRIES, countryByCode } from "@/lib/countries";
-import { DEMO_CARS } from "@/lib/demo-inventory";
 import { useAuth } from "@/contexts/AuthContext";
 import { CheckoutModal } from "@/components/payments/CheckoutModal";
 import { calculateBreakdown, fromUsdCents, SERVICE_FEE_PERCENT } from "@/lib/stripe-config";
@@ -157,13 +157,7 @@ function formatPrice(price: number, currency: string) {
 }
 
 async function fetchCar(id: string): Promise<CarDetail> {
-  // 1. Check exact demo car ID match first (e.g. "car-1", "car-2", etc.)
-  const exactDemo = DEMO_CARS.find((c) => c.id === id);
-  if (exactDemo) {
-    return exactDemo as unknown as CarDetail;
-  }
-
-  // 2. Fetch exact car record from Supabase
+  // Supabase is the source of truth for published listing details.
   try {
     const { data: carData, error } = await supabase
       .from("cars")
@@ -236,15 +230,6 @@ async function fetchCar(id: string): Promise<CarDetail> {
     }
   } catch (err) {
     console.warn("Supabase fetch error for car:", err);
-  }
-
-  // 3. Fallback: Check demo inventory by title or model match if ID matches
-  const demoByTitle = DEMO_CARS.find((c) =>
-    id.toLowerCase().includes(c.model_name.toLowerCase()) ||
-    c.title.toLowerCase().includes(id.toLowerCase())
-  );
-  if (demoByTitle) {
-    return demoByTitle as unknown as CarDetail;
   }
 
   throw notFound();

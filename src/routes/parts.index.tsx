@@ -33,6 +33,7 @@ type Part = {
   stock_quantity: number | null;
   shipping_regions: string[] | null;
   warranty_text: string | null;
+  image_url: string | null;
   is_sample: boolean;
   parts_shops: Shop | Shop[] | null;
 };
@@ -78,6 +79,7 @@ function PartsPage() {
             {categories.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </div>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-200"><Link to="/parts/shops" className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 hover:bg-white/15">Compare suppliers</Link><Link to="/services" className="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 hover:bg-white/15">Find a mechanic or garage</Link></div>
       </section>
 
       <section className="mt-7 grid gap-3 sm:grid-cols-3">
@@ -108,7 +110,7 @@ function TrustPoint({ icon, title, text }: { icon: ReactNode; title: string; tex
 
 function PartCard({ part }: { part: Part }) {
   const shop = Array.isArray(part.parts_shops) ? part.parts_shops[0] : part.parts_shops;
-  return <article className="flex min-h-64 flex-col rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex items-start justify-between gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-500/10 text-teal-600"><ShoppingBag className="h-5 w-5" /></span><span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold capitalize text-muted-foreground">{part.condition}</span></div><p className="mt-5 text-xs font-bold uppercase tracking-wide text-primary">{part.category}</p><h3 className="mt-1 text-lg font-bold leading-snug">{part.title}</h3>{part.brand && <p className="mt-1 text-sm text-muted-foreground">{part.brand}{part.part_number ? ` · ${part.part_number}` : ""}</p>}<div className="mt-5 border-t pt-4"><p className="text-lg font-extrabold">{money(part.price, part.currency)}</p><p className="mt-1 text-xs text-muted-foreground">{part.stock_quantity == null ? "Ask supplier about availability" : `${part.stock_quantity} in stated stock`} · {part.city ? `${part.city}, ` : ""}{part.country}</p></div><div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Store className="h-3.5 w-3.5 text-primary" />{shop?.name ?? "Approved supplier"}{shop?.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />}</div>{part.is_sample && <p className="mt-2 text-[11px] font-semibold text-amber-600">Sample catalogue item</p>}<div className="mt-4"><Button asChild size="sm" variant="outline" className="w-full"><Link to="/parts/$id" params={{ id: part.id }}>View compatibility & request quote</Link></Button></div></article>;
+  return <article className="flex min-h-64 flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="relative grid h-28 place-items-center overflow-hidden bg-gradient-to-br from-slate-100 via-teal-50 to-white"><div className="absolute -right-6 -top-8 h-28 w-28 rounded-full bg-teal-400/20 blur-xl" />{part.image_url ? <img alt={`Illustrative ${part.title}`} className="h-full w-full object-cover" src={part.image_url} loading="lazy" /> : <><ShoppingBag className="relative h-9 w-9 text-teal-700" /><span className="relative mt-1 text-[10px] font-bold uppercase tracking-[.16em] text-slate-500">Illustrative catalogue visual</span></>}</div><div className="flex flex-1 flex-col p-5"><div className="flex items-start justify-between gap-3"><span className="text-xs font-bold uppercase tracking-wide text-primary">{part.category}</span><span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold capitalize text-muted-foreground">{part.condition}</span></div><h3 className="mt-3 text-lg font-bold leading-snug">{part.title}</h3>{part.brand && <p className="mt-1 text-sm text-muted-foreground">{part.brand}{part.part_number ? ` · ${part.part_number}` : ""}</p>}<div className="mt-5 border-t pt-4"><p className="text-lg font-extrabold">{money(part.price, part.currency)}</p><p className="mt-1 text-xs text-muted-foreground">{part.stock_quantity == null ? "Ask supplier about availability" : `${part.stock_quantity} in stated stock`} · {part.city ? `${part.city}, ` : ""}{part.country}</p></div><div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Store className="h-3.5 w-3.5 text-primary" />{shop?.name ?? "Approved supplier"}{shop?.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />}</div>{part.is_sample && <p className="mt-2 text-[11px] font-semibold text-amber-600">Sample catalogue item</p>}<div className="mt-4"><Button asChild size="sm" variant="outline" className="w-full"><Link to="/parts/$id" params={{ id: part.id }}>View compatibility & request quote</Link></Button></div></div></article>;
 }
 
 function money(value: number, currency: string) {

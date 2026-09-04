@@ -7,7 +7,7 @@ export const Route = createFileRoute("/api/public/parts")({
         const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabasePublicServer
           .from("parts")
-          .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,is_sample,parts_shops(name,slug,is_verified,country)")
+          .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,image_url,is_sample,parts_shops(name,slug,is_verified,country)")
           .eq("status", "published")
           .order("created_at", { ascending: false })
           .limit(48);

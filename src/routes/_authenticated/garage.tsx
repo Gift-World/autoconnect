@@ -5,7 +5,7 @@ import { Car, ClipboardCheck, FileText, Gauge, Plus, ShieldCheck, Wrench } from 
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -33,20 +33,26 @@ type GarageVehicle = {
   notes: string | null;
 };
 
+// This owner is a database-only preview record. It is deliberately read-only
+// and is never used for a real signed-in customer's garage.
+const PREVIEW_GARAGE_OWNER_ID = "f98e074f-e3ad-42e6-9a20-80f55e323045";
+
 function GaragePage() {
   const { user } = useAuth();
+  const isPreview = DEMO_MODE;
+  const ownerId = isPreview ? PREVIEW_GARAGE_OWNER_ID : user?.id;
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ make: "", model: "", year: "", nickname: "", vin: "", mileage: "" });
 
   const vehicles = useQuery({
-    queryKey: ["garage-vehicles", user?.id],
-    enabled: !!user,
+    queryKey: ["garage-vehicles", ownerId],
+    enabled: !!ownerId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("garage_vehicles")
         .select("id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes")
-        .eq("owner_id", user!.id)
+        .eq("owner_id", ownerId!)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as GarageVehicle[];
@@ -55,6 +61,7 @@ function GaragePage() {
 
   const addVehicle = useMutation({
     mutationFn: async () => {
+      if (isPreview) throw new Error("Preview records are read-only. Sign in to add a personal vehicle.");
       if (!user) throw new Error("Please sign in first");
       if (!form.make.trim()) throw new Error("Enter the vehicle make");
       const { error } = await supabase.from("garage_vehicles").insert({
@@ -69,7 +76,7 @@ function GaragePage() {
       if (error) throw error;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["garage-vehicles", user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ["garage-vehicles", ownerId] });
       setOpen(false);
       setForm({ make: "", model: "", year: "", nickname: "", vin: "", mileage: "" });
       toast.success("Vehicle added to My Garage");
@@ -87,8 +94,9 @@ function GaragePage() {
           <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
             Keep your vehicles, evidence, service milestones and ownership decisions together. AutoConnect only uses data you add or verify.
           </p>
+          {isPreview && <p className="mt-4 inline-flex rounded-full border border-teal-300/25 bg-teal-300/10 px-3 py-1.5 text-xs font-semibold text-teal-100">Preview data · safe, read-only Supabase records</p>}
           <div className="mt-6 flex flex-wrap gap-2">
-            <Button onClick={() => setOpen(true)} className="bg-teal-400 text-slate-950 hover:bg-teal-300">
+            <Button onClick={() => isPreview ? toast.info("Preview records are read-only. Sign in to add your own vehicle.") : setOpen(true)} className="bg-teal-400 text-slate-950 hover:bg-teal-300">
               <Plus className="mr-2 h-4 w-4" /> Add a vehicle
             </Button>
             <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
@@ -102,7 +110,7 @@ function GaragePage() {
         <div className="mb-4 flex items-end justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold">Your vehicles</h2>
-            <p className="mt-1 text-sm text-muted-foreground">Ownership data stays private to your account.</p>
+            <p className="mt-1 text-sm text-muted-foreground">{isPreview ? "Preview records are supplied from Supabase for UI and flow testing." : "Ownership data stays private to your account."}</p>
           </div>
           <span className="rounded-full border bg-muted/40 px-3 py-1 text-xs font-semibold text-muted-foreground">
             {vehicles.data?.length ?? 0} vehicle{(vehicles.data?.length ?? 0) === 1 ? "" : "s"}
@@ -116,8 +124,8 @@ function GaragePage() {
         ) : vehicles.isError ? (
           <EmptyState
             icon={<ShieldCheck className="h-5 w-5" />}
-            title="My Garage is being prepared"
-            description="The secure garage database migration has not been applied in this environment yet. Your existing car marketplace data is unaffected."
+            title="We couldn't load your garage"
+            description="Refresh once, then try again. Your existing marketplace data is unaffected."
           />
         ) : vehicles.data?.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

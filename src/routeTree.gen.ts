@@ -22,6 +22,7 @@ import { Route as PartsRouteImport } from './routes/parts'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ServicesRouteImport } from './routes/services'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TrustRouteImport } from './routes/trust'
@@ -37,6 +38,7 @@ import { Route as CarsIndexRouteImport } from './routes/cars.index'
 import { Route as CarsIdRouteImport } from './routes/cars.$id'
 import { Route as PartsIndexRouteImport } from './routes/parts.index'
 import { Route as PartsIdRouteImport } from './routes/parts.$id'
+import { Route as PartsShopsRouteImport } from './routes/parts.shops'
 import { Route as YardsIndexRouteImport } from './routes/yards.index'
 import { Route as YardsSlugRouteImport } from './routes/yards.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
@@ -136,6 +138,11 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServicesRoute = ServicesRouteImport.update({
+  id: '/services',
+  path: '/services',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
@@ -210,6 +217,11 @@ const PartsIndexRoute = PartsIndexRouteImport.update({
 const PartsIdRoute = PartsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
+  getParentRoute: () => PartsRoute,
+} as any)
+const PartsShopsRoute = PartsShopsRouteImport.update({
+  id: '/shops',
+  path: '/shops',
   getParentRoute: () => PartsRoute,
 } as any)
 const YardsIndexRoute = YardsIndexRouteImport.update({
@@ -422,6 +434,7 @@ export interface FileRoutesByFullPath {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/services': typeof ServicesRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -435,6 +448,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
+  '/parts/shops': typeof PartsShopsRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -483,6 +497,7 @@ export interface FileRoutesByTo {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/services': typeof ServicesRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -492,6 +507,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
+  '/parts/shops': typeof PartsShopsRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars': typeof CarsIndexRoute
   '/parts': typeof PartsIndexRoute
@@ -543,6 +559,7 @@ export interface FileRoutesById {
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
+  '/services': typeof ServicesRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/trust': typeof TrustRoute
@@ -556,6 +573,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
+  '/parts/shops': typeof PartsShopsRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -608,6 +626,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/register'
+    | '/services'
     | '/support'
     | '/terms'
     | '/trust'
@@ -621,6 +640,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
+    | '/parts/shops'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -669,6 +689,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/register'
+    | '/services'
     | '/support'
     | '/terms'
     | '/trust'
@@ -678,6 +699,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
+    | '/parts/shops'
     | '/yards/$slug'
     | '/cars'
     | '/parts'
@@ -728,6 +750,7 @@ export interface FileRouteTypes {
     | '/pricing'
     | '/privacy'
     | '/register'
+    | '/services'
     | '/support'
     | '/terms'
     | '/trust'
@@ -741,6 +764,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
+    | '/parts/shops'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -793,6 +817,7 @@ export interface RootRouteChildren {
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
+  ServicesRoute: typeof ServicesRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
@@ -893,6 +918,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/services': {
+      id: '/services'
+      path: '/services'
+      fullPath: '/services'
+      preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/support': {
@@ -998,6 +1030,13 @@ declare module '@tanstack/react-router' {
       path: '/$id'
       fullPath: '/parts/$id'
       preLoaderRoute: typeof PartsIdRouteImport
+      parentRoute: typeof PartsRoute
+    }
+    '/parts/shops': {
+      id: '/parts/shops'
+      path: '/shops'
+      fullPath: '/parts/shops'
+      preLoaderRoute: typeof PartsShopsRouteImport
       parentRoute: typeof PartsRoute
     }
     '/yards/': {
@@ -1380,11 +1419,13 @@ const CarsRouteWithChildren = CarsRoute._addFileChildren(CarsRouteChildren)
 
 interface PartsRouteChildren {
   PartsIdRoute: typeof PartsIdRoute
+  PartsShopsRoute: typeof PartsShopsRoute
   PartsIndexRoute: typeof PartsIndexRoute
 }
 
 const PartsRouteChildren: PartsRouteChildren = {
   PartsIdRoute: PartsIdRoute,
+  PartsShopsRoute: PartsShopsRoute,
   PartsIndexRoute: PartsIndexRoute,
 }
 
@@ -1416,6 +1457,7 @@ const rootRouteChildren: RootRouteChildren = {
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
+  ServicesRoute: ServicesRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,

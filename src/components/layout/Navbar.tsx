@@ -32,6 +32,7 @@ import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 const navLinks = [
   { to: "/cars", label: "Explore Cars" },
   { to: "/parts", label: "Parts" },
+  { to: "/services", label: "Care" },
   { to: "/yards", label: "Yards" },
   { to: "/import", label: "Import" },
 ] as const;

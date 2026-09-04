@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, Globe2, MapPin, PackageCheck, Store, Truck } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,11 +16,7 @@ type Shop = { id: string; slug: string; name: string; description: string | null
 function PartsShopsPage() {
   const shops = useQuery({
     queryKey: ["approved-parts-shops"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("parts_shops").select("id,slug,name,description,country,city,shipping_regions,return_policy,is_verified,is_sample").eq("is_approved", true).eq("is_suspended", false).order("is_verified", { ascending: false }).order("name");
-      if (error) throw error;
-      return (data ?? []) as Shop[];
-    },
+    queryFn: async () => { const response = await fetch("/api/public/parts-shops"); const payload = await response.json() as { data?: Shop[]; error?: string }; if (!response.ok) throw new Error(payload.error ?? "Unable to load suppliers."); return payload.data ?? []; },
   });
 
   return <main className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">

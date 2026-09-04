@@ -49,13 +49,15 @@ function GaragePage() {
     queryKey: ["garage-vehicles", ownerId],
     enabled: !!ownerId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("garage_vehicles")
-        .select("id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes")
-        .eq("owner_id", ownerId!)
-        .order("created_at", { ascending: false });
+      if (isPreview) {
+        const response = await fetch("/api/public/preview-garage");
+        const payload = await response.json() as { data?: GarageVehicle[]; error?: string };
+        if (!response.ok) throw new Error(payload.error ?? "Unable to load garage preview.");
+        return payload.data ?? [];
+      }
+      const { data, error } = await supabase.from("garage_vehicles").select("id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes").eq("owner_id", ownerId!).order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as GarageVehicle[];
+      return data as GarageVehicle[];
     },
   });
 

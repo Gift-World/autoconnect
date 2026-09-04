@@ -25,6 +25,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { roleHomePath, type AppRole } from "@/contexts/AuthContext";
 
+// A six-digit local shortcut is deliberately unavailable in deployed builds.
+// Production sign-in must create a real Supabase session from a real SMS OTP.
+const ALLOW_LOCAL_OTP =
+  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+
 const COUNTRY_PREFIXES = [
   { code: "+254", name: "Kenya (+254)", flag: "🇰🇪" },
   { code: "+255", name: "Tanzania (+255)", flag: "🇹🇿" },
@@ -88,18 +93,12 @@ export function PhoneAuthForm({
         phone: fullPhone,
       });
 
-      if (error) {
-        // Handle common SMS provider setup notices gracefully in demo/dev mode
-        console.warn("Supabase phone OTP message:", error.message);
-        toast.info("Verification SMS Requested", {
-          description: `An OTP code was sent to ${fullPhone}. (Dev fallback: enter any 6 digits e.g. 123456)`,
-        });
-      } else {
-        toast.success("Verification Code Sent", {
-          description: `SMS OTP code sent to ${fullPhone}`,
-          icon: <Smartphone className="h-4 w-4 text-teal-400" />,
-        });
-      }
+      if (error) throw new Error(error.message);
+
+      toast.success("Verification Code Sent", {
+        description: `SMS OTP code sent to ${fullPhone}`,
+        icon: <Smartphone className="h-4 w-4 text-teal-400" />,
+      });
 
       setStep("otp");
       setCountdown(45);
@@ -129,10 +128,9 @@ export function PhoneAuthForm({
 
       let userId = data.user?.id;
 
-      // If backend OTP verified successfully or in test mode
+      // Never say a user is signed in unless Supabase returned a real session.
       if (error && !userId) {
-        // Fallback for sandboxed demo environments: check if demo mode OTP
-        if (otpCode.trim() === "123456" || otpCode.trim().length === 6) {
+        if (ALLOW_LOCAL_OTP && otpCode.trim() === "123456") {
           toast.success("Phone Verified Successfully", {
             description: `Welcome to AutoConnect (${fullPhone})`,
             icon: <CheckCircle2 className="h-4 w-4 text-teal-400" />,
@@ -141,7 +139,11 @@ export function PhoneAuthForm({
           void navigate({ to: "/dashboard" as never });
           return;
         }
-        throw new Error(error.message);
+        throw new Error(error.message || "That code is invalid or has expired. Request a new SMS code and try again.");
+      }
+
+      if (!userId || !data.session) {
+        throw new Error("We could not create a secure session. Please request a new SMS code.");
       }
 
       if (userId) {

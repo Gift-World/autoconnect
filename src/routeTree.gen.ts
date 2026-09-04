@@ -36,6 +36,7 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CarsIndexRouteImport } from './routes/cars.index'
 import { Route as CarsIdRouteImport } from './routes/cars.$id'
 import { Route as PartsIndexRouteImport } from './routes/parts.index'
+import { Route as PartsIdRouteImport } from './routes/parts.$id'
 import { Route as YardsIndexRouteImport } from './routes/yards.index'
 import { Route as YardsSlugRouteImport } from './routes/yards.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
@@ -203,6 +204,11 @@ const CarsIdRoute = CarsIdRouteImport.update({
 const PartsIndexRoute = PartsIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => PartsRoute,
+} as any)
+const PartsIdRoute = PartsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => PartsRoute,
 } as any)
 const YardsIndexRoute = YardsIndexRouteImport.update({
@@ -422,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
+  '/parts/$id': typeof PartsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -477,6 +484,7 @@ export interface FileRoutesByTo {
   '/garage': typeof AuthenticatedGarageRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
+  '/parts/$id': typeof PartsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars': typeof CarsIndexRoute
   '/parts': typeof PartsIndexRoute
@@ -539,6 +547,7 @@ export interface FileRoutesById {
   '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
+  '/parts/$id': typeof PartsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -602,6 +611,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/admin/login'
     | '/cars/$id'
+    | '/parts/$id'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -657,6 +667,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/admin/login'
     | '/cars/$id'
+    | '/parts/$id'
     | '/yards/$slug'
     | '/cars'
     | '/parts'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seller'
     | '/admin/login'
     | '/cars/$id'
+    | '/parts/$id'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -966,6 +978,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/parts/'
       preLoaderRoute: typeof PartsIndexRouteImport
+      parentRoute: typeof PartsRoute
+    }
+    '/parts/$id': {
+      id: '/parts/$id'
+      path: '/$id'
+      fullPath: '/parts/$id'
+      preLoaderRoute: typeof PartsIdRouteImport
       parentRoute: typeof PartsRoute
     }
     '/yards/': {
@@ -1340,10 +1359,12 @@ const CarsRouteChildren: CarsRouteChildren = {
 const CarsRouteWithChildren = CarsRoute._addFileChildren(CarsRouteChildren)
 
 interface PartsRouteChildren {
+  PartsIdRoute: typeof PartsIdRoute
   PartsIndexRoute: typeof PartsIndexRoute
 }
 
 const PartsRouteChildren: PartsRouteChildren = {
+  PartsIdRoute: PartsIdRoute,
   PartsIndexRoute: PartsIndexRoute,
 }
 

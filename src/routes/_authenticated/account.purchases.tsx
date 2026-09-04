@@ -51,7 +51,7 @@ function Purchases() {
       }
 
       // Demo fallback when exploring Buyer persona
-      if (user?.id?.startsWith("demo-") || true) {
+      if (user?.id?.startsWith("demo-")) {
         setRows([
           {
             id: "AC-ESC-892014",

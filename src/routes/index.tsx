@@ -5,8 +5,6 @@ import { TrustPipeline } from "@/components/home/TrustPipeline";
 import { DealershipShowroom } from "@/components/home/DealershipShowroom";
 import { CinematicImport } from "@/components/home/CinematicImport";
 import { FinalCinematicCTA } from "@/components/home/FinalCinematicCTA";
-import { EditorialTestimonials } from "@/components/home/EditorialTestimonials";
-import { EscrowSecurity } from "@/components/home/EscrowSecurity";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,8 +35,6 @@ function HomePage() {
       <CinematicHero />
       <FeaturedShowroom />
       <TrustPipeline />
-      <EditorialTestimonials />
-      <EscrowSecurity />
       <DealershipShowroom />
       <CinematicImport />
       <FinalCinematicCTA />

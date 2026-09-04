@@ -34,6 +34,7 @@ type Part = {
   stock_quantity: number | null;
   shipping_regions: string[] | null;
   warranty_text: string | null;
+  is_sample: boolean;
   parts_shops: Shop | Shop[] | null;
 };
 
@@ -45,7 +46,7 @@ function PartsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("parts")
-        .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,parts_shops(name,slug,is_verified,country)")
+        .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,is_sample,parts_shops(name,slug,is_verified,country)")
         .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(48);
@@ -112,7 +113,7 @@ function TrustPoint({ icon, title, text }: { icon: ReactNode; title: string; tex
 
 function PartCard({ part }: { part: Part }) {
   const shop = Array.isArray(part.parts_shops) ? part.parts_shops[0] : part.parts_shops;
-  return <article className="flex min-h-64 flex-col rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex items-start justify-between gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-500/10 text-teal-600"><ShoppingBag className="h-5 w-5" /></span><span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold capitalize text-muted-foreground">{part.condition}</span></div><p className="mt-5 text-xs font-bold uppercase tracking-wide text-primary">{part.category}</p><h3 className="mt-1 text-lg font-bold leading-snug">{part.title}</h3>{part.brand && <p className="mt-1 text-sm text-muted-foreground">{part.brand}{part.part_number ? ` · ${part.part_number}` : ""}</p>}<div className="mt-5 border-t pt-4"><p className="text-lg font-extrabold">{money(part.price, part.currency)}</p><p className="mt-1 text-xs text-muted-foreground">{part.stock_quantity == null ? "Ask supplier about availability" : `${part.stock_quantity} in stated stock`} · {part.city ? `${part.city}, ` : ""}{part.country}</p></div><div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Store className="h-3.5 w-3.5 text-primary" />{shop?.name ?? "Approved supplier"}{shop?.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />}</div>{part.warranty_text && <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{part.warranty_text}</p>}</article>;
+  return <article className="flex min-h-64 flex-col rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex items-start justify-between gap-3"><span className="grid h-11 w-11 place-items-center rounded-xl bg-teal-500/10 text-teal-600"><ShoppingBag className="h-5 w-5" /></span><span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold capitalize text-muted-foreground">{part.condition}</span></div><p className="mt-5 text-xs font-bold uppercase tracking-wide text-primary">{part.category}</p><h3 className="mt-1 text-lg font-bold leading-snug">{part.title}</h3>{part.brand && <p className="mt-1 text-sm text-muted-foreground">{part.brand}{part.part_number ? ` · ${part.part_number}` : ""}</p>}<div className="mt-5 border-t pt-4"><p className="text-lg font-extrabold">{money(part.price, part.currency)}</p><p className="mt-1 text-xs text-muted-foreground">{part.stock_quantity == null ? "Ask supplier about availability" : `${part.stock_quantity} in stated stock`} · {part.city ? `${part.city}, ` : ""}{part.country}</p></div><div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground"><Store className="h-3.5 w-3.5 text-primary" />{shop?.name ?? "Approved supplier"}{shop?.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />}</div>{part.is_sample && <p className="mt-2 text-[11px] font-semibold text-amber-600">Sample catalogue item</p>}<div className="mt-4"><Button asChild size="sm" variant="outline" className="w-full"><Link to="/parts/$id" params={{ id: part.id }}>View compatibility & request quote</Link></Button></div></article>;
 }
 
 function money(value: number, currency: string) {

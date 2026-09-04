@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useAuth, roleHomePath } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth, roleHomePath } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
@@ -117,8 +117,8 @@ export function Navbar() {
                         {initials}
                       </AvatarFallback>
                     </Avatar>
-                    <span className="hidden text-xs font-semibold sm:inline max-w-[120px] truncate">
-                      {profile?.full_name || user.email}
+                    <span className="hidden text-xs font-semibold sm:inline max-w-[140px] truncate">
+                      {DEMO_MODE ? `Preview · ${profile?.full_name || "Workspace"}` : profile?.full_name || user.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>

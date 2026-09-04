@@ -11,10 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "buyer" | "seller" | "yard_manager" | "admin";
 
-// Demo personas are opt-in and local-only. Deployed environments always use
-// the authenticated Supabase user and their database profile as the source of truth.
+// Preview personas are explicitly opt-in. They only provide simulated client-side
+// identities for navigation and visual QA; Supabase RLS still rejects protected
+// reads and every write without a real authenticated session.
 export const DEMO_MODE =
-  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+  import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
 
 export interface RoleInfo {
   role: AppRole;

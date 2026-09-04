@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth, type AppRole, roleHomePath } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth, type AppRole, roleHomePath } from "@/contexts/AuthContext";
 
 export const TEST_PERSONAS = [
   {
@@ -129,7 +129,8 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
     (new URLSearchParams(window.location.search).get("dev") === "true" ||
       new URLSearchParams(window.location.search).get("personas") === "true" ||
       localStorage.getItem("autoconnect_dev_mode") === "true" ||
-      (import.meta as any).env?.VITE_SHOW_TEST_PERSONAS === "true");
+      (import.meta as any).env?.VITE_SHOW_TEST_PERSONAS === "true" ||
+      DEMO_MODE);
 
   const currentRole = ROLES_LIST.find((r) => r.role === activeRole) || ROLES_LIST[0];
   const CurrentIcon = currentRole.icon;
@@ -198,9 +199,9 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-2 shadow-2xl border-border rounded-2xl">
         <DropdownMenuLabel className="px-2.5 py-1.5 text-xs">
-          <span className="font-bold text-foreground">Switch Perspective</span>
+          <span className="font-bold text-foreground">{DEMO_MODE ? "Preview workspace" : "Switch Perspective"}</span>
           <p className="text-[11px] font-normal text-muted-foreground mt-0.5">
-            Select a role to view the workspace from that point of view.
+            {DEMO_MODE ? "Explore simulated views. Protected actions still require a real account." : "Select a role to view the workspace from that point of view."}
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1" />
@@ -251,7 +252,7 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
               >
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5 text-primary" />
-                  <span>Test Personas (4) [Dev Mode]</span>
+                  <span>{DEMO_MODE ? "Preview personas (4)" : "Test Personas (4) [Dev Mode]"}</span>
                 </span>
                 {showPersonas ? (
                   <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" />

@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type ReactNode } from "react";
 import { ArrowRight, Globe2, PackageSearch, Search, ShieldCheck, ShoppingBag, Store, Wrench } from "lucide-react";
 
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { Input } from "@/components/ui/input";
@@ -44,14 +43,10 @@ function PartsPage() {
   const partsQuery = useQuery({
     queryKey: ["published-parts"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("parts")
-        .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,is_sample,parts_shops(name,slug,is_verified,country)")
-        .eq("status", "published")
-        .order("created_at", { ascending: false })
-        .limit(48);
-      if (error) throw error;
-      return (data ?? []) as unknown as Part[];
+      const response = await fetch("/api/public/parts");
+      const payload = await response.json() as { data?: Part[]; error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Unable to load parts.");
+      return payload.data ?? [];
     },
   });
 

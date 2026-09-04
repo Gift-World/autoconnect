@@ -66,6 +66,7 @@ import { Route as AuthenticatedSellerTransactionsRouteImport } from './routes/_a
 import { Route as AuthenticatedSellerVerifyRouteImport } from './routes/_authenticated/seller.verify'
 import { Route as AuthenticatedSellerYardRouteImport } from './routes/_authenticated/seller.yard'
 import { Route as AuthenticatedTransactionsIdRouteImport } from './routes/_authenticated/transactions.$id'
+import { Route as ApiPublicPartsRouteImport } from './routes/api/public/parts'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as AuthenticatedAdminInspectionsIndexRouteImport } from './routes/_authenticated/admin.inspections.index'
 import { Route as AuthenticatedAdminInspectionsIdRouteImport } from './routes/_authenticated/admin.inspections.$id'
@@ -379,6 +380,11 @@ const AuthenticatedTransactionsIdRoute =
     path: '/transactions/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicPartsRoute = ApiPublicPartsRouteImport.update({
+  id: '/api/public/parts',
+  path: '/api/public/parts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   id: '/api/public/stripe-webhook',
   path: '/api/public/stripe-webhook',
@@ -457,6 +463,7 @@ export interface FileRoutesByFullPath {
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
   '/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -512,6 +519,7 @@ export interface FileRoutesByTo {
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
   '/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -576,6 +584,7 @@ export interface FileRoutesById {
   '/_authenticated/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/_authenticated/seller/yard': typeof AuthenticatedSellerYardRoute
   '/_authenticated/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -640,6 +649,7 @@ export interface FileRouteTypes {
     | '/seller/verify'
     | '/seller/yard'
     | '/transactions/$id'
+    | '/api/public/parts'
     | '/api/public/stripe-webhook'
     | '/account/'
     | '/admin/'
@@ -695,6 +705,7 @@ export interface FileRouteTypes {
     | '/seller/verify'
     | '/seller/yard'
     | '/transactions/$id'
+    | '/api/public/parts'
     | '/api/public/stripe-webhook'
     | '/account'
     | '/admin'
@@ -758,6 +769,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seller/verify'
     | '/_authenticated/seller/yard'
     | '/_authenticated/transactions/$id'
+    | '/api/public/parts'
     | '/api/public/stripe-webhook'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
@@ -786,6 +798,7 @@ export interface RootRouteChildren {
   TrustRoute: typeof TrustRoute
   YardsRoute: typeof YardsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
+  ApiPublicPartsRoute: typeof ApiPublicPartsRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
@@ -1190,6 +1203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTransactionsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/parts': {
+      id: '/api/public/parts'
+      path: '/api/public/parts'
+      fullPath: '/api/public/parts'
+      preLoaderRoute: typeof ApiPublicPartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/stripe-webhook': {
       id: '/api/public/stripe-webhook'
       path: '/api/public/stripe-webhook'
@@ -1401,6 +1421,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrustRoute: TrustRoute,
   YardsRoute: YardsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
+  ApiPublicPartsRoute: ApiPublicPartsRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport

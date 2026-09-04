@@ -1,16 +1,16 @@
 import { createClient } from "@supabase/supabase-js";
 
 const serverUrl =
-  process.env.APP_SUPABASE_URL ||
   process.env.VITE_SUPABASE_URL ||
+  process.env.APP_SUPABASE_URL ||
   "https://placeholder.supabase.co";
 
 const serviceRoleKey =
   process.env.APP_SUPABASE_SERVICE_ROLE_KEY || "placeholder-service-key";
 
 const publishableKey =
-  process.env.APP_SUPABASE_PUBLISHABLE_KEY ||
   process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.APP_SUPABASE_PUBLISHABLE_KEY ||
   "placeholder-pub-key";
 
 // SERVER-ONLY. Uses the service role key — bypasses RLS.

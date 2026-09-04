@@ -18,6 +18,7 @@ import { Route as HowPaymentsWorkRouteImport } from './routes/how-payments-work'
 import { Route as ImportRouteImport } from './routes/import'
 import { Route as ImportTrackerRouteImport } from './routes/import-tracker'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as PartsRouteImport } from './routes/parts'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
@@ -29,10 +30,12 @@ import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCompleteProfileRouteImport } from './routes/_authenticated/complete-profile'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
 import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CarsIndexRouteImport } from './routes/cars.index'
 import { Route as CarsIdRouteImport } from './routes/cars.$id'
+import { Route as PartsIndexRouteImport } from './routes/parts.index'
 import { Route as YardsIndexRouteImport } from './routes/yards.index'
 import { Route as YardsSlugRouteImport } from './routes/yards.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
@@ -111,6 +114,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartsRoute = PartsRouteImport.update({
+  id: '/parts',
+  path: '/parts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -167,6 +175,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGarageRoute = AuthenticatedGarageRouteImport.update({
+  id: '/garage',
+  path: '/garage',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedSellerRoute = AuthenticatedSellerRouteImport.update({
   id: '/seller',
   path: '/seller',
@@ -186,6 +199,11 @@ const CarsIdRoute = CarsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
   getParentRoute: () => CarsRoute,
+} as any)
+const PartsIndexRoute = PartsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PartsRoute,
 } as any)
 const YardsIndexRoute = YardsIndexRouteImport.update({
   id: '/',
@@ -388,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/import': typeof ImportRoute
   '/import-tracker': typeof ImportTrackerRoute
   '/login': typeof LoginRoute
+  '/parts': typeof PartsRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
@@ -399,11 +418,13 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/garage': typeof AuthenticatedGarageRoute
   '/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
+  '/parts/': typeof PartsIndexRoute
   '/yards/': typeof YardsIndexRoute
   '/account/favorites': typeof AuthenticatedAccountFavoritesRoute
   '/account/import-requests': typeof AuthenticatedAccountImportRequestsRoute
@@ -453,10 +474,12 @@ export interface FileRoutesByTo {
   '/trust': typeof TrustRoute
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/garage': typeof AuthenticatedGarageRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars': typeof CarsIndexRoute
+  '/parts': typeof PartsIndexRoute
   '/yards': typeof YardsIndexRoute
   '/account/favorites': typeof AuthenticatedAccountFavoritesRoute
   '/account/import-requests': typeof AuthenticatedAccountImportRequestsRoute
@@ -500,6 +523,7 @@ export interface FileRoutesById {
   '/import': typeof ImportRoute
   '/import-tracker': typeof ImportTrackerRoute
   '/login': typeof LoginRoute
+  '/parts': typeof PartsRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
@@ -511,11 +535,13 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/complete-profile': typeof AuthenticatedCompleteProfileRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/garage': typeof AuthenticatedGarageRoute
   '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
+  '/parts/': typeof PartsIndexRoute
   '/yards/': typeof YardsIndexRoute
   '/_authenticated/account/favorites': typeof AuthenticatedAccountFavoritesRoute
   '/_authenticated/account/import-requests': typeof AuthenticatedAccountImportRequestsRoute
@@ -560,6 +586,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/import-tracker'
     | '/login'
+    | '/parts'
     | '/pricing'
     | '/privacy'
     | '/register'
@@ -571,11 +598,13 @@ export interface FileRouteTypes {
     | '/admin'
     | '/complete-profile'
     | '/dashboard'
+    | '/garage'
     | '/seller'
     | '/admin/login'
     | '/cars/$id'
     | '/yards/$slug'
     | '/cars/'
+    | '/parts/'
     | '/yards/'
     | '/account/favorites'
     | '/account/import-requests'
@@ -625,10 +654,12 @@ export interface FileRouteTypes {
     | '/trust'
     | '/complete-profile'
     | '/dashboard'
+    | '/garage'
     | '/admin/login'
     | '/cars/$id'
     | '/yards/$slug'
     | '/cars'
+    | '/parts'
     | '/yards'
     | '/account/favorites'
     | '/account/import-requests'
@@ -671,6 +702,7 @@ export interface FileRouteTypes {
     | '/import'
     | '/import-tracker'
     | '/login'
+    | '/parts'
     | '/pricing'
     | '/privacy'
     | '/register'
@@ -682,11 +714,13 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/complete-profile'
     | '/_authenticated/dashboard'
+    | '/_authenticated/garage'
     | '/_authenticated/seller'
     | '/admin/login'
     | '/cars/$id'
     | '/yards/$slug'
     | '/cars/'
+    | '/parts/'
     | '/yards/'
     | '/_authenticated/account/favorites'
     | '/_authenticated/account/import-requests'
@@ -731,6 +765,7 @@ export interface RootRouteChildren {
   ImportRoute: typeof ImportRoute
   ImportTrackerRoute: typeof ImportTrackerRoute
   LoginRoute: typeof LoginRoute
+  PartsRoute: typeof PartsRouteWithChildren
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
@@ -805,6 +840,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parts': {
+      id: '/parts'
+      path: '/parts'
+      fullPath: '/parts'
+      preLoaderRoute: typeof PartsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -884,6 +926,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/garage': {
+      id: '/_authenticated/garage'
+      path: '/garage'
+      fullPath: '/garage'
+      preLoaderRoute: typeof AuthenticatedGarageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/seller': {
       id: '/_authenticated/seller'
       path: '/seller'
@@ -911,6 +960,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/cars/$id'
       preLoaderRoute: typeof CarsIdRouteImport
       parentRoute: typeof CarsRoute
+    }
+    '/parts/': {
+      id: '/parts/'
+      path: '/'
+      fullPath: '/parts/'
+      preLoaderRoute: typeof PartsIndexRouteImport
+      parentRoute: typeof PartsRoute
     }
     '/yards/': {
       id: '/yards/'
@@ -1253,6 +1309,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedCompleteProfileRoute: typeof AuthenticatedCompleteProfileRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
   AuthenticatedSellerRoute: typeof AuthenticatedSellerRouteWithChildren
   AuthenticatedTransactionsIdRoute: typeof AuthenticatedTransactionsIdRoute
 }
@@ -1262,6 +1319,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedCompleteProfileRoute: AuthenticatedCompleteProfileRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedGarageRoute: AuthenticatedGarageRoute,
   AuthenticatedSellerRoute: AuthenticatedSellerRouteWithChildren,
   AuthenticatedTransactionsIdRoute: AuthenticatedTransactionsIdRoute,
 }
@@ -1280,6 +1338,16 @@ const CarsRouteChildren: CarsRouteChildren = {
 }
 
 const CarsRouteWithChildren = CarsRoute._addFileChildren(CarsRouteChildren)
+
+interface PartsRouteChildren {
+  PartsIndexRoute: typeof PartsIndexRoute
+}
+
+const PartsRouteChildren: PartsRouteChildren = {
+  PartsIndexRoute: PartsIndexRoute,
+}
+
+const PartsRouteWithChildren = PartsRoute._addFileChildren(PartsRouteChildren)
 
 interface YardsRouteChildren {
   YardsSlugRoute: typeof YardsSlugRoute
@@ -1303,6 +1371,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImportRoute: ImportRoute,
   ImportTrackerRoute: ImportTrackerRoute,
   LoginRoute: LoginRoute,
+  PartsRoute: PartsRouteWithChildren,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,

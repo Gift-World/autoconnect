@@ -8,7 +8,6 @@ import {
   Heart,
   Car,
   Store,
-  Compass,
   Scale,
   Settings,
 } from "lucide-react";
@@ -31,12 +30,10 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 
 const navLinks = [
-  { to: "/cars", label: "Browse Cars" },
-  { to: "/yards", label: "Car Yards" },
-  { to: "/import", label: "Import a Car" },
-  { to: "/import-tracker", label: "Import Tracker" },
-  { to: "/compare", label: "Compare" },
-  { to: "/how-payments-work", label: "How Payments Work" },
+  { to: "/cars", label: "Explore Cars" },
+  { to: "/parts", label: "Parts" },
+  { to: "/yards", label: "Yards" },
+  { to: "/import", label: "Import" },
 ] as const;
 
 export function Navbar() {
@@ -149,6 +146,11 @@ export function Navbar() {
                     <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
                       <Link to="/account/favorites">
                         <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                      <Link to="/garage">
+                        <Car className="mr-2 h-4 w-4 text-teal-500" /> My Garage
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="rounded-xl cursor-pointer">

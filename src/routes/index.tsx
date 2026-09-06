@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CinematicHero } from "@/components/home/CinematicHero";
+import { EcosystemLoop } from "@/components/home/EcosystemLoop";
 import { FeaturedShowroom } from "@/components/home/FeaturedShowroom";
 import { TrustPipeline } from "@/components/home/TrustPipeline";
 import { CinematicImport } from "@/components/home/CinematicImport";
@@ -33,6 +34,7 @@ function HomePage() {
   return (
     <main className="min-h-screen bg-background text-foreground selection:bg-teal-500 selection:text-slate-950">
       <CinematicHero />
+      <EcosystemLoop />
       <FeaturedShowroom />
       <TrustPipeline />
       <CinematicImport />

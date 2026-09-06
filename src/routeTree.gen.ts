@@ -39,6 +39,7 @@ import { Route as CarsIdRouteImport } from './routes/cars.$id'
 import { Route as PartsIndexRouteImport } from './routes/parts.index'
 import { Route as PartsIdRouteImport } from './routes/parts.$id'
 import { Route as PartsShopsRouteImport } from './routes/parts.shops'
+import { Route as PassportCarIdRouteImport } from './routes/passport.$carId'
 import { Route as YardsIndexRouteImport } from './routes/yards.index'
 import { Route as YardsSlugRouteImport } from './routes/yards.$slug'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
@@ -226,6 +227,11 @@ const PartsShopsRoute = PartsShopsRouteImport.update({
   id: '/shops',
   path: '/shops',
   getParentRoute: () => PartsRoute,
+} as any)
+const PassportCarIdRoute = PassportCarIdRouteImport.update({
+  id: '/passport/$carId',
+  path: '/passport/$carId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const YardsIndexRoute = YardsIndexRouteImport.update({
   id: '/',
@@ -468,6 +474,7 @@ export interface FileRoutesByFullPath {
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
   '/parts/shops': typeof PartsShopsRoute
+  '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -530,6 +537,7 @@ export interface FileRoutesByTo {
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
   '/parts/shops': typeof PartsShopsRoute
+  '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars': typeof CarsIndexRoute
   '/parts': typeof PartsIndexRoute
@@ -599,6 +607,7 @@ export interface FileRoutesById {
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
   '/parts/shops': typeof PartsShopsRoute
+  '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
   '/parts/': typeof PartsIndexRoute
@@ -669,6 +678,7 @@ export interface FileRouteTypes {
     | '/cars/$id'
     | '/parts/$id'
     | '/parts/shops'
+    | '/passport/$carId'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/cars/$id'
     | '/parts/$id'
     | '/parts/shops'
+    | '/passport/$carId'
     | '/yards/$slug'
     | '/cars'
     | '/parts'
@@ -799,6 +810,7 @@ export interface FileRouteTypes {
     | '/cars/$id'
     | '/parts/$id'
     | '/parts/shops'
+    | '/passport/$carId'
     | '/yards/$slug'
     | '/cars/'
     | '/parts/'
@@ -860,6 +872,7 @@ export interface RootRouteChildren {
   TrustRoute: typeof TrustRoute
   YardsRoute: typeof YardsRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
+  PassportCarIdRoute: typeof PassportCarIdRoute
   ApiPublicPartsRoute: typeof ApiPublicPartsRoute
   ApiPublicPartsShopsRoute: typeof ApiPublicPartsShopsRoute
   ApiPublicPreviewGarageRoute: typeof ApiPublicPreviewGarageRoute
@@ -1078,6 +1091,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/parts/shops'
       preLoaderRoute: typeof PartsShopsRouteImport
       parentRoute: typeof PartsRoute
+    }
+    '/passport/$carId': {
+      id: '/passport/$carId'
+      path: '/passport/$carId'
+      fullPath: '/passport/$carId'
+      preLoaderRoute: typeof PassportCarIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/yards/': {
       id: '/yards/'
@@ -1524,6 +1544,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrustRoute: TrustRoute,
   YardsRoute: YardsRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
+  PassportCarIdRoute: PassportCarIdRoute,
   ApiPublicPartsRoute: ApiPublicPartsRoute,
   ApiPublicPartsShopsRoute: ApiPublicPartsShopsRoute,
   ApiPublicPreviewGarageRoute: ApiPublicPreviewGarageRoute,

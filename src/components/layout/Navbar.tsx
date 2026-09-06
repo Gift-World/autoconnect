@@ -30,11 +30,11 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 
 const navLinks = [
-  { to: "/cars", label: "Explore Cars" },
-  { to: "/parts", label: "Parts" },
-  { to: "/services", label: "Care" },
-  { to: "/yards", label: "Yards" },
+  { to: "/cars", label: "Buy" },
   { to: "/import", label: "Import" },
+  { to: "/yards", label: "Dealerships" },
+  { to: "/services", label: "Care" },
+  { to: "/seller", label: "Sell" },
 ] as const;
 
 export function Navbar() {

@@ -68,15 +68,75 @@ function GaragePage() {
         if (!response.ok) throw new Error(payload.error ?? "Unable to load garage preview.");
         return payload.data ?? [];
       }
-      const { data, error } = await supabase
-        .from("garage_vehicles")
-        .select(
-          "id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes",
-        )
-        .eq("owner_id", ownerId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as GarageVehicle[];
+      let manualVehicles: GarageVehicle[] = [];
+      try {
+        const { data, error } = await supabase
+          .from("garage_vehicles")
+          .select(
+            "id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes",
+          )
+          .eq("owner_id", ownerId!)
+          .order("created_at", { ascending: false });
+        if (error) {
+           const code = error.code;
+           if (code !== "PGRST205" && code !== "42P01" && !error.message?.includes("does not exist")) throw error;
+        }
+        if (data) manualVehicles = data as GarageVehicle[];
+      } catch (err: any) {
+        const code = err.code;
+        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist")) throw err;
+      }
+
+      // Fetch real ownership records, but gracefully handle missing table during development
+      let ownData: any[] | null = null;
+      try {
+        const result = await supabase
+          .from("ownerships")
+          .select(
+            "id,cars!inner(id,title,make_name,model_name,year,mileage,mileage_unit,vin)",
+          )
+          .eq("user_id", ownerId!)
+          .eq("status", "current");
+        
+        if (result.error) {
+           const code = result.error.code;
+           if (code !== "PGRST205" && code !== "42P01" && !result.error.message?.includes("does not exist")) {
+             throw result.error;
+           }
+        }
+        ownData = result.data;
+      } catch (err: any) {
+        const code = err.code;
+        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist")) throw err;
+      }
+
+      const purchasedVehicles: GarageVehicle[] = [];
+      if (ownData && ownData.length > 0) {
+        ownData.forEach((own: any) => {
+          if (own.cars) {
+            purchasedVehicles.push({
+              id: own.cars.id,
+              nickname: own.cars.title,
+              make_name: own.cars.make_name || "Unknown Make",
+              model_name: own.cars.model_name || "Unknown Model",
+              year: own.cars.year || null,
+              vin: own.cars.vin || null,
+              mileage: own.cars.mileage || null,
+              mileage_unit: own.cars.mileage_unit || "km",
+              next_service_at: null,
+              next_service_mileage: null,
+              insurance_renews_at: null,
+              notes: "AutoConnect Authenticated Ownership",
+            });
+          }
+        });
+      }
+
+      // Merge and deduplicate by VIN (or ID) just in case
+      // For demo users, manual vehicles are loaded. For production, ownerships are loaded.
+      const merged = [...purchasedVehicles, ...manualVehicles];
+      const unique = Array.from(new Map(merged.map((item) => [item.id, item])).values());
+      return unique;
     },
   });
 
@@ -303,11 +363,11 @@ function GarageCard({ vehicle }: { vehicle: GarageVehicle }) {
         </p>
       </div>
       <div className="mt-4 flex gap-2">
-        <Button asChild size="sm" variant="outline" className="flex-1">
-          <Link to="/parts">Parts</Link>
+        <Button asChild size="sm" variant="default" className="flex-1 bg-teal-500 hover:bg-teal-600 text-white">
+          <Link to="/passport/$carId" params={{ carId: vehicle.id }}>Passport</Link>
         </Button>
         <Button asChild size="sm" variant="outline" className="flex-1">
-          <Link to="/import">Import</Link>
+          <Link to="/parts" search={{ q: `${vehicle.make_name} ${vehicle.model_name}` }}>Parts</Link>
         </Button>
       </div>
     </article>

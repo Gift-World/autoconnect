@@ -267,10 +267,10 @@ function ConsolidatedDashboard() {
           </button>
         </div>
 
-        {/* Tab 1: Buyer Hub */}
+        {/* Tab 1: Buyer & Owner Hub */}
         {currentTab === "buyer" && (
           <div className="space-y-6">
-            {/* Live Escrow Order Card */}
+            {/* Live Escrow Order Card (Active Journey) */}
             <EscrowMilestoneTracker
               isSimulated
               currentStatus="deposit_paid"
@@ -278,89 +278,59 @@ function ConsolidatedDashboard() {
               totalAmount="KES 6,250,000"
             />
 
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Link
-                to="/account/favorites"
-                className="rounded-2xl border border-border/80 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-xs"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Saved Favorites</span>
-                  <Heart className="h-4 w-4 text-rose-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">2 Cars</p>
-                <span className="text-[11px] text-muted-foreground">Toyota Prado, Benz C200</span>
-              </Link>
-
-              <Link
-                to="/account/inquiries"
-                className="rounded-2xl border border-border/80 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-xs"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Inquiry Threads</span>
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">1 Active</p>
-                <span className="text-[11px] text-emerald-600 font-medium">Realtime Live</span>
-              </Link>
-
-              <Link
-                to="/account/purchases"
-                className="rounded-2xl border border-border/80 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-xs"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Active Orders</span>
-                  <Receipt className="h-4 w-4 text-blue-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">1 Order</p>
-                <span className="text-[11px] text-amber-600 font-medium">Deposit Secured</span>
-              </Link>
-
-              <Link
-                to="/account/verify"
-                className="rounded-2xl border border-border/80 bg-card p-4 transition-all hover:border-primary/40 hover:shadow-xs"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Buyer Identity</span>
-                  <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">Verified</p>
-                <span className="text-[11px] text-muted-foreground">Level 4 Trust</span>
-              </Link>
-            </div>
-
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* My Garage Context */}
               <div className="rounded-2xl border border-border/80 bg-card p-5">
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Car className="h-4 w-4 text-primary" />
-                  Explore Certified Japanese Imports
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  All listings feature independent 42-point vehicle inspection passports & escrow
-                  protection.
-                </p>
-                <Button asChild size="sm" className="mt-4 bg-primary text-primary-foreground">
-                  <Link to="/cars">
-                    Browse All Cars <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Car className="h-4 w-4 text-primary" />
+                    My Garage
+                  </h3>
+                  <Badge variant="outline" className="text-[10px]">1 Vehicle</Badge>
+                </div>
+                
+                <div className="rounded-xl border border-border/50 bg-muted/20 p-4 mb-4">
+                  <p className="font-semibold text-sm text-foreground">Subaru Outback 2019</p>
+                  <p className="text-xs text-muted-foreground mt-1">VIN: SBARU938XNK · 45,000 km</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-600">Insurance Active</Badge>
+                    <Badge variant="secondary" className="text-[10px] bg-blue-500/10 text-blue-600">Service Due in 2k km</Badge>
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button asChild size="sm" className="w-full bg-primary text-primary-foreground">
+                    <Link to="/garage">
+                      Open Garage <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
 
-              <div className="rounded-2xl border border-border/80 bg-card p-5">
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Store className="h-4 w-4 text-emerald-500" />
-                  Visit Certified Physical Car Yards
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Inspect verified vehicles in-person at physical car yards with digital gate pass
-                  check-in.
-                </p>
-                <Button asChild size="sm" variant="outline" className="mt-4">
-                  <Link to="/yards">
-                    Browse Car Yards <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+              {/* Active Journeys / Discovery */}
+              <div className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    Explore & Import
+                  </h3>
+                  <div className="space-y-3">
+                    <Link to="/cars" className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-background hover:border-primary/50 transition">
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">Verified Local Inventory</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Find 42-point inspected vehicles.</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                    <Link to="/import" className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-background hover:border-primary/50 transition">
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">Import from Japan</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">Let us handle logistics and duty.</p>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

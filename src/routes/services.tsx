@@ -1,11 +1,21 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BadgeCheck, CalendarPlus, CarFront, MapPin, ShieldCheck, Wrench } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/services")({
   head: () => ({ meta: [{ title: "Mechanics & Garages — AutoConnect" }] }),
@@ -95,6 +105,9 @@ function ServicesPage() {
   );
 }
 function ProviderCard({ provider }: { provider: Provider }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+
   return (
     <article className="flex min-h-60 flex-col rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -119,13 +132,41 @@ function ProviderCard({ provider }: { provider: Provider }) {
           <BadgeCheck className="h-3.5 w-3.5" /> Verified provider
         </p>
       )}
-      <Button
-        onClick={() => toast.info("Preview appointment request — sign in to contact a provider.")}
-        className="mt-auto w-full"
-        size="sm"
-      >
-        <CalendarPlus className="mr-2 h-4 w-4" /> Request appointment
-      </Button>
+      
+      {!user ? (
+        <Button
+          onClick={() => toast.info("Sign in to request an appointment.")}
+          className="mt-auto w-full"
+          size="sm"
+        >
+          <CalendarPlus className="mr-2 h-4 w-4" /> Request appointment
+        </Button>
+      ) : (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button className="mt-auto w-full" size="sm">
+              <CalendarPlus className="mr-2 h-4 w-4" /> Book Service
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Book {provider.name}</DialogTitle>
+              <DialogDescription>
+                Connect a vehicle from your Garage to request an appointment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-4">
+              <div className="rounded-xl border bg-muted/40 p-4 flex flex-col items-center justify-center gap-2 text-center text-sm">
+                <CarFront className="h-6 w-6 text-muted-foreground" />
+                <p className="text-muted-foreground">This feature requires a completed Garage integration.</p>
+                <Button onClick={() => setOpen(false)} variant="outline" size="sm" asChild>
+                  <Link to="/garage">Go to My Garage</Link>
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </article>
   );
 }

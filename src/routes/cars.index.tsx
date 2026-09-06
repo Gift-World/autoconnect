@@ -522,20 +522,40 @@ function CarsListPage() {
               ))}
             </div>
           ) : !displayedCars || displayedCars.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
-              <p className="text-base font-semibold">No cars match your filters</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try widening your search or reset filters.
+            <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center max-w-2xl mx-auto">
+              <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
+                <Search className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-bold">No cars match your exact filters</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                We couldn't find any current listings that match. Try widening your search criteria.
               </p>
+              
               {hasFilters && (
                 <Button
                   variant="outline"
-                  className="mt-4"
+                  className="mt-6"
                   onClick={() => navigate({ search: {} as never })}
                 >
-                  <X className="mr-2 h-4 w-4" /> Reset filters
+                  <X className="mr-2 h-4 w-4" /> Reset all filters
                 </Button>
               )}
+
+              <div className="mt-10 pt-8 border-t border-border">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 text-accent mb-4">
+                  <Plane className="h-6 w-6" />
+                </div>
+                <h4 className="text-base font-semibold">Can't find it locally?</h4>
+                <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+                  AutoConnect's global sourcing team can find and import exactly what you're looking for. We handle the purchase, shipping, duties, and delivery.
+                </p>
+                <Button
+                  className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground"
+                  onClick={() => document.getElementById('ai-search-input')?.focus()}
+                >
+                  Tell AI what you want to import
+                </Button>
+              </div>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

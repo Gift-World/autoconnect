@@ -273,6 +273,50 @@ export const releaseFunds = createServerFn({ method: "POST" })
 
     if (tx.car_id) {
       await supabaseAdmin.from("cars").update({ status: "sold" }).eq("id", tx.car_id);
+      
+      try {
+        // Update existing ownership to historical
+        await supabaseAdmin
+          .from("ownerships")
+          .update({ status: "historical", end_date: new Date().toISOString() })
+          .eq("car_id", tx.car_id)
+          .eq("status", "current");
+
+        // Idempotently create new ownership
+        const { data: existingOwnership } = await supabaseAdmin
+          .from("ownerships")
+          .select("id")
+          .eq("transaction_id", tx.id)
+          .maybeSingle();
+
+        if (!existingOwnership) {
+          await supabaseAdmin.from("ownerships").insert({
+            car_id: tx.car_id,
+            user_id: tx.buyer_id,
+            transaction_id: tx.id,
+            status: "current",
+          });
+        }
+      } catch (err: any) {
+        if (err.code !== "PGRST205") throw err;
+      }
+
+      try {
+        await supabaseAdmin.from("vehicle_events").insert([
+          {
+            car_id: tx.car_id,
+            event_type: "PURCHASED",
+            description: `Vehicle purchased by ${tx.buyer_id}.`,
+          },
+          {
+            car_id: tx.car_id,
+            event_type: "OWNERSHIP_TRANSFERRED",
+            description: "Ownership officially transferred via AutoConnect Escrow.",
+          }
+        ]);
+      } catch (err: any) {
+        if (err.code !== "PGRST205") throw err;
+      }
     }
 
     // Notifications
@@ -446,9 +490,9 @@ export const raiseDispute = createServerFn({ method: "POST" })
         `/admin/transactions`,
       );
     }
-    // @ts-expect-error joined
+    const sellerProfileId = Array.isArray(tx.sellers) ? tx.sellers[0]?.profile_id : (tx.sellers as any)?.profile_id;
     await notify(
-      tx.sellers.profile_id,
+      sellerProfileId,
       "dispute_raised",
       "Dispute on your sale",
       `A buyer raised a dispute on "${carTitle}". AutoConnect is investigating.`,

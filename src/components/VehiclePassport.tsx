@@ -297,6 +297,25 @@ export function VehiclePassport({ carId }: { carId: string }) {
         )}
       </div>
 
+      {/* Verified History Timeline */}
+      {data.events && data.events.length > 0 && (
+        <div className="border-t bg-muted/10 p-4">
+          <h3 className="mb-3 text-sm font-semibold flex items-center gap-2">
+            <Clock className="h-4 w-4 text-primary" /> Verified History Timeline
+          </h3>
+          <div className="relative border-l-2 border-primary/20 ml-2 space-y-4 pb-2">
+            {data.events.map((ev: any, idx: number) => (
+              <div key={idx} className="relative pl-4">
+                <div className="absolute -left-[5px] top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-background"></div>
+                <p className="text-xs font-semibold text-foreground">{ev.event_type.replace(/_/g, " ")}</p>
+                <p className="text-xs text-muted-foreground">{ev.description}</p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground/80">{fmt(ev.timestamp)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Expandable detail */}
       <Accordion type="single" collapsible className="border-t px-4">
         {missing.length > 0 && (

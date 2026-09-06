@@ -194,27 +194,27 @@ function AdminMakesPage() {
         </Dialog>
       </header>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-3">
         <Input
           placeholder="Search makes…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm"
         />
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
           <Input
             placeholder="New make name"
             value={newMake}
             onChange={(e) => setNewMake(e.target.value)}
-            className="w-56"
+            className="w-full sm:w-56"
           />
-          <Button onClick={addMake}>
+          <Button onClick={addMake} className="w-full sm:w-auto">
             <Plus className="mr-1 h-4 w-4" /> Add
           </Button>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
         {makesQuery.isLoading ? (
           <div className="p-6 text-muted-foreground">Loading…</div>
         ) : filteredMakes.length === 0 ? (
@@ -226,26 +226,26 @@ function AdminMakesPage() {
               const myModels = models.filter((mod) => mod.make_id === m.id);
               return (
                 <li key={m.id}>
-                  <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3">
                     <button
                       type="button"
                       onClick={() => setExpanded((e) => ({ ...e, [m.id]: !e[m.id] }))}
-                      className="flex flex-1 items-center gap-2 text-left hover:text-primary"
+                      className="flex flex-1 flex-wrap items-center gap-2 text-left hover:text-primary"
                     >
                       {isOpen ? (
-                        <ChevronDown className="h-4 w-4" />
+                        <ChevronDown className="h-4 w-4 shrink-0" />
                       ) : (
-                        <ChevronRight className="h-4 w-4" />
+                        <ChevronRight className="h-4 w-4 shrink-0" />
                       )}
                       <span className="font-medium">{m.name}</span>
-                      <Badge variant="outline" className="text-xs">
+                      <Badge variant="outline" className="text-[10px] sm:text-xs">
                         {m.api_source}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
                         {myModels.length} models
                       </span>
                     </button>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 self-end sm:self-auto shrink-0">
                       <Button
                         size="sm"
                         variant="ghost"

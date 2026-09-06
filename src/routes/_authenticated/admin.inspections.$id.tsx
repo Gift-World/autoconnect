@@ -151,7 +151,32 @@ function AdminInspectionDetail() {
       })
       .eq("id", id);
     if (!error && insp?.cars?.id) {
-      await supabase.from("cars").update({ inspection_verified: true }).eq("id", insp.cars.id);
+      const carId = insp.cars.id;
+      // 1. Update cars.inspection_verified and verification_level
+      const { data: cData } = await supabase.from("cars").select("verification_level").eq("id", carId).maybeSingle();
+      const newLvl = Math.min((cData?.verification_level || 0) + 1, 4);
+      await supabase.from("cars").update({ inspection_verified: true, verification_level: newLvl }).eq("id", carId);
+      
+      // 2. Update car_verifications
+      await supabase
+        .from("car_verifications")
+        .update({ 
+          status: 'verified', 
+          updated_at: new Date().toISOString()
+        })
+        .eq("car_id", carId);
+        
+      // 3. Log event, handle missing table gracefully
+      try {
+        const ev = await supabase.from("vehicle_events").insert({
+          car_id: carId,
+          event_type: "INSPECTED",
+          description: "Comprehensive 42-point inspection passed and approved.",
+        });
+        if (ev.error && ev.error.code !== "PGRST205") throw ev.error;
+      } catch (e) {
+        // Table might not exist yet
+      }
     }
     setSaving(false);
     if (error) toast.error(error.message);

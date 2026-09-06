@@ -57,13 +57,15 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
           // Stripe retries webhooks. Only the first successful transition can
           // update the listing and notify users.
           if (tx && updated) {
-            // @ts-expect-error joined
+            const carId = Array.isArray(tx.cars) ? tx.cars[0]?.id : (tx.cars as any)?.id;
+            const carTitle = Array.isArray(tx.cars) ? tx.cars[0]?.title : (tx.cars as any)?.title;
+            const sellerProfileId = Array.isArray(tx.sellers) ? tx.sellers[0]?.profile_id : (tx.sellers as any)?.profile_id;
+            
             await supabaseAdmin
               .from("cars")
               .update({ status: "under_transaction" })
-              .eq("id", tx.cars.id);
-            // @ts-expect-error joined
-            const carTitle = tx.cars.title;
+              .eq("id", carId);
+              
             await notify(
               tx.buyer_id,
               "payment_confirmed",
@@ -71,9 +73,9 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               `Your payment for "${carTitle}" is protected and held by AutoConnect until you confirm receipt.`,
               `/transactions/${tx.id}`,
             );
-            // @ts-expect-error joined
+            
             await notify(
-              tx.sellers.profile_id,
+              sellerProfileId,
               "payment_received",
               "A buyer has paid — prepare handover",
               `Payment for "${carTitle}" is confirmed and held by AutoConnect. Prepare the car and paperwork for handover.`,

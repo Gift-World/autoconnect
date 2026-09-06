@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   PlusCircle,
   Car,
@@ -67,8 +69,18 @@ interface QuickListingModalProps {
 }
 
 export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickListingModalProps) {
+  const makesQuery = useQuery({
+    queryKey: ["admin-makes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("car_makes").select("id, name").order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
   const [formData, setFormData] = useState({
     title: "",
+    make_id: "",
     make_name: "",
     model_name: "",
     year: new Date().getFullYear(),
@@ -82,6 +94,20 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
     mileage: "",
     selectedImage: SAMPLE_PHOTO_PRESETS[0].url,
     features: ["Sunroof / Moonroof", "Leather Heated Seats"],
+  });
+
+  const modelsQuery = useQuery({
+    queryKey: ["admin-models", formData.make_id],
+    enabled: !!formData.make_id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("car_models")
+        .select("id, name")
+        .eq("make_id", formData.make_id)
+        .order("name");
+      if (error) throw error;
+      return data ?? [];
+    },
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -168,23 +194,44 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Make / Manufacturer *</Label>
-              <Input
-                placeholder="e.g. Toyota, Mercedes-Benz, Porsche"
+              <Select
                 value={formData.make_name}
-                onChange={(e) => setFormData({ ...formData, make_name: e.target.value })}
-                required
-                className="h-9 text-xs"
-              />
+                onValueChange={(val) => {
+                  const make = makesQuery.data?.find((m) => m.name === val);
+                  setFormData({ ...formData, make_name: val, make_id: make?.id || "", model_name: "" });
+                }}
+                disabled={makesQuery.isLoading}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select Make" />
+                </SelectTrigger>
+                <SelectContent>
+                  {makesQuery.data?.map((m) => (
+                    <SelectItem key={m.id} value={m.name}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Model & Trim *</Label>
-              <Input
-                placeholder="e.g. Land Cruiser 300, GLE 450"
+              <Select
                 value={formData.model_name}
-                onChange={(e) => setFormData({ ...formData, model_name: e.target.value })}
-                required
-                className="h-9 text-xs"
-              />
+                onValueChange={(val) => setFormData({ ...formData, model_name: val })}
+                disabled={!formData.make_name || modelsQuery.isLoading}
+              >
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select Model" />
+                </SelectTrigger>
+                <SelectContent>
+                  {modelsQuery.data?.map((m) => (
+                    <SelectItem key={m.id} value={m.name}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

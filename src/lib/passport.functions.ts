@@ -58,6 +58,19 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
       cv?.ntsa_verified_by,
       sv?.identity_verified_by,
     ].filter(Boolean) as string[];
+
+    let vehicleEvents: any[] = [];
+    try {
+      const { data: evs, error: evsError } = await supabaseAdmin
+        .from("vehicle_events")
+        .select("event_type, description, timestamp")
+        .eq("car_id", carId)
+        .order("timestamp", { ascending: false });
+      if (evsError && evsError.code !== "PGRST205") throw evsError;
+      if (evs) vehicleEvents = evs;
+    } catch (e) {
+      // Table might not exist yet
+    }
     const names: Record<string, string> = {};
     if (verifierIds.length) {
       const { data: profs } = await supabaseAdmin
@@ -157,6 +170,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
             sections: [],
             tyres: null,
           },
+      events: vehicleEvents,
     };
   });
 

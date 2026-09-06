@@ -33,6 +33,7 @@ import {
   Scale,
   RotateCcw,
   Sparkles,
+  Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -647,6 +648,7 @@ function CarDetailPage() {
           <YardCard car={car} />
           <SellerCard car={car} />
           <BuyBox car={car} />
+          <VehicleServices car={car} />
           <FinancingPreApprovalCard
             carId={car.id}
             carTitle={car.title}
@@ -847,6 +849,25 @@ function PaymentEstimator({ price, currency }: { price: number; currency: string
           <br />
           at {apr.toFixed(1)}% APR
         </p>
+      </div>
+      
+      {/* Real Cost of Ownership (TCO) */}
+      <div className="mt-4 pt-4 border-t border-border">
+        <h3 className="text-sm font-semibold mb-2">Real Cost of Ownership (Annual)</h3>
+        <div className="space-y-1.5 text-xs text-muted-foreground">
+          <div className="flex justify-between">
+            <span>Insurance (Est.)</span>
+            <span className="font-medium text-foreground">{formatPrice(price * 0.04, currency)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Maintenance & Fuel</span>
+            <span className="font-medium text-foreground">{formatPrice(price * 0.03, currency)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Depreciation (Yr 1)</span>
+            <span className="font-medium text-foreground">{formatPrice(price * 0.15, currency)}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -1649,6 +1670,43 @@ function InspectionSummary({ carId }: { carId: string }) {
           Independent inspection completed and approved.
         </p>
       )}
+    </div>
+  );
+}
+
+function VehicleServices({ car }: { car: CarDetail }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+      <h2 className="text-base font-semibold">AutoConnect Services</h2>
+      <p className="mt-1 text-xs text-muted-foreground mb-4">
+        Seamlessly manage your automotive journey.
+      </p>
+      <div className="space-y-2">
+        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <Wrench className="h-4 w-4 text-amber-500" />
+          <div className="text-left flex-1">
+            <div className="text-sm font-semibold">Book an Inspection</div>
+            <div className="text-[10px] text-muted-foreground">Send an independent mechanic</div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <Plane className="h-4 w-4 text-accent" />
+          <div className="text-left flex-1">
+            <div className="text-sm font-semibold">Import & Clear</div>
+            <div className="text-[10px] text-muted-foreground">Get a door-to-door shipping quote</div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <ShieldCheck className="h-4 w-4 text-success" />
+          <div className="text-left flex-1">
+            <div className="text-sm font-semibold">Buy Insurance</div>
+            <div className="text-[10px] text-muted-foreground">Compare instant quotes</div>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+      </div>
     </div>
   );
 }

@@ -151,8 +151,22 @@ function Purchases() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/80">
-                  <div className="text-left sm:text-right">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-border/80 w-full mt-4">
+                  <div className="flex-1 w-full max-w-xl">
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="font-semibold text-teal-400">Escrow Secured</span>
+                      <span className="text-muted-foreground">Delivery</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div className="bg-teal-500 h-2 rounded-full" style={{ width: r.status === 'escrow_secured' ? '30%' : '100%' }}></div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      <ShieldCheck className="inline h-3 w-3 text-teal-400 mr-1" />
+                      Funds are held securely by AutoConnect until you inspect and accept the vehicle.
+                    </p>
+                  </div>
+
+                  <div className="text-left sm:text-right shrink-0">
                     <p className="font-mono font-bold text-teal-400">
                       {fmt(Number(r.display_total), r.display_currency)}
                     </p>
@@ -164,16 +178,30 @@ function Purchases() {
                     </Badge>
                   </div>
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleOpenReceipt(r)}
-                    className="h-9 rounded-xl text-xs gap-1.5 border-teal-500/30 text-teal-400 hover:bg-teal-500/10"
-                  >
-                    <Receipt className="h-3.5 w-3.5" />
-                    <span>Digital Receipt</span>
-                  </Button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {['completed', 'escrow_released', 'escrow_secured'].includes(r.status) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        asChild
+                        className="h-9 rounded-xl text-xs gap-1.5 shrink-0"
+                      >
+                        <Link to="/garage">
+                          <span>View in Garage</span>
+                        </Link>
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenReceipt(r)}
+                      className="h-9 rounded-xl text-xs gap-1.5 border-teal-500/30 text-teal-400 hover:bg-teal-500/10 shrink-0"
+                    >
+                      <Receipt className="h-3.5 w-3.5" />
+                      <span>Digital Receipt</span>
+                    </Button>
+                  </div>
                 </div>
               </li>
             );

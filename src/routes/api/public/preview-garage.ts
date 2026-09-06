@@ -14,11 +14,13 @@ export const Route = createFileRoute("/api/public/preview-garage")({
           )
           .eq("owner_id", PREVIEW_OWNER_ID)
           .order("created_at", { ascending: false });
-        if (error)
+        if (error) {
+          console.error("Error fetching preview garage:", error);
           return Response.json(
-            { error: "Garage preview is temporarily unavailable." },
-            { status: 503 },
+            { data: [] },
+            { headers: { "Cache-Control": "no-store" } },
           );
+        }
         return Response.json({ data: data ?? [] }, { headers: { "Cache-Control": "no-store" } });
       },
     },

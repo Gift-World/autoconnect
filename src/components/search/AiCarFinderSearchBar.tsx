@@ -380,7 +380,7 @@ export function AiCarFinderSearchBar({
   };
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-3 w-full min-w-0 max-w-full ${className}`}>
       {/* Main Futuristic AI Input Card */}
       <div className="relative rounded-2xl border-2 border-teal-500/40 bg-gradient-to-r from-slate-900 via-slate-900 to-teal-950/40 p-2 shadow-xl backdrop-blur-xl transition-all hover:border-teal-400">
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center gap-2">
@@ -537,7 +537,7 @@ export function AiCarFinderSearchBar({
       )}
 
       {/* Quick Prompt Suggestion Chips */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+      <div className="flex w-full min-w-0 max-w-full items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
         <span className="text-[11px] font-medium text-muted-foreground shrink-0 flex items-center gap-1 mr-1">
           <Sparkles className="h-3 w-3 text-teal-400" /> Suggestions:
         </span>

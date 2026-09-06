@@ -1682,29 +1682,35 @@ function VehicleServices({ car }: { car: CarDetail }) {
         Seamlessly manage your automotive journey.
       </p>
       <div className="space-y-2">
-        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
-          <Wrench className="h-4 w-4 text-amber-500" />
-          <div className="text-left flex-1">
-            <div className="text-sm font-semibold">Book an Inspection</div>
-            <div className="text-[10px] text-muted-foreground">Send an independent mechanic</div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <Button asChild variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <Link to="/services">
+            <Wrench className="h-4 w-4 text-amber-500" />
+            <div className="text-left flex-1">
+              <div className="text-sm font-semibold">Book an Inspection</div>
+              <div className="text-[10px] text-muted-foreground">Send an independent mechanic</div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
         </Button>
-        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
-          <Plane className="h-4 w-4 text-accent" />
-          <div className="text-left flex-1">
-            <div className="text-sm font-semibold">Import & Clear</div>
-            <div className="text-[10px] text-muted-foreground">Get a door-to-door shipping quote</div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <Button asChild variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <Link to="/import">
+            <Plane className="h-4 w-4 text-accent" />
+            <div className="text-left flex-1">
+              <div className="text-sm font-semibold">Import & Clear</div>
+              <div className="text-[10px] text-muted-foreground">Get a door-to-door shipping quote</div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
         </Button>
-        <Button variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
-          <ShieldCheck className="h-4 w-4 text-success" />
-          <div className="text-left flex-1">
-            <div className="text-sm font-semibold">Buy Insurance</div>
-            <div className="text-[10px] text-muted-foreground">Compare instant quotes</div>
-          </div>
-          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <Button asChild variant="outline" className="w-full justify-start gap-2 h-auto py-2.5 rounded-lg border-border hover:border-primary/50 hover:bg-muted/50 transition">
+          <Link to="/services">
+            <ShieldCheck className="h-4 w-4 text-success" />
+            <div className="text-left flex-1">
+              <div className="text-sm font-semibold">Buy Insurance</div>
+              <div className="text-[10px] text-muted-foreground">Compare instant quotes</div>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
         </Button>
       </div>
     </div>

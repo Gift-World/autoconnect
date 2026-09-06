@@ -3,8 +3,8 @@ export const Route = createFileRoute("/api/public/service-providers")({
   server: {
     handlers: {
       GET: async () => {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin
+        const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabasePublicServer
           .from("service_providers")
           .select("id,name,provider_type,country,city,description,phone,is_verified")
           .eq("is_approved", true)

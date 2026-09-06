@@ -6,8 +6,8 @@ export const Route = createFileRoute("/api/public/preview-garage")({
   server: {
     handlers: {
       GET: async () => {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin
+        const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabasePublicServer
           .from("garage_vehicles")
           .select(
             "id,nickname,make_name,model_name,year,vin,mileage,mileage_unit,next_service_at,next_service_mileage,insurance_renews_at,notes",

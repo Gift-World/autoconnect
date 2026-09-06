@@ -142,12 +142,10 @@ function GaragePage() {
 
   const addVehicle = useMutation({
     mutationFn: async () => {
-      if (isPreview)
-        throw new Error("Preview records are read-only. Sign in to add a personal vehicle.");
-      if (!user) throw new Error("Please sign in first");
+      if (!ownerId) throw new Error("Owner ID is missing");
       if (!form.make.trim()) throw new Error("Enter the vehicle make");
       const { error } = await supabase.from("garage_vehicles").insert({
-        owner_id: user.id,
+        owner_id: ownerId,
         make_name: form.make.trim(),
         model_name: form.model.trim() || null,
         year: form.year ? Number(form.year) : null,
@@ -185,16 +183,12 @@ function GaragePage() {
             </p>
           )}
           <div className="mt-6 flex flex-wrap gap-2">
-            <Button
-              onClick={() =>
-                isPreview
-                  ? toast.info("Preview records are read-only. Sign in to add your own vehicle.")
-                  : setOpen(true)
-              }
-              className="bg-teal-400 text-slate-950 hover:bg-teal-300"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add a vehicle
-            </Button>
+                <Button
+                  onClick={() => setOpen(true)}
+                  className="rounded-full bg-teal-500 font-bold hover:bg-teal-600"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add vehicle
+                </Button>
             <Button
               asChild
               variant="outline"

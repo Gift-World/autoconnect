@@ -16,7 +16,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Eye, Pencil, Plus, Trash2, Car as CarIcon, Clock3, CheckCircle2, AlertTriangle, TrendingUp, MessageSquare } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Plus,
+  Trash2,
+  Car as CarIcon,
+  Clock3,
+  CheckCircle2,
+  AlertTriangle,
+  TrendingUp,
+  MessageSquare,
+} from "lucide-react";
 import { countryByCode } from "@/lib/countries";
 import { SellerReadiness } from "@/components/seller/SellerReadiness";
 import { StatusPill } from "@/components/StatusPill";
@@ -53,7 +64,8 @@ const DEMO_SELLER_ROWS: ListingRow[] = [
     featured: true,
     available_for_export: true,
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    primary_image: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=800&auto=format&fit=crop&q=60",
+    primary_image:
+      "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=800&auto=format&fit=crop&q=60",
   },
   {
     id: "demo-car-2",
@@ -67,7 +79,8 @@ const DEMO_SELLER_ROWS: ListingRow[] = [
     featured: false,
     available_for_export: true,
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-    primary_image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=60",
+    primary_image:
+      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=60",
   },
   {
     id: "demo-car-3",
@@ -81,7 +94,8 @@ const DEMO_SELLER_ROWS: ListingRow[] = [
     featured: true,
     available_for_export: true,
     created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
-    primary_image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
+    primary_image:
+      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
   },
   {
     id: "demo-car-4",
@@ -95,7 +109,8 @@ const DEMO_SELLER_ROWS: ListingRow[] = [
     featured: false,
     available_for_export: true,
     created_at: new Date(Date.now() - 86400000 * 1).toISOString(),
-    primary_image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop&q=60",
+    primary_image:
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop&q=60",
   },
 ];
 
@@ -209,7 +224,8 @@ function SellerDashboard() {
           <div className="flex-1 text-sm">
             <p className="font-semibold text-foreground">Your seller account is under review</p>
             <p className="mt-0.5 text-muted-foreground">
-              You can prepare listings now — they'll go live once an admin approves your account. We'll notify you as soon as you're approved.
+              You can prepare listings now — they'll go live once an admin approves your account.
+              We'll notify you as soon as you're approved.
             </p>
           </div>
         </div>
@@ -230,7 +246,9 @@ function SellerDashboard() {
           <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />
           <div className="flex-1 text-sm">
             <p className="font-semibold text-foreground">You're approved to sell</p>
-            <p className="mt-0.5 text-muted-foreground">New listings still pass through a quick quality review before going live.</p>
+            <p className="mt-0.5 text-muted-foreground">
+              New listings still pass through a quick quality review before going live.
+            </p>
           </div>
         </div>
       )}
@@ -250,10 +268,31 @@ function SellerDashboard() {
       </header>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat icon={<CarIcon className="h-4 w-4" />} label="Listings" value={total} tone="primary" />
-        <Stat icon={<CheckCircle2 className="h-4 w-4" />} label="Live" value={approved} tone="success" sub={`${pending} pending`} />
-        <Stat icon={<TrendingUp className="h-4 w-4" />} label="Total views" value={views.toLocaleString()} tone="primary" />
-        <Stat icon={<MessageSquare className="h-4 w-4" />} label="Unread inquiries" value={openInquiries} tone="accent" />
+        <Stat
+          icon={<CarIcon className="h-4 w-4" />}
+          label="Listings"
+          value={total}
+          tone="primary"
+        />
+        <Stat
+          icon={<CheckCircle2 className="h-4 w-4" />}
+          label="Live"
+          value={approved}
+          tone="success"
+          sub={`${pending} pending`}
+        />
+        <Stat
+          icon={<TrendingUp className="h-4 w-4" />}
+          label="Total views"
+          value={views.toLocaleString()}
+          tone="primary"
+        />
+        <Stat
+          icon={<MessageSquare className="h-4 w-4" />}
+          label="Unread inquiries"
+          value={openInquiries}
+          tone="accent"
+        />
       </div>
 
       {sellerId && <SellerReadiness sellerId={sellerId} />}
@@ -353,12 +392,7 @@ function SellerDashboard() {
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            title="Edit (coming soon)"
-                            disabled
-                          >
+                          <Button size="icon" variant="ghost" title="Edit (coming soon)" disabled>
                             <Pencil className="h-4 w-4" />
                           </Button>
                           <AlertDialog>
@@ -371,8 +405,8 @@ function SellerDashboard() {
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Delete listing?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This will permanently remove "{r.title}" and its
-                                  photos. This cannot be undone.
+                                  This will permanently remove "{r.title}" and its photos. This
+                                  cannot be undone.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -394,7 +428,7 @@ function SellerDashboard() {
               </tbody>
             </table>
           </div>
-          
+
           <div className="grid gap-3 sm:hidden">
             {rows.map((r) => {
               const country = countryByCode(r.country);
@@ -418,9 +452,7 @@ function SellerDashboard() {
                       <h3 className="line-clamp-2 text-sm font-medium">{r.title}</h3>
                       <div className="flex flex-wrap items-center gap-1.5">
                         <StatusPill status={r.status} />
-                        <span className="text-xs text-muted-foreground">
-                          {r.year}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{r.year}</span>
                       </div>
                       <div className="font-semibold text-primary">
                         {r.currency}{" "}
@@ -444,12 +476,7 @@ function SellerDashboard() {
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        disabled
-                      >
+                      <Button size="icon" variant="ghost" className="h-8 w-8" disabled>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
@@ -462,8 +489,8 @@ function SellerDashboard() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Delete listing?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This will permanently remove "{r.title}" and its
-                              photos. This cannot be undone.
+                              This will permanently remove "{r.title}" and its photos. This cannot
+                              be undone.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
@@ -503,9 +530,11 @@ function Stat({
   tone?: "primary" | "success" | "accent";
 }) {
   const toneClass =
-    tone === "success" ? "bg-success/10 text-success"
-    : tone === "accent" ? "bg-accent/10 text-accent"
-    : "bg-primary/10 text-primary";
+    tone === "success"
+      ? "bg-success/10 text-success"
+      : tone === "accent"
+        ? "bg-accent/10 text-accent"
+        : "bg-primary/10 text-primary";
   return (
     <Card className="border-border/60 shadow-none">
       <CardContent className="flex items-center gap-3 p-4">

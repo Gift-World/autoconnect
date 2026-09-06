@@ -120,7 +120,7 @@ export function InquiryThread({
             }
             return [...cur, m];
           });
-        }
+        },
       )
       .subscribe((status) => {
         setIsRealtimeActive(status === "SUBSCRIBED");
@@ -225,13 +225,13 @@ export function InquiryThread({
               "gap-1 text-[10px] font-medium transition-colors",
               isRealtimeActive
                 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                : "border-border text-muted-foreground"
+                : "border-border text-muted-foreground",
             )}
           >
             <span
               className={cn(
                 "h-1.5 w-1.5 rounded-full",
-                isRealtimeActive ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
+                isRealtimeActive ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground",
               )}
             />
             {isRealtimeActive ? "Realtime Live" : "Connecting..."}
@@ -263,7 +263,9 @@ export function InquiryThread({
             <span className="grid h-10 w-10 place-items-center rounded-2xl bg-muted/60 text-muted-foreground mb-2">
               <Car className="h-5 w-5" />
             </span>
-            <p className="text-xs font-medium text-foreground">No messages in this inquiry thread yet.</p>
+            <p className="text-xs font-medium text-foreground">
+              No messages in this inquiry thread yet.
+            </p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
               Type a message below or tap a quick question chip to start.
             </p>
@@ -372,8 +374,8 @@ function Bubble({
           mine
             ? "rounded-br-xs bg-primary text-primary-foreground"
             : isInitial
-            ? "rounded-bl-xs border border-primary/20 bg-primary/5 text-foreground"
-            : "rounded-bl-xs border border-border/70 bg-card text-foreground"
+              ? "rounded-bl-xs border border-primary/20 bg-primary/5 text-foreground"
+              : "rounded-bl-xs border border-border/70 bg-card text-foreground",
         )}
       >
         {isInitial && (

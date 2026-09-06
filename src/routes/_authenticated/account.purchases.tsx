@@ -5,7 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Receipt, Printer, ShieldCheck, QrCode } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { DigitalReceiptModal, type TransactionReceiptData } from "@/components/payments/DigitalReceiptModal";
+import {
+  DigitalReceiptModal,
+  type TransactionReceiptData,
+} from "@/components/payments/DigitalReceiptModal";
 
 export const Route = createFileRoute("/_authenticated/account/purchases")({
   component: Purchases,
@@ -21,8 +24,15 @@ type Row = {
 };
 
 function fmt(a: number, c: string) {
-  try { return new Intl.NumberFormat(undefined, { style: "currency", currency: c, maximumFractionDigits: 0 }).format(a); }
-  catch { return `${c} ${a.toLocaleString()}`; }
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: c,
+      maximumFractionDigits: 0,
+    }).format(a);
+  } catch {
+    return `${c} ${a.toLocaleString()}`;
+  }
 }
 
 function Purchases() {
@@ -38,7 +48,9 @@ function Purchases() {
         if (userId) {
           const { data } = await supabase
             .from("transactions")
-            .select("id, status, display_currency, display_total, initiated_at, cars!inner(title, car_images(image_url, is_primary))")
+            .select(
+              "id, status, display_currency, display_total, initiated_at, cars!inner(title, car_images(image_url, is_primary))",
+            )
             .eq("buyer_id", userId)
             .order("created_at", { ascending: false });
           if (data && data.length > 0) {
@@ -61,7 +73,13 @@ function Purchases() {
             initiated_at: new Date(Date.now() - 3600000 * 24).toISOString(),
             cars: {
               title: "2022 Toyota Land Cruiser Prado TX-L",
-              car_images: [{ image_url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80", is_primary: true }],
+              car_images: [
+                {
+                  image_url:
+                    "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80",
+                  is_primary: true,
+                },
+              ],
             },
           },
         ]);
@@ -93,7 +111,9 @@ function Purchases() {
     <div className="space-y-6">
       <header>
         <h1 className="text-3xl font-bold tracking-tight">My Purchases & Transactions</h1>
-        <p className="text-sm text-muted-foreground">Track payment, escrow milestones, and official proof of purchase receipts.</p>
+        <p className="text-sm text-muted-foreground">
+          Track payment, escrow milestones, and official proof of purchase receipts.
+        </p>
       </header>
 
       {rows === null ? (
@@ -102,28 +122,46 @@ function Purchases() {
         <div className="rounded-3xl border bg-card p-10 text-center space-y-2">
           <Receipt className="mx-auto h-10 w-10 text-muted-foreground" />
           <p className="text-sm font-semibold">You haven't made any escrow purchases yet.</p>
-          <Link to="/cars" className="inline-block text-xs font-bold text-teal-400 hover:underline">Browse Verified Cars →</Link>
+          <Link to="/cars" className="inline-block text-xs font-bold text-teal-400 hover:underline">
+            Browse Verified Cars →
+          </Link>
         </div>
       ) : (
         <ul className="grid gap-3">
           {rows.map((r) => {
-            const img = r.cars?.car_images.find((i) => i.is_primary)?.image_url ?? r.cars?.car_images[0]?.image_url;
+            const img =
+              r.cars?.car_images.find((i) => i.is_primary)?.image_url ??
+              r.cars?.car_images[0]?.image_url;
             return (
-              <li key={r.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-all">
+              <li
+                key={r.id}
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-all"
+              >
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="h-16 w-24 overflow-hidden rounded-xl bg-muted shrink-0 border border-border">
-                    {img && <img src={img} alt={r.cars?.title} className="h-full w-full object-cover" />}
+                    {img && (
+                      <img src={img} alt={r.cars?.title} className="h-full w-full object-cover" />
+                    )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-foreground text-sm">{r.cars?.title}</p>
-                    <p className="text-xs text-muted-foreground font-mono">Ref: {r.id} · {new Date(r.initiated_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground font-mono">
+                      Ref: {r.id} · {new Date(r.initiated_at).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/80">
                   <div className="text-left sm:text-right">
-                    <p className="font-mono font-bold text-teal-400">{fmt(Number(r.display_total), r.display_currency)}</p>
-                    <Badge variant="outline" className="text-[10px] bg-teal-500/10 text-teal-300 border-teal-500/20">{r.status.replace("_", " ")}</Badge>
+                    <p className="font-mono font-bold text-teal-400">
+                      {fmt(Number(r.display_total), r.display_currency)}
+                    </p>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] bg-teal-500/10 text-teal-300 border-teal-500/20"
+                    >
+                      {r.status.replace("_", " ")}
+                    </Badge>
                   </div>
 
                   <Button

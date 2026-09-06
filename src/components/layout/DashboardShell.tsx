@@ -56,23 +56,25 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
 
             {/* Mobile: horizontal scroll */}
             <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:hidden">
-              {sections.flatMap((s) => s.items).map((it) => {
-                const active = isActive(it.to, it.exact);
-                return (
-                  <Link
-                    key={it.to}
-                    to={it.to as never}
-                    className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                      active
-                        ? "border-primary/30 bg-primary text-primary-foreground shadow-sm"
-                        : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <span className="[&_svg]:h-3.5 [&_svg]:w-3.5">{it.icon}</span>
-                    {it.label}
-                  </Link>
-                );
-              })}
+              {sections
+                .flatMap((s) => s.items)
+                .map((it) => {
+                  const active = isActive(it.to, it.exact);
+                  return (
+                    <Link
+                      key={it.to}
+                      to={it.to as never}
+                      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        active
+                          ? "border-primary/30 bg-primary text-primary-foreground shadow-sm"
+                          : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span className="[&_svg]:h-3.5 [&_svg]:w-3.5">{it.icon}</span>
+                      {it.label}
+                    </Link>
+                  );
+                })}
             </nav>
 
             {/* Desktop: vertical, grouped */}

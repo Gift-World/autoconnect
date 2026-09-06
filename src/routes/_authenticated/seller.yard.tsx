@@ -102,15 +102,23 @@ function SellerYardPage() {
 
       // Demo fallback for Yard Manager exploration
       return {
-        seller: { id: "demo-seller-david", business_name: "Ngong Road Mega Car Hub", country: "KE", city: "Nairobi", is_approved: true },
+        seller: {
+          id: "demo-seller-david",
+          business_name: "Ngong Road Mega Car Hub",
+          country: "KE",
+          city: "Nairobi",
+          is_approved: true,
+        },
         yard: {
           id: "demo-yard-ngong",
           slug: "nairobi-hub",
           name: "Ngong Road Mega Car Yard",
           tagline: "Premier East African Vehicle Hub with 24 Inspection Bays",
-          description: "Secure, paved dealership facility with full NTSA diagnostic lanes and 24/7 security.",
+          description:
+            "Secure, paved dealership facility with full NTSA diagnostic lanes and 24/7 security.",
           logo_url: null,
-          cover_url: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80",
+          cover_url:
+            "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80",
           country: "KE",
           city: "Nairobi",
           address: "Ngong Road, Junction 4, Nairobi",
@@ -224,10 +232,7 @@ function SellerYardPage() {
         cover_url: form.cover_url || null,
       };
       if (yard) {
-        const { error } = await supabase
-          .from("car_yards")
-          .update(payload)
-          .eq("id", yard.id);
+        const { error } = await supabase.from("car_yards").update(payload).eq("id", yard.id);
         if (error) throw error;
         toast.success("Yard updated");
       } else {
@@ -287,8 +292,8 @@ function SellerYardPage() {
             <Store className="h-5 w-5" /> My car yard
           </h1>
           <p className="text-sm text-muted-foreground">
-            A public storefront buyers can browse — your branding, location and
-            full inventory in one place.
+            A public storefront buyers can browse — your branding, location and full inventory in
+            one place.
           </p>
         </div>
         {yard && (
@@ -336,10 +341,7 @@ function SellerYardPage() {
             />
           </Field>
           <Field label="Country">
-            <Select
-              value={form.country}
-              onValueChange={(v) => setForm({ ...form, country: v })}
-            >
+            <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
@@ -353,10 +355,7 @@ function SellerYardPage() {
             </Select>
           </Field>
           <Field label="City">
-            <Input
-              value={form.city}
-              onChange={(e) => setForm({ ...form, city: e.target.value })}
-            />
+            <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
           </Field>
           <Field label="Physical address">
             <Input
@@ -430,7 +429,8 @@ function SellerYardPage() {
             <div className="mb-4">
               <h2 className="text-lg font-semibold">Live Bay Allocation & Inventory Operations</h2>
               <p className="text-sm text-muted-foreground">
-                Assign vehicles to physical yard bays, update inspection certifications, and issue digital gate passes.
+                Assign vehicles to physical yard bays, update inspection certifications, and issue
+                digital gate passes.
               </p>
             </div>
             <YardInventoryManager yardName={yard.name} />
@@ -442,46 +442,44 @@ function SellerYardPage() {
               Choose which of your listings appear on the yard public page.
             </p>
             <div className="mt-4 divide-y divide-border">
-            {(listings.data ?? []).length === 0 && (
-              <p className="py-4 text-sm text-muted-foreground">
-                No listings yet.{" "}
-                <Link to="/seller/listings/new" className="underline">
-                  Create one
-                </Link>
-                .
-              </p>
-            )}
-            {(listings.data ?? []).map((c) => {
-              const attached = c.yard_id === yard.id;
-              return (
-                <div
-                  key={c.id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">
-                      {c.year} {c.title}
-                    </p>
-                    <p className="text-xs capitalize text-muted-foreground">
-                      {c.status}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant={attached ? "secondary" : "outline"}
-                    onClick={() => void toggleListing(c.id, !attached)}
+              {(listings.data ?? []).length === 0 && (
+                <p className="py-4 text-sm text-muted-foreground">
+                  No listings yet.{" "}
+                  <Link to="/seller/listings/new" className="underline">
+                    Create one
+                  </Link>
+                  .
+                </p>
+              )}
+              {(listings.data ?? []).map((c) => {
+                const attached = c.yard_id === yard.id;
+                return (
+                  <div
+                    key={c.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-3"
                   >
-                    {attached ? (
-                      <>
-                        <Check className="mr-1.5 h-4 w-4" /> In yard
-                      </>
-                    ) : (
-                      "Add to yard"
-                    )}
-                  </Button>
-                </div>
-              );
-            })}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {c.year} {c.title}
+                      </p>
+                      <p className="text-xs capitalize text-muted-foreground">{c.status}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={attached ? "secondary" : "outline"}
+                      onClick={() => void toggleListing(c.id, !attached)}
+                    >
+                      {attached ? (
+                        <>
+                          <Check className="mr-1.5 h-4 w-4" /> In yard
+                        </>
+                      ) : (
+                        "Add to yard"
+                      )}
+                    </Button>
+                  </div>
+                );
+              })}
             </div>
           </section>
         </>
@@ -490,13 +488,7 @@ function SellerYardPage() {
   );
 }
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
       <Label className="text-sm">{label}</Label>

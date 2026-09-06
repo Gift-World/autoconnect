@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadStripe, type Stripe as StripeJs } from "@stripe/stripe-js";
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
   Lock,
   ShieldCheck,
@@ -205,12 +200,22 @@ export function CheckoutModal({
               <div>
                 <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
                   One-Tap Secure Checkout
-                  <Badge variant="outline" className="text-[10px] bg-teal-500/10 text-teal-300 border-teal-500/30 font-mono">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] bg-teal-500/10 text-teal-300 border-teal-500/30 font-mono"
+                  >
                     ESCROW PROTECTED
                   </Badge>
                 </DialogTitle>
                 <DialogDescription className="text-xs text-slate-400">
-                  Step {step} of 4 · {step === 1 ? "Confirm Vehicle" : step === 2 ? "Payment Method" : step === 3 ? "Payment Details" : "Receipt & Next Steps"}
+                  Step {step} of 4 ·{" "}
+                  {step === 1
+                    ? "Confirm Vehicle"
+                    : step === 2
+                      ? "Payment Method"
+                      : step === 3
+                        ? "Payment Details"
+                        : "Receipt & Next Steps"}
                 </DialogDescription>
               </div>
             </div>
@@ -253,7 +258,10 @@ export function CheckoutModal({
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <Badge variant="secondary" className="text-[10px] font-semibold bg-teal-500/10 text-teal-400 border-teal-500/20">
+                    <Badge
+                      variant="secondary"
+                      className="text-[10px] font-semibold bg-teal-500/10 text-teal-400 border-teal-500/20"
+                    >
                       {planLabel}
                     </Badge>
                     {year && (
@@ -271,19 +279,25 @@ export function CheckoutModal({
               <div className="space-y-2.5 rounded-2xl border border-border/80 bg-muted/30 p-4 text-sm">
                 <div className="flex justify-between text-muted-foreground text-xs">
                   <span>{planLabel} Amount</span>
-                  <span className="font-semibold text-foreground">{formatPrice(breakdown.carPrice)}</span>
+                  <span className="font-semibold text-foreground">
+                    {formatPrice(breakdown.carPrice)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-muted-foreground text-xs">
                   <span className="flex items-center gap-1">
                     AutoConnect Escrow Fee ({breakdown.feePercent}%)
                     <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />
                   </span>
-                  <span className="font-semibold text-foreground">{formatPrice(breakdown.serviceFee)}</span>
+                  <span className="font-semibold text-foreground">
+                    {formatPrice(breakdown.serviceFee)}
+                  </span>
                 </div>
                 <div className="border-t border-border/80 pt-2 flex justify-between items-center">
                   <div>
                     <span className="font-bold text-foreground">Total Payable Now</span>
-                    <p className="text-[10px] text-muted-foreground">Held securely in neutral escrow</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Held securely in neutral escrow
+                    </p>
                   </div>
                   <span className="text-xl font-extrabold text-teal-500 font-mono">
                     {formatPrice(breakdown.total)}
@@ -297,7 +311,8 @@ export function CheckoutModal({
                   <ShieldCheck className="h-4 w-4" /> 100% Buyer Protection Guarantee
                 </p>
                 <p className="text-[11px] leading-relaxed">
-                  Funds are held in AutoConnect neutral escrow. The seller is only paid after the physical vehicle inspection is passed and title handover is confirmed.
+                  Funds are held in AutoConnect neutral escrow. The seller is only paid after the
+                  physical vehicle inspection is passed and title handover is confirmed.
                 </p>
               </div>
 
@@ -316,7 +331,9 @@ export function CheckoutModal({
             <div className="space-y-5 animate-in fade-in duration-200">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Select how you wish to pay:</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">All methods are protected by AutoConnect Escrow.</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  All methods are protected by AutoConnect Escrow.
+                </p>
               </div>
 
               <div className="space-y-2.5">
@@ -335,8 +352,12 @@ export function CheckoutModal({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-foreground">M-Pesa Express / STK</span>
-                      <Badge className="bg-emerald-500 text-slate-950 text-[10px] font-bold">Fastest in East Africa</Badge>
+                      <span className="text-sm font-bold text-foreground">
+                        M-Pesa Express / STK
+                      </span>
+                      <Badge className="bg-emerald-500 text-slate-950 text-[10px] font-bold">
+                        Fastest in East Africa
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Instant mobile PIN prompt sent to your Safaricom phone number.
@@ -362,8 +383,15 @@ export function CheckoutModal({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-foreground">Credit or Debit Card</span>
-                      <Badge variant="outline" className="text-[10px] text-primary border-primary/30">Visa / Mastercard / Amex</Badge>
+                      <span className="text-sm font-bold text-foreground">
+                        Credit or Debit Card
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] text-primary border-primary/30"
+                      >
+                        Visa / Mastercard / Amex
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Instant online checkout with 3D Secure bank authorization.
@@ -386,8 +414,15 @@ export function CheckoutModal({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-foreground">Direct Bank Wire / RTGS</span>
-                      <Badge variant="outline" className="text-[10px] text-amber-600 border-amber-500/30">Escrow Account</Badge>
+                      <span className="text-sm font-bold text-foreground">
+                        Direct Bank Wire / RTGS
+                      </span>
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] text-amber-600 border-amber-500/30"
+                      >
+                        Escrow Account
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Transfer directly to AutoConnect verified Equity Bank escrow account.
@@ -410,7 +445,10 @@ export function CheckoutModal({
                   onClick={() => setStep(3)}
                   className="flex-1 h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 gap-2"
                 >
-                  <span>Continue with {method === "mpesa" ? "M-Pesa" : method === "card" ? "Card" : "Bank Transfer"}</span>
+                  <span>
+                    Continue with{" "}
+                    {method === "mpesa" ? "M-Pesa" : method === "card" ? "Card" : "Bank Transfer"}
+                  </span>
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
@@ -425,14 +463,20 @@ export function CheckoutModal({
                 <div className="space-y-3">
                   <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-emerald-400">M-Pesa Express Authorization</p>
-                      <p className="text-[11px] text-slate-400">Total: {formatPrice(breakdown.total)}</p>
+                      <p className="text-xs font-bold text-emerald-400">
+                        M-Pesa Express Authorization
+                      </p>
+                      <p className="text-[11px] text-slate-400">
+                        Total: {formatPrice(breakdown.total)}
+                      </p>
                     </div>
                     <Smartphone className="h-5 w-5 text-emerald-400" />
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="payerName" className="text-xs">Your Full Name</Label>
+                    <Label htmlFor="payerName" className="text-xs">
+                      Your Full Name
+                    </Label>
                     <Input
                       id="payerName"
                       value={payerName}
@@ -443,7 +487,9 @@ export function CheckoutModal({
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="mpesaPhone" className="text-xs">Safaricom Phone Number</Label>
+                    <Label htmlFor="mpesaPhone" className="text-xs">
+                      Safaricom Phone Number
+                    </Label>
                     <Input
                       id="mpesaPhone"
                       type="tel"
@@ -453,12 +499,15 @@ export function CheckoutModal({
                       className="h-11 rounded-xl font-mono"
                     />
                     <p className="text-[11px] text-muted-foreground">
-                      An STK PIN prompt for {formatPrice(breakdown.total)} will be sent to this number.
+                      An STK PIN prompt for {formatPrice(breakdown.total)} will be sent to this
+                      number.
                     </p>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label htmlFor="mpesaRef" className="text-xs text-muted-foreground">Manual Reference Code (Optional if paid via Paybill 4123456)</Label>
+                    <Label htmlFor="mpesaRef" className="text-xs text-muted-foreground">
+                      Manual Reference Code (Optional if paid via Paybill 4123456)
+                    </Label>
                     <Input
                       id="mpesaRef"
                       value={reference}
@@ -475,8 +524,12 @@ export function CheckoutModal({
                 <div className="space-y-3">
                   <div className="p-3 bg-primary/10 border border-primary/30 rounded-2xl flex items-center justify-between">
                     <div>
-                      <p className="text-xs font-bold text-primary">Stripe 256-Bit Encrypted Payment</p>
-                      <p className="text-[11px] text-muted-foreground">Total: {formatPrice(breakdown.total)}</p>
+                      <p className="text-xs font-bold text-primary">
+                        Stripe 256-Bit Encrypted Payment
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">
+                        Total: {formatPrice(breakdown.total)}
+                      </p>
                     </div>
                     <CreditCard className="h-5 w-5 text-primary" />
                   </div>
@@ -532,7 +585,8 @@ export function CheckoutModal({
                     <p className="font-bold text-amber-500">AutoConnect Official Escrow Account</p>
                     <p className="font-mono text-[11px] text-foreground">{BANK_DETAILS}</p>
                     <p className="text-[10px] text-muted-foreground mt-1">
-                      Transfer {formatPrice(breakdown.total)} via your mobile banking app or RTGS wire.
+                      Transfer {formatPrice(breakdown.total)} via your mobile banking app or RTGS
+                      wire.
                     </p>
                   </div>
 
@@ -613,11 +667,15 @@ export function CheckoutModal({
               <div className="rounded-2xl border border-border/80 bg-slate-900/60 p-4 text-xs space-y-2.5 font-mono text-slate-300">
                 <div className="flex justify-between border-b border-white/10 pb-2">
                   <span className="text-muted-foreground">Escrow Ref:</span>
-                  <span className="font-bold text-teal-400">{transactionId || "AC-ESC-829104"}</span>
+                  <span className="font-bold text-teal-400">
+                    {transactionId || "AC-ESC-829104"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Vehicle:</span>
-                  <span className="text-white font-sans font-medium text-right truncate max-w-[200px]">{carTitle}</span>
+                  <span className="text-white font-sans font-medium text-right truncate max-w-[200px]">
+                    {carTitle}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Plan:</span>
@@ -640,16 +698,31 @@ export function CheckoutModal({
                 </p>
                 <div className="space-y-2 text-muted-foreground text-[11px]">
                   <div className="flex items-start gap-2">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">1</span>
-                    <span><strong>NTSA Title & Inspection Verification:</strong> Yard managers verify chassis VIN & logbook.</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">
+                      1
+                    </span>
+                    <span>
+                      <strong>NTSA Title & Inspection Verification:</strong> Yard managers verify
+                      chassis VIN & logbook.
+                    </span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">2</span>
-                    <span><strong>Viewing & Handover:</strong> Collect your car at Nairobi Hub or receive door-to-door delivery.</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">
+                      2
+                    </span>
+                    <span>
+                      <strong>Viewing & Handover:</strong> Collect your car at Nairobi Hub or
+                      receive door-to-door delivery.
+                    </span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">3</span>
-                    <span><strong>Buyer Release Sign-off:</strong> Escrow is only released to seller after you confirm satisfaction.</span>
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-teal-500/20 text-teal-400 font-bold text-[10px]">
+                      3
+                    </span>
+                    <span>
+                      <strong>Buyer Release Sign-off:</strong> Escrow is only released to seller
+                      after you confirm satisfaction.
+                    </span>
                   </div>
                 </div>
               </div>

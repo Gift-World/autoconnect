@@ -7,12 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { EmptyState } from "@/components/EmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InquiryThread } from "@/components/InquiryThread";
 
 export const Route = createFileRoute("/_authenticated/account/inquiries")({
@@ -46,7 +41,9 @@ function InquiriesPage() {
   if (isLoading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-28 w-full rounded-xl" />)}
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-28 w-full rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -67,10 +64,14 @@ function InquiriesPage() {
     <div className="space-y-3">
       {data.map((q) => {
         const car = q.cars as unknown as {
-          id: string; title: string; year: number;
+          id: string;
+          title: string;
+          year: number;
           car_images: { image_url: string; is_primary: boolean; sort_order: number }[];
         } | null;
-        const sorted = car ? [...(car.car_images ?? [])].sort((a, b) => a.sort_order - b.sort_order) : [];
+        const sorted = car
+          ? [...(car.car_images ?? [])].sort((a, b) => a.sort_order - b.sort_order)
+          : [];
         const img = sorted.find((i) => i.is_primary)?.image_url ?? sorted[0]?.image_url ?? null;
         return (
           <button
@@ -94,7 +95,9 @@ function InquiriesPage() {
                   <Badge variant="secondary" className="capitalize">
                     {String(q.inquiry_type).replace("_", " ")}
                   </Badge>
-                  <Badge variant="outline" className="capitalize">{q.status}</Badge>
+                  <Badge variant="outline" className="capitalize">
+                    {q.status}
+                  </Badge>
                   <span className="text-xs text-muted-foreground">
                     {new Date(q.created_at).toLocaleDateString()}
                   </span>

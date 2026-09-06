@@ -10,12 +10,7 @@ import { PhoneAuthForm } from "@/components/auth/PhoneAuthForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -30,9 +25,7 @@ const schema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(100),
   email: z.string().trim().email("Enter a valid email").max(255),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  phone: z
-    .string()
-    .regex(/^\+[1-9]\d{6,14}$/, "Use full international format e.g. +254712345678"),
+  phone: z.string().regex(/^\+[1-9]\d{6,14}$/, "Use full international format e.g. +254712345678"),
   country: z.string().min(2, "Select your country"),
   city: z.string().trim().min(2, "Enter your city"),
   role: z.enum(["buyer", "seller"]),
@@ -113,8 +106,7 @@ function RegisterPage() {
     if (profErr) console.error("[register] profile update", profErr);
 
     if (values.role === "seller") {
-      const countryName =
-        COUNTRIES.find((c) => c.code === values.country)?.name ?? values.country;
+      const countryName = COUNTRIES.find((c) => c.code === values.country)?.name ?? values.country;
       const { error: sellerErr } = await supabase.from("sellers").upsert(
         {
           profile_id: userId,
@@ -178,132 +170,145 @@ function RegisterPage() {
           {authMethod === "phone" ? (
             <PhoneAuthForm mode="register" defaultRole="buyer" />
           ) : (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Label className="mb-2 block">I want to…</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <RoleCard
-                  active={role === "buyer"}
-                  onClick={() => setValue("role", "buyer", { shouldValidate: true })}
-                  icon={<ShoppingCart className="h-5 w-5" />}
-                  title="Buy a car"
-                  subtitle="Save favorites, send inquiries, request imports."
-                />
-                <RoleCard
-                  active={role === "seller"}
-                  onClick={() => setValue("role", "seller", { shouldValidate: true })}
-                  icon={<Store className="h-5 w-5" />}
-                  title="Sell / Export"
-                  subtitle="List cars after admin approval."
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="full_name">Full name</Label>
-              <Input id="full_name" {...register("full_name")} />
-              {errors.full_name && (
-                <p className="text-xs text-destructive">{errors.full_name.message}</p>
-              )}
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" autoComplete="email" {...register("email")} />
-                {errors.email && (
-                  <p className="text-xs text-destructive">{errors.email.message}</p>
-                )}
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="new-password"
-                    {...register("password")}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <Label className="mb-2 block">I want to…</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <RoleCard
+                    active={role === "buyer"}
+                    onClick={() => setValue("role", "buyer", { shouldValidate: true })}
+                    icon={<ShoppingCart className="h-5 w-5" />}
+                    title="Buy a car"
+                    subtitle="Save favorites, send inquiries, request imports."
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
+                  <RoleCard
+                    active={role === "seller"}
+                    onClick={() => setValue("role", "seller", { shouldValidate: true })}
+                    icon={<Store className="h-5 w-5" />}
+                    title="Sell / Export"
+                    subtitle="List cars after admin approval."
+                  />
                 </div>
-                {errors.password && (
-                  <p className="text-xs text-destructive">{errors.password.message}</p>
-                )}
               </div>
-            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
-                <Label htmlFor="phone">Phone (international)</Label>
-                <Input id="phone" placeholder="+254712345678" {...register("phone")} />
-                {errors.phone && (
-                  <p className="text-xs text-destructive">{errors.phone.message}</p>
+                <Label htmlFor="full_name">Full name</Label>
+                <Input id="full_name" {...register("full_name")} />
+                {errors.full_name && (
+                  <p className="text-xs text-destructive">{errors.full_name.message}</p>
                 )}
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="country">Country</Label>
-                <Select
-                  value={country}
-                  onValueChange={(v) => setValue("country", v, { shouldValidate: true })}
-                >
-                  <SelectTrigger id="country">
-                    <SelectValue placeholder="Select country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COUNTRIES.map((c) => (
-                      <SelectItem key={c.code} value={c.code}>
-                        {c.flag} {c.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.country && (
-                  <p className="text-xs text-destructive">{errors.country.message}</p>
-                )}
-              </div>
-            </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="city">City</Label>
-              <Input id="city" {...register("city")} />
-              {errors.city && (
-                <p className="text-xs text-destructive">{errors.city.message}</p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" autoComplete="email" {...register("email")} />
+                  {errors.email && (
+                    <p className="text-xs text-destructive">{errors.email.message}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="new-password"
+                      {...register("password")}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="text-xs text-destructive">{errors.password.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone">Phone (international)</Label>
+                  <Input id="phone" placeholder="+254712345678" {...register("phone")} />
+                  {errors.phone && (
+                    <p className="text-xs text-destructive">{errors.phone.message}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="country">Country</Label>
+                  <Select
+                    value={country}
+                    onValueChange={(v) => setValue("country", v, { shouldValidate: true })}
+                  >
+                    <SelectTrigger id="country">
+                      <SelectValue placeholder="Select country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {COUNTRIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.flag} {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.country && (
+                    <p className="text-xs text-destructive">{errors.country.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="city">City</Label>
+                <Input id="city" {...register("city")} />
+                {errors.city && <p className="text-xs text-destructive">{errors.city.message}</p>}
+              </div>
+
+              {role === "seller" && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="business_name">Business / Dealership name (optional)</Label>
+                  <Input id="business_name" {...register("business_name")} />
+                  <p className="text-xs text-muted-foreground">
+                    Seller accounts require admin approval before listings go live.
+                  </p>
+                </div>
               )}
-            </div>
 
-            {role === "seller" && (
-              <div className="space-y-1.5">
-                <Label htmlFor="business_name">Business / Dealership name (optional)</Label>
-                <Input id="business_name" {...register("business_name")} />
-                <p className="text-xs text-muted-foreground">
-                  Seller accounts require admin approval before listings go live.
-                </p>
+              <div className="flex items-start gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  required
+                  className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                />
+                <Label
+                  htmlFor="terms"
+                  className="text-sm font-normal text-muted-foreground leading-snug"
+                >
+                  I agree to the{" "}
+                  <Link to="/terms" className="text-primary hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" className="text-primary hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </Label>
               </div>
-            )}
 
-            <div className="flex items-start gap-2 pt-2">
-              <input 
-                type="checkbox" 
-                id="terms" 
-                required 
-                className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary" 
-              />
-              <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-snug">
-                I agree to the <Link to="/terms" className="text-primary hover:underline">Terms of Service</Link> and <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>.
-              </Label>
-            </div>
-
-            <Button type="submit" disabled={submitting} className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md">
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create Account with Email
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md"
+              >
+                {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Account with Email
+              </Button>
+            </form>
           )}
 
           <p className="mt-6 text-center text-sm text-muted-foreground">

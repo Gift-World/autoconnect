@@ -1,15 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Users, Car, Inbox, Eye, CheckCircle2, Clock } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { countryByCode } from "@/lib/countries";
 
@@ -23,16 +15,35 @@ function AdminOverview() {
     queryKey: ["admin-stats"],
     queryFn: async () => {
       try {
-        const [sellersTotal, sellersPending, carsTotal, carsPending, carsApproved, importsOpen, viewsAgg] =
-          await Promise.all([
-            supabase.from("sellers").select("id", { count: "exact", head: true }),
-            supabase.from("sellers").select("id", { count: "exact", head: true }).eq("is_approved", false),
-            supabase.from("cars").select("id", { count: "exact", head: true }),
-            supabase.from("cars").select("id", { count: "exact", head: true }).eq("status", "pending"),
-            supabase.from("cars").select("id", { count: "exact", head: true }).eq("status", "approved"),
-            supabase.from("import_requests").select("id", { count: "exact", head: true }).eq("status", "open"),
-            supabase.from("cars").select("views"),
-          ]);
+        const [
+          sellersTotal,
+          sellersPending,
+          carsTotal,
+          carsPending,
+          carsApproved,
+          importsOpen,
+          viewsAgg,
+        ] = await Promise.all([
+          supabase.from("sellers").select("id", { count: "exact", head: true }),
+          supabase
+            .from("sellers")
+            .select("id", { count: "exact", head: true })
+            .eq("is_approved", false),
+          supabase.from("cars").select("id", { count: "exact", head: true }),
+          supabase
+            .from("cars")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "pending"),
+          supabase
+            .from("cars")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "approved"),
+          supabase
+            .from("import_requests")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "open"),
+          supabase.from("cars").select("views"),
+        ]);
         const totalViews = (viewsAgg.data ?? []).reduce((s, r) => s + (r.views ?? 0), 0);
 
         const realTotal = (sellersTotal.count ?? 0) + (carsTotal.count ?? 0);
@@ -76,10 +87,7 @@ function AdminOverview() {
     queryKey: ["admin-country-breakdown"],
     queryFn: async () => {
       try {
-        const { data } = await supabase
-          .from("cars")
-          .select("country")
-          .eq("status", "approved");
+        const { data } = await supabase.from("cars").select("country").eq("status", "approved");
         const counts = new Map<string, number>();
         (data ?? []).forEach((r) => {
           const c = r.country;
@@ -124,12 +132,41 @@ function AdminOverview() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat icon={<Users className="h-5 w-5" />} label="Sellers" value={s?.sellersTotal ?? 0} sub={`${s?.sellersPending ?? 0} pending`} />
-        <Stat icon={<Car className="h-5 w-5" />} label="Listings" value={s?.carsTotal ?? 0} sub={`${s?.carsApproved ?? 0} approved`} />
-        <Stat icon={<Clock className="h-5 w-5" />} label="Pending review" value={s?.carsPending ?? 0} accent="warning" />
-        <Stat icon={<Eye className="h-5 w-5" />} label="Total views" value={(s?.totalViews ?? 0).toLocaleString()} />
-        <Stat icon={<Inbox className="h-5 w-5" />} label="Open imports" value={s?.importsOpen ?? 0} accent="accent" />
-        <Stat icon={<CheckCircle2 className="h-5 w-5" />} label="Approved cars" value={s?.carsApproved ?? 0} accent="success" />
+        <Stat
+          icon={<Users className="h-5 w-5" />}
+          label="Sellers"
+          value={s?.sellersTotal ?? 0}
+          sub={`${s?.sellersPending ?? 0} pending`}
+        />
+        <Stat
+          icon={<Car className="h-5 w-5" />}
+          label="Listings"
+          value={s?.carsTotal ?? 0}
+          sub={`${s?.carsApproved ?? 0} approved`}
+        />
+        <Stat
+          icon={<Clock className="h-5 w-5" />}
+          label="Pending review"
+          value={s?.carsPending ?? 0}
+          accent="warning"
+        />
+        <Stat
+          icon={<Eye className="h-5 w-5" />}
+          label="Total views"
+          value={(s?.totalViews ?? 0).toLocaleString()}
+        />
+        <Stat
+          icon={<Inbox className="h-5 w-5" />}
+          label="Open imports"
+          value={s?.importsOpen ?? 0}
+          accent="accent"
+        />
+        <Stat
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          label="Approved cars"
+          value={s?.carsApproved ?? 0}
+          accent="success"
+        />
       </div>
 
       <div className="rounded-lg border bg-card p-6 shadow-sm">
@@ -146,7 +183,14 @@ function AdminOverview() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={breakdown.data} margin={{ left: 0, right: 16, top: 8, bottom: 8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-25} height={70} textAnchor="end" />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: 11 }}
+                  interval={0}
+                  angle={-25}
+                  height={70}
+                  textAnchor="end"
+                />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                 <Tooltip
                   contentStyle={{

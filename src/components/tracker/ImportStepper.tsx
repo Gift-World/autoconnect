@@ -25,14 +25,70 @@ export interface ImportStage {
 }
 
 export const DEFAULT_IMPORT_STAGES: ImportStage[] = [
-  { step: 1, title: "Purchased at Auction", location: "USS Tokyo Auction, Japan", status: "completed", date: "Aug 12, 2026", notes: "Grade 4.5A verified. Original export certificate issued." },
-  { step: 2, title: "Inland Transport to Port", location: "Yokohama Terminal", status: "completed", date: "Aug 15, 2026", notes: "Pre-shipment radiation & JEVIC odometer verification passed." },
-  { step: 3, title: "Vessel Loading (Yokohama)", location: "Port of Yokohama, Berth 4", status: "completed", date: "Aug 18, 2026", notes: "Loaded onto RoRo Carrier MV Hoegh Target." },
-  { step: 4, title: "In Transit (Indian Ocean)", location: "Indian Ocean Route · 14 Days Rem.", status: "active", date: "ETA Sep 04, 2026", notes: "Vessel cruising at 16.5 knots towards Port of Mombasa." },
-  { step: 5, title: "Arrived at Mombasa Port", location: "Kilindini Harbour, Mombasa", status: "upcoming", date: "Est. Sep 05, 2026", notes: "Vessel discharge & port tally preparation." },
-  { step: 6, title: "Customs Clearance & KRA", location: "Mombasa Customs Freight Station", status: "upcoming", date: "Est. Sep 08, 2026", notes: "KRA Simba / ICMS duty declaration & IDF clearance." },
-  { step: 7, title: "Inland Delivery to Nairobi", location: "Nairobi Expressway Transit", status: "upcoming", date: "Est. Sep 11, 2026", notes: "Enclosed car-carrier transport from coast to capital." },
-  { step: 8, title: "Ready for Pickup / Handover", location: "AutoConnect Nairobi Hub, Karen", status: "upcoming", date: "Est. Sep 12, 2026", notes: "Final valet detailing & NTSA logbook handover." },
+  {
+    step: 1,
+    title: "Purchased at Auction",
+    location: "USS Tokyo Auction, Japan",
+    status: "completed",
+    date: "Aug 12, 2026",
+    notes: "Grade 4.5A verified. Original export certificate issued.",
+  },
+  {
+    step: 2,
+    title: "Inland Transport to Port",
+    location: "Yokohama Terminal",
+    status: "completed",
+    date: "Aug 15, 2026",
+    notes: "Pre-shipment radiation & JEVIC odometer verification passed.",
+  },
+  {
+    step: 3,
+    title: "Vessel Loading (Yokohama)",
+    location: "Port of Yokohama, Berth 4",
+    status: "completed",
+    date: "Aug 18, 2026",
+    notes: "Loaded onto RoRo Carrier MV Hoegh Target.",
+  },
+  {
+    step: 4,
+    title: "In Transit (Indian Ocean)",
+    location: "Indian Ocean Route · 14 Days Rem.",
+    status: "active",
+    date: "ETA Sep 04, 2026",
+    notes: "Vessel cruising at 16.5 knots towards Port of Mombasa.",
+  },
+  {
+    step: 5,
+    title: "Arrived at Mombasa Port",
+    location: "Kilindini Harbour, Mombasa",
+    status: "upcoming",
+    date: "Est. Sep 05, 2026",
+    notes: "Vessel discharge & port tally preparation.",
+  },
+  {
+    step: 6,
+    title: "Customs Clearance & KRA",
+    location: "Mombasa Customs Freight Station",
+    status: "upcoming",
+    date: "Est. Sep 08, 2026",
+    notes: "KRA Simba / ICMS duty declaration & IDF clearance.",
+  },
+  {
+    step: 7,
+    title: "Inland Delivery to Nairobi",
+    location: "Nairobi Expressway Transit",
+    status: "upcoming",
+    date: "Est. Sep 11, 2026",
+    notes: "Enclosed car-carrier transport from coast to capital.",
+  },
+  {
+    step: 8,
+    title: "Ready for Pickup / Handover",
+    location: "AutoConnect Nairobi Hub, Karen",
+    status: "upcoming",
+    date: "Est. Sep 12, 2026",
+    notes: "Final valet detailing & NTSA logbook handover.",
+  },
 ];
 
 interface ImportStepperProps {
@@ -53,7 +109,9 @@ export function ImportStepper({
   className = "",
 }: ImportStepperProps) {
   return (
-    <div className={`rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-6 ${className}`}>
+    <div
+      className={`rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-6 ${className}`}
+    >
       {/* Header Info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-5">
         <div className="flex items-center gap-3">
@@ -68,7 +126,9 @@ export function ImportStepper({
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5 font-mono">
-              <span>Tracking Ref: <strong>{trackingNumber}</strong></span>
+              <span>
+                Tracking Ref: <strong>{trackingNumber}</strong>
+              </span>
               <span>· Carrier: {vesselName}</span>
             </p>
           </div>
@@ -77,7 +137,9 @@ export function ImportStepper({
         <div className="flex items-center gap-2 self-start sm:self-auto bg-muted/60 px-3.5 py-2 rounded-2xl border border-border text-xs">
           <Clock className="h-4 w-4 text-teal-400" />
           <div>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold">Estimated Arrival</p>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold">
+              Estimated Arrival
+            </p>
             <p className="font-bold text-teal-400 font-mono">Sep 12, 2026</p>
           </div>
         </div>
@@ -98,8 +160,8 @@ export function ImportStepper({
                   isDone
                     ? "bg-teal-500 border-teal-400 text-slate-950 shadow-md shadow-teal-500/30"
                     : isActive
-                    ? "bg-slate-950 border-teal-400 text-teal-400 animate-pulse ring-4 ring-teal-500/20"
-                    : "bg-slate-900 border-slate-700 text-slate-500"
+                      ? "bg-slate-950 border-teal-400 text-teal-400 animate-pulse ring-4 ring-teal-500/20"
+                      : "bg-slate-900 border-slate-700 text-slate-500"
                 }`}
               >
                 {isDone ? (
@@ -117,8 +179,8 @@ export function ImportStepper({
                   isActive
                     ? "border-teal-500/50 bg-teal-500/5 shadow-md shadow-teal-500/10 ring-1 ring-teal-500/20"
                     : isDone
-                    ? "border-border/80 bg-card/60"
-                    : "border-border/40 bg-muted/20 opacity-75"
+                      ? "border-border/80 bg-card/60"
+                      : "border-border/40 bg-muted/20 opacity-75"
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">

@@ -32,7 +32,8 @@ export const Route = createFileRoute("/compare")({
       { title: "Vehicle Comparison | AutoConnect" },
       {
         name: "description",
-        content: "Compare specs, prices, mileage, engine capacity, and features side-by-side for up to 4 vehicles.",
+        content:
+          "Compare specs, prices, mileage, engine capacity, and features side-by-side for up to 4 vehicles.",
       },
     ],
   }),
@@ -58,7 +59,8 @@ const STANDARD_FEATURES_LIST = [
 ];
 
 function VehicleComparisonPage() {
-  const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } = useVehicleComparison();
+  const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } =
+    useVehicleComparison();
   const { formatPrice } = useCurrency();
   const [onlyDifferences, setOnlyDifferences] = useState(false);
 
@@ -86,7 +88,8 @@ function VehicleComparisonPage() {
         </h1>
         <p className="text-muted-foreground max-w-md mt-3 text-sm sm:text-base leading-relaxed">
           You have not added any vehicles to compare yet. Browse our inventory and click the{" "}
-          <span className="font-semibold text-accent">"Compare"</span> icon on any listing to inspect them side-by-side.
+          <span className="font-semibold text-accent">"Compare"</span> icon on any listing to
+          inspect them side-by-side.
         </p>
         <div className="mt-8 flex flex-wrap gap-4 justify-center">
           <Link to="/cars">
@@ -125,7 +128,8 @@ function VehicleComparisonPage() {
             Vehicle Comparison
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Comparing <span className="font-semibold text-foreground">{comparedVehicles.length}</span> of{" "}
+            Comparing{" "}
+            <span className="font-semibold text-foreground">{comparedVehicles.length}</span> of{" "}
             <span className="font-semibold text-foreground">{maxVehicles}</span> available slots.
           </p>
         </div>
@@ -133,11 +137,7 @@ function VehicleComparisonPage() {
         <div className="flex flex-wrap items-center gap-3">
           {/* Highlight Differences Toggle */}
           <div className="flex items-center space-x-2 bg-card border border-border px-3 py-2 rounded-xl text-xs">
-            <Switch
-              id="diff-mode"
-              checked={onlyDifferences}
-              onCheckedChange={setOnlyDifferences}
-            />
+            <Switch id="diff-mode" checked={onlyDifferences} onCheckedChange={setOnlyDifferences} />
             <Label htmlFor="diff-mode" className="text-xs cursor-pointer select-none">
               Highlight Differences
             </Label>
@@ -178,7 +178,6 @@ function VehicleComparisonPage() {
       {/* Comparison Grid Table */}
       <div className="overflow-x-auto pb-6">
         <div className="min-w-[760px] divide-y divide-border border border-border rounded-3xl bg-card shadow-xl overflow-hidden">
-          
           {/* Sticky Vehicle Cards Row */}
           <div className="grid grid-cols-5 gap-4 p-4 sm:p-6 bg-muted/30">
             <div className="col-span-1 flex flex-col justify-end p-2">
@@ -190,7 +189,11 @@ function VehicleComparisonPage() {
               </p>
               {comparedVehicles.length < maxVehicles && (
                 <Link to="/cars" className="mt-4 inline-block">
-                  <Button variant="outline" size="sm" className="w-full text-xs rounded-xl border-dashed border-accent/40 text-accent hover:bg-accent/10">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs rounded-xl border-dashed border-accent/40 text-accent hover:bg-accent/10"
+                  >
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     Add Vehicle
                   </Button>
@@ -199,7 +202,10 @@ function VehicleComparisonPage() {
             </div>
 
             {comparedVehicles.map((car) => (
-              <div key={car.id} className="col-span-1 flex flex-col justify-between space-y-3 bg-card border border-border/80 rounded-2xl p-3 shadow-sm relative group">
+              <div
+                key={car.id}
+                className="col-span-1 flex flex-col justify-between space-y-3 bg-card border border-border/80 rounded-2xl p-3 shadow-sm relative group"
+              >
                 <button
                   onClick={() => removeFromCompare(car.id)}
                   className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-background/80 hover:bg-destructive hover:text-destructive-foreground backdrop-blur-md flex items-center justify-center text-muted-foreground transition-colors shadow-sm"
@@ -242,7 +248,10 @@ function VehicleComparisonPage() {
 
                 <div className="pt-2 flex flex-col gap-1.5">
                   <Link to="/cars/$id" params={{ id: car.id }}>
-                    <Button size="sm" className="w-full h-8 text-xs rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90">
+                    <Button
+                      size="sm"
+                      className="w-full h-8 text-xs rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
+                    >
                       View Details
                       <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
@@ -289,12 +298,16 @@ function VehicleComparisonPage() {
             />
             <SpecRow
               label="Mileage"
-              values={comparedVehicles.map((c) => (c.mileage ? `${c.mileage.toLocaleString()} km` : "Undisclosed"))}
+              values={comparedVehicles.map((c) =>
+                c.mileage ? `${c.mileage.toLocaleString()} km` : "Undisclosed",
+              )}
               highlight={onlyDifferences && hasDifference((c) => c.mileage)}
             />
             <SpecRow
               label="Engine Capacity"
-              values={comparedVehicles.map((c) => (c.engine_size_cc ? `${c.engine_size_cc.toLocaleString()} cc` : "N/A"))}
+              values={comparedVehicles.map((c) =>
+                c.engine_size_cc ? `${c.engine_size_cc.toLocaleString()} cc` : "N/A",
+              )}
               highlight={onlyDifferences && hasDifference((c) => c.engine_size_cc)}
             />
             <SpecRow
@@ -343,7 +356,9 @@ function VehicleComparisonPage() {
             />
             <SpecRow
               label="150-Point Inspection"
-              values={comparedVehicles.map((c) => (c.verified ? "Passed (Grade 4.5+)" : "Standard Verified"))}
+              values={comparedVehicles.map((c) =>
+                c.verified ? "Passed (Grade 4.5+)" : "Standard Verified",
+              )}
             />
             <SpecRow
               label="Odometer Audit"
@@ -366,7 +381,9 @@ function VehicleComparisonPage() {
 
             {STANDARD_FEATURES_LIST.map((featureName) => {
               const hasDiff = hasDifference((car) => {
-                const hasFeature = car.features?.some((f) => f.toLowerCase().includes(featureName.toLowerCase().slice(0, 8)));
+                const hasFeature = car.features?.some((f) =>
+                  f.toLowerCase().includes(featureName.toLowerCase().slice(0, 8)),
+                );
                 return Boolean(hasFeature);
               });
 
@@ -374,14 +391,17 @@ function VehicleComparisonPage() {
                 <div
                   key={featureName}
                   className={`grid grid-cols-5 gap-4 py-2.5 px-3 rounded-xl items-center text-xs transition-colors ${
-                    onlyDifferences && hasDiff ? "bg-amber-500/10 border border-amber-500/30" : "hover:bg-muted/40"
+                    onlyDifferences && hasDiff
+                      ? "bg-amber-500/10 border border-amber-500/30"
+                      : "hover:bg-muted/40"
                   }`}
                 >
                   <div className="col-span-1 font-medium text-foreground">{featureName}</div>
                   {comparedVehicles.map((car) => {
                     const hasFeature =
-                      car.features?.some((f) => f.toLowerCase().includes(featureName.toLowerCase().slice(0, 8))) ??
-                      true; // default to true if features array is unspecified
+                      car.features?.some((f) =>
+                        f.toLowerCase().includes(featureName.toLowerCase().slice(0, 8)),
+                      ) ?? true; // default to true if features array is unspecified
 
                     return (
                       <div key={car.id} className="col-span-1 flex items-center gap-1.5">
@@ -400,7 +420,10 @@ function VehicleComparisonPage() {
                     );
                   })}
                   {Array.from({ length: maxVehicles - comparedVehicles.length }).map((_, idx) => (
-                    <div key={`feat-empty-${idx}`} className="col-span-1 text-muted-foreground/40 text-center">
+                    <div
+                      key={`feat-empty-${idx}`}
+                      className="col-span-1 text-muted-foreground/40 text-center"
+                    >
                       —
                     </div>
                   ))}
@@ -408,7 +431,6 @@ function VehicleComparisonPage() {
               );
             })}
           </div>
-
         </div>
       </div>
     </div>

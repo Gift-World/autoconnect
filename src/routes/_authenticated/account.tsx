@@ -1,5 +1,14 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { User as UserIcon, Heart, MessageSquare, Plane, Bell, Receipt, ShieldCheck, Car } from "lucide-react";
+import {
+  User as UserIcon,
+  Heart,
+  MessageSquare,
+  Plane,
+  Bell,
+  Receipt,
+  ShieldCheck,
+  Car,
+} from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/account")({

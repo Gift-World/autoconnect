@@ -79,8 +79,8 @@ function ImportRequestsPage() {
         <AlertCircle className="mx-auto h-10 w-10 text-warning" />
         <h2 className="mt-3 text-xl font-semibold">Exporter access required</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Only approved sellers who offer international shipping can view buyer
-          import requests. {seller && !seller.is_approved
+          Only approved sellers who offer international shipping can view buyer import requests.{" "}
+          {seller && !seller.is_approved
             ? "Your seller account is pending approval."
             : "Enable international shipping in your seller profile to request access."}
         </p>
@@ -104,8 +104,7 @@ function ImportRequestsPage() {
       <header>
         <h1 className="text-2xl font-bold">Buyer import requests</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Open requests from verified buyers worldwide. Contact directly to send
-          a quote.
+          Open requests from verified buyers worldwide. Contact directly to send a quote.
         </p>
       </header>
 
@@ -193,18 +192,26 @@ function RequestCard({ r }: { r: ImportRequest }) {
         <div className="text-sm">
           <div className="font-medium">{r.buyer_name}</div>
           <div className="mt-1 flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <a href={`mailto:${r.buyer_email}`} className="flex items-center gap-1 hover:text-primary">
+            <a
+              href={`mailto:${r.buyer_email}`}
+              className="flex items-center gap-1 hover:text-primary"
+            >
               <Mail className="h-3 w-3" /> {r.buyer_email}
             </a>
             {r.buyer_phone && (
-              <a href={`tel:${r.buyer_phone}`} className="flex items-center gap-1 hover:text-primary">
+              <a
+                href={`tel:${r.buyer_phone}`}
+                className="flex items-center gap-1 hover:text-primary"
+              >
                 <Phone className="h-3 w-3" /> {r.buyer_phone}
               </a>
             )}
           </div>
         </div>
         <div className="flex gap-2">
-          <a href={`mailto:${r.buyer_email}?subject=Quote for ${encodeURIComponent(`${r.make_name} ${r.model_name ?? ""}`)}`}>
+          <a
+            href={`mailto:${r.buyer_email}?subject=Quote for ${encodeURIComponent(`${r.make_name} ${r.model_name ?? ""}`)}`}
+          >
             <Button size="sm">Send quote</Button>
           </a>
         </div>

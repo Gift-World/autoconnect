@@ -1,7 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { MapPin, Search, Store, ShieldCheck, Star, ArrowRight, Car as CarIcon, Sparkles } from "lucide-react";
+import {
+  MapPin,
+  Search,
+  Store,
+  ShieldCheck,
+  Star,
+  ArrowRight,
+  Car as CarIcon,
+  Sparkles,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -106,9 +115,7 @@ function YardsPage() {
     return list.filter((y) => {
       if (country && y.country !== country) return false;
       if (!term) return true;
-      return `${y.name} ${y.city ?? ""} ${y.tagline ?? ""}`
-        .toLowerCase()
-        .includes(term);
+      return `${y.name} ${y.city ?? ""} ${y.tagline ?? ""}`.toLowerCase().includes(term);
     });
   }, [yardsQuery.data, q, country]);
 
@@ -122,7 +129,9 @@ function YardsPage() {
           Shop by car yard
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base leading-relaxed">
-          Prefer purchasing directly from established dealerships? Explore accredited yards to view full inventory, on-site diagnostics bays, verified inspection records, and physical viewing appointments.
+          Prefer purchasing directly from established dealerships? Explore accredited yards to view
+          full inventory, on-site diagnostics bays, verified inspection records, and physical
+          viewing appointments.
         </p>
       </header>
 
@@ -137,10 +146,7 @@ function YardsPage() {
             className="h-11 rounded-2xl pl-10 text-sm shadow-sm"
           />
         </div>
-        <Select
-          value={country || "all"}
-          onValueChange={(v) => setCountry(v === "all" ? "" : v)}
-        >
+        <Select value={country || "all"} onValueChange={(v) => setCountry(v === "all" ? "" : v)}>
           <SelectTrigger className="h-11 w-52 rounded-2xl shadow-sm text-sm font-medium">
             <SelectValue placeholder="All Countries" />
           </SelectTrigger>
@@ -171,7 +177,9 @@ function YardsPage() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {yards.map((y, idx) => {
             const c = countryByCode(y.country);
-            const count = countsQuery.data?.[y.id] ?? (y.slug === "nairobi-hub" ? 6 : y.slug === "mombasa-port-hub" ? 4 : 3);
+            const count =
+              countsQuery.data?.[y.id] ??
+              (y.slug === "nairobi-hub" ? 6 : y.slug === "mombasa-port-hub" ? 4 : 3);
             const coverUrl = y.cover_url || FALLBACK_COVERS[idx % FALLBACK_COVERS.length];
 
             return (
@@ -201,7 +209,10 @@ function YardsPage() {
                         <Star className="mr-1 h-3 w-3 fill-current" /> Featured
                       </Badge>
                     )}
-                    <Badge variant="secondary" className="border-0 bg-black/60 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur-md">
+                    <Badge
+                      variant="secondary"
+                      className="border-0 bg-black/60 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur-md"
+                    >
                       {c?.flag} {c?.name ?? y.country}
                     </Badge>
                   </div>
@@ -266,4 +277,3 @@ function YardsPage() {
     </div>
   );
 }
-

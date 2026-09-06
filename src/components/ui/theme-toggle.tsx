@@ -6,9 +6,11 @@ export function ThemeToggle({ className }: { className?: string }) {
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    const isDarkMode = localStorage.getItem("autoconnect-theme") === "dark" || 
-      (!("autoconnect-theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    
+    const isDarkMode =
+      localStorage.getItem("autoconnect-theme") === "dark" ||
+      (!("autoconnect-theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+
     setIsDark(isDarkMode);
     if (isDarkMode) {
       document.documentElement.classList.add("dark");

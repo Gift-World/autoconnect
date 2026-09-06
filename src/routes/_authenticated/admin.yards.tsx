@@ -127,10 +127,7 @@ function AdminYardsPage() {
             {rows.map((y) => {
               const c = countryByCode(y.country);
               return (
-                <div
-                  key={y.id}
-                  className="flex flex-wrap items-center gap-4 p-4"
-                >
+                <div key={y.id} className="flex flex-wrap items-center gap-4 p-4">
                   <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-background">
                     {y.logo_url ? (
                       <img src={y.logo_url} alt="" className="h-full w-full object-cover" />
@@ -249,7 +246,10 @@ function AdminYardsPage() {
                 if (!rejecting) return;
                 await patch(
                   rejecting.id,
-                  { is_approved: false, rejection_reason: reason || "Please review your yard details." },
+                  {
+                    is_approved: false,
+                    rejection_reason: reason || "Please review your yard details.",
+                  },
                   "Feedback sent to yard owner",
                 );
                 setRejecting(null);

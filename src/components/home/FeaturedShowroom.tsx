@@ -34,7 +34,7 @@ export function FeaturedShowroom() {
       const { data, error } = await supabase
         .from("cars")
         .select(
-          "id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,body_type,car_images(image_url,is_primary,sort_order)"
+          "id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,body_type,car_images(image_url,is_primary,sort_order)",
         )
         .eq("status", "approved")
         .order("created_at", { ascending: false })
@@ -53,10 +53,24 @@ export function FeaturedShowroom() {
       .filter((c: any) => {
         const bt = (c.body_type || "").toLowerCase();
         const title = (c.title || "").toLowerCase();
-        if (filterType === "suv") return bt.includes("suv") || title.includes("prado") || title.includes("harrier") || title.includes("cruiser");
-        if (filterType === "sedan") return bt.includes("sedan") || title.includes("mercedes") || title.includes("bmw") || title.includes("camry");
-        if (filterType === "hybrid") return (c.fuel_type || "").toLowerCase().includes("hybrid") || title.includes("hybrid");
-        if (filterType === "truck") return bt.includes("pickup") || bt.includes("truck") || title.includes("hilux");
+        if (filterType === "suv")
+          return (
+            bt.includes("suv") ||
+            title.includes("prado") ||
+            title.includes("harrier") ||
+            title.includes("cruiser")
+          );
+        if (filterType === "sedan")
+          return (
+            bt.includes("sedan") ||
+            title.includes("mercedes") ||
+            title.includes("bmw") ||
+            title.includes("camry")
+          );
+        if (filterType === "hybrid")
+          return (c.fuel_type || "").toLowerCase().includes("hybrid") || title.includes("hybrid");
+        if (filterType === "truck")
+          return bt.includes("pickup") || bt.includes("truck") || title.includes("hilux");
         return true;
       })
       .slice(0, 8);
@@ -75,7 +89,8 @@ export function FeaturedShowroom() {
               Featured Verified Vehicles
             </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-              Every vehicle has undergone on-site physical diagnostics, chassis verification, and is backed by escrow protection.
+              Every vehicle has undergone on-site physical diagnostics, chassis verification, and is
+              backed by escrow protection.
             </p>
           </div>
 
@@ -116,9 +131,7 @@ export function FeaturedShowroom() {
               const country = countryByCode(car.country);
               const imgList = car.car_images || [];
               const primaryImg =
-                imgList.find((i: any) => i.is_primary)?.image_url ||
-                imgList[0]?.image_url ||
-                null;
+                imgList.find((i: any) => i.is_primary)?.image_url || imgList[0]?.image_url || null;
 
               return (
                 <Link
@@ -160,7 +173,9 @@ export function FeaturedShowroom() {
                     <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between text-white">
                       <div>
                         <p className="font-display text-lg sm:text-xl font-bold tracking-tight text-white drop-shadow-sm font-mono">
-                          {formatPrice(typeof car.price === "number" ? car.price : parseFloat(car.price) || 0)}
+                          {formatPrice(
+                            typeof car.price === "number" ? car.price : parseFloat(car.price) || 0,
+                          )}
                         </p>
                         <p className="text-[11px] font-medium text-slate-300">
                           {car.year} • {car.right_hand_drive ? "RHD" : "LHD"}
@@ -184,7 +199,9 @@ export function FeaturedShowroom() {
                       <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="inline-flex items-center gap-1">
                           <Gauge className="h-3.5 w-3.5 text-teal-500" />
-                          {car.mileage ? `${car.mileage.toLocaleString()} ${car.mileage_unit || "km"}` : "Unregistered"}
+                          {car.mileage
+                            ? `${car.mileage.toLocaleString()} ${car.mileage_unit || "km"}`
+                            : "Unregistered"}
                         </span>
                         <span>•</span>
                         <span className="inline-flex items-center gap-1 capitalize">
@@ -235,11 +252,7 @@ export function FeaturedShowroom() {
       </div>
 
       {/* Interactive Quick-View Detail Drawer */}
-      <VehicleDrawer
-        car={drawerCar}
-        isOpen={!!drawerCar}
-        onClose={() => setDrawerCar(null)}
-      />
+      <VehicleDrawer car={drawerCar} isOpen={!!drawerCar} onClose={() => setDrawerCar(null)} />
     </section>
   );
 }

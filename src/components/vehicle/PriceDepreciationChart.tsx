@@ -44,7 +44,7 @@ export function PriceDepreciationChart({
     const isHighMileage = (mileage || 0) > 100000;
 
     // Base rate
-    let baseAnnualDepreciation = 0.10;
+    let baseAnnualDepreciation = 0.1;
     if (carAge <= 3) {
       baseAnnualDepreciation = 0.15;
     } else if (carAge >= 8) {
@@ -81,12 +81,12 @@ export function PriceDepreciationChart({
     ];
   }, [currentPrice, year, make, model, mileage]);
 
-  const retentionPercent = Math.round(
-    ((chartData[chartData.length - 1].value) / currentPrice) * 100
-  );
+  const retentionPercent = Math.round((chartData[chartData.length - 1].value / currentPrice) * 100);
 
   return (
-    <div className={`rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-4 ${className}`}>
+    <div
+      className={`rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-4 ${className}`}
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
@@ -146,7 +146,9 @@ export function PriceDepreciationChart({
                         {formatPrice(data.value)}
                       </p>
                       {data.isCurrent ? (
-                        <p className="text-[10px] text-teal-400 font-semibold">● Current asking price</p>
+                        <p className="text-[10px] text-teal-400 font-semibold">
+                          ● Current asking price
+                        </p>
                       ) : (
                         <p className="text-[10px] text-slate-400">
                           Estimated resale value in Kenya
@@ -173,7 +175,8 @@ export function PriceDepreciationChart({
       <div className="rounded-xl bg-muted/40 p-3 text-[11px] text-muted-foreground flex items-start gap-2">
         <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
         <span>
-          Based on average depreciation rates for this make and model in Kenya. Actual value depends on condition, mileage accrual, maintenance history, and market demand.
+          Based on average depreciation rates for this make and model in Kenya. Actual value depends
+          on condition, mileage accrual, maintenance history, and market demand.
         </span>
       </div>
     </div>

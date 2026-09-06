@@ -37,8 +37,8 @@ export async function getAllMakes(): Promise<NhtsaMake[]> {
   const res = await fetch(`${BASE}/GetMakesForVehicleType/car?format=json`);
   if (!res.ok) throw new Error("Failed to fetch makes");
   const json = (await res.json()) as { Results: { MakeId: number; MakeName: string }[] };
-  makesCache = json.Results.map((r) => ({ Make_ID: r.MakeId, Make_Name: r.MakeName })).sort((a, b) =>
-    a.Make_Name.localeCompare(b.Make_Name),
+  makesCache = json.Results.map((r) => ({ Make_ID: r.MakeId, Make_Name: r.MakeName })).sort(
+    (a, b) => a.Make_Name.localeCompare(b.Make_Name),
   );
   return makesCache;
 }
@@ -48,9 +48,7 @@ const modelsCache = new Map<string, NhtsaModel[]>();
 export async function getModelsForMake(makeName: string): Promise<NhtsaModel[]> {
   const key = makeName.toLowerCase();
   if (modelsCache.has(key)) return modelsCache.get(key)!;
-  const res = await fetch(
-    `${BASE}/GetModelsForMake/${encodeURIComponent(makeName)}?format=json`,
-  );
+  const res = await fetch(`${BASE}/GetModelsForMake/${encodeURIComponent(makeName)}?format=json`);
   if (!res.ok) throw new Error("Failed to fetch models");
   const json = (await res.json()) as { Results: NhtsaModel[] };
   const models = (json.Results ?? [])

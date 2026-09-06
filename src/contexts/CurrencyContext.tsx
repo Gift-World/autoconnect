@@ -59,7 +59,10 @@ interface CurrencyContextType {
   setCurrency: (code: CurrencyCode) => void;
   currencies: Record<CurrencyCode, CurrencyConfig>;
   currentConfig: CurrencyConfig;
-  formatPrice: (amountInKes: number | null | undefined, options?: { compact?: boolean; hidePrefix?: boolean }) => string;
+  formatPrice: (
+    amountInKes: number | null | undefined,
+    options?: { compact?: boolean; hidePrefix?: boolean },
+  ) => string;
   convertPrice: (amountInKes: number | null | undefined) => number;
 }
 
@@ -112,10 +115,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     return amount;
   };
 
-  const convertPrice = (
-    amount: number | null | undefined,
-    baseCurrency?: string
-  ): number => {
+  const convertPrice = (amount: number | null | undefined, baseCurrency?: string): number => {
     if (amount == null || isNaN(amount)) return 0;
     const amountInKes = normalizeToKes(amount, baseCurrency);
     return amountInKes * currentConfig.rateFromKes;
@@ -124,9 +124,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const formatPrice = (
     amount: number | null | undefined,
     baseCurrencyOrOptions?: string | { compact?: boolean; hidePrefix?: boolean },
-    options?: { compact?: boolean; hidePrefix?: boolean }
+    options?: { compact?: boolean; hidePrefix?: boolean },
   ): string => {
-    const baseCurrency = typeof baseCurrencyOrOptions === "string" ? baseCurrencyOrOptions : undefined;
+    const baseCurrency =
+      typeof baseCurrencyOrOptions === "string" ? baseCurrencyOrOptions : undefined;
     const opts = typeof baseCurrencyOrOptions === "object" ? baseCurrencyOrOptions : options;
 
     if (amount == null || isNaN(amount) || amount === 0) {
@@ -160,7 +161,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
       formatPrice,
       convertPrice,
     }),
-    [currency, currentConfig]
+    [currency, currentConfig],
   );
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
@@ -178,7 +179,7 @@ export function useCurrency(): CurrencyContextType {
       formatPrice: (
         amount: number | null | undefined,
         baseCurrencyOrOptions?: string | { compact?: boolean; hidePrefix?: boolean },
-        options?: { compact?: boolean; hidePrefix?: boolean }
+        options?: { compact?: boolean; hidePrefix?: boolean },
       ) => {
         if (!amount) return "KES 0";
         const opts = typeof baseCurrencyOrOptions === "object" ? baseCurrencyOrOptions : options;

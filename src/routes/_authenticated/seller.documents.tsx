@@ -57,13 +57,16 @@ function SellerDocuments() {
           .from("car_documents")
           .select("car_id,status")
           .in("car_id", ids);
-        counts = (docs ?? []).reduce((acc, d) => {
-          const k = d.car_id as string;
-          acc[k] = acc[k] ?? { v: 0, p: 0 };
-          if (d.status === "verified") acc[k].v += 1;
-          if (d.status === "pending") acc[k].p += 1;
-          return acc;
-        }, {} as Record<string, { v: number; p: number }>);
+        counts = (docs ?? []).reduce(
+          (acc, d) => {
+            const k = d.car_id as string;
+            acc[k] = acc[k] ?? { v: 0, p: 0 };
+            if (d.status === "verified") acc[k].v += 1;
+            if (d.status === "pending") acc[k].p += 1;
+            return acc;
+          },
+          {} as Record<string, { v: number; p: number }>,
+        );
       }
       const merged: Listing[] = (cars ?? []).map((c) => ({
         id: c.id as string,
@@ -120,7 +123,8 @@ function SellerDocuments() {
               <SelectContent>
                 {listings.map((l) => (
                   <SelectItem key={l.id} value={l.id}>
-                    {l.title} · {l.verified_count}✓ {l.pending_count > 0 ? `· ${l.pending_count} pending` : ""}
+                    {l.title} · {l.verified_count}✓{" "}
+                    {l.pending_count > 0 ? `· ${l.pending_count} pending` : ""}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -131,7 +135,9 @@ function SellerDocuments() {
             <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Listing</p>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                    Listing
+                  </p>
                   <p className="text-base font-semibold">{current.title}</p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">

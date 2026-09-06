@@ -8,7 +8,8 @@ const TESTIMONIALS = [
     location: "Nairobi, Kenya",
     vehicle: "2022 Toyota Land Cruiser Prado TX-L",
     flag: "🇰🇪",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
     verifiedType: "Import Escrow Verified",
   },
   {
@@ -18,7 +19,8 @@ const TESTIMONIALS = [
     location: "Mombasa & Dubai",
     vehicle: "2021 Mercedes-Benz E300 AMG Line",
     flag: "🇦🇪",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80",
     verifiedType: "Seller Payout Confirmed",
   },
   {
@@ -28,7 +30,8 @@ const TESTIMONIALS = [
     location: "Eldoret, Kenya",
     vehicle: "2020 Subaru Outback 2.5i Limited",
     flag: "🇰🇪",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
     verifiedType: "Direct Buyer Verified",
   },
 ];
@@ -48,7 +51,8 @@ export function EditorialTestimonials() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            See how serious buyers, luxury collectors, and verified dealerships complete multi-million shilling transactions with total peace of mind.
+            See how serious buyers, luxury collectors, and verified dealerships complete
+            multi-million shilling transactions with total peace of mind.
           </p>
         </div>
 

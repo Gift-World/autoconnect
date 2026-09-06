@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Star, Gauge, Fuel, Settings2, Eye, ChevronLeft, ChevronRight, Scale, Check } from "lucide-react";
+import {
+  Star,
+  Gauge,
+  Fuel,
+  Settings2,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Scale,
+  Check,
+} from "lucide-react";
 import { countryByCode } from "@/lib/countries";
 import { VehicleImage } from "@/components/VehicleImage";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -40,12 +50,12 @@ function formatPrice(price: number | string, currency: string) {
   }
 }
 
-export function CarCard({ 
-  car, 
+export function CarCard({
+  car,
   distanceKm,
-  onQuickView
-}: { 
-  car: CarCardData; 
+  onQuickView,
+}: {
+  car: CarCardData;
   distanceKm?: number;
   onQuickView?: (car: CarCardData) => void;
 }) {
@@ -55,10 +65,11 @@ export function CarCard({
   const sorted = [...(car.car_images ?? [])].sort(
     (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
-  
+
   const [imgIndex, setImgIndex] = useState(0);
-  const images = sorted.length > 0 ? sorted.map(i => i.image_url) : [];
-  const activeImg = images[imgIndex] ?? sorted.find((i) => i.is_primary)?.image_url ?? sorted[0]?.image_url;
+  const images = sorted.length > 0 ? sorted.map((i) => i.image_url) : [];
+  const activeImg =
+    images[imgIndex] ?? sorted.find((i) => i.is_primary)?.image_url ?? sorted[0]?.image_url;
   const country = countryByCode(car.country);
 
   const numericPrice = typeof car.price === "string" ? parseFloat(car.price) || 0 : car.price;
@@ -97,11 +108,7 @@ export function CarCard({
 
   return (
     <div className="group relative block overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card card-lift transition-[border-color,box-shadow,transform] duration-300 hover:border-teal-400/50 hover:shadow-xl">
-      <Link
-        to="/cars/$id"
-        params={{ id: car.id }}
-        className="block"
-      >
+      <Link to="/cars/$id" params={{ id: car.id }} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
           <VehicleImage
             src={activeImg}

@@ -1,12 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Store,
-  ShieldCheck,
-  Star,
-  MapPin,
-  ArrowRight,
-} from "lucide-react";
+import { Store, ShieldCheck, Star, MapPin, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { countryByCode } from "@/lib/countries";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +55,8 @@ export function DealershipShowroom() {
               Tour premier dealer showrooms.
             </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-              Explore verified dealer car yards with live physical inventory, certified diagnostics bays, on-site viewing, and bank-grade escrow protection.
+              Explore verified dealer car yards with live physical inventory, certified diagnostics
+              bays, on-site viewing, and bank-grade escrow protection.
             </p>
           </div>
 
@@ -81,7 +76,7 @@ export function DealershipShowroom() {
           {(yards ?? []).map((yard: Yard, idx: number) => {
             const country = countryByCode(yard.country);
             const coverUrl = yard.cover_url || FALLBACK_COVERS[idx % FALLBACK_COVERS.length];
-            
+
             return (
               <Link
                 key={yard.id || `yard-${idx}`}
@@ -136,13 +131,17 @@ export function DealershipShowroom() {
                         </h3>
                         <p className="mt-0.5 flex items-center gap-1 text-xs font-medium text-muted-foreground">
                           <MapPin className="h-3.5 w-3.5 text-teal-500 shrink-0" />
-                          <span>{yard.city ? `${yard.city}, ` : ""}{country?.name || yard.country}</span>
+                          <span>
+                            {yard.city ? `${yard.city}, ` : ""}
+                            {country?.name || yard.country}
+                          </span>
                         </p>
                       </div>
                     </div>
 
                     <p className="mt-4 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-                      {yard.tagline || "Quality inspected Japanese imports, UK luxury stock, and locally maintained vehicles with full escrow protection."}
+                      {yard.tagline ||
+                        "Quality inspected Japanese imports, UK luxury stock, and locally maintained vehicles with full escrow protection."}
                     </p>
 
                     {/* Services Chips */}

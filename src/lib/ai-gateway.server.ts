@@ -7,4 +7,3 @@ export function createLovableAiGatewayProvider(apiKey: string) {
     headers: { "Lovable-API-Key": apiKey },
   });
 }
-

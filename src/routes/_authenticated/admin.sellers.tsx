@@ -6,12 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -141,13 +136,31 @@ function AdminSellersPage() {
           <TabsTrigger value="suspended">Suspended ({suspended.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="pending" className="mt-4">
-          <SellersList rows={pending} onApprove={approve} onVerify={verify} onSuspend={suspend} onReject={(s) => setRejecting(s)} />
+          <SellersList
+            rows={pending}
+            onApprove={approve}
+            onVerify={verify}
+            onSuspend={suspend}
+            onReject={(s) => setRejecting(s)}
+          />
         </TabsContent>
         <TabsContent value="approved" className="mt-4">
-          <SellersList rows={approved} onApprove={approve} onVerify={verify} onSuspend={suspend} onReject={(s) => setRejecting(s)} />
+          <SellersList
+            rows={approved}
+            onApprove={approve}
+            onVerify={verify}
+            onSuspend={suspend}
+            onReject={(s) => setRejecting(s)}
+          />
         </TabsContent>
         <TabsContent value="suspended" className="mt-4">
-          <SellersList rows={suspended} onApprove={approve} onVerify={verify} onSuspend={suspend} onReject={(s) => setRejecting(s)} />
+          <SellersList
+            rows={suspended}
+            onApprove={approve}
+            onVerify={verify}
+            onSuspend={suspend}
+            onReject={(s) => setRejecting(s)}
+          />
         </TabsContent>
       </Tabs>
 
@@ -158,11 +171,21 @@ function AdminSellersPage() {
           </DialogHeader>
           <div>
             <Label htmlFor="reason">Reason</Label>
-            <Textarea id="reason" rows={4} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is this seller being rejected?" />
+            <Textarea
+              id="reason"
+              rows={4}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Why is this seller being rejected?"
+            />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejecting(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={submitReject}>Reject</Button>
+            <Button variant="outline" onClick={() => setRejecting(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={submitReject}>
+              Reject
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -184,7 +207,11 @@ function SellersList({
   onReject: (s: SellerRow) => void;
 }) {
   if (rows.length === 0) {
-    return <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">No sellers in this group.</div>;
+    return (
+      <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
+        No sellers in this group.
+      </div>
+    );
   }
   return (
     <div className="space-y-3">
@@ -196,8 +223,12 @@ function SellersList({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <h3 className="font-semibold">{s.business_name || s.profiles?.full_name || "Unnamed seller"}</h3>
-                  {s.is_verified && <Badge className="bg-success text-success-foreground">Verified</Badge>}
+                  <h3 className="font-semibold">
+                    {s.business_name || s.profiles?.full_name || "Unnamed seller"}
+                  </h3>
+                  {s.is_verified && (
+                    <Badge className="bg-success text-success-foreground">Verified</Badge>
+                  )}
                   {s.offers_international_shipping && <Badge variant="secondary">Exporter</Badge>}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">

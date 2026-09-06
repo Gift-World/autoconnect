@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  Tabs, TabsList, TabsTrigger, TabsContent,
-} from "@/components/ui/tabs";
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { CheckCircle2, XCircle, FileText, Building2, User } from "lucide-react";
 import { toast } from "sonner";
@@ -25,15 +27,21 @@ function AdminVerificationPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold">Verification queue</h1>
-        <p className="text-sm text-muted-foreground">Review seller and buyer identity submissions.</p>
+        <p className="text-sm text-muted-foreground">
+          Review seller and buyer identity submissions.
+        </p>
       </header>
       <Tabs defaultValue="sellers">
         <TabsList>
           <TabsTrigger value="sellers">Sellers</TabsTrigger>
           <TabsTrigger value="buyers">Buyers</TabsTrigger>
         </TabsList>
-        <TabsContent value="sellers" className="mt-4"><SellersQueue /></TabsContent>
-        <TabsContent value="buyers" className="mt-4"><BuyersQueue /></TabsContent>
+        <TabsContent value="sellers" className="mt-4">
+          <SellersQueue />
+        </TabsContent>
+        <TabsContent value="buyers" className="mt-4">
+          <BuyersQueue />
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -81,7 +89,12 @@ function SellersQueue() {
       const { data, error } = await supabase
         .from("seller_verifications")
         .select("*, sellers(id, business_name, phone, email, profiles(full_name, phone))")
-        .in("status", filter === "all" ? ["pending", "under_review", "verified", "rejected", "more_info_needed"] : [filter])
+        .in(
+          "status",
+          filter === "all"
+            ? ["pending", "under_review", "verified", "rejected", "more_info_needed"]
+            : [filter],
+        )
         .order("updated_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as SVRow[];
@@ -93,16 +106,28 @@ function SellersQueue() {
     const { data: u } = await supabase.auth.getUser();
     const { error: e1 } = await supabase
       .from("seller_verifications")
-      .update({ status: "verified", identity_verified: true, identity_verified_at: now, identity_verified_by: u.user?.id, admin_notes: notes || null })
+      .update({
+        status: "verified",
+        identity_verified: true,
+        identity_verified_at: now,
+        identity_verified_by: u.user?.id,
+        admin_notes: notes || null,
+      })
       .eq("id", r.id);
     if (e1) return toast.error(e1.message);
     const { error: e2 } = await supabase
       .from("sellers")
-      .update({ identity_verified: true, is_verified: true, verification_badge: true, is_approved: true })
+      .update({
+        identity_verified: true,
+        is_verified: true,
+        verification_badge: true,
+        is_approved: true,
+      })
       .eq("id", r.seller_id);
     if (e2) return toast.error(e2.message);
     toast.success("Seller verified");
-    setSelected(null); setNotes("");
+    setSelected(null);
+    setNotes("");
     qc.invalidateQueries({ queryKey: ["admin-seller-verifications"] });
   }
 
@@ -114,7 +139,8 @@ function SellersQueue() {
       .eq("id", r.id);
     if (error) return toast.error(error.message);
     toast.success("Rejected");
-    setSelected(null); setNotes("");
+    setSelected(null);
+    setNotes("");
     qc.invalidateQueries({ queryKey: ["admin-seller-verifications"] });
   }
 
@@ -124,29 +150,46 @@ function SellersQueue() {
     <>
       <div className="mb-3 flex gap-2">
         {["pending", "under_review", "verified", "rejected", "all"].map((f) => (
-          <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>
+          <Button
+            key={f}
+            size="sm"
+            variant={filter === f ? "default" : "outline"}
+            onClick={() => setFilter(f)}
+          >
             {f}
           </Button>
         ))}
       </div>
       {rows.length === 0 ? (
-        <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">Nothing here.</div>
+        <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
+          Nothing here.
+        </div>
       ) : (
         <div className="space-y-2">
           {rows.map((r) => (
             <button
               key={r.id}
-              onClick={() => { setSelected(r); setNotes(r.admin_notes ?? ""); }}
+              onClick={() => {
+                setSelected(r);
+                setNotes(r.admin_notes ?? "");
+              }}
               className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-muted/40"
             >
               <div className="flex items-center gap-3 min-w-0">
-                {r.is_dealer ? <Building2 className="h-5 w-5 text-muted-foreground" /> : <User className="h-5 w-5 text-muted-foreground" />}
+                {r.is_dealer ? (
+                  <Building2 className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <User className="h-5 w-5 text-muted-foreground" />
+                )}
                 <div className="min-w-0">
                   <div className="font-medium truncate">
-                    {r.is_dealer ? r.business_name || r.sellers?.business_name || "Dealer" : r.sellers?.profiles?.full_name || "Private seller"}
+                    {r.is_dealer
+                      ? r.business_name || r.sellers?.business_name || "Dealer"
+                      : r.sellers?.profiles?.full_name || "Private seller"}
                   </div>
                   <div className="text-xs text-muted-foreground truncate">
-                    {r.sellers?.phone ?? r.sellers?.profiles?.phone ?? "—"} · {r.address_town ?? "—"}
+                    {r.sellers?.phone ?? r.sellers?.profiles?.phone ?? "—"} ·{" "}
+                    {r.address_town ?? "—"}
                   </div>
                 </div>
               </div>
@@ -156,18 +199,30 @@ function SellersQueue() {
         </div>
       )}
 
-      <Dialog open={!!selected} onOpenChange={(o) => { if (!o) { setSelected(null); setNotes(""); } }}>
+      <Dialog
+        open={!!selected}
+        onOpenChange={(o) => {
+          if (!o) {
+            setSelected(null);
+            setNotes("");
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl">
           {selected && (
             <>
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
-                  {selected.is_dealer ? "Dealer" : "Private seller"} · <StatusBadge status={selected.status} />
+                  {selected.is_dealer ? "Dealer" : "Private seller"} ·{" "}
+                  <StatusBadge status={selected.status} />
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4 max-h-[60vh] overflow-y-auto">
                 <KV label="Full name" value={selected.sellers?.profiles?.full_name} />
-                <KV label="Phone" value={selected.sellers?.phone ?? selected.sellers?.profiles?.phone} />
+                <KV
+                  label="Phone"
+                  value={selected.sellers?.phone ?? selected.sellers?.profiles?.phone}
+                />
                 <KV label="Email" value={selected.sellers?.email} />
                 {selected.is_dealer && (
                   <>
@@ -176,7 +231,12 @@ function SellersQueue() {
                   </>
                 )}
                 <KV label="ID number" value={selected.national_id_number} />
-                <KV label="Address" value={[selected.address_street, selected.address_town, selected.address_county].filter(Boolean).join(", ")} />
+                <KV
+                  label="Address"
+                  value={[selected.address_street, selected.address_town, selected.address_county]
+                    .filter(Boolean)
+                    .join(", ")}
+                />
                 <div className="grid grid-cols-2 gap-2">
                   <DocLink label="ID front" path={selected.national_id_front_url} />
                   <DocLink label="ID back" path={selected.national_id_back_url} />
@@ -192,7 +252,12 @@ function SellersQueue() {
                 </div>
                 <div>
                   <Label>Admin notes / rejection reason</Label>
-                  <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional for approve, required for reject" />
+                  <Textarea
+                    rows={3}
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Optional for approve, required for reject"
+                  />
                 </div>
               </div>
               <DialogFooter className="gap-2">
@@ -236,7 +301,9 @@ function BuyersQueue() {
     queryFn: async () => {
       let query = supabase
         .from("profiles")
-        .select("id, full_name, phone, id_type, id_number, payment_contact, kyc_status, kyc_notes, kyc_submitted_at")
+        .select(
+          "id, full_name, phone, id_type, id_number, payment_contact, kyc_status, kyc_notes, kyc_submitted_at",
+        )
         .order("kyc_submitted_at", { ascending: false });
       if (filter !== "all") query = query.eq("kyc_status", filter);
       const { data, error } = await query;
@@ -249,11 +316,17 @@ function BuyersQueue() {
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("profiles")
-      .update({ kyc_status: "approved", kyc_reviewed_at: new Date().toISOString(), kyc_reviewed_by: u.user?.id, kyc_notes: notes || null })
+      .update({
+        kyc_status: "approved",
+        kyc_reviewed_at: new Date().toISOString(),
+        kyc_reviewed_by: u.user?.id,
+        kyc_notes: notes || null,
+      })
       .eq("id", r.id);
     if (error) return toast.error(error.message);
     toast.success("Buyer approved");
-    setSelected(null); setNotes("");
+    setSelected(null);
+    setNotes("");
     qc.invalidateQueries({ queryKey: ["admin-buyer-kyc"] });
   }
 
@@ -262,11 +335,17 @@ function BuyersQueue() {
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase
       .from("profiles")
-      .update({ kyc_status: "rejected", kyc_reviewed_at: new Date().toISOString(), kyc_reviewed_by: u.user?.id, kyc_notes: notes })
+      .update({
+        kyc_status: "rejected",
+        kyc_reviewed_at: new Date().toISOString(),
+        kyc_reviewed_by: u.user?.id,
+        kyc_notes: notes,
+      })
       .eq("id", r.id);
     if (error) return toast.error(error.message);
     toast.success("Rejected");
-    setSelected(null); setNotes("");
+    setSelected(null);
+    setNotes("");
     qc.invalidateQueries({ queryKey: ["admin-buyer-kyc"] });
   }
 
@@ -275,30 +354,58 @@ function BuyersQueue() {
     <>
       <div className="mb-3 flex gap-2">
         {["submitted", "approved", "rejected", "all"].map((f) => (
-          <Button key={f} size="sm" variant={filter === f ? "default" : "outline"} onClick={() => setFilter(f)}>{f}</Button>
+          <Button
+            key={f}
+            size="sm"
+            variant={filter === f ? "default" : "outline"}
+            onClick={() => setFilter(f)}
+          >
+            {f}
+          </Button>
         ))}
       </div>
       {rows.length === 0 ? (
-        <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">Nothing here.</div>
+        <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
+          Nothing here.
+        </div>
       ) : (
         <div className="space-y-2">
           {rows.map((r) => (
-            <button key={r.id} onClick={() => { setSelected(r); setNotes(r.kyc_notes ?? ""); }} className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-muted/40">
+            <button
+              key={r.id}
+              onClick={() => {
+                setSelected(r);
+                setNotes(r.kyc_notes ?? "");
+              }}
+              className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-muted/40"
+            >
               <div className="min-w-0">
                 <div className="font-medium truncate">{r.full_name ?? "Unnamed"}</div>
-                <div className="text-xs text-muted-foreground truncate">{r.phone ?? "—"} · {r.id_type ?? "id"} {r.id_number ?? ""}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {r.phone ?? "—"} · {r.id_type ?? "id"} {r.id_number ?? ""}
+                </div>
               </div>
               <StatusBadge status={r.kyc_status} />
             </button>
           ))}
         </div>
       )}
-      <Dialog open={!!selected} onOpenChange={(o) => { if (!o) { setSelected(null); setNotes(""); } }}>
+      <Dialog
+        open={!!selected}
+        onOpenChange={(o) => {
+          if (!o) {
+            setSelected(null);
+            setNotes("");
+          }
+        }}
+      >
         <DialogContent>
           {selected && (
             <>
               <DialogHeader>
-                <DialogTitle>Buyer KYC · <StatusBadge status={selected.kyc_status} /></DialogTitle>
+                <DialogTitle>
+                  Buyer KYC · <StatusBadge status={selected.kyc_status} />
+                </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
                 <KV label="Full name" value={selected.full_name} />
@@ -312,8 +419,12 @@ function BuyersQueue() {
                 </div>
               </div>
               <DialogFooter className="gap-2">
-                <Button variant="destructive" onClick={() => reject(selected)}><XCircle className="mr-1 h-4 w-4" /> Reject</Button>
-                <Button onClick={() => approve(selected)}><CheckCircle2 className="mr-1 h-4 w-4" /> Approve</Button>
+                <Button variant="destructive" onClick={() => reject(selected)}>
+                  <XCircle className="mr-1 h-4 w-4" /> Reject
+                </Button>
+                <Button onClick={() => approve(selected)}>
+                  <CheckCircle2 className="mr-1 h-4 w-4" /> Approve
+                </Button>
               </DialogFooter>
             </>
           )}
@@ -352,7 +463,9 @@ function DocLink({ label, path }: { label: string; path: string | null }) {
   async function open() {
     if (!path) return;
     setBusy(true);
-    const { data, error } = await supabase.storage.from("seller-identity-docs").createSignedUrl(path, 300);
+    const { data, error } = await supabase.storage
+      .from("seller-identity-docs")
+      .createSignedUrl(path, 300);
     setBusy(false);
     if (error || !data?.signedUrl) return toast.error(error?.message ?? "Cannot open");
     window.open(data.signedUrl, "_blank", "noopener");

@@ -109,7 +109,11 @@ export function TradeInEstimatorModal({
 
     // Find closest matching baseline
     for (const [key, val] of Object.entries(BASELINE_VALUATIONS)) {
-      if (lookupKey.includes(key) || key.includes(lookupKey) || lookupKey.includes(key.split(" ")[1])) {
+      if (
+        lookupKey.includes(key) ||
+        key.includes(lookupKey) ||
+        lookupKey.includes(key.split(" ")[1])
+      ) {
         base = val;
         break;
       }
@@ -124,8 +128,8 @@ export function TradeInEstimatorModal({
     // Condition adjustment
     let conditionMult = 1.0;
     if (condition === "excellent") conditionMult = 1.05;
-    else if (condition === "good") conditionMult = 1.00;
-    else if (condition === "fair") conditionMult = 0.90;
+    else if (condition === "good") conditionMult = 1.0;
+    else if (condition === "fair") conditionMult = 0.9;
     else if (condition === "poor") conditionMult = 0.75;
 
     // Mileage adjustment: per 10k over 80k km, reduce by 2%
@@ -133,7 +137,7 @@ export function TradeInEstimatorModal({
     let mileageMult = 1.0;
     if (km > 80000) {
       const overSteps = Math.floor((km - 80000) / 10000);
-      mileageMult = Math.max(0.70, 1.0 - overSteps * 0.02);
+      mileageMult = Math.max(0.7, 1.0 - overSteps * 0.02);
     } else if (km < 50000) {
       mileageMult = 1.04;
     }
@@ -166,7 +170,10 @@ export function TradeInEstimatorModal({
             <div>
               <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
                 Trade-In Valuation Estimator
-                <Badge variant="outline" className="text-[10px] bg-teal-500/15 text-teal-300 border-teal-500/30">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-teal-500/15 text-teal-300 border-teal-500/30"
+                >
                   INSTANT QUOTE
                 </Badge>
               </DialogTitle>
@@ -179,7 +186,10 @@ export function TradeInEstimatorModal({
 
         <div className="p-5 sm:p-6 space-y-5">
           {!calculated ? (
-            <form onSubmit={calculateTradeInValue} className="space-y-4 animate-in fade-in duration-200">
+            <form
+              onSubmit={calculateTradeInValue}
+              className="space-y-4 animate-in fade-in duration-200"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">Make</Label>
@@ -217,7 +227,10 @@ export function TradeInEstimatorModal({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="max-h-60 rounded-xl">
-                      {[2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2010].map((y) => (
+                      {[
+                        2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013,
+                        2012, 2010,
+                      ].map((y) => (
                         <SelectItem key={y} value={String(y)}>
                           {y}
                         </SelectItem>
@@ -291,13 +304,16 @@ export function TradeInEstimatorModal({
                   {formatPrice(estimatedMin || 0)} – {formatPrice(estimatedMax || 0)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  For: {year} {make} {model} · {parseInt(mileage).toLocaleString()} km ({condition} condition)
+                  For: {year} {make} {model} · {parseInt(mileage).toLocaleString()} km ({condition}{" "}
+                  condition)
                 </p>
               </div>
 
               {targetCarTitle && targetCarPrice && (
                 <div className="p-3.5 rounded-xl border border-border bg-card/60 text-xs space-y-1.5">
-                  <span className="font-bold text-foreground">Applying toward: {targetCarTitle}</span>
+                  <span className="font-bold text-foreground">
+                    Applying toward: {targetCarTitle}
+                  </span>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Listed Price:</span>
                     <span className="font-mono text-foreground">{formatPrice(targetCarPrice)}</span>

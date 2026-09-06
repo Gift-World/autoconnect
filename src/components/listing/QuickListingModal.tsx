@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { 
-  PlusCircle, 
-  Car, 
-  DollarSign, 
-  Calendar, 
-  MapPin, 
-  ShieldCheck, 
+import {
+  PlusCircle,
+  Car,
+  DollarSign,
+  Calendar,
+  MapPin,
+  ShieldCheck,
   Sparkles,
   Check,
-  ImageIcon
+  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -31,10 +31,22 @@ import {
 import { COUNTRIES } from "@/lib/countries";
 
 const SAMPLE_PHOTO_PRESETS = [
-  { label: "Luxury SUV (White)", url: "https://images.unsplash.com/photo-1520031441872-265e4ff70366?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Performance Sedan (Dark)", url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Sport Coupe (Red)", url: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Electric Crossover", url: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=80" },
+  {
+    label: "Luxury SUV (White)",
+    url: "https://images.unsplash.com/photo-1520031441872-265e4ff70366?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    label: "Performance Sedan (Dark)",
+    url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    label: "Sport Coupe (Red)",
+    url: "https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    label: "Electric Crossover",
+    url: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=1200&q=80",
+  },
 ];
 
 const POPULAR_FEATURES = [
@@ -45,7 +57,7 @@ const POPULAR_FEATURES = [
   "Apple CarPlay & Android Auto",
   "Adaptive Cruise Control",
   "Blind Spot Monitoring",
-  "Ceramic Brake Package"
+  "Ceramic Brake Package",
 ];
 
 interface QuickListingModalProps {
@@ -75,11 +87,11 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleFeature = (feat: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       features: prev.features.includes(feat)
-        ? prev.features.filter(f => f !== feat)
-        : [...prev.features, feat]
+        ? prev.features.filter((f) => f !== feat)
+        : [...prev.features, feat],
     }));
   };
 
@@ -110,13 +122,12 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
       fuel_type: formData.fuel_type,
       body_type: formData.body_type,
       available_for_export: true,
-      right_hand_drive: formData.country === "KE" || formData.country === "JP" || formData.country === "UK",
+      right_hand_drive:
+        formData.country === "KE" || formData.country === "JP" || formData.country === "UK",
       featured: true,
       created_at: new Date().toISOString(),
-      car_images: [
-        { image_url: formData.selectedImage, is_primary: true, sort_order: 0 }
-      ],
-      features: formData.features
+      car_images: [{ image_url: formData.selectedImage, is_primary: true, sort_order: 0 }],
+      features: formData.features,
     };
 
     // Save in local storage

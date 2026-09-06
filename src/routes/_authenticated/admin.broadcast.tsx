@@ -54,10 +54,7 @@ function BroadcastPage() {
         </p>
       </header>
 
-      <form
-        onSubmit={send}
-        className="max-w-2xl space-y-5 rounded-xl border bg-card p-6 shadow-sm"
-      >
+      <form onSubmit={send} className="max-w-2xl space-y-5 rounded-xl border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-3 rounded-lg bg-accent/10 p-3 text-sm">
           <Megaphone className="h-5 w-5 text-accent" />
           <span className="text-muted-foreground">
@@ -68,7 +65,9 @@ function BroadcastPage() {
         <div className="space-y-2">
           <Label>Audience</Label>
           <Select value={target} onValueChange={(v) => setTarget(v as typeof target)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Everyone</SelectItem>
               <SelectItem value="buyer">All buyers</SelectItem>
@@ -80,18 +79,37 @@ function BroadcastPage() {
 
         <div className="space-y-2">
           <Label htmlFor="title">Title</Label>
-          <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} placeholder="e.g. New feature: shipping estimates" required />
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={120}
+            placeholder="e.g. New feature: shipping estimates"
+            required
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="body">Message</Label>
-          <Textarea id="body" value={body} onChange={(e) => setBody(e.target.value)} maxLength={500} rows={4} placeholder="Short message visible in the notification…" />
+          <Textarea
+            id="body"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            maxLength={500}
+            rows={4}
+            placeholder="Short message visible in the notification…"
+          />
           <p className="text-xs text-muted-foreground">{body.length}/500</p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="link">Link (optional)</Label>
-          <Input id="link" value={link} onChange={(e) => setLink(e.target.value)} placeholder="/cars or /import" />
+          <Input
+            id="link"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="/cars or /import"
+          />
         </div>
 
         <Button type="submit" disabled={sending} className="bg-primary hover:bg-primary/90">

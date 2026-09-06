@@ -65,7 +65,8 @@ export function FinancingPreApprovalCard({
 
       setSubmitted(true);
       toast.success("Financing Pre-Approval Submitted!", {
-        description: "A partner banking specialist (NCBA / Stanbic / Equity) will contact you within 24 hours.",
+        description:
+          "A partner banking specialist (NCBA / Stanbic / Equity) will contact you within 24 hours.",
         icon: <ShieldCheck className="h-4 w-4 text-teal-400" />,
       });
     } catch {
@@ -84,7 +85,10 @@ export function FinancingPreApprovalCard({
         <div>
           <h4 className="text-sm font-bold text-foreground flex items-center gap-1.5">
             Get Pre-Approved for Financing
-            <Badge variant="outline" className="text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+            <Badge
+              variant="outline"
+              className="text-[9px] bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+            >
               UP TO 80% LTV
             </Badge>
           </h4>
@@ -98,7 +102,8 @@ export function FinancingPreApprovalCard({
         !open ? (
           <div className="space-y-2 pt-1">
             <p className="text-xs text-muted-foreground">
-              Drive this vehicle with as low as 20% down payment and flexible repayment terms from 12 to 60 months.
+              Drive this vehicle with as low as 20% down payment and flexible repayment terms from
+              12 to 60 months.
             </p>
             <Button
               type="button"
@@ -168,7 +173,11 @@ export function FinancingPreApprovalCard({
                 disabled={submitting}
                 className="flex-1 h-9 rounded-xl bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 text-xs shadow-sm"
               >
-                {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <ShieldCheck className="h-3.5 w-3.5 mr-1" />}
+                {submitting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
+                ) : (
+                  <ShieldCheck className="h-3.5 w-3.5 mr-1" />
+                )}
                 Submit Pre-Approval Request
               </Button>
             </div>
@@ -180,7 +189,8 @@ export function FinancingPreApprovalCard({
             <CheckCircle2 className="h-4 w-4" /> Pre-Approval Application Received!
           </p>
           <p className="text-[11px]">
-            A financing partner will contact you at <strong>{phone}</strong> within 24 hours with rate offers.
+            A financing partner will contact you at <strong>{phone}</strong> within 24 hours with
+            rate offers.
           </p>
         </div>
       )}

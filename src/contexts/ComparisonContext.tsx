@@ -115,7 +115,7 @@ export function ComparisonProvider({ children }: { children: React.ReactNode }) 
       isInComparison,
       maxVehicles: MAX_VEHICLES,
     }),
-    [comparedVehicles]
+    [comparedVehicles],
   );
 
   return <ComparisonContext.Provider value={value}>{children}</ComparisonContext.Provider>;

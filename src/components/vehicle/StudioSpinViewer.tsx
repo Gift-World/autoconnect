@@ -48,13 +48,14 @@ export function StudioSpinViewer({
 
   // Available photo angles array - strictly filter to valid vehicle photos
   const validImages = (images && images.length > 0 ? images : []).filter(
-    (url) => url && typeof url === "string" && url.trim().length > 0
+    (url) => url && typeof url === "string" && url.trim().length > 0,
   );
 
   // Map degree to image index
-  const frameIndex = validImages.length > 0
-    ? Math.floor((currentAngle / 360) * validImages.length) % validImages.length
-    : 0;
+  const frameIndex =
+    validImages.length > 0
+      ? Math.floor((currentAngle / 360) * validImages.length) % validImages.length
+      : 0;
   const currentImage = validImages[frameIndex] || validImages[0] || "";
 
   const hotspots: Hotspot[] = [
@@ -62,13 +63,15 @@ export function StudioSpinViewer({
       angle: 15,
       title: "Bi-LED Matrix Headlights",
       tag: "Lighting",
-      description: "Adaptive high-beam assist with integrated LED daytime running lights & radar cluster.",
+      description:
+        "Adaptive high-beam assist with integrated LED daytime running lights & radar cluster.",
     },
     {
       angle: 90,
       title: "Diamond-Cut Alloy Wheels",
       tag: "Wheels & Brakes",
-      description: "19-inch multi-spoke sport alloys with ventilated disc brakes and Bridgestone tyres.",
+      description:
+        "19-inch multi-spoke sport alloys with ventilated disc brakes and Bridgestone tyres.",
     },
     {
       angle: 180,
@@ -80,7 +83,8 @@ export function StudioSpinViewer({
       angle: 270,
       title: "Driver Cockpit & Panoramic Glass",
       tag: "Interior",
-      description: "Perforated leather comfort seats with electric adjustment and acoustic insulated windshield.",
+      description:
+        "Perforated leather comfort seats with electric adjustment and acoustic insulated windshield.",
     },
   ];
 
@@ -150,12 +154,14 @@ export function StudioSpinViewer({
     <div
       ref={containerRef}
       className={`relative rounded-3xl bg-slate-950 text-white overflow-hidden shadow-2xl border border-white/10 select-none ${
-        isFullscreen ? "fixed inset-0 z-50 rounded-none h-screen w-screen" : "aspect-[16/10] sm:aspect-[16/9] w-full"
+        isFullscreen
+          ? "fixed inset-0 z-50 rounded-none h-screen w-screen"
+          : "aspect-[16/10] sm:aspect-[16/9] w-full"
       } ${className}`}
     >
       {/* Studio Lighting & Vignette Background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black pointer-events-none" />
-      
+
       {/* Studio Turntable Stage Grid */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-[35%] rounded-[100%] bg-white/5 border border-white/10 blur-[1px] transform rotate-x-[60deg] pointer-events-none" />
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[70%] h-[20%] rounded-[100%] bg-teal-500/15 blur-2xl pointer-events-none" />
@@ -221,7 +227,11 @@ export function StudioSpinViewer({
             className="h-8 w-8 p-0 rounded-xl bg-black/60 border border-white/10 text-white hover:bg-white/10"
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+            {isFullscreen ? (
+              <Minimize2 className="h-3.5 w-3.5" />
+            ) : (
+              <Maximize2 className="h-3.5 w-3.5" />
+            )}
           </Button>
         </div>
       </div>
@@ -233,13 +243,17 @@ export function StudioSpinViewer({
             <span className="text-[10px] font-bold uppercase tracking-wider bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-md">
               {activeHotspot.tag}
             </span>
-            <span className="text-[10px] font-mono text-muted-foreground">{activeHotspot.angle}° Angle</span>
+            <span className="text-[10px] font-mono text-muted-foreground">
+              {activeHotspot.angle}° Angle
+            </span>
           </div>
           <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
             <Sparkles className="h-3 w-3 text-teal-400 shrink-0" />
             {activeHotspot.title}
           </h4>
-          <p className="text-[11px] text-slate-300 mt-1 leading-snug">{activeHotspot.description}</p>
+          <p className="text-[11px] text-slate-300 mt-1 leading-snug">
+            {activeHotspot.description}
+          </p>
         </div>
       )}
 
@@ -256,7 +270,11 @@ export function StudioSpinViewer({
                 : "bg-white/10 text-white hover:bg-white/20"
             }`}
           >
-            {isAutoSpinning ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 fill-current" />}
+            {isAutoSpinning ? (
+              <Pause className="h-3.5 w-3.5" />
+            ) : (
+              <Play className="h-3.5 w-3.5 fill-current" />
+            )}
             <span>{isAutoSpinning ? "Pause Spin" : "Auto-Spin"}</span>
           </Button>
 

@@ -3,7 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
-import { Search, MapPin, Gauge, Plane, Filter, X, Navigation, Loader2, Sparkles, BookmarkPlus, PlusCircle, Eye, ChevronLeft, ChevronRight, Scale, Smartphone } from "lucide-react";
+import {
+  Search,
+  MapPin,
+  Gauge,
+  Plane,
+  Filter,
+  X,
+  Navigation,
+  Loader2,
+  Sparkles,
+  BookmarkPlus,
+  PlusCircle,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Scale,
+  Smartphone,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
 import { toast } from "sonner";
@@ -20,20 +37,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { COUNTRIES, countryByCode } from "@/lib/countries";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FavoriteButton } from "@/components/FavoriteButton";
 import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer";
 import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
 import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
 import { QuickListingModal } from "@/components/listing/QuickListingModal";
-import { AiCarFinderSearchBar, type ParsedAiFilters } from "@/components/search/AiCarFinderSearchBar";
+import {
+  AiCarFinderSearchBar,
+  type ParsedAiFilters,
+} from "@/components/search/AiCarFinderSearchBar";
 import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
@@ -136,7 +150,8 @@ function CarsListPage() {
   const saveSearch = () => {
     const params = new URLSearchParams();
     Object.entries(search).forEach(([key, value]) => {
-      if (value !== "" && value !== false && value !== 0 && value != null) params.set(key, String(value));
+      if (value !== "" && value !== false && value !== 0 && value != null)
+        params.set(key, String(value));
     });
     let saved: { label: string; query: string; savedAt: string }[] = [];
     try {
@@ -147,10 +162,17 @@ function CarsListPage() {
     }
     const query = params.toString();
     if (!saved.some((item) => item.query === query)) {
-      saved.unshift({ label: qInput.trim() || "Vehicle search", query, savedAt: new Date().toISOString() });
+      saved.unshift({
+        label: qInput.trim() || "Vehicle search",
+        query,
+        savedAt: new Date().toISOString(),
+      });
       localStorage.setItem("autoconnect_saved_searches", JSON.stringify(saved.slice(0, 12)));
     }
-    toast.success("Search saved in this browser", { description: "Sign in and connect notification delivery before offering email or WhatsApp alerts." });
+    toast.success("Search saved in this browser", {
+      description:
+        "Sign in and connect notification delivery before offering email or WhatsApp alerts.",
+    });
   };
 
   useEffect(() => {
@@ -176,10 +198,7 @@ function CarsListPage() {
   const { data: makes } = useQuery({
     queryKey: ["car_makes"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("car_makes")
-        .select("id, name")
-        .order("name");
+      const { data, error } = await supabase.from("car_makes").select("id, name").order("name");
       if (error) throw error;
       return data ?? [];
     },
@@ -234,9 +253,7 @@ function CarsListPage() {
 
       if (search.q.trim()) {
         const q = `%${search.q.trim()}%`;
-        query = query.or(
-          `title.ilike.${q},make_name.ilike.${q},model_name.ilike.${q}`,
-        );
+        query = query.or(`title.ilike.${q},make_name.ilike.${q},model_name.ilike.${q}`);
       }
       if (search.country) query = query.eq("country", search.country);
       if (search.make) query = query.eq("make_name", search.make);
@@ -302,9 +319,7 @@ function CarsListPage() {
         const dLng = toRad(c.longitude - userCoords.lng);
         const a =
           Math.sin(dLat / 2) ** 2 +
-          Math.cos(toRad(userCoords.lat)) *
-            Math.cos(toRad(c.latitude)) *
-            Math.sin(dLng / 2) ** 2;
+          Math.cos(toRad(userCoords.lat)) * Math.cos(toRad(c.latitude)) * Math.sin(dLng / 2) ** 2;
         const d = 2 * R * Math.asin(Math.sqrt(a));
         return { c, d };
       })
@@ -332,9 +347,7 @@ function CarsListPage() {
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex flex-col gap-1">
           <h1 className="text-3xl font-bold tracking-tight">Browse Cars</h1>
-          <p className="text-sm text-muted-foreground">
-            Verified listings from sellers worldwide.
-          </p>
+          <p className="text-sm text-muted-foreground">Verified listings from sellers worldwide.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Button
@@ -355,8 +368,8 @@ function CarsListPage() {
             <Smartphone className="w-3.5 h-3.5 text-teal-400" />
             <span>Swipe Mode</span>
           </Button>
-          <Button 
-            onClick={() => setQuickListOpen(true)} 
+          <Button
+            onClick={() => setQuickListOpen(true)}
             className="gap-2 self-start sm:self-auto font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md rounded-xl text-xs"
           >
             <PlusCircle className="w-4 h-4" />
@@ -459,9 +472,7 @@ function CarsListPage() {
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm" className="lg:hidden">
                   <Filter className="mr-2 h-4 w-4" /> Filters
-                  {hasFilters && (
-                    <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />
-                  )}
+                  {hasFilters && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
@@ -500,10 +511,7 @@ function CarsListPage() {
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="overflow-hidden rounded-xl border border-border bg-card"
-                >
+                <div key={i} className="overflow-hidden rounded-xl border border-border bg-card">
                   <Skeleton className="aspect-[4/3] w-full rounded-none" />
                   <div className="space-y-2 p-4">
                     <Skeleton className="h-3 w-1/3" />
@@ -532,11 +540,7 @@ function CarsListPage() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {displayedCars.map((car) => (
-                <CarCard 
-                  key={car.id} 
-                  car={car} 
-                  onQuickView={(c) => setDrawerCar(c as any)}
-                />
+                <CarCard key={car.id} car={car} onQuickView={(c) => setDrawerCar(c as any)} />
               ))}
             </div>
           )}
@@ -544,23 +548,13 @@ function CarsListPage() {
       </div>
 
       {/* Interactive Detail Drawer */}
-      <VehicleDrawer
-        car={drawerCar}
-        isOpen={!!drawerCar}
-        onClose={() => setDrawerCar(null)}
-      />
+      <VehicleDrawer car={drawerCar} isOpen={!!drawerCar} onClose={() => setDrawerCar(null)} />
 
       {/* Quick Showroom Listing Modal */}
-      <QuickListingModal
-        isOpen={quickListOpen}
-        onClose={() => setQuickListOpen(false)}
-      />
+      <QuickListingModal isOpen={quickListOpen} onClose={() => setQuickListOpen(false)} />
 
       {/* Trade-In Estimator Modal */}
-      <TradeInEstimatorModal
-        open={tradeInOpen}
-        onOpenChange={setTradeInOpen}
-      />
+      <TradeInEstimatorModal open={tradeInOpen} onOpenChange={setTradeInOpen} />
 
       {/* Mobile Swipe-to-Browse Experience */}
       {swipeModeOpen && (
@@ -598,9 +592,7 @@ function FilterFields({
   return (
     <>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-          Country
-        </Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Country</Label>
         <Select
           value={search.country || "all"}
           onValueChange={(v) => updateSearch({ country: v === "all" ? "" : v })}
@@ -619,9 +611,7 @@ function FilterFields({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-          Make
-        </Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Make</Label>
         <Select
           value={search.make || "all"}
           onValueChange={(v) => updateSearch({ make: v === "all" ? "" : v })}
@@ -640,9 +630,7 @@ function FilterFields({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-          Condition
-        </Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Condition</Label>
         <Select
           value={search.condition || "all"}
           onValueChange={(v) => updateSearch({ condition: v === "all" ? "" : v })}
@@ -667,9 +655,7 @@ function FilterFields({
       />
       <div className="grid grid-cols-2 gap-2">
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Year from
-          </Label>
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Year from</Label>
           <Input
             type="number"
             inputMode="numeric"
@@ -683,9 +669,7 @@ function FilterFields({
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-            Year to
-          </Label>
+          <Label className="text-xs uppercase tracking-wide text-muted-foreground">Year to</Label>
           <Input
             type="number"
             inputMode="numeric"
@@ -700,9 +684,7 @@ function FilterFields({
         </div>
       </div>
       <div className="space-y-2">
-        <Label className="text-xs uppercase tracking-wide text-muted-foreground">
-          Steering
-        </Label>
+        <Label className="text-xs uppercase tracking-wide text-muted-foreground">Steering</Label>
         <Select
           value={search.rhd || "all"}
           onValueChange={(v) => updateSearch({ rhd: v === "all" ? "" : v })}
@@ -742,7 +724,7 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
     (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
   );
   const [imgIdx, setImgIdx] = useState(0);
-  const images = sorted.length > 0 ? sorted.map(i => i.image_url) : [];
+  const images = sorted.length > 0 ? sorted.map((i) => i.image_url) : [];
   const img = images[imgIdx] ?? primaryImage(car);
   const country = countryByCode(car.country);
 
@@ -782,11 +764,7 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
 
   return (
     <div className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <Link
-        to="/cars/$id"
-        params={{ id: car.id }}
-        className="block"
-      >
+      <Link to="/cars/$id" params={{ id: car.id }} className="block">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {img ? (
             <img
@@ -803,9 +781,7 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
 
           <div className="absolute left-2 top-2 flex flex-wrap gap-1.5 z-10">
             {car.featured && (
-              <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                Featured
-              </Badge>
+              <Badge className="bg-accent text-accent-foreground hover:bg-accent">Featured</Badge>
             )}
             {car.available_for_export && (
               <Badge variant="secondary" className="bg-white/95 text-foreground">
@@ -976,10 +952,7 @@ function NearMeControl({
           Use my location
         </Button>
       ) : (
-        <Select
-          value={String(radius || 50)}
-          onValueChange={(v) => onRadius(Number(v))}
-        >
+        <Select value={String(radius || 50)} onValueChange={(v) => onRadius(Number(v))}>
           <SelectTrigger className="h-9">
             <SelectValue />
           </SelectTrigger>
@@ -998,4 +971,3 @@ function NearMeControl({
     </div>
   );
 }
-

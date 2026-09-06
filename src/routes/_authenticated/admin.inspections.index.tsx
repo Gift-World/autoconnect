@@ -29,24 +29,34 @@ function AdminInspections() {
     setLoading(true);
     const { data } = await supabase
       .from("inspections")
-      .select("id,status,scheduled_date,mechanic_verdict,admin_approved,created_at,cars(id,title),sellers(business_name)")
+      .select(
+        "id,status,scheduled_date,mechanic_verdict,admin_approved,created_at,cars(id,title),sellers(business_name)",
+      )
       .order("created_at", { ascending: false });
     setRows((data ?? []) as unknown as Row[]);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Inspections queue</h1>
-        <p className="text-sm text-muted-foreground">Assign mechanics, fill reports, and approve completed inspections.</p>
+        <p className="text-sm text-muted-foreground">
+          Assign mechanics, fill reports, and approve completed inspections.
+        </p>
       </header>
       <Card>
-        <CardHeader><CardTitle className="text-base">All inspections</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">All inspections</CardTitle>
+        </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-6 text-center text-sm text-muted-foreground"><Loader2 className="mx-auto h-4 w-4 animate-spin" /></div>
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+            </div>
           ) : rows.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">Nothing here yet.</p>
           ) : (
@@ -56,11 +66,21 @@ function AdminInspections() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-                      <Link to="/cars/$id" params={{ id: r.cars?.id ?? "" }} className="truncate font-medium hover:underline">
+                      <Link
+                        to="/cars/$id"
+                        params={{ id: r.cars?.id ?? "" }}
+                        className="truncate font-medium hover:underline"
+                      >
                         {r.cars?.title ?? "Car"}
                       </Link>
-                      <Badge variant="outline" className="text-[10px]">{r.status}</Badge>
-                      {r.admin_approved && <Badge className="bg-success text-success-foreground text-[10px]">Approved</Badge>}
+                      <Badge variant="outline" className="text-[10px]">
+                        {r.status}
+                      </Badge>
+                      {r.admin_approved && (
+                        <Badge className="bg-success text-success-foreground text-[10px]">
+                          Approved
+                        </Badge>
+                      )}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {r.sellers?.business_name ?? "—"}
@@ -69,7 +89,9 @@ function AdminInspections() {
                     </div>
                   </div>
                   <Button size="sm" asChild>
-                    <Link to="/admin/inspections/$id" params={{ id: r.id }}>Open</Link>
+                    <Link to="/admin/inspections/$id" params={{ id: r.id }}>
+                      Open
+                    </Link>
                   </Button>
                 </li>
               ))}

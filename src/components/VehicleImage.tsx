@@ -33,7 +33,7 @@ export function VehiclePlaceholder({
     >
       {/* Background architectural grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f766e10_1px,transparent_1px),linear-gradient(to_bottom,#0f766e10_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-      
+
       {/* Ambient glow */}
       <div className="absolute h-32 w-32 rounded-full bg-teal-300/30 blur-2xl pointer-events-none" />
 
@@ -51,9 +51,7 @@ export function VehiclePlaceholder({
           <h4 className="text-sm font-bold text-slate-900 line-clamp-1">
             {make ? `${make} ${model || ""}` : "Verified Vehicle"}
           </h4>
-          <p className="text-[11px] text-slate-500">
-            Physical diagnostics & title verified
-          </p>
+          <p className="text-[11px] text-slate-500">Physical diagnostics & title verified</p>
         </div>
 
         <div className="mt-3 flex items-center gap-1 rounded-full border border-teal-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold text-slate-600 backdrop-blur-sm">
@@ -93,9 +91,7 @@ export function VehicleImage({
 
   return (
     <div className={`relative h-full w-full overflow-hidden bg-slate-100 ${className}`}>
-      {!isLoaded && (
-        <div className="absolute inset-0 animate-pulse bg-slate-200" />
-      )}
+      {!isLoaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
       <img
         src={src}
         alt={alt}

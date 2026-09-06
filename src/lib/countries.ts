@@ -47,5 +47,17 @@ export function countryByCode(code?: string | null): Country | undefined {
 }
 
 export const CURRENCIES = [
-  "USD", "EUR", "GBP", "JPY", "AED", "KES", "NGN", "GHS", "ZAR", "CNY", "INR", "AUD", "CAD",
+  "USD",
+  "EUR",
+  "GBP",
+  "JPY",
+  "AED",
+  "KES",
+  "NGN",
+  "GHS",
+  "ZAR",
+  "CNY",
+  "INR",
+  "AUD",
+  "CAD",
 ] as const;

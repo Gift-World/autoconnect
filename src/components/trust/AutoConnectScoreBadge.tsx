@@ -8,12 +8,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   calculateAutoConnectScore,
   type ScoreVehicleData,
@@ -75,11 +70,7 @@ export function AutoConnectScoreBadge({
           </Tooltip>
         </TooltipProvider>
 
-        <ScoreExplanationDialog
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          result={result}
-        />
+        <ScoreExplanationDialog open={modalOpen} onOpenChange={setModalOpen} result={result} />
       </>
     );
   }
@@ -87,11 +78,15 @@ export function AutoConnectScoreBadge({
   // Variant 2: Prominent Detail Page Score Section with Interactive Breakdown
   return (
     <>
-      <div className={`rounded-2xl border ${result.badgeBorder} ${result.badgeBg} p-4 sm:p-5 shadow-sm ${className}`}>
+      <div
+        className={`rounded-2xl border ${result.badgeBorder} ${result.badgeBg} p-4 sm:p-5 shadow-sm ${className}`}
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             {/* Circular Gauge Score */}
-            <div className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-slate-950/80 border-2 ${result.badgeBorder} shadow-inner`}>
+            <div
+              className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-slate-950/80 border-2 ${result.badgeBorder} shadow-inner`}
+            >
               <span className={`text-xl font-extrabold font-mono ${result.colorClass}`}>
                 {result.score}
               </span>
@@ -104,13 +99,17 @@ export function AutoConnectScoreBadge({
               <div className="flex items-center gap-2">
                 <h4 className="text-base font-bold text-foreground flex items-center gap-1.5">
                   AutoConnect Score™
-                  <Badge variant="outline" className={`text-[10px] font-bold ${result.badgeBorder} ${result.textColor}`}>
+                  <Badge
+                    variant="outline"
+                    className={`text-[10px] font-bold ${result.badgeBorder} ${result.textColor}`}
+                  >
                     {result.tierLabel}
                   </Badge>
                 </h4>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                AI & human-audited trust index based on {result.breakdown.length} verification benchmarks.
+                AI & human-audited trust index based on {result.breakdown.length} verification
+                benchmarks.
               </p>
             </div>
           </div>
@@ -138,11 +137,7 @@ export function AutoConnectScoreBadge({
         </div>
       </div>
 
-      <ScoreExplanationDialog
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        result={result}
-      />
+      <ScoreExplanationDialog open={modalOpen} onOpenChange={setModalOpen} result={result} />
     </>
   );
 }
@@ -176,7 +171,9 @@ function ScoreExplanationDialog({
               <p className="text-xs text-slate-400">Total Trust Rating</p>
               <p className="text-2xl font-black font-mono text-teal-400">{result.score} / 100</p>
             </div>
-            <Badge className={`${result.badgeBg} ${result.badgeBorder} ${result.textColor} font-bold text-xs py-1 px-3`}>
+            <Badge
+              className={`${result.badgeBg} ${result.badgeBorder} ${result.textColor} font-bold text-xs py-1 px-3`}
+            >
               {result.tierLabel}
             </Badge>
           </div>
@@ -201,9 +198,7 @@ function ScoreExplanationDialog({
                       {item.points} / {item.maxPoints} pts
                     </span>
                   </div>
-                  <p className="text-[11px] text-muted-foreground pl-5.5">
-                    {item.description}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground pl-5.5">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -215,19 +210,27 @@ function ScoreExplanationDialog({
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-                <span><strong>80-100:</strong> Excellent Trust</span>
+                <span>
+                  <strong>80-100:</strong> Excellent Trust
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-teal-400" />
-                <span><strong>60-79:</strong> Good Quality</span>
+                <span>
+                  <strong>60-79:</strong> Good Quality
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                <span><strong>40-59:</strong> Fair Condition</span>
+                <span>
+                  <strong>40-59:</strong> Fair Condition
+                </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-slate-400" />
-                <span><strong>&lt; 40:</strong> Limited Info</span>
+                <span>
+                  <strong>&lt; 40:</strong> Limited Info
+                </span>
               </div>
             </div>
           </div>

@@ -1,7 +1,18 @@
 import { createFileRoute, Link, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { DEMO_MODE } from "@/contexts/AuthContext";
-import { LayoutDashboard, Plus, Inbox, MessageSquare, FileBadge, Wallet, ShieldCheck, Wrench, Store, Sparkles } from "lucide-react";
+import {
+  LayoutDashboard,
+  Plus,
+  Inbox,
+  MessageSquare,
+  FileBadge,
+  Wallet,
+  ShieldCheck,
+  Wrench,
+  Store,
+  Sparkles,
+} from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
 export const Route = createFileRoute("/_authenticated/seller")({
@@ -46,9 +57,7 @@ export const Route = createFileRoute("/_authenticated/seller")({
 
       if (
         profile &&
-        (profile.role === "seller" ||
-          profile.role === "yard_manager" ||
-          profile.role === "admin")
+        (profile.role === "seller" || profile.role === "yard_manager" || profile.role === "admin")
       ) {
         return;
       }

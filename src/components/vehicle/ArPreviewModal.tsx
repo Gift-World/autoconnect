@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Sparkles,
-  Smartphone,
-  Eye,
-  CheckCircle2,
-  Bell,
-  Box,
-  Layers,
-  Camera,
-} from "lucide-react";
+import { Sparkles, Smartphone, Eye, CheckCircle2, Bell, Box, Layers, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,11 +18,7 @@ interface ArPreviewModalProps {
   carTitle?: string;
 }
 
-export function ArPreviewModal({
-  open,
-  onOpenChange,
-  carTitle = "Vehicle",
-}: ArPreviewModalProps) {
+export function ArPreviewModal({ open, onOpenChange, carTitle = "Vehicle" }: ArPreviewModalProps) {
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [notified, setNotified] = useState(false);
 
@@ -59,7 +46,10 @@ export function ArPreviewModal({
             <div>
               <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
                 AR 3D Spatial Preview
-                <Badge variant="outline" className="text-[10px] bg-purple-500/15 text-purple-300 border-purple-500/30">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] bg-purple-500/15 text-purple-300 border-purple-500/30"
+                >
                   COMING SOON
                 </Badge>
               </DialogTitle>
@@ -92,7 +82,8 @@ export function ArPreviewModal({
               See this car in your driveway with AR
             </h4>
             <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-              Project a life-sized 3D spatial hologram of {carTitle} directly into your parking space using your smartphone camera and LiDAR.
+              Project a life-sized 3D spatial hologram of {carTitle} directly into your parking
+              space using your smartphone camera and LiDAR.
             </p>
           </div>
 

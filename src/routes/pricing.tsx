@@ -94,7 +94,7 @@ function PricingPage() {
   const [phone, setPhone] = useState("+254 ");
   const [dealershipName, setDealershipName] = useState("");
 
-  const handleUpgradeClick = (tier: typeof TIERS[0]) => {
+  const handleUpgradeClick = (tier: (typeof TIERS)[0]) => {
     setSelectedTier(tier);
     setUpgradeModalOpen(true);
   };
@@ -103,7 +103,8 @@ function PricingPage() {
     e.preventDefault();
     setUpgradeModalOpen(false);
     toast.success(`Upgrade Request Received for ${selectedTier.name}!`, {
-      description: "Our dealer onboarding specialist will contact you via WhatsApp / Call within 12 hours.",
+      description:
+        "Our dealer onboarding specialist will contact you via WhatsApp / Call within 12 hours.",
       icon: <Sparkles className="h-4 w-4 text-teal-400" />,
     });
   };
@@ -119,7 +120,8 @@ function PricingPage() {
           Sell More Cars with <span className="text-teal-500">AutoConnect Pro</span>
         </h1>
         <p className="text-sm text-muted-foreground">
-          Transparent, high-ROI plans built for private sellers, independent auto brokers, and premier car dealerships across Kenya and global import markets.
+          Transparent, high-ROI plans built for private sellers, independent auto brokers, and
+          premier car dealerships across Kenya and global import markets.
         </p>
       </div>
 
@@ -233,7 +235,8 @@ function PricingPage() {
             <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs text-muted-foreground">
               <p className="font-bold text-teal-400">Selected Plan: {selectedTier.name}</p>
               <p className="text-[11px] mt-0.5">
-                Monthly investment: {selectedTier.priceKES === 0 ? "Free" : formatPrice(selectedTier.priceKES)}
+                Monthly investment:{" "}
+                {selectedTier.priceKES === 0 ? "Free" : formatPrice(selectedTier.priceKES)}
               </p>
             </div>
 

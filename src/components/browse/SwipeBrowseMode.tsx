@@ -186,13 +186,12 @@ export function SwipeBrowseMode({ cars, onExit }: SwipeBrowseModeProps) {
               {currentCar?.year}
             </Badge>
             <span className="text-xs text-slate-300 flex items-center gap-1 font-medium">
-              <MapPin className="h-3 w-3 text-teal-400" /> {currentCar?.location_display || currentCar?.country || "Kenya"}
+              <MapPin className="h-3 w-3 text-teal-400" />{" "}
+              {currentCar?.location_display || currentCar?.country || "Kenya"}
             </span>
           </div>
 
-          <h3 className="text-xl font-black text-white leading-snug">
-            {currentCar?.title}
-          </h3>
+          <h3 className="text-xl font-black text-white leading-snug">{currentCar?.title}</h3>
 
           <p className="text-2xl font-black text-teal-400 font-mono">
             {formatPrice(currentCar?.price || 0)}

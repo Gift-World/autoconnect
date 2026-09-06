@@ -92,20 +92,26 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
         verified: !!seller?.verification_badge,
         status: sv?.status ?? null,
         verifiedAt: sv?.identity_verified_at ?? null,
-        verifiedBy: sv?.identity_verified_by ? (names[sv.identity_verified_by] ?? "AutoConnect team") : null,
+        verifiedBy: sv?.identity_verified_by
+          ? (names[sv.identity_verified_by] ?? "AutoConnect team")
+          : null,
         memberSince: seller?.created_at ?? null,
       },
       documents: {
         verified: !!car.documents_verified,
         status: cv?.status ?? null,
         verifiedAt: cv?.documents_verified_at ?? null,
-        verifiedBy: cv?.documents_verified_by ? (names[cv.documents_verified_by] ?? "AutoConnect team") : null,
+        verifiedBy: cv?.documents_verified_by
+          ? (names[cv.documents_verified_by] ?? "AutoConnect team")
+          : null,
       },
       ntsa: {
         verified: !!car.ntsa_verified,
         status: cv?.status ?? null,
         verifiedAt: cv?.ntsa_verified_at ?? null,
-        verifiedBy: cv?.ntsa_verified_by ? (names[cv.ntsa_verified_by] ?? "AutoConnect team") : null,
+        verifiedBy: cv?.ntsa_verified_by
+          ? (names[cv.ntsa_verified_by] ?? "AutoConnect team")
+          : null,
       },
       ownership: {
         clean: !!cv && !cv.encumbrance_found && !cv.ownership_mismatch,
@@ -144,7 +150,10 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
             score: null,
             summary: null,
             completedAt: null,
-            pending: insp?.status === "scheduled" || insp?.status === "in_progress" || insp?.status === "completed",
+            pending:
+              insp?.status === "scheduled" ||
+              insp?.status === "in_progress" ||
+              insp?.status === "completed",
             sections: [],
             tyres: null,
           },
@@ -152,4 +161,3 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
   });
 
 export type VehiclePassportData = Awaited<ReturnType<typeof getVehiclePassport>>;
-

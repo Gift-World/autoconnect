@@ -4,14 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  User,
-  Store,
-  Warehouse,
-  ShieldAlert,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
+import { User, Store, Warehouse, ShieldAlert, ArrowRight, Sparkles } from "lucide-react";
 
 interface PersonaOption {
   role: AppRole;
@@ -109,12 +102,8 @@ export function QuickDemoLogin({
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-md border ${p.color}`}>
-                      {p.icon}
-                    </div>
-                    <span className="font-medium text-xs text-foreground">
-                      {p.name}
-                    </span>
+                    <div className={`p-1.5 rounded-md border ${p.color}`}>{p.icon}</div>
+                    <span className="font-medium text-xs text-foreground">{p.name}</span>
                   </div>
                   <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
                     {p.badge}

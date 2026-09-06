@@ -22,20 +22,26 @@ function NotFoundComponent() {
       <div className="max-w-xl text-center">
         <div className="text-6xl mb-4">🚗💨</div>
         <h1 className="text-5xl font-bold tracking-tight text-foreground">404</h1>
-        <h2 className="mt-4 text-2xl font-semibold text-foreground">Looks like we took a wrong turn</h2>
+        <h2 className="mt-4 text-2xl font-semibold text-foreground">
+          Looks like we took a wrong turn
+        </h2>
         <p className="mt-2 text-base text-muted-foreground">
-          The page you're looking for has moved, been deleted, or doesn't exist. Let's get you back on the road.
+          The page you're looking for has moved, been deleted, or doesn't exist. Let's get you back
+          on the road.
         </p>
-        
+
         <div className="mt-8">
           <form action="/cars" method="get" className="flex gap-2 max-w-md mx-auto">
-            <input 
-              type="text" 
-              name="q" 
-              placeholder="Search for a make or model..." 
+            <input
+              type="text"
+              name="q"
+              placeholder="Search for a make or model..."
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
-            <button type="submit" className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
               Search
             </button>
           </form>
@@ -138,8 +144,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "AutoConnect — Buy and Import Cars, Worldwide" },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24cb9047-9c2c-41bd-8be9-bda69e6877f4/id-preview-39606995--f0ca1fc7-6e2f-4a04-8f98-07bbcbc836cb.lovable.app-1782567921428.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24cb9047-9c2c-41bd-8be9-bda69e6877f4/id-preview-39606995--f0ca1fc7-6e2f-4a04-8f98-07bbcbc836cb.lovable.app-1782567921428.png" },
+      {
+        property: "og:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24cb9047-9c2c-41bd-8be9-bda69e6877f4/id-preview-39606995--f0ca1fc7-6e2f-4a04-8f98-07bbcbc836cb.lovable.app-1782567921428.png",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/24cb9047-9c2c-41bd-8be9-bda69e6877f4/id-preview-39606995--f0ca1fc7-6e2f-4a04-8f98-07bbcbc836cb.lovable.app-1782567921428.png",
+      },
     ],
     links: [
       {
@@ -204,4 +218,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

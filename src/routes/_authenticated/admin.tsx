@@ -68,9 +68,7 @@ function AdminLayout() {
       sections={[
         {
           label: "Overview",
-          items: [
-            { to: "/admin", icon: <LayoutDashboard />, label: "Overview", exact: true },
-          ],
+          items: [{ to: "/admin", icon: <LayoutDashboard />, label: "Overview", exact: true }],
         },
         {
           label: "Moderation",
@@ -93,9 +91,7 @@ function AdminLayout() {
         },
         {
           label: "Finance",
-          items: [
-            { to: "/admin/transactions", icon: <Wallet />, label: "Transactions & escrow" },
-          ],
+          items: [{ to: "/admin/transactions", icon: <Wallet />, label: "Transactions & escrow" }],
         },
       ]}
     >

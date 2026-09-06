@@ -26,12 +26,42 @@ import {
 import { toast } from "sonner";
 
 const CHECKLIST_STAGES = [
-  { id: "front", title: "Front Exterior", duration: "10 sec", desc: "Show bumper, headlights, grille, and hood alignment" },
-  { id: "driver", title: "Driver Side", duration: "10 sec", desc: "Pan down doors, fenders, side mirror, and wheels" },
-  { id: "rear", title: "Rear Exterior", duration: "10 sec", desc: "Show boot lid, taillights, exhaust, and bumper condition" },
-  { id: "passenger", title: "Passenger Side", duration: "10 sec", desc: "Pan down passenger doors, quarter panel, and rims" },
-  { id: "engine", title: "Engine Bay", duration: "10 sec", desc: "Open hood, show battery, fluid caps, and running engine sound" },
-  { id: "interior", title: "Dashboard & Interior", duration: "10 sec", desc: "Show odometer, AC controls, infotainment screen, and seats" },
+  {
+    id: "front",
+    title: "Front Exterior",
+    duration: "10 sec",
+    desc: "Show bumper, headlights, grille, and hood alignment",
+  },
+  {
+    id: "driver",
+    title: "Driver Side",
+    duration: "10 sec",
+    desc: "Pan down doors, fenders, side mirror, and wheels",
+  },
+  {
+    id: "rear",
+    title: "Rear Exterior",
+    duration: "10 sec",
+    desc: "Show boot lid, taillights, exhaust, and bumper condition",
+  },
+  {
+    id: "passenger",
+    title: "Passenger Side",
+    duration: "10 sec",
+    desc: "Pan down passenger doors, quarter panel, and rims",
+  },
+  {
+    id: "engine",
+    title: "Engine Bay",
+    duration: "10 sec",
+    desc: "Open hood, show battery, fluid caps, and running engine sound",
+  },
+  {
+    id: "interior",
+    title: "Dashboard & Interior",
+    duration: "10 sec",
+    desc: "Show odometer, AC controls, infotainment screen, and seats",
+  },
 ];
 
 interface VideoVerificationModalProps {
@@ -87,7 +117,8 @@ export function VideoVerificationModal({
     setUploading(true);
     setTimeout(() => {
       setUploading(false);
-      const fakeUrl = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80";
+      const fakeUrl =
+        "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80";
       setSimulatedVideo(fakeUrl);
       onVideoUploaded?.(fakeUrl);
       toast.success("Walk-Around Video Uploaded!", {
@@ -109,7 +140,10 @@ export function VideoVerificationModal({
               <div>
                 <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
                   Seller Walk-Around Video Verification
-                  <Badge variant="outline" className="text-[10px] bg-teal-500/15 text-teal-300 border-teal-500/30">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] bg-teal-500/15 text-teal-300 border-teal-500/30"
+                  >
                     +10 PTS SCORE BONUS
                   </Badge>
                 </DialogTitle>
@@ -146,11 +180,16 @@ export function VideoVerificationModal({
             ) : isRecording ? (
               <div className="space-y-3 text-center text-white">
                 <div className="h-4 w-4 rounded-full bg-rose-500 animate-ping mx-auto" />
-                <p className="text-sm font-bold text-rose-400">
-                  REC · {recordingSeconds}s / 60s
-                </p>
+                <p className="text-sm font-bold text-rose-400">REC · {recordingSeconds}s / 60s</p>
                 <p className="text-xs text-slate-300 max-w-sm">
-                  Currently recording: <strong>{CHECKLIST_STAGES[Math.min(CHECKLIST_STAGES.length - 1, Math.floor(recordingSeconds / 10))].title}</strong>
+                  Currently recording:{" "}
+                  <strong>
+                    {
+                      CHECKLIST_STAGES[
+                        Math.min(CHECKLIST_STAGES.length - 1, Math.floor(recordingSeconds / 10))
+                      ].title
+                    }
+                  </strong>
                 </p>
                 <Button
                   onClick={handleFinishRecording}
@@ -165,7 +204,8 @@ export function VideoVerificationModal({
                 <div>
                   <h4 className="text-sm font-bold text-foreground">Ready to Record Walk-Around</h4>
                   <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-                    Take a continuous 60-second video of this car. Buyers trust verified video listings 3.5x more!
+                    Take a continuous 60-second video of this car. Buyers trust verified video
+                    listings 3.5x more!
                   </p>
                 </div>
                 <Button
@@ -195,7 +235,9 @@ export function VideoVerificationModal({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-foreground">{st.title}</span>
-                      <span className="text-[10px] text-muted-foreground font-mono">{st.duration}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        {st.duration}
+                      </span>
                     </div>
                     <p className="text-[11px] text-muted-foreground mt-0.5">{st.desc}</p>
                   </div>

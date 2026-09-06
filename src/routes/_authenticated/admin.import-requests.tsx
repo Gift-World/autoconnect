@@ -95,7 +95,9 @@ function AdminImportsPage() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold">Import requests</h1>
-        <p className="text-sm text-muted-foreground">Manage buyer import requests across the platform.</p>
+        <p className="text-sm text-muted-foreground">
+          Manage buyer import requests across the platform.
+        </p>
       </header>
 
       <Input
@@ -118,7 +120,9 @@ function AdminImportsPage() {
             {isLoading ? (
               <div className="text-muted-foreground">Loading…</div>
             ) : byStatus(s).length === 0 ? (
-              <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">No requests.</div>
+              <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
+                No requests.
+              </div>
             ) : (
               <div className="space-y-3">
                 {byStatus(s).map((r) => (
@@ -158,22 +162,43 @@ function Row({
             </span>
           </h3>
           <div className="mt-1 text-xs text-muted-foreground">
-            {r.buyer_name} · <a href={`mailto:${r.buyer_email}`} className="hover:text-primary"><Mail className="inline h-3 w-3" /> {r.buyer_email}</a>
-            {r.buyer_phone && <> · <a href={`tel:${r.buyer_phone}`} className="hover:text-primary"><Phone className="inline h-3 w-3" /> {r.buyer_phone}</a></>}
+            {r.buyer_name} ·{" "}
+            <a href={`mailto:${r.buyer_email}`} className="hover:text-primary">
+              <Mail className="inline h-3 w-3" /> {r.buyer_email}
+            </a>
+            {r.buyer_phone && (
+              <>
+                {" "}
+                ·{" "}
+                <a href={`tel:${r.buyer_phone}`} className="hover:text-primary">
+                  <Phone className="inline h-3 w-3" /> {r.buyer_phone}
+                </a>
+              </>
+            )}
           </div>
           <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span><Wallet className="inline h-3 w-3" /> {budget}</span>
+            <span>
+              <Wallet className="inline h-3 w-3" /> {budget}
+            </span>
             <span>{dest ? `${dest.flag} ${dest.name}` : r.buyer_country}</span>
-            <span><Calendar className="inline h-3 w-3" /> {new Date(r.created_at).toLocaleDateString()}</span>
-            {r.preferred_condition && r.preferred_condition !== "any" && <Badge variant="outline">{r.preferred_condition}</Badge>}
+            <span>
+              <Calendar className="inline h-3 w-3" /> {new Date(r.created_at).toLocaleDateString()}
+            </span>
+            {r.preferred_condition && r.preferred_condition !== "any" && (
+              <Badge variant="outline">{r.preferred_condition}</Badge>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Select value={r.status} onValueChange={(v) => onSetStatus(r, v)}>
-            <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {STATUSES.map((s) => (
-                <SelectItem key={s} value={s}>{s.replace("_", " ")}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s.replace("_", " ")}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -183,7 +208,9 @@ function Row({
         </div>
       </div>
       {r.additional_notes && (
-        <p className="mt-3 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">{r.additional_notes}</p>
+        <p className="mt-3 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+          {r.additional_notes}
+        </p>
       )}
     </div>
   );

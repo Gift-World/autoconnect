@@ -7,12 +7,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { roleHomePath } from "@/contexts/AuthContext";
 import { QuickDemoLogin } from "@/components/QuickDemoLogin";
@@ -151,7 +146,11 @@ function LoginPage() {
                   </button>
                 </div>
               </div>
-              <Button type="submit" disabled={submitting} className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md">
+              <Button
+                type="submit"
+                disabled={submitting}
+                className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md"
+              >
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign in with Email
               </Button>

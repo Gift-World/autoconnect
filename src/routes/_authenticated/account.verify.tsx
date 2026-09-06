@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ShieldCheck, Clock, XCircle, CheckCircle2 } from "lucide-react";
@@ -36,7 +40,9 @@ function BuyerVerifyPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("full_name, phone, id_type, id_number, payment_contact, kyc_status, kyc_notes, kyc_submitted_at, kyc_reviewed_at")
+        .select(
+          "full_name, phone, id_type, id_number, payment_contact, kyc_status, kyc_notes, kyc_submitted_at, kyc_reviewed_at",
+        )
         .eq("id", user!.id)
         .maybeSingle();
       if (error) throw error;
@@ -60,7 +66,12 @@ function BuyerVerifyPage() {
 
   async function submit() {
     if (!user) return;
-    if (!form.full_name.trim() || !form.phone.trim() || !form.id_number.trim() || !form.payment_contact.trim()) {
+    if (
+      !form.full_name.trim() ||
+      !form.phone.trim() ||
+      !form.id_number.trim() ||
+      !form.payment_contact.trim()
+    ) {
       toast.error("Please fill all fields");
       return;
     }
@@ -98,15 +109,30 @@ function BuyerVerifyPage() {
 
       <div className="rounded-lg border bg-card p-5 shadow-sm space-y-4">
         <Field label="Full name (as on ID)">
-          <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} disabled={readOnly} />
+          <Input
+            value={form.full_name}
+            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+            disabled={readOnly}
+          />
         </Field>
         <Field label="Phone number">
-          <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="+254…" disabled={readOnly} />
+          <Input
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            placeholder="+254…"
+            disabled={readOnly}
+          />
         </Field>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="ID type">
-            <Select value={form.id_type} onValueChange={(v) => setForm({ ...form, id_type: v as "national_id" | "passport" })} disabled={readOnly}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select
+              value={form.id_type}
+              onValueChange={(v) => setForm({ ...form, id_type: v as "national_id" | "passport" })}
+              disabled={readOnly}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="national_id">National ID</SelectItem>
                 <SelectItem value="passport">Passport</SelectItem>
@@ -114,11 +140,19 @@ function BuyerVerifyPage() {
             </Select>
           </Field>
           <Field label="ID / passport number">
-            <Input value={form.id_number} onChange={(e) => setForm({ ...form, id_number: e.target.value })} disabled={readOnly} />
+            <Input
+              value={form.id_number}
+              onChange={(e) => setForm({ ...form, id_number: e.target.value })}
+              disabled={readOnly}
+            />
           </Field>
         </div>
         <Field label="Payment contact (M-Pesa number or bank name)">
-          <Input value={form.payment_contact} onChange={(e) => setForm({ ...form, payment_contact: e.target.value })} disabled={readOnly} />
+          <Input
+            value={form.payment_contact}
+            onChange={(e) => setForm({ ...form, payment_contact: e.target.value })}
+            disabled={readOnly}
+          />
         </Field>
 
         {!readOnly && (
@@ -149,7 +183,9 @@ function StatusCard({ status, notes }: { status: string; notes: string | null })
         <ShieldCheck className="h-5 w-5 text-success" />
         <div>
           <div className="font-medium">Verified buyer</div>
-          <div className="text-sm text-muted-foreground">You can reserve cars and complete payments.</div>
+          <div className="text-sm text-muted-foreground">
+            You can reserve cars and complete payments.
+          </div>
         </div>
       </div>
     );
@@ -170,7 +206,9 @@ function StatusCard({ status, notes }: { status: string; notes: string | null })
         <div>
           <div className="font-medium">Not approved</div>
           {notes && <div className="text-sm text-muted-foreground">Reason: {notes}</div>}
-          <div className="text-sm text-muted-foreground">Please update your details and resubmit.</div>
+          <div className="text-sm text-muted-foreground">
+            Please update your details and resubmit.
+          </div>
         </div>
       </div>
     );

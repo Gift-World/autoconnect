@@ -54,7 +54,8 @@ export const ESCROW_MILESTONES: MilestoneConfig[] = [
     label: "Vehicle Inspection Passed",
     shortLabel: "Inspection Passed",
     description: "42-point mechanical check and document verification verified.",
-    buyerNote: "Digital inspection passport is certified. You can approve to proceed with full balance.",
+    buyerNote:
+      "Digital inspection passport is certified. You can approve to proceed with full balance.",
     sellerNote: "Inspection passed successfully. Buyer is notified to fulfill balance.",
     icon: FileCheck2,
   },
@@ -109,10 +110,12 @@ export function EscrowMilestoneTracker({
 }: EscrowMilestoneTrackerProps) {
   const { activeRole } = useAuth();
   const [internalStatus, setInternalStatus] = useState<EscrowMilestoneStep>(
-    (currentStatus as EscrowMilestoneStep) || "deposit_paid"
+    (currentStatus as EscrowMilestoneStep) || "deposit_paid",
   );
 
-  const activeStatus = isSimulated ? internalStatus : ((currentStatus as EscrowMilestoneStep) || internalStatus);
+  const activeStatus = isSimulated
+    ? internalStatus
+    : (currentStatus as EscrowMilestoneStep) || internalStatus;
 
   const getCurrentStepIndex = () => {
     switch (activeStatus) {
@@ -157,7 +160,9 @@ export function EscrowMilestoneTracker({
               <ShieldCheck className="h-4 w-4" />
             </span>
             <div>
-              <h3 className="text-base font-bold text-foreground">AutoConnect Escrow Milestone Tracker</h3>
+              <h3 className="text-base font-bold text-foreground">
+                AutoConnect Escrow Milestone Tracker
+              </h3>
               <p className="text-xs text-muted-foreground">
                 Buyer protection & automated order-to-cash release protocol
               </p>
@@ -165,7 +170,10 @@ export function EscrowMilestoneTracker({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="gap-1 border-primary/30 bg-primary/5 text-primary text-xs">
+          <Badge
+            variant="outline"
+            className="gap-1 border-primary/30 bg-primary/5 text-primary text-xs"
+          >
             <Lock className="h-3 w-3" /> Secure Vault · {totalAmount}
           </Badge>
           {activeStatus === "funds_released" ? (
@@ -209,8 +217,8 @@ export function EscrowMilestoneTracker({
                       isCompleted
                         ? "border-primary bg-primary text-primary-foreground shadow-sm"
                         : isCurrent
-                        ? "border-primary bg-card text-primary ring-4 ring-primary/20 shadow-md scale-105"
-                        : "border-border/80 bg-muted/60 text-muted-foreground hover:border-primary/40"
+                          ? "border-primary bg-card text-primary ring-4 ring-primary/20 shadow-md scale-105"
+                          : "border-border/80 bg-muted/60 text-muted-foreground hover:border-primary/40"
                     }`}
                   >
                     {isCompleted ? (
@@ -225,8 +233,8 @@ export function EscrowMilestoneTracker({
                         isCurrent
                           ? "text-primary"
                           : isCompleted
-                          ? "text-foreground"
-                          : "text-muted-foreground"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                       }`}
                     >
                       {m.shortLabel}
@@ -245,7 +253,9 @@ export function EscrowMilestoneTracker({
       {/* Active Milestone Card */}
       {(() => {
         const currentMilestone =
-          ESCROW_MILESTONES[Math.min(Math.max(0, currentStepIdx - 1), ESCROW_MILESTONES.length - 1)];
+          ESCROW_MILESTONES[
+            Math.min(Math.max(0, currentStepIdx - 1), ESCROW_MILESTONES.length - 1)
+          ];
         const StepIcon = currentMilestone.icon;
 
         return (
@@ -333,7 +343,10 @@ export function EscrowMilestoneTracker({
           Bank-grade escrow: Funds are never paid out until buyer physically accepts vehicle.
         </span>
         <span className="font-mono text-[10px] bg-muted/60 px-2 py-0.5 rounded">
-          ESCROW-ID: AC-{Math.abs(carTitle.length * 997).toString().padStart(6, "0")}
+          ESCROW-ID: AC-
+          {Math.abs(carTitle.length * 997)
+            .toString()
+            .padStart(6, "0")}
         </span>
       </div>
     </div>

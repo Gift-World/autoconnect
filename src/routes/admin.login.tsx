@@ -7,12 +7,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { QuickDemoLogin } from "@/components/QuickDemoLogin";
 
@@ -67,7 +62,10 @@ function AdminLoginPage() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[480px] flex-col gap-6 px-4 py-12">
-      <QuickDemoLogin title="1-Click Admin & Dev Access" subtitle="Select Sarah Kimani (Super Admin) for immediate access to admin moderation." />
+      <QuickDemoLogin
+        title="1-Click Admin & Dev Access"
+        subtitle="Select Sarah Kimani (Super Admin) for immediate access to admin moderation."
+      />
 
       <Card className="w-full shadow-lg">
         <CardHeader className="space-y-2 text-center">

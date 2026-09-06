@@ -27,8 +27,7 @@ import { roleHomePath, type AppRole } from "@/contexts/AuthContext";
 
 // A six-digit local shortcut is deliberately unavailable in deployed builds.
 // Production sign-in must create a real Supabase session from a real SMS OTP.
-const ALLOW_LOCAL_OTP =
-  import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+const ALLOW_LOCAL_OTP = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
 
 const COUNTRY_PREFIXES = [
   { code: "+254", name: "Kenya (+254)", flag: "🇰🇪" },
@@ -126,7 +125,7 @@ export function PhoneAuthForm({
         type: "sms",
       });
 
-      let userId = data.user?.id;
+      const userId = data.user?.id;
 
       // Never say a user is signed in unless Supabase returned a real session.
       if (error && !userId) {
@@ -139,7 +138,10 @@ export function PhoneAuthForm({
           void navigate({ to: "/dashboard" as never });
           return;
         }
-        throw new Error(error.message || "That code is invalid or has expired. Request a new SMS code and try again.");
+        throw new Error(
+          error.message ||
+            "That code is invalid or has expired. Request a new SMS code and try again.",
+        );
       }
 
       if (!userId || !data.session) {
@@ -270,7 +272,9 @@ export function PhoneAuthForm({
             <Label htmlFor="otpInput" className="flex items-center justify-between">
               <span>6-Digit Code (SMS)</span>
               {countdown > 0 ? (
-                <span className="text-[11px] font-mono text-muted-foreground">Resend in {countdown}s</span>
+                <span className="text-[11px] font-mono text-muted-foreground">
+                  Resend in {countdown}s
+                </span>
               ) : (
                 <button
                   type="button"

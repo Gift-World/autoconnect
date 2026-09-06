@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Car, Globe, ShieldCheck, Lock, Twitter, Instagram, Linkedin, Facebook, Sparkles } from "lucide-react";
+import {
+  Car,
+  Globe,
+  ShieldCheck,
+  Lock,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Facebook,
+  Sparkles,
+} from "lucide-react";
 
 export function Footer() {
   return (
@@ -18,7 +28,8 @@ export function Footer() {
               </span>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              The trusted global marketplace for buying, selling, and importing verified vehicles across borders with full escrow protection.
+              The trusted global marketplace for buying, selling, and importing verified vehicles
+              across borders with full escrow protection.
             </p>
             <div className="flex gap-2.5 pt-2">
               {[Twitter, Instagram, Linkedin, Facebook].map((I, i) => (
@@ -73,8 +84,12 @@ export function Footer() {
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
-            <Link to="/privacy" className="hover:text-teal-700">Privacy</Link>
-            <Link to="/terms" className="hover:text-teal-700">Terms</Link>
+            <Link to="/privacy" className="hover:text-teal-700">
+              Privacy
+            </Link>
+            <Link to="/terms" className="hover:text-teal-700">
+              Terms
+            </Link>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-500/10 px-3 py-1.5 text-teal-700">
@@ -90,18 +105,10 @@ export function Footer() {
   );
 }
 
-function FooterCol({
-  title,
-  links,
-}: {
-  title: string;
-  links: { to: string; label: string }[];
-}) {
+function FooterCol({ title, links }: { title: string; links: { to: string; label: string }[] }) {
   return (
     <div>
-      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
-        {title}
-      </h4>
+      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">{title}</h4>
       <ul className="mt-4 space-y-2.5">
         {links.map((l, i) => (
           <li key={`${l.to}-${i}`}>

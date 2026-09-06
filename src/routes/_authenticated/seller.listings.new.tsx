@@ -31,10 +31,7 @@ import {
   type NhtsaMake,
   type NhtsaModel,
 } from "@/lib/nhtsa";
-import {
-  GuidedPhotoUploader,
-  type UploadedPhoto,
-} from "@/components/seller/GuidedPhotoUploader";
+import { GuidedPhotoUploader, type UploadedPhoto } from "@/components/seller/GuidedPhotoUploader";
 import { REQUIRED_PHOTO_KINDS, PHOTO_LABELS } from "@/lib/listing-checklist";
 import { Link } from "@tanstack/react-router";
 
@@ -42,42 +39,62 @@ export const Route = createFileRoute("/_authenticated/seller/listings/new")({
   component: NewListing,
 });
 
-const schema = z.object({
-  title: z.string().trim().min(5, "Title must be at least 5 characters").max(120),
-  make_name: z.string().trim().min(1, "Make is required"),
-  model_name: z.string().trim().min(1, "Model is required"),
-  year: z.coerce.number().int().min(1950).max(new Date().getFullYear() + 1),
-  price: z.coerce.number().positive("Price must be greater than 0"),
-  currency: z.string().min(3).max(3),
-  country: z.string().length(2, "Country is required"),
-  city: z.string().trim().max(80).optional().or(z.literal("")),
-  mileage: z.coerce.number().int().min(0).optional(),
-  mileage_unit: z.enum(["km", "miles"]),
-  transmission: z.enum(["automatic", "manual", "semi-automatic"]).optional().or(z.literal("")),
-  fuel_type: z.enum(["petrol", "diesel", "electric", "hybrid", "other"]).optional().or(z.literal("")),
-  body_type: z
-    .enum(["sedan", "suv", "hatchback", "pickup", "van", "coupe", "wagon", "convertible", "bus", "other"])
-    .optional()
-    .or(z.literal("")),
-  color: z.string().trim().max(40).optional().or(z.literal("")),
-  engine_size: z.string().trim().max(20).optional().or(z.literal("")),
-  condition: z.enum(["new", "foreign-used", "locally-used"]),
-  steering_side: z.enum(["left", "right"]),
-  vin: z.string().trim().max(17).optional().or(z.literal("")),
-  description: z.string().trim().max(4000).optional().or(z.literal("")),
-  available_for_export: z.boolean(),
-  shipping_info: z.string().trim().max(500).optional().or(z.literal("")),
-  import_duties_note: z.string().trim().max(500).optional().or(z.literal("")),
-  pay_full: z.boolean(),
-  pay_deposit: z.boolean(),
-  pay_installments: z.boolean(),
-  deposit_percent: z.coerce.number().min(1).max(100).optional(),
-  installment_months: z.coerce.number().int().min(1).max(120).optional(),
-  installment_interest_rate: z.coerce.number().min(0).max(100).optional(),
-}).refine((v) => v.pay_full || v.pay_deposit || v.pay_installments, {
-  message: "Enable at least one payment option",
-  path: ["pay_full"],
-});
+const schema = z
+  .object({
+    title: z.string().trim().min(5, "Title must be at least 5 characters").max(120),
+    make_name: z.string().trim().min(1, "Make is required"),
+    model_name: z.string().trim().min(1, "Model is required"),
+    year: z.coerce
+      .number()
+      .int()
+      .min(1950)
+      .max(new Date().getFullYear() + 1),
+    price: z.coerce.number().positive("Price must be greater than 0"),
+    currency: z.string().min(3).max(3),
+    country: z.string().length(2, "Country is required"),
+    city: z.string().trim().max(80).optional().or(z.literal("")),
+    mileage: z.coerce.number().int().min(0).optional(),
+    mileage_unit: z.enum(["km", "miles"]),
+    transmission: z.enum(["automatic", "manual", "semi-automatic"]).optional().or(z.literal("")),
+    fuel_type: z
+      .enum(["petrol", "diesel", "electric", "hybrid", "other"])
+      .optional()
+      .or(z.literal("")),
+    body_type: z
+      .enum([
+        "sedan",
+        "suv",
+        "hatchback",
+        "pickup",
+        "van",
+        "coupe",
+        "wagon",
+        "convertible",
+        "bus",
+        "other",
+      ])
+      .optional()
+      .or(z.literal("")),
+    color: z.string().trim().max(40).optional().or(z.literal("")),
+    engine_size: z.string().trim().max(20).optional().or(z.literal("")),
+    condition: z.enum(["new", "foreign-used", "locally-used"]),
+    steering_side: z.enum(["left", "right"]),
+    vin: z.string().trim().max(17).optional().or(z.literal("")),
+    description: z.string().trim().max(4000).optional().or(z.literal("")),
+    available_for_export: z.boolean(),
+    shipping_info: z.string().trim().max(500).optional().or(z.literal("")),
+    import_duties_note: z.string().trim().max(500).optional().or(z.literal("")),
+    pay_full: z.boolean(),
+    pay_deposit: z.boolean(),
+    pay_installments: z.boolean(),
+    deposit_percent: z.coerce.number().min(1).max(100).optional(),
+    installment_months: z.coerce.number().int().min(1).max(120).optional(),
+    installment_interest_rate: z.coerce.number().min(0).max(100).optional(),
+  })
+  .refine((v) => v.pay_full || v.pay_deposit || v.pay_installments, {
+    message: "Enable at least one payment option",
+    path: ["pay_full"],
+  });
 
 type FormValues = z.infer<typeof schema>;
 
@@ -215,8 +232,7 @@ function NewListing() {
       if (fuel) setValue("fuel_type", fuel as never);
       if (trans) setValue("transmission", trans as never);
       if (body) setValue("body_type", body as never);
-      if (decoded.displacementL)
-        setValue("engine_size", `${decoded.displacementL}L`);
+      if (decoded.displacementL) setValue("engine_size", `${decoded.displacementL}L`);
       toast.success("VIN decoded — fields pre-filled");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "VIN decode failed");
@@ -234,13 +250,9 @@ function NewListing() {
       toast.error("Add at least one photo");
       return;
     }
-    const missing = REQUIRED_PHOTO_KINDS.filter(
-      (k) => !photos.some((p) => p.kind === k),
-    );
+    const missing = REQUIRED_PHOTO_KINDS.filter((k) => !photos.some((p) => p.kind === k));
     if (missing.length > 0) {
-      toast.error(
-        `Missing required photos: ${missing.map((k) => PHOTO_LABELS[k]).join(", ")}`,
-      );
+      toast.error(`Missing required photos: ${missing.map((k) => PHOTO_LABELS[k]).join(", ")}`);
       return;
     }
     setSubmitting(true);
@@ -256,9 +268,7 @@ function NewListing() {
         currency: values.currency,
         country: values.country,
         city: values.city || null,
-        location_display: values.city
-          ? `${values.city}, ${values.country}`
-          : values.country,
+        location_display: values.city ? `${values.city}, ${values.country}` : values.country,
         mileage: values.mileage ?? null,
         mileage_unit: values.mileage_unit,
         transmission: values.transmission || null,
@@ -271,12 +281,8 @@ function NewListing() {
         right_hand_drive: values.steering_side === "right",
         steering_side: values.steering_side,
         available_for_export: values.available_for_export,
-        shipping_info: values.available_for_export
-          ? values.shipping_info || null
-          : null,
-        import_duties_note: values.available_for_export
-          ? values.import_duties_note || null
-          : null,
+        shipping_info: values.available_for_export ? values.shipping_info || null : null,
+        import_duties_note: values.available_for_export ? values.import_duties_note || null : null,
         vin: values.vin || null,
         api_source: values.vin ? "nhtsa_vpic" : null,
         status: "pending" as const,
@@ -284,9 +290,11 @@ function NewListing() {
         pay_full: values.pay_full,
         pay_deposit: values.pay_deposit,
         pay_installments: values.pay_installments,
-        deposit_percent: values.pay_deposit ? values.deposit_percent ?? 20 : null,
-        installment_months: values.pay_installments ? values.installment_months ?? 12 : null,
-        installment_interest_rate: values.pay_installments ? values.installment_interest_rate ?? 0 : null,
+        deposit_percent: values.pay_deposit ? (values.deposit_percent ?? 20) : null,
+        installment_months: values.pay_installments ? (values.installment_months ?? 12) : null,
+        installment_interest_rate: values.pay_installments
+          ? (values.installment_interest_rate ?? 0)
+          : null,
         installment_monthly: values.pay_installments
           ? Math.round(monthlyPreview * 100) / 100
           : null,
@@ -306,18 +314,14 @@ function NewListing() {
         sort_order: idx,
         photo_kind: p.kind === "extra" ? null : p.kind,
       }));
-      const { error: imgErr } = await supabase
-        .from("car_images")
-        .insert(imageRows);
+      const { error: imgErr } = await supabase.from("car_images").insert(imageRows);
       if (imgErr) throw imgErr;
 
       toast.success("Listing submitted for review");
       navigate({ to: "/seller" });
     } catch (e) {
       console.error(e);
-      toast.error(
-        e instanceof Error ? e.message : "Failed to create listing",
-      );
+      toast.error(e instanceof Error ? e.message : "Failed to create listing");
     } finally {
       setSubmitting(false);
     }
@@ -423,11 +427,7 @@ function NewListing() {
                 <SelectTrigger>
                   <SelectValue
                     placeholder={
-                      !watchMake
-                        ? "Select make first"
-                        : loadingModels
-                          ? "Loading…"
-                          : "Select model"
+                      !watchMake ? "Select make first" : loadingModels ? "Loading…" : "Select model"
                     }
                   />
                 </SelectTrigger>
@@ -494,8 +494,21 @@ function NewListing() {
                   <SelectValue placeholder="Select body type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {["sedan","suv","hatchback","pickup","van","coupe","wagon","convertible","bus","other"].map((b) => (
-                    <SelectItem key={b} value={b}>{titleCase(b)}</SelectItem>
+                  {[
+                    "sedan",
+                    "suv",
+                    "hatchback",
+                    "pickup",
+                    "van",
+                    "coupe",
+                    "wagon",
+                    "convertible",
+                    "bus",
+                    "other",
+                  ].map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {titleCase(b)}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -560,12 +573,7 @@ function NewListing() {
 
             <Field label="Mileage" error={errors.mileage?.message}>
               <div className="flex gap-2">
-                <Input
-                  type="number"
-                  min={0}
-                  placeholder="0"
-                  {...register("mileage")}
-                />
+                <Input type="number" min={0} placeholder="0" {...register("mileage")} />
                 <Select
                   value={watch("mileage_unit")}
                   onValueChange={(v) => setValue("mileage_unit", v as never)}
@@ -590,34 +598,24 @@ function NewListing() {
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <Field label="Price" error={errors.price?.message} className="md:col-span-2">
-              <Input
-                type="number"
-                min={0}
-                step="any"
-                placeholder="25000"
-                {...register("price")}
-              />
+              <Input type="number" min={0} step="any" placeholder="25000" {...register("price")} />
             </Field>
             <Field label="Currency" error={errors.currency?.message}>
-              <Select
-                value={watch("currency")}
-                onValueChange={(v) => setValue("currency", v)}
-              >
+              <Select value={watch("currency")} onValueChange={(v) => setValue("currency", v)}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {CURRENCIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </Field>
             <Field label="Country" error={errors.country?.message} className="md:col-span-2">
-              <Select
-                value={watch("country")}
-                onValueChange={(v) => setValue("country", v)}
-              >
+              <Select value={watch("country")} onValueChange={(v) => setValue("country", v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Where is the car located?" />
                 </SelectTrigger>
@@ -692,18 +690,28 @@ function NewListing() {
                 <input type="checkbox" className="mt-1" {...register("pay_full")} />
                 <div>
                   <div className="text-sm font-medium">Full payment</div>
-                  <div className="text-xs text-muted-foreground">Buyer pays the full price up front through escrow.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Buyer pays the full price up front through escrow.
+                  </div>
                 </div>
               </label>
               <label className="flex items-start gap-3 rounded-lg border p-3">
                 <input type="checkbox" className="mt-1" {...register("pay_deposit")} />
                 <div className="flex-1">
                   <div className="text-sm font-medium">Deposit / reservation</div>
-                  <div className="text-xs text-muted-foreground">Buyer pays a deposit to reserve; balance settled later.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Buyer pays a deposit to reserve; balance settled later.
+                  </div>
                   {watchDeposit && (
                     <div className="mt-2 flex items-center gap-2">
                       <Label className="text-xs">Deposit %</Label>
-                      <Input type="number" min={1} max={100} className="h-8 w-24" {...register("deposit_percent")} />
+                      <Input
+                        type="number"
+                        min={1}
+                        max={100}
+                        className="h-8 w-24"
+                        {...register("deposit_percent")}
+                      />
                     </div>
                   )}
                 </div>
@@ -712,20 +720,38 @@ function NewListing() {
                 <input type="checkbox" className="mt-1" {...register("pay_installments")} />
                 <div className="flex-1">
                   <div className="text-sm font-medium">Monthly installments</div>
-                  <div className="text-xs text-muted-foreground">Buyer pays over time. You set the term & rate.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Buyer pays over time. You set the term & rate.
+                  </div>
                   {watchInstall && (
                     <div className="mt-2 grid gap-2 sm:grid-cols-2">
                       <div className="flex items-center gap-2">
                         <Label className="text-xs">Months</Label>
-                        <Input type="number" min={1} max={120} className="h-8 w-24" {...register("installment_months")} />
+                        <Input
+                          type="number"
+                          min={1}
+                          max={120}
+                          className="h-8 w-24"
+                          {...register("installment_months")}
+                        />
                       </div>
                       <div className="flex items-center gap-2">
                         <Label className="text-xs">Interest %/yr</Label>
-                        <Input type="number" min={0} max={100} step="0.1" className="h-8 w-24" {...register("installment_interest_rate")} />
+                        <Input
+                          type="number"
+                          min={0}
+                          max={100}
+                          step="0.1"
+                          className="h-8 w-24"
+                          {...register("installment_interest_rate")}
+                        />
                       </div>
                       {monthlyPreview > 0 && (
                         <p className="sm:col-span-2 text-xs text-muted-foreground">
-                          Estimated monthly ≈ <span className="font-semibold text-foreground">{monthlyPreview.toFixed(2)} {watch("currency")}</span>
+                          Estimated monthly ≈{" "}
+                          <span className="font-semibold text-foreground">
+                            {monthlyPreview.toFixed(2)} {watch("currency")}
+                          </span>
                         </p>
                       )}
                     </div>
@@ -811,11 +837,7 @@ function NewListing() {
           </CardHeader>
           <CardContent>
             {userId ? (
-              <GuidedPhotoUploader
-                userId={userId}
-                value={photos}
-                onChange={setPhotos}
-              />
+              <GuidedPhotoUploader userId={userId} value={photos} onChange={setPhotos} />
             ) : (
               <p className="text-sm text-muted-foreground">Loading…</p>
             )}

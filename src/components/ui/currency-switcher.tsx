@@ -23,10 +23,15 @@ export function CurrencySwitcher({ variant = "ghost" }: { variant?: "ghost" | "o
         >
           <Coins className="h-3.5 w-3.5 text-accent" />
           <span>{currentConfig.code}</span>
-          <span className="text-[10px] text-muted-foreground font-mono">({currentConfig.symbol})</span>
+          <span className="text-[10px] text-muted-foreground font-mono">
+            ({currentConfig.symbol})
+          </span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 p-1.5 rounded-xl bg-card border-border shadow-xl">
+      <DropdownMenuContent
+        align="end"
+        className="w-48 p-1.5 rounded-xl bg-card border-border shadow-xl"
+      >
         <div className="px-2 py-1.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
           Select Currency
         </div>
@@ -44,7 +49,9 @@ export function CurrencySwitcher({ variant = "ghost" }: { variant?: "ghost" | "o
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="w-6 text-center font-mono font-bold text-xs opacity-75">{config.symbol}</span>
+                <span className="w-6 text-center font-mono font-bold text-xs opacity-75">
+                  {config.symbol}
+                </span>
                 <span>{config.name}</span>
               </div>
               {isSelected && <Check className="h-3.5 w-3.5 text-accent" />}

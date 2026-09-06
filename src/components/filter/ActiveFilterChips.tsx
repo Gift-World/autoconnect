@@ -32,7 +32,10 @@ export function ActiveFilterChips({ search, onRemove, onResetAll }: ActiveFilter
 
   if (search.country) {
     const country = countryByCode(search.country);
-    chips.push({ key: "country", label: `Country: ${country?.flag ?? ""} ${country?.name ?? search.country}` });
+    chips.push({
+      key: "country",
+      label: `Country: ${country?.flag ?? ""} ${country?.name ?? search.country}`,
+    });
   }
 
   if (search.condition) {

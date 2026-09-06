@@ -107,8 +107,10 @@ export function Navbar() {
             <div className="h-9 w-20 animate-pulse rounded-xl bg-muted" />
           ) : user ? (
             <>
-              <CurrencySwitcher />
-              <ThemeToggle />
+              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
+                <CurrencySwitcher />
+                <ThemeToggle />
+              </div>
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -119,66 +121,86 @@ export function Navbar() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="hidden text-xs font-semibold sm:inline max-w-[140px] truncate">
-                      {DEMO_MODE ? `Preview · ${profile?.full_name || "Workspace"}` : profile?.full_name || user.email}
+                      {DEMO_MODE
+                        ? `Preview · ${profile?.full_name || "Workspace"}`
+                        : profile?.full_name || user.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 rounded-2xl p-1.5 shadow-2xl border-border">
-                    <DropdownMenuLabel className="flex flex-col px-3 py-2">
-                      <span className="text-sm font-bold truncate">{profile?.full_name || user.email}</span>
-                      <span className="text-[11px] font-semibold text-teal-400">
-                        {activeRole === "buyer"
-                          ? "Buyer View"
-                          : activeRole === "seller"
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56 rounded-2xl p-1.5 shadow-2xl border-border"
+                >
+                  <DropdownMenuLabel className="flex flex-col px-3 py-2">
+                    <span className="text-sm font-bold truncate">
+                      {profile?.full_name || user.email}
+                    </span>
+                    <span className="text-[11px] font-semibold text-teal-400">
+                      {activeRole === "buyer"
+                        ? "Buyer View"
+                        : activeRole === "seller"
                           ? "Seller / Dealer View"
                           : activeRole === "yard_manager"
-                          ? "Yard Admin View"
-                          : activeRole === "admin"
-                          ? "Super Admin View"
-                          : "Member View"}
-                      </span>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to={roleHomePath(activeRole) as never}>
-                        <UserIcon className="mr-2 h-4 w-4 text-teal-500" /> Active Dashboard
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to="/account/favorites">
-                        <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to="/garage">
-                        <Car className="mr-2 h-4 w-4 text-teal-500" /> My Garage
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to="/compare">
-                        <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
-                      <Link to="/account">
-                        <Settings className="mr-2 h-4 w-4 text-primary" /> Account Settings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={() => void signOut()} className="text-destructive rounded-xl cursor-pointer">
-                      <LogOut className="mr-2 h-4 w-4" /> Sign out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
+                            ? "Yard Admin View"
+                            : activeRole === "admin"
+                              ? "Super Admin View"
+                              : "Member View"}
+                    </span>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                    <Link to={roleHomePath(activeRole) as never}>
+                      <UserIcon className="mr-2 h-4 w-4 text-teal-500" /> Active Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                    <Link to="/account/favorites">
+                      <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                    <Link to="/garage">
+                      <Car className="mr-2 h-4 w-4 text-teal-500" /> My Garage
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                    <Link to="/compare">
+                      <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                    <Link to="/account">
+                      <Settings className="mr-2 h-4 w-4 text-primary" /> Account Settings
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={() => void signOut()}
+                    className="text-destructive rounded-xl cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" /> Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
               <CurrencySwitcher />
               <ThemeToggle />
-              <Button asChild variant="ghost" size="sm" className="rounded-xl font-semibold text-xs h-9 px-4">
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="rounded-xl font-semibold text-xs h-9 px-4"
+              >
                 <Link to="/login">Login</Link>
               </Button>
-              <Button asChild variant="outline" size="sm" className="rounded-xl font-semibold text-xs h-9 px-4">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="rounded-xl font-semibold text-xs h-9 px-4"
+              >
                 <Link to="/register">Register</Link>
               </Button>
               <Button

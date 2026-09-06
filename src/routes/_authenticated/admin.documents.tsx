@@ -80,7 +80,8 @@ function AdminDocuments() {
           seller_id: "demo-seller-kenji",
           kind: "logbook",
           label: "Export Certificate & Original Logbook",
-          file_path: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80",
+          file_path:
+            "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80",
           mime_type: "application/pdf",
           size_bytes: 2450000,
           status: tab,
@@ -95,7 +96,8 @@ function AdminDocuments() {
           seller_id: "demo-seller-kenji",
           kind: "inspection_report",
           label: "150-Point Roadworthiness Certificate",
-          file_path: "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80",
+          file_path:
+            "https://images.unsplash.com/photo-1450133064473-71024230f91b?w=800&auto=format&fit=crop&q=80",
           mime_type: "application/pdf",
           size_bytes: 1890000,
           status: tab,
@@ -273,9 +275,7 @@ function AdminDocuments() {
 
               {guidance[r.id] && guidance[r.id] !== "loading" && (
                 <div className="mt-3 rounded-lg border bg-muted/30 p-3 text-xs">
-                  <p className="font-medium">
-                    {(guidance[r.id] as Guidance).summary}
-                  </p>
+                  <p className="font-medium">{(guidance[r.id] as Guidance).summary}</p>
                   <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-muted-foreground">
                     {(guidance[r.id] as Guidance).focus.map((f) => (
                       <li key={f}>{f}</li>
@@ -285,7 +285,8 @@ function AdminDocuments() {
                     ))}
                   </ul>
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    AI guidance only — {REQUIRED_DOC_KINDS.length} document types are required per listing.
+                    AI guidance only — {REQUIRED_DOC_KINDS.length} document types are required per
+                    listing.
                   </p>
                 </div>
               )}

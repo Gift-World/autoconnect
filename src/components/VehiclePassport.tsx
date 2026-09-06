@@ -58,14 +58,24 @@ function fmt(date: string | null | undefined) {
   });
 }
 
-function statusToState(verified: boolean, status: string | null | undefined, pending?: boolean): State {
+function statusToState(
+  verified: boolean,
+  status: string | null | undefined,
+  pending?: boolean,
+): State {
   if (verified) return "checked";
   if (status === "more_info_needed") return "more_info";
   if (status === "pending" || status === "under_review" || pending) return "pending";
   return "not_started";
 }
 
-const TRUST_LABEL = ["Not verified", "Basic", "Documents checked", "Records checked", "Fully verified"];
+const TRUST_LABEL = [
+  "Not verified",
+  "Basic",
+  "Documents checked",
+  "Records checked",
+  "Fully verified",
+];
 
 const VERDICT_TEXT: Record<string, string> = {
   pass: "Inspection passed",
@@ -143,8 +153,10 @@ export function VehiclePassport({ carId }: { carId: string }) {
   const missing = checks.filter((c) => c.state !== "checked");
 
   const warnings: string[] = [];
-  if (data.ownership.encumbranceFound) warnings.push("A loan or claim may still be attached to this car.");
-  if (data.ownership.nameMismatch) warnings.push("The seller's name does not match the ownership papers yet.");
+  if (data.ownership.encumbranceFound)
+    warnings.push("A loan or claim may still be attached to this car.");
+  if (data.ownership.nameMismatch)
+    warnings.push("The seller's name does not match the ownership papers yet.");
   if (data.ownership.financed) warnings.push("The seller told us this car has financing on it.");
   if (data.history.hasAccidentHistory)
     warnings.push(
@@ -152,8 +164,10 @@ export function VehiclePassport({ carId }: { carId: string }) {
         ? "The seller declared a major past accident."
         : "The seller declared a past accident repair.",
     );
-  if (data.inspection.verdict === "conditional_pass") warnings.push("Inspection found minor issues to look at.");
-  if (data.inspection.verdict === "fail") warnings.push("Inspection found serious issues. Please read the summary.");
+  if (data.inspection.verdict === "conditional_pass")
+    warnings.push("Inspection found minor issues to look at.");
+  if (data.inspection.verdict === "fail")
+    warnings.push("Inspection found serious issues. Please read the summary.");
 
   return (
     <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -323,7 +337,11 @@ export function VehiclePassport({ carId }: { carId: string }) {
               <li>
                 Loan or claim on the car:{" "}
                 <span className="font-medium text-foreground">
-                  {data.ownership.encumbranceFound ? "Yes" : data.documents.verified ? "None found" : "Not checked yet"}
+                  {data.ownership.encumbranceFound
+                    ? "Yes"
+                    : data.documents.verified
+                      ? "None found"
+                      : "Not checked yet"}
                 </span>
               </li>
               {data.ownership.imported && (
@@ -338,7 +356,9 @@ export function VehiclePassport({ carId }: { carId: string }) {
                 <li>Insurance valid until {fmt(data.ownership.insuranceExpiry)}</li>
               )}
               {fmt(data.ownership.inspectionCertExpiry) && (
-                <li>Inspection certificate valid until {fmt(data.ownership.inspectionCertExpiry)}</li>
+                <li>
+                  Inspection certificate valid until {fmt(data.ownership.inspectionCertExpiry)}
+                </li>
               )}
               {fmt(data.ownership.roadLicenseExpiry) && (
                 <li>Road licence valid until {fmt(data.ownership.roadLicenseExpiry)}</li>
@@ -353,7 +373,10 @@ export function VehiclePassport({ carId }: { carId: string }) {
               <span className="flex items-center gap-2">
                 <span>Inspection result & 42-point checklist</span>
                 {data.inspection.score != null && (
-                  <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                  <Badge
+                    variant="secondary"
+                    className="text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                  >
                     Score {data.inspection.score}/10
                   </Badge>
                 )}
@@ -367,7 +390,9 @@ export function VehiclePassport({ carId }: { carId: string }) {
                       <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                       {VERDICT_TEXT[data.inspection.verdict] ?? data.inspection.verdict}
                     </span>
-                    <Badge className="bg-emerald-600 text-white text-[10px]">Verified Certified</Badge>
+                    <Badge className="bg-emerald-600 text-white text-[10px]">
+                      Verified Certified
+                    </Badge>
                   </div>
                 )}
                 {data.inspection.summary && (
@@ -388,7 +413,10 @@ export function VehiclePassport({ carId }: { carId: string }) {
                             {s.passed}/{s.total} Passed
                           </span>
                         </div>
-                        <Progress value={(s.passed / Math.max(s.total, 1)) * 100} className="mt-1.5 h-1" />
+                        <Progress
+                          value={(s.passed / Math.max(s.total, 1)) * 100}
+                          className="mt-1.5 h-1"
+                        />
                       </div>
                     ))}
                 </div>
@@ -438,7 +466,8 @@ export function VehiclePassport({ carId }: { carId: string }) {
                 )}
                 {fmt(data.inspection.completedAt) && (
                   <p className="text-[10px] text-muted-foreground">
-                    Inspected on {fmt(data.inspection.completedAt)} by AutoConnect Certified Independent Mechanic.
+                    Inspected on {fmt(data.inspection.completedAt)} by AutoConnect Certified
+                    Independent Mechanic.
                   </p>
                 )}
               </div>
@@ -452,7 +481,9 @@ export function VehiclePassport({ carId }: { carId: string }) {
             <ul className="space-y-1.5 text-xs text-muted-foreground">
               <li>
                 Seller:{" "}
-                <span className="font-medium text-foreground">{data.seller.name ?? "Private seller"}</span>
+                <span className="font-medium text-foreground">
+                  {data.seller.name ?? "Private seller"}
+                </span>
               </li>
               <li>
                 Identity:{" "}
@@ -460,7 +491,9 @@ export function VehiclePassport({ carId }: { carId: string }) {
                   {STATE_LABEL[statusToState(data.seller.verified, data.seller.status)]}
                 </span>
               </li>
-              {fmt(data.seller.memberSince) && <li>On AutoConnect since {fmt(data.seller.memberSince)}</li>}
+              {fmt(data.seller.memberSince) && (
+                <li>On AutoConnect since {fmt(data.seller.memberSince)}</li>
+              )}
             </ul>
           </AccordionContent>
         </AccordionItem>
@@ -474,4 +507,3 @@ export function VehiclePassport({ carId }: { carId: string }) {
     </section>
   );
 }
-

@@ -139,8 +139,8 @@ export function PhotoUploader({ userId, value, onChange, max = 12 }: Props) {
         onChange={(e) => handleFiles(e.target.files)}
       />
       <p className="text-xs text-muted-foreground">
-        Up to {max} photos · 8 MB each · the first photo is the primary cover.
-        Click a photo to remove or set as primary.
+        Up to {max} photos · 8 MB each · the first photo is the primary cover. Click a photo to
+        remove or set as primary.
       </p>
     </div>
   );

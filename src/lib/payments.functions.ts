@@ -28,12 +28,14 @@ async function notify(userId: string, type: string, title: string, body: string,
 
 export const createPaymentIntent = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
-    z.object({
-      accessToken: z.string(),
-      carId: z.string().uuid(),
-      paymentPlan: z.enum(["full", "deposit", "installments"]).default("full"),
-      amount: z.number().positive().optional(),
-    }).parse(input),
+    z
+      .object({
+        accessToken: z.string(),
+        carId: z.string().uuid(),
+        paymentPlan: z.enum(["full", "deposit", "installments"]).default("full"),
+        amount: z.number().positive().optional(),
+      })
+      .parse(input),
   )
   .handler(async ({ data }) => {
     const { user, profile } = await requireUser(data.accessToken);
@@ -65,10 +67,12 @@ export const createPaymentIntent = createServerFn({ method: "POST" })
       chargeAmount = price;
     } else if (data.paymentPlan === "deposit") {
       if (!car.pay_deposit) throw new Error("Deposit not offered for this listing");
-      chargeAmount = Math.round((price * Number(car.deposit_percent ?? 20)) / 100 * 100) / 100;
+      chargeAmount = Math.round(((price * Number(car.deposit_percent ?? 20)) / 100) * 100) / 100;
     } else if (data.paymentPlan === "installments") {
       if (!car.pay_installments) throw new Error("Installments not offered for this listing");
-      chargeAmount = Number(car.installment_monthly ?? price / Number(car.installment_months ?? 12));
+      chargeAmount = Number(
+        car.installment_monthly ?? price / Number(car.installment_months ?? 12),
+      );
       chargeAmount = Math.round(chargeAmount * 100) / 100;
     }
     const breakdown = calculateBreakdown(chargeAmount, car.currency);
@@ -165,7 +169,10 @@ export const createSellerConnectAccount = createServerFn({ method: "POST" })
         business_profile: { name: seller.business_name ?? undefined },
       });
       accountId = acct.id;
-      await supabaseAdmin.from("sellers").update({ stripe_account_id: accountId }).eq("id", seller.id);
+      await supabaseAdmin
+        .from("sellers")
+        .update({ stripe_account_id: accountId })
+        .eq("id", seller.id);
     }
 
     const link = await stripe().accountLinks.create({
@@ -315,7 +322,9 @@ export const refundPayment = createServerFn({ method: "POST" })
 
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, status, stripe_payment_intent_id, buyer_id, seller_id, cars!inner(title), sellers!inner(profile_id), car_id")
+      .select(
+        "id, status, stripe_payment_intent_id, buyer_id, seller_id, cars!inner(title), sellers!inner(profile_id), car_id",
+      )
       .eq("id", data.transactionId)
       .maybeSingle();
     if (!tx) throw new Error("Transaction not found");
@@ -341,14 +350,29 @@ export const refundPayment = createServerFn({ method: "POST" })
       .eq("id", tx.id);
 
     // Re-open the car listing
-    await supabaseAdmin.from("cars").update({ status: "approved" }).eq("id", (tx as any).car_id);
+    await supabaseAdmin
+      .from("cars")
+      .update({ status: "approved" })
+      .eq("id", (tx as any).car_id);
 
     // @ts-expect-error joined
     const sellerProfileId = tx.sellers.profile_id;
     // @ts-expect-error joined
     const carTitle = tx.cars.title;
-    await notify(tx.buyer_id, "refund_issued", "Refund issued", `Your payment for ${carTitle} has been refunded. Reason: ${data.reason}`, `/transactions/${tx.id}`);
-    await notify(sellerProfileId, "transaction_refunded", "Transaction refunded", `Transaction for ${carTitle} was refunded to the buyer. Reason: ${data.reason}`, `/seller/transactions`);
+    await notify(
+      tx.buyer_id,
+      "refund_issued",
+      "Refund issued",
+      `Your payment for ${carTitle} has been refunded. Reason: ${data.reason}`,
+      `/transactions/${tx.id}`,
+    );
+    await notify(
+      sellerProfileId,
+      "transaction_refunded",
+      "Transaction refunded",
+      `Transaction for ${carTitle} was refunded to the buyer. Reason: ${data.reason}`,
+      `/seller/transactions`,
+    );
 
     return { ok: true, refundId };
   });
@@ -371,11 +395,9 @@ export const confirmReceipt = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!tx || tx.buyer_id !== user.id) throw new Error("Not your transaction");
     if (tx.status !== "payment_received") throw new Error("Not ready to confirm");
-    if (!tx.handover_ready_at) throw new Error("The seller has not marked the car ready for handover yet");
-    await supabaseAdmin
-      .from("transactions")
-      .update({ status: "admin_reviewing" })
-      .eq("id", tx.id);
+    if (!tx.handover_ready_at)
+      throw new Error("The seller has not marked the car ready for handover yet");
+    await supabaseAdmin.from("transactions").update({ status: "admin_reviewing" }).eq("id", tx.id);
     return { ok: true };
   });
 
@@ -416,10 +438,22 @@ export const raiseDispute = createServerFn({ method: "POST" })
     // @ts-expect-error joined
     const carTitle = tx.cars.title;
     for (const a of admins ?? []) {
-      await notify(a.id, "dispute_raised", "URGENT: Dispute raised", `Buyer raised a dispute on "${carTitle}". Review immediately.`, `/admin/transactions`);
+      await notify(
+        a.id,
+        "dispute_raised",
+        "URGENT: Dispute raised",
+        `Buyer raised a dispute on "${carTitle}". Review immediately.`,
+        `/admin/transactions`,
+      );
     }
     // @ts-expect-error joined
-    await notify(tx.sellers.profile_id, "dispute_raised", "Dispute on your sale", `A buyer raised a dispute on "${carTitle}". AutoConnect is investigating.`, `/seller/transactions`);
+    await notify(
+      tx.sellers.profile_id,
+      "dispute_raised",
+      "Dispute on your sale",
+      `A buyer raised a dispute on "${carTitle}". AutoConnect is investigating.`,
+      `/seller/transactions`,
+    );
     return { ok: true };
   });
 
@@ -462,11 +496,13 @@ export const createManualReservation = createServerFn({ method: "POST" })
     let chargeAmount = price;
     if (data.paymentPlan === "deposit") {
       if (!car.pay_deposit) throw new Error("Deposit not offered for this listing");
-      chargeAmount = Math.round((price * Number(car.deposit_percent ?? 20)) / 100 * 100) / 100;
+      chargeAmount = Math.round(((price * Number(car.deposit_percent ?? 20)) / 100) * 100) / 100;
     } else if (data.paymentPlan === "installments") {
       if (!car.pay_installments) throw new Error("Installments not offered for this listing");
       chargeAmount =
-        Math.round(Number(car.installment_monthly ?? price / Number(car.installment_months ?? 12)) * 100) / 100;
+        Math.round(
+          Number(car.installment_monthly ?? price / Number(car.installment_months ?? 12)) * 100,
+        ) / 100;
     }
     const breakdown = calculateBreakdown(chargeAmount, car.currency);
 
@@ -558,9 +594,11 @@ export const initiateDarajaStkPush = createServerFn({ method: "POST" })
     const price = Number(car.price);
     let chargeAmount = price;
     if (data.paymentPlan === "deposit") {
-      chargeAmount = Math.round((price * Number(car.deposit_percent ?? 20)) / 100 * 100) / 100;
+      chargeAmount = Math.round(((price * Number(car.deposit_percent ?? 20)) / 100) * 100) / 100;
     } else if (data.paymentPlan === "installments") {
-      chargeAmount = Number(car.installment_monthly ?? price / Number(car.installment_months ?? 12));
+      chargeAmount = Number(
+        car.installment_monthly ?? price / Number(car.installment_months ?? 12),
+      );
       chargeAmount = Math.round(chargeAmount * 100) / 100;
     }
     const breakdown = calculateBreakdown(chargeAmount, car.currency);
@@ -660,7 +698,8 @@ export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
           .update({
             status: "payment_received",
             paid_at: new Date().toISOString(),
-            manual_reference: result.mpesaReceiptNumber || `MPESA-${Date.now().toString().slice(-6)}`,
+            manual_reference:
+              result.mpesaReceiptNumber || `MPESA-${Date.now().toString().slice(-6)}`,
           })
           .eq("id", data.transactionId)
           .eq("status", "pending")
@@ -672,7 +711,10 @@ export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
         if (!updated) return result;
 
         if (tx.car_id) {
-          await supabaseAdmin.from("cars").update({ status: "under_transaction" }).eq("id", tx.car_id);
+          await supabaseAdmin
+            .from("cars")
+            .update({ status: "under_transaction" })
+            .eq("id", tx.car_id);
         }
 
         // @ts-expect-error joined
@@ -717,12 +759,15 @@ export const confirmManualPayment = createServerFn({ method: "POST" })
 
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, status, payment_method, buyer_id, car_id, cars!inner(title), sellers!inner(profile_id)")
+      .select(
+        "id, status, payment_method, buyer_id, car_id, cars!inner(title), sellers!inner(profile_id)",
+      )
       .eq("id", data.transactionId)
       .maybeSingle();
     if (!tx) throw new Error("Transaction not found");
     if (tx.payment_method !== "manual") throw new Error("Not a manual payment");
-    if (tx.status !== "awaiting_manual_payment") throw new Error(`Cannot confirm in status: ${tx.status}`);
+    if (tx.status !== "awaiting_manual_payment")
+      throw new Error(`Cannot confirm in status: ${tx.status}`);
 
     await supabaseAdmin
       .from("transactions")

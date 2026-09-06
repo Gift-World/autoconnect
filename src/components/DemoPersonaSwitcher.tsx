@@ -145,9 +145,7 @@ export function DemoPersonaSwitcher({
                     <p className="truncate text-xs font-semibold text-foreground">
                       {p.name.split(" (")[0]}
                     </p>
-                    {isSelected && (
-                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />
-                    )}
+                    {isSelected && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-primary" />}
                   </div>
                   <p className="text-[10px] text-muted-foreground line-clamp-1">{p.tagline}</p>
                 </div>
@@ -173,7 +171,8 @@ export function DemoPersonaSwitcher({
               Demo Persona & Role Simulator
             </h3>
             <p className="text-xs text-muted-foreground">
-              Switch in 1-click between realistic buyer, dealer, yard manager, and admin perspectives.
+              Switch in 1-click between realistic buyer, dealer, yard manager, and admin
+              perspectives.
             </p>
           </div>
         </div>
@@ -215,7 +214,9 @@ export function DemoPersonaSwitcher({
                   )}
                 </div>
                 <h4 className="text-xs font-semibold text-foreground line-clamp-1">{p.name}</h4>
-                <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">{p.location}</p>
+                <p className="mt-0.5 text-[11px] text-muted-foreground line-clamp-1">
+                  {p.location}
+                </p>
                 <p className="mt-2 text-[10px] text-muted-foreground/90 bg-muted/50 rounded-md p-1.5 line-clamp-2">
                   {p.scenario}
                 </p>

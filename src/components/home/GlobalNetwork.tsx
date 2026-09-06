@@ -3,12 +3,48 @@ import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 
 const HUBS = [
-  { city: "Tokyo & Yokohama", country: "Japan", flag: "🇯🇵", role: "Primary Export Auction Hub", count: "2,400+ Units" },
-  { city: "London & Southampton", country: "United Kingdom", flag: "🇬🇧", role: "Luxury RHD Corridor", count: "850+ Units" },
-  { city: "Dubai & Jebel Ali", country: "United Arab Emirates", flag: "🇦🇪", role: "GCC Spec & Heavy SUV Hub", count: "1,120+ Units" },
-  { city: "Frankfurt & Hamburg", country: "Germany", flag: "🇩🇪", role: "European Executive Network", count: "620+ Units" },
-  { city: "Nairobi & Mombasa", country: "Kenya", flag: "🇰🇪", role: "East Africa Direct Clearing", count: "5,200+ Units" },
-  { city: "Johannesburg & Durban", country: "South Africa", flag: "🇿🇦", role: "Southern Africa Corridor", count: "480+ Units" },
+  {
+    city: "Tokyo & Yokohama",
+    country: "Japan",
+    flag: "🇯🇵",
+    role: "Primary Export Auction Hub",
+    count: "2,400+ Units",
+  },
+  {
+    city: "London & Southampton",
+    country: "United Kingdom",
+    flag: "🇬🇧",
+    role: "Luxury RHD Corridor",
+    count: "850+ Units",
+  },
+  {
+    city: "Dubai & Jebel Ali",
+    country: "United Arab Emirates",
+    flag: "🇦🇪",
+    role: "GCC Spec & Heavy SUV Hub",
+    count: "1,120+ Units",
+  },
+  {
+    city: "Frankfurt & Hamburg",
+    country: "Germany",
+    flag: "🇩🇪",
+    role: "European Executive Network",
+    count: "620+ Units",
+  },
+  {
+    city: "Nairobi & Mombasa",
+    country: "Kenya",
+    flag: "🇰🇪",
+    role: "East Africa Direct Clearing",
+    count: "5,200+ Units",
+  },
+  {
+    city: "Johannesburg & Durban",
+    country: "South Africa",
+    flag: "🇿🇦",
+    role: "Southern Africa Corridor",
+    count: "480+ Units",
+  },
 ];
 
 export function GlobalNetwork() {
@@ -26,7 +62,8 @@ export function GlobalNetwork() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Source, inspect, buy and clear vehicles across a tightly synchronized international logistics and escrow network.
+            Source, inspect, buy and clear vehicles across a tightly synchronized international
+            logistics and escrow network.
           </p>
         </div>
 

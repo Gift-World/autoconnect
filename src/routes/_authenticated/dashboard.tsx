@@ -166,7 +166,8 @@ function ConsolidatedDashboard() {
               </h1>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Unified workspace for buyers, verified sellers, yard managers, and escrow administrators.
+              Unified workspace for buyers, verified sellers, yard managers, and escrow
+              administrators.
             </p>
           </div>
 
@@ -209,7 +210,10 @@ function ConsolidatedDashboard() {
           >
             <UserIcon className="h-4 w-4 text-purple-500" />
             Buyer Hub
-            <Badge variant="secondary" className="text-[10px] ml-1 bg-purple-500/10 text-purple-600">
+            <Badge
+              variant="secondary"
+              className="text-[10px] ml-1 bg-purple-500/10 text-purple-600"
+            >
               Active
             </Badge>
           </button>
@@ -239,7 +243,10 @@ function ConsolidatedDashboard() {
           >
             <Store className="h-4 w-4 text-emerald-500" />
             Car Yard Operations
-            <Badge variant="secondary" className="text-[10px] ml-1 bg-emerald-500/10 text-emerald-600">
+            <Badge
+              variant="secondary"
+              className="text-[10px] ml-1 bg-emerald-500/10 text-emerald-600"
+            >
               24 Bays
             </Badge>
           </button>
@@ -330,7 +337,8 @@ function ConsolidatedDashboard() {
                   Explore Certified Japanese Imports
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  All listings feature independent 42-point vehicle inspection passports & escrow protection.
+                  All listings feature independent 42-point vehicle inspection passports & escrow
+                  protection.
                 </p>
                 <Button asChild size="sm" className="mt-4 bg-primary text-primary-foreground">
                   <Link to="/cars">
@@ -345,7 +353,8 @@ function ConsolidatedDashboard() {
                   Visit Certified Physical Car Yards
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Inspect verified vehicles in-person at physical car yards with digital gate pass check-in.
+                  Inspect verified vehicles in-person at physical car yards with digital gate pass
+                  check-in.
                 </p>
                 <Button asChild size="sm" variant="outline" className="mt-4">
                   <Link to="/yards">
@@ -413,7 +422,8 @@ function ConsolidatedDashboard() {
               <div>
                 <h3 className="text-base font-bold text-foreground">List a New Vehicle</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Publish Japanese auction cars or local showroom stock with instant Vehicle Passport verification.
+                  Publish Japanese auction cars or local showroom stock with instant Vehicle
+                  Passport verification.
                 </p>
               </div>
               <Button asChild className="bg-primary text-primary-foreground">
@@ -433,7 +443,9 @@ function ConsolidatedDashboard() {
                   <Car className="h-5 w-5 text-blue-500" />
                   <div>
                     <h4 className="text-xs font-bold text-foreground">Manage All Listings</h4>
-                    <p className="text-[10px] text-muted-foreground">Edit pricing, photos, and specs</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Edit pricing, photos, and specs
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -447,7 +459,9 @@ function ConsolidatedDashboard() {
                   <FileCheck2 className="h-5 w-5 text-emerald-500" />
                   <div>
                     <h4 className="text-xs font-bold text-foreground">Request Inspections</h4>
-                    <p className="text-[10px] text-muted-foreground">Get independent 42-point certification</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Get independent 42-point certification
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -461,7 +475,9 @@ function ConsolidatedDashboard() {
                   <Store className="h-5 w-5 text-purple-500" />
                   <div>
                     <h4 className="text-xs font-bold text-foreground">Storefront & Yard Setup</h4>
-                    <p className="text-[10px] text-muted-foreground">Configure branding and address</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Configure branding and address
+                    </p>
                   </div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
@@ -515,7 +531,9 @@ function ConsolidatedDashboard() {
                   <Lock className="h-4 w-4 text-emerald-500" />
                 </div>
                 <p className="mt-2 text-2xl font-bold text-foreground">KES 14.8M</p>
-                <span className="text-[11px] text-emerald-600 font-medium">Release console ready</span>
+                <span className="text-[11px] text-emerald-600 font-medium">
+                  Release console ready
+                </span>
               </Link>
 
               <Link
@@ -539,7 +557,8 @@ function ConsolidatedDashboard() {
                   Vehicle Passport & Document Verifications
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Audit logbooks, Japanese auction sheets, import duty receipts, and NTSA registration records.
+                  Audit logbooks, Japanese auction sheets, import duty receipts, and NTSA
+                  registration records.
                 </p>
                 <Button asChild size="sm" className="mt-4">
                   <Link to="/admin/verification">Open Verification Queue</Link>
@@ -552,7 +571,8 @@ function ConsolidatedDashboard() {
                   Escrow Payout Release & Dispute Arbitration
                 </h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Review verified handovers and release escrow funds to sellers with automated audit logging.
+                  Review verified handovers and release escrow funds to sellers with automated audit
+                  logging.
                 </p>
                 <Button asChild size="sm" variant="outline" className="mt-4">
                   <Link to="/admin/transactions">Manage Escrow Orders</Link>

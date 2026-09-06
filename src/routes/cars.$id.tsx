@@ -259,7 +259,9 @@ export const Route = createFileRoute("/cars/$id")({
     const desc = car
       ? `${car.year || ""} ${car.title || "Vehicle"} for ${formatPrice(Number(car.price || 0), car.currency || "USD")} in ${car.location_display ?? car.country ?? "Nairobi"}.`
       : "View this car listing on AutoConnect.";
-    const img = car?.car_images?.[0]?.image_url || "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80";
+    const img =
+      car?.car_images?.[0]?.image_url ||
+      "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80";
     const meta = [
       { title },
       { name: "description", content: desc },
@@ -447,9 +449,7 @@ function CarDetailPage() {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               {car.featured && (
-                <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                  Featured
-                </Badge>
+                <Badge className="bg-accent text-accent-foreground hover:bg-accent">Featured</Badge>
               )}
               <Badge variant="outline" className="border-primary/30 text-primary">
                 {car.right_hand_drive ? "RHD · Right-hand drive" : "LHD · Left-hand drive"}
@@ -459,9 +459,7 @@ function CarDetailPage() {
                   <Plane className="mr-1 h-3 w-3" /> Available for export
                 </Badge>
               )}
-              {car.condition && (
-                <Badge variant="secondary">{car.condition}</Badge>
-              )}
+              {car.condition && <Badge variant="secondary">{car.condition}</Badge>}
             </div>
             <h1 className="mt-3 text-3xl font-bold tracking-tight">{car.title}</h1>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -518,7 +516,9 @@ function CarDetailPage() {
               <Spec
                 icon={Gauge}
                 label="Mileage"
-                value={car.mileage != null ? `${car.mileage.toLocaleString()} ${car.mileage_unit}` : "—"}
+                value={
+                  car.mileage != null ? `${car.mileage.toLocaleString()} ${car.mileage_unit}` : "—"
+                }
               />
               <Spec icon={Settings2} label="Transmission" value={car.transmission ?? "—"} />
               <Spec icon={Fuel} label="Fuel" value={car.fuel_type ?? "—"} />
@@ -589,8 +589,8 @@ function CarDetailPage() {
                 )}
                 {!car.shipping_info && !car.import_duties_note && (
                   <p className="text-muted-foreground">
-                    This seller ships internationally. Request a quote to get exact
-                    cost and timeline to your country.
+                    This seller ships internationally. Request a quote to get exact cost and
+                    timeline to your country.
                   </p>
                 )}
               </div>
@@ -630,7 +630,9 @@ function CarDetailPage() {
             inspectionVerified={car.inspection_verified}
             availableForExport={car.available_for_export}
             onAskSeller={() =>
-              document.getElementById("inquiry-form")?.scrollIntoView({ behavior: "smooth", block: "start" })
+              document
+                .getElementById("inquiry-form")
+                ?.scrollIntoView({ behavior: "smooth", block: "start" })
             }
           />
           <BuyerNextSteps />
@@ -645,7 +647,11 @@ function CarDetailPage() {
           <YardCard car={car} />
           <SellerCard car={car} />
           <BuyBox car={car} />
-          <FinancingPreApprovalCard carId={car.id} carTitle={car.title} carPrice={Number(car.price)} />
+          <FinancingPreApprovalCard
+            carId={car.id}
+            carTitle={car.title}
+            carPrice={Number(car.price)}
+          />
           <FavoriteButton carId={car.id} variant="full" />
           <InquiryForm car={car} />
         </aside>
@@ -656,15 +662,15 @@ function CarDetailPage() {
         open={videoModalOpen}
         onOpenChange={setVideoModalOpen}
         carTitle={car.title}
-        videoUrl={car.featured ? "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80" : null}
+        videoUrl={
+          car.featured
+            ? "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1200&q=80"
+            : null
+        }
       />
 
       {/* AR Driveway Preview Modal */}
-      <ArPreviewModal
-        open={arModalOpen}
-        onOpenChange={setArModalOpen}
-        carTitle={car.title}
-      />
+      <ArPreviewModal open={arModalOpen} onOpenChange={setArModalOpen} carTitle={car.title} />
 
       {/* Trade-In Estimator Modal */}
       <TradeInEstimatorModal
@@ -678,7 +684,11 @@ function CarDetailPage() {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-[1280px] items-center gap-2 sm:gap-3">
           <FavoriteButton carId={car.id} />
-          <WhatsAppConcierge car={toConciergeCar(car)} compact className="h-10 px-3 shrink-0 rounded-xl" />
+          <WhatsAppConcierge
+            car={toConciergeCar(car)}
+            compact
+            className="h-10 px-3 shrink-0 rounded-xl"
+          />
           <Button
             type="button"
             variant="outline"
@@ -800,10 +810,14 @@ function PaymentEstimator({ price, currency }: { price: number; currency: string
         <label className="block text-xs">
           <span className="text-muted-foreground">Term (months)</span>
           <Select value={String(months)} onValueChange={(v) => setMonths(Number(v))}>
-            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
               {[24, 36, 48, 60, 72, 84].map((m) => (
-                <SelectItem key={m} value={String(m)}>{m} months</SelectItem>
+                <SelectItem key={m} value={String(m)}>
+                  {m} months
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -823,15 +837,14 @@ function PaymentEstimator({ price, currency }: { price: number; currency: string
       </div>
       <div className="mt-5 flex items-end justify-between rounded-lg border border-primary/20 bg-primary/5 p-4">
         <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Estimated monthly
-          </p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Estimated monthly</p>
           <p className="mt-1 text-3xl font-bold text-primary">
             {formatPrice(Math.round(monthly), currency)}
           </p>
         </div>
         <p className="text-right text-xs text-muted-foreground">
-          for {months} months<br />
+          for {months} months
+          <br />
           at {apr.toFixed(1)}% APR
         </p>
       </div>
@@ -841,10 +854,26 @@ function PaymentEstimator({ price, currency }: { price: number; currency: string
 
 function TrustPanel() {
   const items = [
-    { icon: BadgeCheck, title: "Verified sellers", body: "Every dealer is vetted before listings go live." },
-    { icon: Lock, title: "No upfront fees", body: "Talk to the seller directly. No broker markup." },
-    { icon: Ship, title: "Global logistics", body: "Door-to-port and door-to-door shipping options." },
-    { icon: Phone, title: "Real humans", body: "Our support team is one message away if anything feels off." },
+    {
+      icon: BadgeCheck,
+      title: "Verified sellers",
+      body: "Every dealer is vetted before listings go live.",
+    },
+    {
+      icon: Lock,
+      title: "No upfront fees",
+      body: "Talk to the seller directly. No broker markup.",
+    },
+    {
+      icon: Ship,
+      title: "Global logistics",
+      body: "Door-to-port and door-to-door shipping options.",
+    },
+    {
+      icon: Phone,
+      title: "Real humans",
+      body: "Our support team is one message away if anything feels off.",
+    },
   ];
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -889,10 +918,7 @@ function SimilarCars({ car }: { car: CarDetail }) {
         .eq("status", "approved")
         .neq("id", car.id)
         .or(
-          [
-            car.make_name ? `make_name.eq.${car.make_name}` : null,
-            `country.eq.${car.country}`,
-          ]
+          [car.make_name ? `make_name.eq.${car.make_name}` : null, `country.eq.${car.country}`]
             .filter(Boolean)
             .join(","),
         )
@@ -971,24 +997,16 @@ function Spec({
   );
 }
 
-function Gallery({
-  images,
-  title,
-}: {
-  images: { image_url: string }[];
-  title: string;
-}) {
+function Gallery({ images, title }: { images: { image_url: string }[]; title: string }) {
   const [idx, setIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
 
   const current = images[idx]?.image_url;
-  const go = (dir: 1 | -1) =>
-    setIdx((i) => (i + dir + images.length) % images.length);
+  const go = (dir: 1 | -1) => setIdx((i) => (i + dir + images.length) % images.length);
 
   const lbCurrent = images[lightboxIdx]?.image_url;
-  const lbGo = (dir: 1 | -1) =>
-    setLightboxIdx((i) => (i + dir + images.length) % images.length);
+  const lbGo = (dir: 1 | -1) => setLightboxIdx((i) => (i + dir + images.length) % images.length);
 
   useEffect(() => {
     if (!lightboxOpen) return;
@@ -1004,7 +1022,7 @@ function Gallery({
   return (
     <div>
       <div className="overflow-hidden rounded-xl border border-border bg-slate-900">
-        <div 
+        <div
           className="relative aspect-[16/10] cursor-pointer"
           onClick={() => {
             setLightboxIdx(idx);
@@ -1012,11 +1030,7 @@ function Gallery({
           }}
         >
           {current ? (
-            <img
-              src={current}
-              alt={title}
-              className="h-full w-full object-cover"
-            />
+            <img src={current} alt={title} className="h-full w-full object-cover" />
           ) : (
             <VehiclePlaceholder
               make={title.split(" ")[0]}
@@ -1028,7 +1042,10 @@ function Gallery({
             <>
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); go(-1); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  go(-1);
+                }}
                 aria-label="Previous photo"
                 className="absolute left-3 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-background"
               >
@@ -1036,7 +1053,10 @@ function Gallery({
               </button>
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); go(1); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  go(1);
+                }}
                 aria-label="Next photo"
                 className="absolute right-3 top-1/2 -translate-y-1/2 grid h-9 w-9 place-items-center rounded-full bg-background/90 text-foreground shadow-sm backdrop-blur transition hover:bg-background"
               >
@@ -1067,7 +1087,7 @@ function Gallery({
       )}
 
       {lightboxOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 sm:p-8"
           onClick={() => setLightboxOpen(false)}
         >
@@ -1078,12 +1098,12 @@ function Gallery({
           >
             <X className="h-6 w-6" />
           </button>
-          
+
           <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-3 py-1.5 text-sm font-medium text-white z-50">
             {lightboxIdx + 1} / {images.length}
           </div>
 
-          <div 
+          <div
             className="relative h-full w-full flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
@@ -1099,14 +1119,20 @@ function Gallery({
               <>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); lbGo(-1); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    lbGo(-1);
+                  }}
                   className="absolute left-2 top-1/2 -translate-y-1/2 grid h-12 w-12 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition"
                 >
                   <ChevronLeft className="h-8 w-8" />
                 </button>
                 <button
                   type="button"
-                  onClick={(e) => { e.stopPropagation(); lbGo(1); }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    lbGo(1);
+                  }}
                   className="absolute right-2 top-1/2 -translate-y-1/2 grid h-12 w-12 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 transition"
                 >
                   <ChevronRight className="h-8 w-8" />
@@ -1154,9 +1180,7 @@ function YardCard({ car }: { car: CarDetail }) {
           </p>
         </div>
       </div>
-      <p className="mt-3 text-sm font-medium text-primary">
-        Visit yard & see all their cars →
-      </p>
+      <p className="mt-3 text-sm font-medium text-primary">Visit yard & see all their cars →</p>
     </Link>
   );
 }
@@ -1166,14 +1190,10 @@ function SellerCardInner({ car }: { car: CarDetail }) {
   const country = countryByCode(seller?.country ?? car.country);
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Seller
-      </p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Seller</p>
       <div className="mt-2 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-base font-semibold">
-            {seller?.business_name ?? "Private seller"}
-          </h3>
+          <h3 className="text-base font-semibold">{seller?.business_name ?? "Private seller"}</h3>
           <p className="mt-0.5 inline-flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
             {country?.flag} {seller?.location_display ?? country?.name ?? car.country}
@@ -1181,7 +1201,8 @@ function SellerCardInner({ car }: { car: CarDetail }) {
         </div>
         {seller?.verification_badge && (
           <Badge className="bg-success text-white hover:bg-success">
-            <ShieldCheck className="mr-1 h-3 w-3" /> {seller?.is_dealer ? "Dealer Verified" : "Seller Verified"}
+            <ShieldCheck className="mr-1 h-3 w-3" />{" "}
+            {seller?.is_dealer ? "Dealer Verified" : "Seller Verified"}
           </Badge>
         )}
       </div>
@@ -1201,23 +1222,43 @@ function BuyBox({ car }: { car: CarDetail }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const primaryImage = Array.isArray(car.car_images)
-    ? car.car_images.find((image) => image.is_primary)?.image_url ?? car.car_images[0]?.image_url
+    ? (car.car_images.find((image) => image.is_primary)?.image_url ?? car.car_images[0]?.image_url)
     : undefined;
   const price = Number(car.price);
   // Fallback: if no options set, allow full
-  const options: Array<{ id: "full" | "deposit" | "installments"; label: string; amount: number; sub: string }> = [];
+  const options: Array<{
+    id: "full" | "deposit" | "installments";
+    label: string;
+    amount: number;
+    sub: string;
+  }> = [];
   if (car.pay_full || (!car.pay_deposit && !car.pay_installments)) {
-    options.push({ id: "full", label: "Full payment", amount: price, sub: "Pay the full price now" });
+    options.push({
+      id: "full",
+      label: "Full payment",
+      amount: price,
+      sub: "Pay the full price now",
+    });
   }
   if (car.pay_deposit) {
     const pct = Number(car.deposit_percent ?? 20);
-    const amt = Math.round((price * pct) / 100 * 100) / 100;
-    options.push({ id: "deposit", label: `Reserve (${pct}%)`, amount: amt, sub: `Deposit now, ${formatPrice(price - amt, car.currency)} balance later` });
+    const amt = Math.round(((price * pct) / 100) * 100) / 100;
+    options.push({
+      id: "deposit",
+      label: `Reserve (${pct}%)`,
+      amount: amt,
+      sub: `Deposit now, ${formatPrice(price - amt, car.currency)} balance later`,
+    });
   }
   if (car.pay_installments) {
     const monthly = Number(car.installment_monthly ?? 0);
     const m = Number(car.installment_months ?? 12);
-    options.push({ id: "installments", label: `${m}-month plan`, amount: monthly || price / m, sub: `First month now, ${m - 1} more monthly payments` });
+    options.push({
+      id: "installments",
+      label: `${m}-month plan`,
+      amount: monthly || price / m,
+      sub: `First month now, ${m - 1} more monthly payments`,
+    });
   }
   const [plan, setPlan] = useState<"full" | "deposit" | "installments">(options[0]?.id ?? "full");
   const selected = options.find((o) => o.id === plan) ?? options[0];
@@ -1258,13 +1299,18 @@ function BuyBox({ car }: { car: CarDetail }) {
         <div className="my-2 border-t border-border" />
         <div className="flex items-center justify-between">
           <span className="font-semibold">Total now</span>
-          <span className="text-lg font-bold text-primary">{formatPrice(breakdown.total, car.currency)}</span>
+          <span className="text-lg font-bold text-primary">
+            {formatPrice(breakdown.total, car.currency)}
+          </span>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Charged in USD ≈ ${fromUsdCents(breakdown.totalUsdCents).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          Charged in USD ≈ $
+          {fromUsdCents(breakdown.totalUsdCents).toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}
         </p>
       </div>
-        <Button
+      <Button
         className="mt-4 w-full"
         size="lg"
         onClick={() => {
@@ -1275,16 +1321,33 @@ function BuyBox({ car }: { car: CarDetail }) {
           setOpen(true);
         }}
       >
-        <Lock className="mr-2 h-4 w-4" /> Pay or reserve {formatPrice(breakdown.total, car.currency)}
+        <Lock className="mr-2 h-4 w-4" /> Pay or reserve{" "}
+        {formatPrice(breakdown.total, car.currency)}
       </Button>
-      <WhatsAppConcierge car={toConciergeCar(car)} compact className="mt-2.5 w-full h-11 rounded-xl" />
+      <WhatsAppConcierge
+        car={toConciergeCar(car)}
+        compact
+        className="mt-2.5 w-full h-11 rounded-xl"
+      />
       <ul className="mt-4 space-y-1.5 text-[11px] text-muted-foreground">
-        <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Payment protected</li>
-        <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Funds released after verification</li>
-        <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Documents reviewed by AutoConnect</li>
-        <li className="flex items-center gap-1.5"><ShieldCheck className="h-3 w-3 text-success" /> Card, M-Pesa or bank transfer — manual payment reviewed by admin</li>
+        <li className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 text-success" /> Payment protected
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 text-success" /> Funds released after verification
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 text-success" /> Documents reviewed by AutoConnect
+        </li>
+        <li className="flex items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 text-success" /> Card, M-Pesa or bank transfer — manual
+          payment reviewed by admin
+        </li>
       </ul>
-      <Link to="/how-payments-work" className="mt-3 block text-center text-[11px] font-medium text-primary hover:underline">
+      <Link
+        to="/how-payments-work"
+        className="mt-3 block text-center text-[11px] font-medium text-primary hover:underline"
+      >
         How payments work →
       </Link>
       <CheckoutModal
@@ -1393,9 +1456,7 @@ function InquiryForm({ car }: { car: CarDetail }) {
   return (
     <div id="inquiry-form" className="rounded-xl border border-border bg-card p-5 shadow-sm">
       <h3 className="text-base font-semibold">Contact seller</h3>
-      <p className="mt-0.5 text-xs text-muted-foreground">
-        Direct contact. No brokers.
-      </p>
+      <p className="mt-0.5 text-xs text-muted-foreground">Direct contact. No brokers.</p>
 
       {car.available_for_export && (
         <Button
@@ -1418,17 +1479,16 @@ function InquiryForm({ car }: { car: CarDetail }) {
       </Button>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
-          className="mt-4 space-y-3"
-        >
+        <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="mt-4 space-y-3">
           <FormField
             control={form.control}
             name="buyer_name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Your name</FormLabel>
-                <FormControl><Input placeholder="Jane Doe" {...field} /></FormControl>
+                <FormControl>
+                  <Input placeholder="Jane Doe" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -1439,7 +1499,9 @@ function InquiryForm({ car }: { car: CarDetail }) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
-                <FormControl><Input type="email" placeholder="you@example.com" {...field} /></FormControl>
+                <FormControl>
+                  <Input type="email" placeholder="you@example.com" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -1451,7 +1513,9 @@ function InquiryForm({ car }: { car: CarDetail }) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
-                  <FormControl><Input placeholder="+1 555…" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="+1 555…" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1464,7 +1528,9 @@ function InquiryForm({ car }: { car: CarDetail }) {
                   <FormLabel>Country</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {COUNTRIES.map((c) => (
@@ -1487,7 +1553,9 @@ function InquiryForm({ car }: { car: CarDetail }) {
                 <FormLabel>Inquiry type</FormLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="general">General question</SelectItem>
@@ -1506,11 +1574,7 @@ function InquiryForm({ car }: { car: CarDetail }) {
               <FormItem>
                 <FormLabel>Message</FormLabel>
                 <FormControl>
-                  <Textarea
-                    rows={5}
-                    placeholder="Hi, I'm interested in this car…"
-                    {...field}
-                  />
+                  <Textarea rows={5} placeholder="Hi, I'm interested in this car…" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1558,7 +1622,9 @@ function InspectionSummary({ carId }: { carId: string }) {
   });
   if (!data) return null;
   const verdictLabel: Record<string, string> = {
-    pass: "Pass", conditional_pass: "Conditional Pass", fail: "Fail",
+    pass: "Pass",
+    conditional_pass: "Conditional Pass",
+    fail: "Fail",
   };
   return (
     <div className="rounded-xl border bg-card p-4">
@@ -1566,18 +1632,23 @@ function InspectionSummary({ carId }: { carId: string }) {
         <BadgeCheck className="h-4 w-4 text-success" />
         <h3 className="text-sm font-semibold">Inspection summary</h3>
         {data.mechanic_verdict && (
-          <Badge variant="outline" className="text-[10px]">{verdictLabel[data.mechanic_verdict] ?? data.mechanic_verdict}</Badge>
+          <Badge variant="outline" className="text-[10px]">
+            {verdictLabel[data.mechanic_verdict] ?? data.mechanic_verdict}
+          </Badge>
         )}
         {data.overall_condition_score != null && (
-          <Badge variant="secondary" className="text-[10px]">Score {data.overall_condition_score}/10</Badge>
+          <Badge variant="secondary" className="text-[10px]">
+            Score {data.overall_condition_score}/10
+          </Badge>
         )}
       </div>
       {data.buyer_summary ? (
         <p className="text-sm text-muted-foreground whitespace-pre-line">{data.buyer_summary}</p>
       ) : (
-        <p className="text-sm text-muted-foreground">Independent inspection completed and approved.</p>
+        <p className="text-sm text-muted-foreground">
+          Independent inspection completed and approved.
+        </p>
       )}
     </div>
   );
 }
-

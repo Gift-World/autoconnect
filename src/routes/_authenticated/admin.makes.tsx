@@ -114,7 +114,9 @@ function AdminMakesPage() {
         nhtsa_model_id: mod.Model_ID,
         api_source: "nhtsa",
       }));
-      const { error } = await supabase.from("car_models").upsert(rows, { onConflict: "make_id,name", ignoreDuplicates: true });
+      const { error } = await supabase
+        .from("car_models")
+        .upsert(rows, { onConflict: "make_id,name", ignoreDuplicates: true });
       if (error) throw error;
       toast.success(`Synced ${rows.length} models for ${m.name}`);
       refresh();
@@ -136,7 +138,9 @@ function AdminMakesPage() {
         nhtsa_make_id: m.Make_ID,
         api_source: "nhtsa",
       }));
-      const { error } = await supabase.from("car_makes").upsert(rows, { onConflict: "name", ignoreDuplicates: true });
+      const { error } = await supabase
+        .from("car_makes")
+        .upsert(rows, { onConflict: "name", ignoreDuplicates: true });
       if (error) throw error;
       setSyncProgress("Done.");
       toast.success(`Synced ${rows.length} makes from NHTSA`);
@@ -165,18 +169,23 @@ function AdminMakesPage() {
         </div>
         <Dialog open={syncOpen} onOpenChange={setSyncOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline"><Download className="mr-2 h-4 w-4" /> Sync from NHTSA</Button>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" /> Sync from NHTSA
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Sync makes from NHTSA vPIC</DialogTitle>
             </DialogHeader>
             <p className="text-sm text-muted-foreground">
-              Imports up to 200 vehicle makes from the NHTSA public API. Existing makes are kept; duplicates are skipped.
+              Imports up to 200 vehicle makes from the NHTSA public API. Existing makes are kept;
+              duplicates are skipped.
             </p>
             {syncProgress && <p className="text-sm">{syncProgress}</p>}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setSyncOpen(false)} disabled={syncing}>Cancel</Button>
+              <Button variant="outline" onClick={() => setSyncOpen(false)} disabled={syncing}>
+                Cancel
+              </Button>
               <Button onClick={syncAllMakesFromNhtsa} disabled={syncing}>
                 {syncing ? "Syncing…" : "Sync now"}
               </Button>
@@ -186,10 +195,22 @@ function AdminMakesPage() {
       </header>
 
       <div className="flex flex-wrap gap-3">
-        <Input placeholder="Search makes…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
+        <Input
+          placeholder="Search makes…"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="max-w-sm"
+        />
         <div className="flex gap-2">
-          <Input placeholder="New make name" value={newMake} onChange={(e) => setNewMake(e.target.value)} className="w-56" />
-          <Button onClick={addMake}><Plus className="mr-1 h-4 w-4" /> Add</Button>
+          <Input
+            placeholder="New make name"
+            value={newMake}
+            onChange={(e) => setNewMake(e.target.value)}
+            className="w-56"
+          />
+          <Button onClick={addMake}>
+            <Plus className="mr-1 h-4 w-4" /> Add
+          </Button>
         </div>
       </div>
 
@@ -211,16 +232,34 @@ function AdminMakesPage() {
                       onClick={() => setExpanded((e) => ({ ...e, [m.id]: !e[m.id] }))}
                       className="flex flex-1 items-center gap-2 text-left hover:text-primary"
                     >
-                      {isOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      {isOpen ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
                       <span className="font-medium">{m.name}</span>
-                      <Badge variant="outline" className="text-xs">{m.api_source}</Badge>
-                      <span className="text-xs text-muted-foreground">{myModels.length} models</span>
+                      <Badge variant="outline" className="text-xs">
+                        {m.api_source}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {myModels.length} models
+                      </span>
                     </button>
                     <div className="flex gap-1">
-                      <Button size="sm" variant="ghost" onClick={() => syncModelsForMake(m)} title="Sync models from NHTSA">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => syncModelsForMake(m)}
+                        title="Sync models from NHTSA"
+                      >
                         <RefreshCw className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => deleteMake(m)} title="Delete make">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => deleteMake(m)}
+                        title="Delete make"
+                      >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
@@ -228,13 +267,21 @@ function AdminMakesPage() {
                   {isOpen && (
                     <div className="border-t bg-muted/30 px-6 py-3">
                       {myModels.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No models yet. Use the sync button to fetch from NHTSA.</p>
+                        <p className="text-sm text-muted-foreground">
+                          No models yet. Use the sync button to fetch from NHTSA.
+                        </p>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {myModels.map((mod) => (
-                            <span key={mod.id} className="group inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1 text-xs">
+                            <span
+                              key={mod.id}
+                              className="group inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1 text-xs"
+                            >
                               {mod.name}
-                              <button onClick={() => deleteModel(mod)} className="ml-1 opacity-0 transition-opacity group-hover:opacity-100">
+                              <button
+                                onClick={() => deleteModel(mod)}
+                                className="ml-1 opacity-0 transition-opacity group-hover:opacity-100"
+                              >
                                 <Trash2 className="h-3 w-3 text-destructive" />
                               </button>
                             </span>

@@ -47,10 +47,7 @@ export function KraCrspCalculator({
   const [fuelType, setFuelType] = useState<"petrol" | "diesel" | "hybrid" | "electric">("petrol");
   const [customCrspKes, setCustomCrspKes] = useState<number | undefined>(undefined);
 
-  const availableModels = useMemo(
-    () => listCrspModelsForMake(selectedMake),
-    [selectedMake],
-  );
+  const availableModels = useMemo(() => listCrspModelsForMake(selectedMake), [selectedMake]);
 
   // Update engine CC and fuel when model changes
   const handleModelChange = (modelName: string) => {
@@ -88,7 +85,10 @@ export function KraCrspCalculator({
             <div>
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 KRA CRSP Customs &amp; Import Duty Calculator
-                <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]">
+                <Badge
+                  variant="outline"
+                  className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px]"
+                >
                   EAC Customs 2026 Table
                 </Badge>
               </h3>
@@ -193,9 +193,7 @@ export function KraCrspCalculator({
               <Label className="text-xs">Fuel Type</Label>
               <Select
                 value={fuelType}
-                onValueChange={(v) =>
-                  setFuelType(v as "petrol" | "diesel" | "hybrid" | "electric")
-                }
+                onValueChange={(v) => setFuelType(v as "petrol" | "diesel" | "hybrid" | "electric")}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -231,7 +229,9 @@ export function KraCrspCalculator({
             <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive flex items-start gap-2">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
               <div>
-                <strong>Warning:</strong> Vehicles older than 8 years from year of manufacture cannot be cleared for commercial registration in Kenya under KEBS/KRA KS 1515:2000 standards.
+                <strong>Warning:</strong> Vehicles older than 8 years from year of manufacture
+                cannot be cleared for commercial registration in Kenya under KEBS/KRA KS 1515:2000
+                standards.
               </div>
             </div>
           )}
@@ -251,7 +251,9 @@ export function KraCrspCalculator({
               <div className="py-2 flex justify-between">
                 <div>
                   <span className="font-medium">1. Import Duty (ID)</span>
-                  <span className="block text-[11px] text-muted-foreground">35% of Customs CIF Value</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    35% of Customs CIF Value
+                  </span>
                 </div>
                 <span className="font-mono font-semibold">{fmtKes(duty.importDutyKes)}</span>
               </div>
@@ -278,7 +280,9 @@ export function KraCrspCalculator({
               <div className="py-2 flex justify-between">
                 <div>
                   <span className="font-medium">3. Value Added Tax (VAT)</span>
-                  <span className="block text-[11px] text-muted-foreground">16% on (CIF + ID + ED)</span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    16% on (CIF + ID + ED)
+                  </span>
                 </div>
                 <span className="font-mono font-semibold">{fmtKes(duty.vatKes)}</span>
               </div>

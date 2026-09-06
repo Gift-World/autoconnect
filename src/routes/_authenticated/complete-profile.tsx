@@ -7,12 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -57,7 +52,6 @@ function CompleteProfilePage() {
       setRole(profile.role === "buyer" || profile.role === "seller" ? profile.role : null);
       hydratedFromProfile.current = true;
     }
-
   }, [profile, navigate]);
 
   const finalWhatsapp = whatsappSame ? phone : whatsapp;
@@ -97,8 +91,7 @@ function CompleteProfilePage() {
     }
 
     if (role === "seller") {
-      const countryName =
-        COUNTRIES.find((c) => c.code === country)?.name ?? country;
+      const countryName = COUNTRIES.find((c) => c.code === country)?.name ?? country;
       const { error: sellerErr } = await supabase.from("sellers").upsert(
         {
           profile_id: user.id,
@@ -140,9 +133,7 @@ function CompleteProfilePage() {
       <Card className="w-full shadow-lg">
         <CardHeader className="space-y-2 text-center">
           <CardTitle className="text-2xl">Complete your profile</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Tell us a bit about you to get started.
-          </p>
+          <p className="text-sm text-muted-foreground">Tell us a bit about you to get started.</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={onSubmit} className="space-y-4">
@@ -203,12 +194,7 @@ function CompleteProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  required
-                />
+                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
               </div>
             </div>
 
@@ -244,11 +230,7 @@ function CompleteProfilePage() {
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={submitting || !canSubmit}
-              className="w-full"
-            >
+            <Button type="submit" disabled={submitting || !canSubmit} className="w-full">
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {profile?.full_name ? "Save Profile" : "Complete Setup"}
             </Button>

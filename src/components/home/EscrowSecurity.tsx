@@ -30,7 +30,9 @@ export function EscrowSecurity() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Never send direct money to strangers. AutoConnect holds your deposit or full purchase amount in a secured trust account until you physically test-drive and verify the vehicle.
+            Never send direct money to strangers. AutoConnect holds your deposit or full purchase
+            amount in a secured trust account until you physically test-drive and verify the
+            vehicle.
           </p>
         </div>
 
@@ -40,7 +42,9 @@ export function EscrowSecurity() {
             {/* Step 1: Buyer Deposit */}
             <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">Step 01</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
+                  Step 01
+                </span>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-500/20 text-teal-300">
                     <Banknote className="h-4 w-4" />
@@ -48,7 +52,8 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Buyer Deposits</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
-                  Payment is made via Card (Stripe), M-Pesa, or direct Bank Wire into a ring-fenced escrow account.
+                  Payment is made via Card (Stripe), M-Pesa, or direct Bank Wire into a ring-fenced
+                  escrow account.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] font-medium text-emerald-600 flex items-center gap-1">
@@ -59,7 +64,9 @@ export function EscrowSecurity() {
             {/* Step 2: AutoConnect Trust Custody */}
             <div className="flex flex-col justify-between rounded-2xl border border-teal-300 bg-teal-50 p-5 shadow-lg shadow-teal-500/10">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700">Step 02</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-700">
+                  Step 02
+                </span>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-500 text-slate-950">
                     <Lock className="h-4 w-4" />
@@ -67,7 +74,8 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Secure Custody</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-600">
-                  AutoConnect notifies the seller that funds are secured. Zero funds are accessible by the seller yet.
+                  AutoConnect notifies the seller that funds are secured. Zero funds are accessible
+                  by the seller yet.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-teal-200 text-[11px] font-medium text-teal-700 flex items-center gap-1">
@@ -78,7 +86,9 @@ export function EscrowSecurity() {
             {/* Step 3: Physical Inspection */}
             <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">Step 03</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
+                  Step 03
+                </span>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-500/20 text-teal-300">
                     <SearchCheck className="h-4 w-4" />
@@ -86,7 +96,8 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">In-Person Check</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
-                  Buyer physically test-drives the vehicle, verifies logbook authenticity, and reviews mechanical condition.
+                  Buyer physically test-drives the vehicle, verifies logbook authenticity, and
+                  reviews mechanical condition.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] font-medium text-amber-600 flex items-center gap-1">
@@ -97,7 +108,9 @@ export function EscrowSecurity() {
             {/* Step 4: 6-Digit Handover PIN */}
             <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">Step 04</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
+                  Step 04
+                </span>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-teal-500/20 text-teal-300">
                     <KeyRound className="h-4 w-4" />
@@ -105,7 +118,8 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Handover PIN</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
-                  When satisfied, the buyer issues their private 6-digit release PIN to formally accept the car.
+                  When satisfied, the buyer issues their private 6-digit release PIN to formally
+                  accept the car.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] font-medium text-teal-700 flex items-center gap-1">
@@ -116,7 +130,9 @@ export function EscrowSecurity() {
             {/* Step 5: Instant Seller Payout */}
             <div className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">Step 05</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
+                  Step 05
+                </span>
                 <div className="mt-2 flex items-center gap-2.5">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/20 text-emerald-400">
                     <UserCheck className="h-4 w-4" />
@@ -124,7 +140,8 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Seller Payout</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
-                  Funds are automatically released to the seller's verified bank account or M-Pesa business till.
+                  Funds are automatically released to the seller's verified bank account or M-Pesa
+                  business till.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] font-medium text-emerald-600 flex items-center gap-1">
@@ -140,7 +157,9 @@ export function EscrowSecurity() {
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <p className="text-xs sm:text-sm text-slate-600">
-                <span className="font-bold text-slate-900">Buyer Escrow Protection:</span> If the vehicle fails physical inspection or title checks, your funds remain protected and are refunded.
+                <span className="font-bold text-slate-900">Buyer Escrow Protection:</span> If the
+                vehicle fails physical inspection or title checks, your funds remain protected and
+                are refunded.
               </p>
             </div>
 

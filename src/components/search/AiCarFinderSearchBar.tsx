@@ -270,7 +270,7 @@ export function AiCarFinderSearchBar({
 
     // 6. Price Extraction: "under 4M", "below 3.5m", "under 50k", "< 4000000"
     const priceUnderMatch = raw.match(
-      /(?:under|below|less than|max|up to|<)\s*(\d+(?:\.\d+)?)\s*(m|million|k|thousand|kes|usd)?/i
+      /(?:under|below|less than|max|up to|<)\s*(\d+(?:\.\d+)?)\s*(m|million|k|thousand|kes|usd)?/i,
     );
     if (priceUnderMatch) {
       const num = parseFloat(priceUnderMatch[1]);
@@ -285,7 +285,9 @@ export function AiCarFinderSearchBar({
     }
 
     // Between price range e.g. "between 2m and 4m"
-    const priceRangeMatch = raw.match(/between\s*(\d+(?:\.\d+)?)\s*m?\s*(?:and|to|-)\s*(\d+(?:\.\d+)?)\s*m/i);
+    const priceRangeMatch = raw.match(
+      /between\s*(\d+(?:\.\d+)?)\s*m?\s*(?:and|to|-)\s*(\d+(?:\.\d+)?)\s*m/i,
+    );
     if (priceRangeMatch) {
       parsed.minPrice = parseFloat(priceRangeMatch[1]) * 1_000_000;
       parsed.maxPrice = parseFloat(priceRangeMatch[2]) * 1_000_000;
@@ -312,7 +314,9 @@ export function AiCarFinderSearchBar({
     if (raw.includes("low mileage") || raw.includes("low km")) {
       parsed.maxMileage = 50000;
     } else {
-      const mileageMatch = raw.match(/(?:under|below|max)\s*(\d+)\s*(?:k|km|000)\s*(?:km|mileage|miles)?/i);
+      const mileageMatch = raw.match(
+        /(?:under|below|max)\s*(\d+)\s*(?:k|km|000)\s*(?:km|mileage|miles)?/i,
+      );
       if (mileageMatch) {
         const num = parseInt(mileageMatch[1], 10);
         parsed.maxMileage = num < 500 ? num * 1000 : num;
@@ -451,37 +455,55 @@ export function AiCarFinderSearchBar({
           </span>
 
           {extractedFilters.make && (
-            <Badge variant="secondary" className="text-xs bg-teal-500/15 text-teal-300 border-teal-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-teal-500/15 text-teal-300 border-teal-500/30 gap-1"
+            >
               <Car className="h-3 w-3" /> Make: {extractedFilters.make}
             </Badge>
           )}
 
           {extractedFilters.model && (
-            <Badge variant="secondary" className="text-xs bg-teal-500/15 text-teal-300 border-teal-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-teal-500/15 text-teal-300 border-teal-500/30 gap-1"
+            >
               Model: {extractedFilters.model}
             </Badge>
           )}
 
           {extractedFilters.bodyType && (
-            <Badge variant="secondary" className="text-xs bg-blue-500/15 text-blue-300 border-blue-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-blue-500/15 text-blue-300 border-blue-500/30 gap-1"
+            >
               <Layers className="h-3 w-3" /> {extractedFilters.bodyType.toUpperCase()}
             </Badge>
           )}
 
           {extractedFilters.maxPrice && (
-            <Badge variant="secondary" className="text-xs bg-emerald-500/15 text-emerald-300 border-emerald-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-emerald-500/15 text-emerald-300 border-emerald-500/30 gap-1"
+            >
               <Banknote className="h-3 w-3" /> Max: {formatPrice(extractedFilters.maxPrice)}
             </Badge>
           )}
 
           {extractedFilters.minYear && (
-            <Badge variant="secondary" className="text-xs bg-purple-500/15 text-purple-300 border-purple-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-purple-500/15 text-purple-300 border-purple-500/30 gap-1"
+            >
               <Calendar className="h-3 w-3" /> Year: {extractedFilters.minYear}+
             </Badge>
           )}
 
           {extractedFilters.fuelType && (
-            <Badge variant="secondary" className="text-xs bg-amber-500/15 text-amber-300 border-amber-500/30 gap-1">
+            <Badge
+              variant="secondary"
+              className="text-xs bg-amber-500/15 text-amber-300 border-amber-500/30 gap-1"
+            >
               <Fuel className="h-3 w-3" /> {extractedFilters.fuelType}
             </Badge>
           )}

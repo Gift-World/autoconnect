@@ -68,11 +68,7 @@ export function TrustChecks({ carId, carFlags, sellerVerified }: Props) {
     let active = true;
     void (async () => {
       const [v, i] = await Promise.all([
-        supabase
-          .from("car_verifications")
-          .select("status")
-          .eq("car_id", carId)
-          .maybeSingle(),
+        supabase.from("car_verifications").select("status").eq("car_id", carId).maybeSingle(),
         supabase
           .from("inspections")
           .select("status, admin_approved")

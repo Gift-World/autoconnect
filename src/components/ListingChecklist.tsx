@@ -28,10 +28,8 @@ export function ListingChecklist({ carId, variant = "seller" }: Props) {
         supabase.from("car_documents").select("kind").eq("car_id", carId),
       ]);
       if (!active) return;
-      setPhotoKinds(
-        ((imgs.data ?? []).map((r) => r.photo_kind).filter(Boolean) as string[]),
-      );
-      setDocKinds(((docs.data ?? []).map((r) => r.kind) as string[]));
+      setPhotoKinds((imgs.data ?? []).map((r) => r.photo_kind).filter(Boolean) as string[]);
+      setDocKinds((docs.data ?? []).map((r) => r.kind) as string[]);
       setLoading(false);
     })();
     return () => {
@@ -58,11 +56,7 @@ export function ListingChecklist({ carId, variant = "seller" }: Props) {
         <h3 className="text-sm font-semibold">
           {variant === "admin" ? "Submission checklist" : "What's missing"}
         </h3>
-        <span
-          className={`text-xs font-medium ${
-            complete ? "text-emerald-600" : "text-amber-600"
-          }`}
-        >
+        <span className={`text-xs font-medium ${complete ? "text-emerald-600" : "text-amber-600"}`}>
           {complete
             ? "Complete"
             : `${photosMissing.length + docsMissing.length} item${
@@ -90,21 +84,15 @@ export function ListingChecklist({ carId, variant = "seller" }: Props) {
 
       {variant === "seller" && !complete && (
         <p className="text-xs text-muted-foreground">
-          Add the items above to help admin approve your listing faster. Uploaded documents
-          count as received — they're marked verified after review.
+          Add the items above to help admin approve your listing faster. Uploaded documents count as
+          received — they're marked verified after review.
         </p>
       )}
     </div>
   );
 }
 
-function Section({
-  title,
-  items,
-}: {
-  title: string;
-  items: { label: string; done: boolean }[];
-}) {
+function Section({ title, items }: { title: string; items: { label: string; done: boolean }[] }) {
   return (
     <div>
       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">

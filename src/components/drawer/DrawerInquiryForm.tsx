@@ -97,20 +97,22 @@ export function DrawerInquiryForm({
 
           {/* Quick Inquiry Type Pills */}
           <div className="grid grid-cols-2 gap-1.5">
-            {["Test Drive Request", "Offer Inquiry", "Inspection Report", "Availability"].map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setFormData({ ...formData, inquiryType: type })}
-                className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-left transition-all truncate ${
-                  formData.inquiryType === type
-                    ? "border-teal-500 bg-teal-500/15 text-teal-600 dark:text-teal-300 font-bold"
-                    : "border-border bg-background text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
+            {["Test Drive Request", "Offer Inquiry", "Inspection Report", "Availability"].map(
+              (type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, inquiryType: type })}
+                  className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-left transition-all truncate ${
+                    formData.inquiryType === type
+                      ? "border-teal-500 bg-teal-500/15 text-teal-600 dark:text-teal-300 font-bold"
+                      : "border-border bg-background text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {type}
+                </button>
+              ),
+            )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

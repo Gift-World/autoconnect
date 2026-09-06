@@ -112,17 +112,16 @@ function ProfilePage() {
         </div>
       </div>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((v) => mutation.mutate(v))}
-          className="space-y-4"
-        >
+        <form onSubmit={form.handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
           <FormField
             control={form.control}
             name="full_name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Full name</FormLabel>
-                <FormControl><Input {...field} /></FormControl>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -134,7 +133,9 @@ function ProfilePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Phone</FormLabel>
-                  <FormControl><Input placeholder="+1 555 123 4567" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="+1 555 123 4567" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -145,7 +146,9 @@ function ProfilePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>WhatsApp</FormLabel>
-                  <FormControl><Input placeholder="+1 555 123 4567" {...field} /></FormControl>
+                  <FormControl>
+                    <Input placeholder="+1 555 123 4567" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -160,7 +163,9 @@ function ProfilePage() {
                   <FormLabel>Country</FormLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select country" />
+                      </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {COUNTRIES.map((c) => (
@@ -180,7 +185,9 @@ function ProfilePage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>City</FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

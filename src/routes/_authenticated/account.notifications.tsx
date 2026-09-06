@@ -46,7 +46,11 @@ function NotificationsPage() {
 
   async function markAll() {
     if (!user) return;
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false);
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
     qc.invalidateQueries({ queryKey: ["notifications-all", user.id] });
   }
 
@@ -64,7 +68,9 @@ function NotificationsPage() {
 
       {isLoading ? (
         <div className="space-y-2">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
+          ))}
         </div>
       ) : !data || data.length === 0 ? (
         <EmptyState
@@ -87,10 +93,12 @@ function NotificationsPage() {
                 !n.is_read && "bg-accent/[0.04]",
               )}
             >
-              <span className={cn(
-                "mt-1 h-2 w-2 shrink-0 rounded-full",
-                !n.is_read ? "bg-accent" : "bg-border",
-              )} />
+              <span
+                className={cn(
+                  "mt-1 h-2 w-2 shrink-0 rounded-full",
+                  !n.is_read ? "bg-accent" : "bg-border",
+                )}
+              />
               <span className="min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
                   <span className="truncate text-sm font-medium">{n.title}</span>
@@ -98,7 +106,11 @@ function NotificationsPage() {
                     {new Date(n.created_at).toLocaleString()}
                   </span>
                 </span>
-                {n.body && <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">{n.body}</span>}
+                {n.body && (
+                  <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">
+                    {n.body}
+                  </span>
+                )}
               </span>
             </button>
           ))}

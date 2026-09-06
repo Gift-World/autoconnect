@@ -89,9 +89,12 @@ export const DEMO_YARDS: DemoYard[] = [
     slug: "nairobi-hub",
     name: "AutoConnect Nairobi Central Yard",
     tagline: "Premier Verified Logistics Hub & Inspection Center",
-    description: "Located on Ngong Road, Nairobi. Fully equipped with multi-point automated vehicle diagnostic bays, secure escrow storage, physical vehicle viewing, and automated biometric gate pass issuance.",
-    logo_url: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80",
-    cover_url: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&auto=format&fit=crop&q=80",
+    description:
+      "Located on Ngong Road, Nairobi. Fully equipped with multi-point automated vehicle diagnostic bays, secure escrow storage, physical vehicle viewing, and automated biometric gate pass issuance.",
+    logo_url:
+      "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80",
+    cover_url:
+      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=1200&auto=format&fit=crop&q=80",
     country: "KE",
     city: "Nairobi",
     address: "Ngong Road, Junction Bay 14, Nairobi",
@@ -107,9 +110,12 @@ export const DEMO_YARDS: DemoYard[] = [
     slug: "mombasa-port-hub",
     name: "Mombasa Port Logistics & Customs Yard",
     tagline: "KPA Port Customs Clearance & Clearing Bay",
-    description: "Direct access to Kilindini Harbour, Port of Mombasa. Specialized in KRA customs duty clearance, KEBS verification, and secure container de-stuffing.",
-    logo_url: "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=400&auto=format&fit=crop&q=80",
-    cover_url: "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1200&auto=format&fit=crop&q=80",
+    description:
+      "Direct access to Kilindini Harbour, Port of Mombasa. Specialized in KRA customs duty clearance, KEBS verification, and secure container de-stuffing.",
+    logo_url:
+      "https://images.unsplash.com/photo-1517524008697-84bbe3c3fd98?w=400&auto=format&fit=crop&q=80",
+    cover_url:
+      "https://images.unsplash.com/photo-1506521781263-d8422e82f27a?w=1200&auto=format&fit=crop&q=80",
     country: "KE",
     city: "Mombasa",
     address: "Mbaraki Port Access Rd, Mombasa Port",
@@ -125,9 +131,12 @@ export const DEMO_YARDS: DemoYard[] = [
     slug: "yokohama-export-terminal",
     name: "Yokohama Direct Export Terminal",
     tagline: "JEVIC & QISJ Certified Export Bay Japan",
-    description: "Honmoku Pier, Yokohama Port. Full pre-shipment radiation inspection, genuine odometer verification, and RoRo/Container shipping directly to East Africa.",
-    logo_url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&auto=format&fit=crop&q=80",
-    cover_url: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&auto=format&fit=crop&q=80",
+    description:
+      "Honmoku Pier, Yokohama Port. Full pre-shipment radiation inspection, genuine odometer verification, and RoRo/Container shipping directly to East Africa.",
+    logo_url:
+      "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&auto=format&fit=crop&q=80",
+    cover_url:
+      "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1200&auto=format&fit=crop&q=80",
     country: "JP",
     city: "Yokohama",
     address: "Honmoku Pier 7, Naka Ward, Yokohama, Kanagawa",
@@ -161,12 +170,15 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Pearl White",
     engine_size: "2800cc (1GD-FTV)",
     condition: "Foreign Used - Grade 4.5A",
-    description: "Mint condition 2021 Land Cruiser Prado TX-L package. 7-seater leather interior, sunroof, 360-degree cameras, radar cruise control, KDSS suspension, genuine verified mileage, clean title ready for instant handover via escrow.",
+    description:
+      "Mint condition 2021 Land Cruiser Prado TX-L package. 7-seater leather interior, sunroof, 360-degree cameras, radar cruise control, KDSS suspension, genuine verified mileage, clean title ready for instant handover via escrow.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
-    shipping_info: "Available for immediate pickup in Nairobi Yard or express domestic flatbed dispatch within 24 hours.",
-    import_duties_note: "Fully duty paid. Tax clearance certificate and roadworthiness inspection certificate included.",
+    shipping_info:
+      "Available for immediate pickup in Nairobi Yard or express domestic flatbed dispatch within 24 hours.",
+    import_duties_note:
+      "Fully duty paid. Tax clearance certificate and roadworthiness inspection certificate included.",
     vin: "JTEBX3FJ8M0291844",
     featured: true,
     views: 1842,
@@ -184,22 +196,26 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 1,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 2,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 3,
       },
@@ -208,7 +224,8 @@ export const DEMO_CARS: DemoCar[] = [
       id: "yard-1",
       slug: "nairobi-hub",
       name: "AutoConnect Nairobi Central Yard",
-      logo_url: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80",
+      logo_url:
+        "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=400&auto=format&fit=crop&q=80",
       city: "Nairobi",
       country: "KE",
       is_approved: true,
@@ -247,7 +264,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Pearl Crystal White",
     engine_size: "2500cc Hybrid (A25A-FXS)",
     condition: "Foreign Used - Grade 4.5A",
-    description: "Exceptional 2021 Toyota Harrier Hybrid G-Edition. 22 km/L fuel efficiency, leather trimmed seats, digital inner mirror with front & rear drive recorder, power back door, Toyota Safety Sense 2.0.",
+    description:
+      "Exceptional 2021 Toyota Harrier Hybrid G-Edition. 22 km/L fuel efficiency, leather trimmed seats, digital inner mirror with front & rear drive recorder, power back door, Toyota Safety Sense 2.0.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -270,17 +288,20 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 1,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 2,
       },
@@ -328,7 +349,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Iridium Silver Metallic",
     engine_size: "1500cc Turbo + 48V Mild Hybrid",
     condition: "Foreign Used - Grade 4.5B",
-    description: "Immaculate Mercedes-Benz C200 AMG Line facelift. Full digital cockpit, panoramic glass roof, ambient lighting, AMG flat-bottom steering wheel, Burmester sound, full dealer service record.",
+    description:
+      "Immaculate Mercedes-Benz C200 AMG Line facelift. Full digital cockpit, panoramic glass roof, ambient lighting, AMG flat-bottom steering wheel, Burmester sound, full dealer service record.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -351,12 +373,14 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 1,
       },
@@ -404,7 +428,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Phytonic Blue Metallic",
     engine_size: "2000cc TwinPower Turbo (248 HP)",
     condition: "Foreign Used - Grade 4.5A",
-    description: "Flagship executive BMW 530i M Sport package. Dakota Cognac leather interior, Live Cockpit Professional with 12.3-inch display, head-up display, adaptive M suspension, Harman Kardon audio system.",
+    description:
+      "Flagship executive BMW 530i M Sport package. Dakota Cognac leather interior, Live Cockpit Professional with 12.3-inch display, head-up display, adaptive M suspension, Harman Kardon audio system.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -427,7 +452,8 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
@@ -475,7 +501,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Attitude Black Mica",
     engine_size: "2800cc Turbo Diesel (500 Nm)",
     condition: "Local Used - Grade 4.5",
-    description: "Legendary off-road durability. 2.8L GD-6 diesel powertrain with rear differential lock, Downhill Assist Control, Apple CarPlay / Android Auto touchscreen, heavy-duty bed liner, tow bar, and bull bar.",
+    description:
+      "Legendary off-road durability. 2.8L GD-6 diesel powertrain with rear differential lock, Downhill Assist Control, Apple CarPlay / Android Auto touchscreen, heavy-duty bed liner, tow bar, and bull bar.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -498,7 +525,8 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
@@ -546,7 +574,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Pride Orange Metallic",
     engine_size: "2000cc Bi-Turbo Diesel (210 HP)",
     condition: "Foreign Used - Grade 5A",
-    description: "Premium overland pickup truck. Terrain Management System, powered roller shutter bed, heated leather Wildtrak seats, adaptive cruise control, 3.5-ton towing capability with integrated trailer brake controller.",
+    description:
+      "Premium overland pickup truck. Terrain Management System, powered roller shutter bed, heated leather Wildtrak seats, adaptive cruise control, 3.5-ton towing capability with integrated trailer brake controller.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -569,7 +598,8 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
@@ -617,7 +647,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Obsidian Black Metallic",
     engine_size: "2000cc Turbo (255 HP)",
     condition: "Foreign Used - Grade 4.5A",
-    description: "Executive luxury saloon with panoramic glass sunroof, Burmester 13-speaker 590W surround sound system, widescreen dual 12.3-inch cockpit, 64-color ambient lighting, and AMG Line styling package.",
+    description:
+      "Executive luxury saloon with panoramic glass sunroof, Burmester 13-speaker 590W surround sound system, widescreen dual 12.3-inch cockpit, 64-color ambient lighting, and AMG Line styling package.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -640,7 +671,8 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
@@ -689,7 +721,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Tungsten Metallic",
     engine_size: "2500cc Boxer",
     condition: "Foreign Used - Grade 4.5A",
-    description: "Rugged elegance with Subaru Symmetrical All-Wheel Drive and X-MODE with Hill Descent Control. EyeSight driver assist technology, Harman Kardon sound, dual-zone climate, heated leather seats.",
+    description:
+      "Rugged elegance with Subaru Symmetrical All-Wheel Drive and X-MODE with Hill Descent Control. EyeSight driver assist technology, Harman Kardon sound, dual-zone climate, heated leather seats.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -711,17 +744,20 @@ export const DEMO_CARS: DemoCar[] = [
     installment_monthly: 138000,
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1502877338535-766e1452684a?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 1,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 2,
       },
@@ -769,7 +805,8 @@ export const DEMO_CARS: DemoCar[] = [
     color: "Soul Red Crystal",
     engine_size: "2200cc SkyActiv-D",
     condition: "Foreign Used - Grade 5A",
-    description: "Top-tier Mazda CX-5 Exclusive Mode. Nappa leather seats with front ventilation, Bose 10-speaker premium audio, Head-Up Display (HUD), lane keep assist, smart brake support, power tailgate.",
+    description:
+      "Top-tier Mazda CX-5 Exclusive Mode. Nappa leather seats with front ventilation, Bose 10-speaker premium audio, Head-Up Display (HUD), lane keep assist, smart brake support, power tailgate.",
     right_hand_drive: true,
     steering_side: "right",
     available_for_export: true,
@@ -792,17 +829,20 @@ export const DEMO_CARS: DemoCar[] = [
     yard_id: "yard-1",
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
         sort_order: 0,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 1,
       },
       {
-        image_url: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80",
         is_primary: false,
         sort_order: 2,
       },
@@ -854,7 +894,8 @@ export const DEMO_TRANSACTION = {
     year: 2021,
     car_images: [
       {
-        image_url: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80",
+        image_url:
+          "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1200&auto=format&fit=crop&q=80",
         is_primary: true,
       },
     ],

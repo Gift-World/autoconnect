@@ -31,8 +31,7 @@ export function PersonaControlDock() {
 
   if (!mounted) return null;
 
-  const currentPersona =
-    DEMO_PERSONAS.find((p) => p.role === activeRole) || DEMO_PERSONAS[0];
+  const currentPersona = DEMO_PERSONAS.find((p) => p.role === activeRole) || DEMO_PERSONAS[0];
 
   const handleSwitch = (persona: DemoPersona) => {
     setActiveRole(persona.role);
@@ -112,9 +111,7 @@ export function PersonaControlDock() {
                   <Layers className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-foreground">
-                    Live Persona Switcher
-                  </h3>
+                  <h3 className="text-sm font-bold text-foreground">Live Persona Switcher</h3>
                   <p className="text-[11px] text-muted-foreground">
                     Experience AutoConnect from all 4 ecosystem perspectives
                   </p>
@@ -200,7 +197,11 @@ export function PersonaControlDock() {
             {/* Bottom Actions */}
             <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
               <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" size="sm" className="h-9 text-xs rounded-xl border-border">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 text-xs rounded-xl border-border"
+                >
                   <Layers className="h-3.5 w-3.5 mr-1.5 text-accent" />
                   All-in-One Dashboard
                 </Button>

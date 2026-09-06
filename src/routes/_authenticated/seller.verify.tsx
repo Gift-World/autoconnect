@@ -7,9 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tabs, TabsList, TabsTrigger, TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { ShieldCheck, Clock, XCircle, Upload, Check, Loader2 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
@@ -212,47 +210,158 @@ function SellerVerifyPage() {
         </p>
       </header>
 
-      <StatusBanner status={status} notes={vQ.data?.identity_rejection_reason ?? vQ.data?.admin_notes ?? null} />
+      <StatusBanner
+        status={status}
+        notes={vQ.data?.identity_rejection_reason ?? vQ.data?.admin_notes ?? null}
+      />
 
-      <Tabs value={accountType} onValueChange={(v) => !readOnly && setAccountType(v as "private" | "dealer")}>
+      <Tabs
+        value={accountType}
+        onValueChange={(v) => !readOnly && setAccountType(v as "private" | "dealer")}
+      >
         <TabsList>
-          <TabsTrigger value="private" disabled={readOnly && accountType !== "private"}>Private seller</TabsTrigger>
-          <TabsTrigger value="dealer" disabled={readOnly && accountType !== "dealer"}>Dealership</TabsTrigger>
+          <TabsTrigger value="private" disabled={readOnly && accountType !== "private"}>
+            Private seller
+          </TabsTrigger>
+          <TabsTrigger value="dealer" disabled={readOnly && accountType !== "dealer"}>
+            Dealership
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="private" className="mt-4 space-y-4">
           <Section title="Identity">
-            <TextField label="ID / passport number" value={form.national_id_number ?? ""} onChange={(v) => setForm({ ...form, national_id_number: v })} disabled={readOnly} />
-            <FileField label="ID front photo" bucket={BUCKET} userId={user!.id} value={form.national_id_front_url ?? null} onChange={(v) => setForm({ ...form, national_id_front_url: v })} disabled={readOnly} />
-            <FileField label="ID back photo (optional)" bucket={BUCKET} userId={user!.id} value={form.national_id_back_url ?? null} onChange={(v) => setForm({ ...form, national_id_back_url: v })} disabled={readOnly} />
-            <FileField label="Selfie holding your ID (optional)" bucket={BUCKET} userId={user!.id} value={form.selfie_with_id_url ?? null} onChange={(v) => setForm({ ...form, selfie_with_id_url: v })} disabled={readOnly} />
+            <TextField
+              label="ID / passport number"
+              value={form.national_id_number ?? ""}
+              onChange={(v) => setForm({ ...form, national_id_number: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="ID front photo"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.national_id_front_url ?? null}
+              onChange={(v) => setForm({ ...form, national_id_front_url: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="ID back photo (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.national_id_back_url ?? null}
+              onChange={(v) => setForm({ ...form, national_id_back_url: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="Selfie holding your ID (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.selfie_with_id_url ?? null}
+              onChange={(v) => setForm({ ...form, selfie_with_id_url: v })}
+              disabled={readOnly}
+            />
           </Section>
           <Section title="Address">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField label="County / region" value={form.address_county ?? ""} onChange={(v) => setForm({ ...form, address_county: v })} disabled={readOnly} />
-              <TextField label="Town / city" value={form.address_town ?? ""} onChange={(v) => setForm({ ...form, address_town: v })} disabled={readOnly} />
+              <TextField
+                label="County / region"
+                value={form.address_county ?? ""}
+                onChange={(v) => setForm({ ...form, address_county: v })}
+                disabled={readOnly}
+              />
+              <TextField
+                label="Town / city"
+                value={form.address_town ?? ""}
+                onChange={(v) => setForm({ ...form, address_town: v })}
+                disabled={readOnly}
+              />
             </div>
-            <TextField label="Street / estate (optional)" value={form.address_street ?? ""} onChange={(v) => setForm({ ...form, address_street: v })} disabled={readOnly} />
+            <TextField
+              label="Street / estate (optional)"
+              value={form.address_street ?? ""}
+              onChange={(v) => setForm({ ...form, address_street: v })}
+              disabled={readOnly}
+            />
           </Section>
         </TabsContent>
 
         <TabsContent value="dealer" className="mt-4 space-y-4">
           <Section title="Business">
-            <TextField label="Business name" value={form.business_name ?? ""} onChange={(v) => setForm({ ...form, business_name: v })} disabled={readOnly} />
-            <TextField label="Registration / KRA PIN" value={form.business_reg_number ?? ""} onChange={(v) => setForm({ ...form, business_reg_number: v })} disabled={readOnly} />
-            <FileField label="Certificate of incorporation (optional)" bucket={BUCKET} userId={user!.id} value={form.incorporation_cert_url ?? null} onChange={(v) => setForm({ ...form, incorporation_cert_url: v })} disabled={readOnly} />
-            <FileField label="KRA PIN certificate (optional)" bucket={BUCKET} userId={user!.id} value={form.kra_pin_url ?? null} onChange={(v) => setForm({ ...form, kra_pin_url: v })} disabled={readOnly} />
-            <FileField label="Business permit (optional)" bucket={BUCKET} userId={user!.id} value={form.business_permit_url ?? null} onChange={(v) => setForm({ ...form, business_permit_url: v })} disabled={readOnly} />
-            <FileField label="Premises photo (optional)" bucket={BUCKET} userId={user!.id} value={form.premises_photo_url ?? null} onChange={(v) => setForm({ ...form, premises_photo_url: v })} disabled={readOnly} />
+            <TextField
+              label="Business name"
+              value={form.business_name ?? ""}
+              onChange={(v) => setForm({ ...form, business_name: v })}
+              disabled={readOnly}
+            />
+            <TextField
+              label="Registration / KRA PIN"
+              value={form.business_reg_number ?? ""}
+              onChange={(v) => setForm({ ...form, business_reg_number: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="Certificate of incorporation (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.incorporation_cert_url ?? null}
+              onChange={(v) => setForm({ ...form, incorporation_cert_url: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="KRA PIN certificate (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.kra_pin_url ?? null}
+              onChange={(v) => setForm({ ...form, kra_pin_url: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="Business permit (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.business_permit_url ?? null}
+              onChange={(v) => setForm({ ...form, business_permit_url: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="Premises photo (optional)"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.premises_photo_url ?? null}
+              onChange={(v) => setForm({ ...form, premises_photo_url: v })}
+              disabled={readOnly}
+            />
           </Section>
           <Section title="Owner / director ID">
-            <TextField label="Owner ID / passport number" value={form.national_id_number ?? ""} onChange={(v) => setForm({ ...form, national_id_number: v })} disabled={readOnly} />
-            <FileField label="Owner ID photo" bucket={BUCKET} userId={user!.id} value={form.national_id_front_url ?? null} onChange={(v) => setForm({ ...form, national_id_front_url: v })} disabled={readOnly} />
+            <TextField
+              label="Owner ID / passport number"
+              value={form.national_id_number ?? ""}
+              onChange={(v) => setForm({ ...form, national_id_number: v })}
+              disabled={readOnly}
+            />
+            <FileField
+              label="Owner ID photo"
+              bucket={BUCKET}
+              userId={user!.id}
+              value={form.national_id_front_url ?? null}
+              onChange={(v) => setForm({ ...form, national_id_front_url: v })}
+              disabled={readOnly}
+            />
           </Section>
           <Section title="Address">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField label="County / region" value={form.address_county ?? ""} onChange={(v) => setForm({ ...form, address_county: v })} disabled={readOnly} />
-              <TextField label="Town / city" value={form.address_town ?? ""} onChange={(v) => setForm({ ...form, address_town: v })} disabled={readOnly} />
+              <TextField
+                label="County / region"
+                value={form.address_county ?? ""}
+                onChange={(v) => setForm({ ...form, address_county: v })}
+                disabled={readOnly}
+              />
+              <TextField
+                label="Town / city"
+                value={form.address_town ?? ""}
+                onChange={(v) => setForm({ ...form, address_town: v })}
+                disabled={readOnly}
+              />
             </div>
           </Section>
         </TabsContent>
@@ -261,7 +370,11 @@ function SellerVerifyPage() {
       {!readOnly && (
         <div className="flex justify-end">
           <Button size="lg" onClick={submit} disabled={saving}>
-            {saving ? "Submitting…" : status === "rejected" || status === "more_info_needed" ? "Resubmit" : "Submit for review"}
+            {saving
+              ? "Submitting…"
+              : status === "rejected" || status === "more_info_needed"
+                ? "Resubmit"
+                : "Submit for review"}
           </Button>
         </div>
       )}
@@ -278,7 +391,17 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function TextField({ label, value, onChange, disabled }: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+function TextField({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled?: boolean;
+}) {
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>
@@ -287,7 +410,21 @@ function TextField({ label, value, onChange, disabled }: { label: string; value:
   );
 }
 
-function FileField({ label, bucket, userId, value, onChange, disabled }: { label: string; bucket: string; userId: string; value: string | null; onChange: (path: string | null) => void; disabled?: boolean }) {
+function FileField({
+  label,
+  bucket,
+  userId,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string;
+  bucket: string;
+  userId: string;
+  value: string | null;
+  onChange: (path: string | null) => void;
+  disabled?: boolean;
+}) {
   const [busy, setBusy] = useState(false);
   const ref = useRef<HTMLInputElement>(null);
 
@@ -314,8 +451,18 @@ function FileField({ label, bucket, userId, value, onChange, disabled }: { label
           className="hidden"
           onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
         />
-        <Button type="button" variant="outline" size="sm" onClick={() => ref.current?.click()} disabled={disabled || busy}>
-          {busy ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Upload className="mr-1 h-4 w-4" />}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => ref.current?.click()}
+          disabled={disabled || busy}
+        >
+          {busy ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+          ) : (
+            <Upload className="mr-1 h-4 w-4" />
+          )}
           {value ? "Replace" : "Upload"}
         </Button>
         {value && (
@@ -335,7 +482,9 @@ function StatusBanner({ status, notes }: { status: string; notes: string | null 
         <ShieldCheck className="h-5 w-5 text-success" />
         <div>
           <div className="font-medium">Verified</div>
-          <div className="text-sm text-muted-foreground">Your trust badge is live on all your listings.</div>
+          <div className="text-sm text-muted-foreground">
+            Your trust badge is live on all your listings.
+          </div>
         </div>
       </div>
     );
@@ -345,7 +494,9 @@ function StatusBanner({ status, notes }: { status: string; notes: string | null 
         <Clock className="h-5 w-5 text-muted-foreground" />
         <div>
           <div className="font-medium">Under review</div>
-          <div className="text-sm text-muted-foreground">We'll notify you when review is complete.</div>
+          <div className="text-sm text-muted-foreground">
+            We'll notify you when review is complete.
+          </div>
         </div>
       </div>
     );
@@ -354,7 +505,9 @@ function StatusBanner({ status, notes }: { status: string; notes: string | null 
       <div className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
         <XCircle className="h-5 w-5 text-destructive" />
         <div>
-          <div className="font-medium">{status === "rejected" ? "Not approved" : "More info needed"}</div>
+          <div className="font-medium">
+            {status === "rejected" ? "Not approved" : "More info needed"}
+          </div>
           {notes && <div className="text-sm text-muted-foreground">{notes}</div>}
         </div>
       </div>

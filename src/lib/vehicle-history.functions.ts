@@ -74,9 +74,11 @@ export type AkiInsuranceRecord = {
 
 export const checkUkDvlaMot = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
-    z.object({
-      vrmOrVin: z.string().min(3).max(20),
-    }).parse(input),
+    z
+      .object({
+        vrmOrVin: z.string().min(3).max(20),
+      })
+      .parse(input),
   )
   .handler(async ({ data }): Promise<DvlaMotRecord> => {
     const vrm = data.vrmOrVin.toUpperCase().replace(/\s+/g, "");
@@ -167,9 +169,7 @@ export const checkUkDvlaMot = createServerFn({ method: "POST" })
           testResult: "PASSED",
           expiryDate: "2026-04-14",
           odometerValue: 29800,
-          defects: [
-            { text: "Brake pad wearing close to minimum (Advisory)", type: "ADVISORY" },
-          ],
+          defects: [{ text: "Brake pad wearing close to minimum (Advisory)", type: "ADVISORY" }],
         },
       ],
       isLiveApi: false,
@@ -178,9 +178,11 @@ export const checkUkDvlaMot = createServerFn({ method: "POST" })
 
 export const checkJapaneseJevic = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
-    z.object({
-      chassisNumber: z.string().min(5).max(30),
-    }).parse(input),
+    z
+      .object({
+        chassisNumber: z.string().min(5).max(30),
+      })
+      .parse(input),
   )
   .handler(async ({ data }): Promise<JapaneseJevicRecord> => {
     const chassis = data.chassisNumber.toUpperCase().trim();
@@ -207,9 +209,11 @@ export const checkJapaneseJevic = createServerFn({ method: "POST" })
 
 export const checkNtsaTims = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
-    z.object({
-      regNumber: z.string().min(4).max(12),
-    }).parse(input),
+    z
+      .object({
+        regNumber: z.string().min(4).max(12),
+      })
+      .parse(input),
   )
   .handler(async ({ data }): Promise<NtsaTimsRecord> => {
     const reg = data.regNumber.toUpperCase().replace(/\s+/g, "");
@@ -230,9 +234,11 @@ export const checkNtsaTims = createServerFn({ method: "POST" })
 
 export const checkAkiInsurance = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
-    z.object({
-      regNumber: z.string().min(4).max(12),
-    }).parse(input),
+    z
+      .object({
+        regNumber: z.string().min(4).max(12),
+      })
+      .parse(input),
   )
   .handler(async ({ data }): Promise<AkiInsuranceRecord> => {
     const reg = data.regNumber.toUpperCase().replace(/\s+/g, "");

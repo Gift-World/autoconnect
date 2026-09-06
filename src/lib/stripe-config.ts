@@ -37,14 +37,53 @@ export function fromUsdCents(cents: number): number {
 
 // Stripe Connect supported seller countries (Express). Minimal common set.
 export const STRIPE_CONNECT_COUNTRIES = new Set<string>([
-  "US","CA","GB","AU","NZ","SG","HK","JP",
-  "AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE",
-  "IT","LV","LT","LU","MT","NL","NO","PL","PT","RO","SK","SI","ES","SE","CH",
-  "AE","MX","BR","TH","MY","IN",
+  "US",
+  "CA",
+  "GB",
+  "AU",
+  "NZ",
+  "SG",
+  "HK",
+  "JP",
+  "AT",
+  "BE",
+  "BG",
+  "HR",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "GR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "NO",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+  "CH",
+  "AE",
+  "MX",
+  "BR",
+  "TH",
+  "MY",
+  "IN",
 ]);
 
 export function calculateBreakdown(carPrice: number, currency: string) {
-  const serviceFee = Math.round((carPrice * SERVICE_FEE_PERCENT) / 100 * 100) / 100;
+  const serviceFee = Math.round(((carPrice * SERVICE_FEE_PERCENT) / 100) * 100) / 100;
   const total = Math.round((carPrice + serviceFee) * 100) / 100;
   const carPriceUsdCents = toUsdCents(carPrice, currency);
   const serviceFeeUsdCents = toUsdCents(serviceFee, currency);

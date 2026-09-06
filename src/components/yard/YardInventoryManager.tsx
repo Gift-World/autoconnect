@@ -58,7 +58,8 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     bayNumber: "Bay A-01 (Showroom Front)",
     inspectionStatus: "verified",
     reservationStatus: "reserved",
-    imageUrl: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=800&auto=format&fit=crop&q=60",
+    imageUrl:
+      "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=800&auto=format&fit=crop&q=60",
     updatedAt: "10 mins ago",
   },
   {
@@ -70,7 +71,8 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     bayNumber: "Bay A-04 (Executive Row)",
     inspectionStatus: "verified",
     reservationStatus: "available",
-    imageUrl: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=60",
+    imageUrl:
+      "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=60",
     updatedAt: "25 mins ago",
   },
   {
@@ -82,7 +84,8 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     bayNumber: "Bay B-02 (Yard Central)",
     inspectionStatus: "verified",
     reservationStatus: "available",
-    imageUrl: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
+    imageUrl:
+      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=60",
     updatedAt: "1 hour ago",
   },
   {
@@ -94,7 +97,8 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     bayNumber: "Bay B-07 (Inspection Staging)",
     inspectionStatus: "verified",
     reservationStatus: "gate_pass_issued",
-    imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop&q=60",
+    imageUrl:
+      "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=800&auto=format&fit=crop&q=60",
     updatedAt: "2 hours ago",
   },
   {
@@ -106,7 +110,8 @@ const INITIAL_YARD_VEHICLES: YardVehicle[] = [
     bayNumber: "Bay C-01 (Arrival Bay)",
     inspectionStatus: "verified",
     reservationStatus: "available",
-    imageUrl: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=60",
+    imageUrl:
+      "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=60",
     updatedAt: "Today",
   },
 ];
@@ -126,7 +131,11 @@ const AVAILABLE_BAYS = [
   "VIP Delivery Suite",
 ];
 
-export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: { yardName?: string }) {
+export function YardInventoryManager({
+  yardName = "Ngong Road Mega Yard Hub",
+}: {
+  yardName?: string;
+}) {
   const [vehicles, setVehicles] = useState<YardVehicle[]>(INITIAL_YARD_VEHICLES);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -146,13 +155,16 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
     if (statusFilter === "reserved") return v.reservationStatus === "reserved";
     if (statusFilter === "gate_pass") return v.reservationStatus === "gate_pass_issued";
     if (statusFilter === "verified") return v.inspectionStatus === "verified";
-    if (statusFilter === "needs_inspection") return v.inspectionStatus === "pending" || v.inspectionStatus === "in_progress";
+    if (statusFilter === "needs_inspection")
+      return v.inspectionStatus === "pending" || v.inspectionStatus === "in_progress";
     return true;
   });
 
   const handleUpdateInspection = (carId: string, newStatus: YardVehicle["inspectionStatus"]) => {
     setVehicles((prev) =>
-      prev.map((v) => (v.id === carId ? { ...v, inspectionStatus: newStatus, updatedAt: "Just now" } : v))
+      prev.map((v) =>
+        v.id === carId ? { ...v, inspectionStatus: newStatus, updatedAt: "Just now" } : v,
+      ),
     );
     toast.success("Inspection Status Synced", {
       description: `Vehicle Passport updated to ${newStatus.replace("_", " ").toUpperCase()}`,
@@ -162,7 +174,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
 
   const handleUpdateReservation = (carId: string, newStatus: YardVehicle["reservationStatus"]) => {
     setVehicles((prev) =>
-      prev.map((v) => (v.id === carId ? { ...v, reservationStatus: newStatus, updatedAt: "Just now" } : v))
+      prev.map((v) =>
+        v.id === carId ? { ...v, reservationStatus: newStatus, updatedAt: "Just now" } : v,
+      ),
     );
     toast.success("Reservation Status Updated", {
       description: `Car is now marked as ${newStatus.replace("_", " ").toUpperCase()}`,
@@ -173,7 +187,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
   const handleSaveBay = () => {
     if (!editBayModalVehicle || !targetBay) return;
     setVehicles((prev) =>
-      prev.map((v) => (v.id === editBayModalVehicle.id ? { ...v, bayNumber: targetBay, updatedAt: "Just now" } : v))
+      prev.map((v) =>
+        v.id === editBayModalVehicle.id ? { ...v, bayNumber: targetBay, updatedAt: "Just now" } : v,
+      ),
     );
     toast.success(`Assigned to ${targetBay}`);
     setEditBayModalVehicle(null);
@@ -213,7 +229,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
           <p className="mt-1.5 text-xl font-bold text-foreground">
             {vehicles.filter((v) => v.reservationStatus === "reserved").length}
           </p>
-          <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Deposit secured</span>
+          <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+            Deposit secured
+          </span>
         </div>
 
         <div className="rounded-xl border border-border/80 bg-card p-3.5 shadow-xs">
@@ -224,7 +242,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
           <p className="mt-1.5 text-xl font-bold text-foreground">
             {vehicles.filter((v) => v.reservationStatus === "gate_pass_issued").length}
           </p>
-          <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">Handover clearance</span>
+          <span className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">
+            Handover clearance
+          </span>
         </div>
       </div>
 
@@ -326,7 +346,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
               <div className="flex items-center gap-1">
                 <Select
                   value={car.inspectionStatus}
-                  onValueChange={(v: YardVehicle["inspectionStatus"]) => handleUpdateInspection(car.id, v)}
+                  onValueChange={(v: YardVehicle["inspectionStatus"]) =>
+                    handleUpdateInspection(car.id, v)
+                  }
                 >
                   <SelectTrigger className="h-8 text-xs w-[140px] bg-background">
                     <SelectValue />
@@ -355,7 +377,9 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
               <div className="flex items-center gap-1">
                 <Select
                   value={car.reservationStatus}
-                  onValueChange={(v: YardVehicle["reservationStatus"]) => handleUpdateReservation(car.id, v)}
+                  onValueChange={(v: YardVehicle["reservationStatus"]) =>
+                    handleUpdateReservation(car.id, v)
+                  }
                 >
                   <SelectTrigger className="h-8 text-xs w-[145px] bg-background">
                     <SelectValue />
@@ -402,7 +426,10 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
                   Gate Release Token
                 </p>
                 <p className="text-2xl font-mono font-bold tracking-wider text-primary my-1">
-                  GP-{gatePassModalVehicle.year}-{Math.abs(gatePassModalVehicle.title.length * 4821).toString().slice(0, 5)}
+                  GP-{gatePassModalVehicle.year}-
+                  {Math.abs(gatePassModalVehicle.title.length * 4821)
+                    .toString()
+                    .slice(0, 5)}
                 </p>
                 <p className="text-[11px] text-muted-foreground">
                   Show this token or QR code at security check-in for physical drive-out.
@@ -412,19 +439,27 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
               <div className="space-y-2 text-xs">
                 <div className="flex justify-between border-b py-1.5">
                   <span className="text-muted-foreground">Vehicle:</span>
-                  <span className="font-semibold text-foreground">{gatePassModalVehicle.title}</span>
+                  <span className="font-semibold text-foreground">
+                    {gatePassModalVehicle.title}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b py-1.5">
                   <span className="text-muted-foreground">Parking Bay:</span>
-                  <span className="font-semibold text-foreground">{gatePassModalVehicle.bayNumber}</span>
+                  <span className="font-semibold text-foreground">
+                    {gatePassModalVehicle.bayNumber}
+                  </span>
                 </div>
                 <div className="flex justify-between border-b py-1.5">
                   <span className="text-muted-foreground">Escrow Status:</span>
-                  <Badge className="bg-emerald-600 text-white text-[10px]">Funds Locked in Vault</Badge>
+                  <Badge className="bg-emerald-600 text-white text-[10px]">
+                    Funds Locked in Vault
+                  </Badge>
                 </div>
                 <div className="flex justify-between py-1.5">
                   <span className="text-muted-foreground">Mechanic Inspection:</span>
-                  <span className="font-semibold text-emerald-600">42-Point Checkmark Certified</span>
+                  <span className="font-semibold text-emerald-600">
+                    42-Point Checkmark Certified
+                  </span>
                 </div>
               </div>
 
@@ -473,7 +508,11 @@ export function YardInventoryManager({ yardName = "Ngong Road Mega Yard Hub" }: 
               <Button variant="outline" size="sm" onClick={() => setEditBayModalVehicle(null)}>
                 Cancel
               </Button>
-              <Button size="sm" onClick={handleSaveBay} className="bg-primary text-primary-foreground">
+              <Button
+                size="sm"
+                onClick={handleSaveBay}
+                className="bg-primary text-primary-foreground"
+              >
                 Save Bay Assignment
               </Button>
             </div>

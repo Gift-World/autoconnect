@@ -77,7 +77,9 @@ export function calculateAutoConnectScore(data: ScoreVehicleData): AutoConnectSc
     points: sellerPts,
     maxPoints: 20,
     earned: sellerPts >= 18,
-    description: data.isSellerVerified ? "Identity & Business KYC Verified" : "Basic Registered Seller",
+    description: data.isSellerVerified
+      ? "Identity & Business KYC Verified"
+      : "Basic Registered Seller",
   });
 
   // 4. Mileage Documentation & Verification (Max 15 pts)
@@ -90,7 +92,9 @@ export function calculateAutoConnectScore(data: ScoreVehicleData): AutoConnectSc
     points: mileagePts,
     maxPoints: 15,
     earned: mileagePts === 15,
-    description: data.mileage ? `${data.mileage.toLocaleString()} ${data.mileage_unit || "km"} Verified` : "Self-reported odometer",
+    description: data.mileage
+      ? `${data.mileage.toLocaleString()} ${data.mileage_unit || "km"} Verified`
+      : "Self-reported odometer",
   });
 
   // 5. Import Documents & NTSA Logbook (Max 15 pts)
@@ -103,7 +107,9 @@ export function calculateAutoConnectScore(data: ScoreVehicleData): AutoConnectSc
     points: docPts,
     maxPoints: 15,
     earned: docPts === 15,
-    description: data.ntsaVerified ? "NTSA Logbook & Tax Duty Certified" : "Standard documentation uploaded",
+    description: data.ntsaVerified
+      ? "NTSA Logbook & Tax Duty Certified"
+      : "Standard documentation uploaded",
   });
 
   // 6. Seller History & Escrow Track Record (Max 10 pts)

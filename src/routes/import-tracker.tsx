@@ -35,7 +35,8 @@ const DEMO_SHIPMENTS = [
     statusText: "In Transit (Indian Ocean)",
     eta: "Sep 12, 2026",
     vin: "GDJ150-0049281",
-    photo: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: "AC-JP-91042-KE",
@@ -47,7 +48,8 @@ const DEMO_SHIPMENTS = [
     statusText: "Customs Clearance & KRA",
     eta: "Sep 08, 2026",
     vin: "KF2P-203918",
-    photo: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80",
+    photo:
+      "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
@@ -61,7 +63,7 @@ function ImportTrackerPage() {
       (s) =>
         s.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         s.vin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.carTitle.toLowerCase().includes(searchQuery.toLowerCase())
+        s.carTitle.toLowerCase().includes(searchQuery.toLowerCase()),
     );
     if (found) {
       setSelectedShipment(found);
@@ -80,7 +82,8 @@ function ImportTrackerPage() {
             Japan & Global Import Shipping Tracker
           </h1>
           <p className="text-xs sm:text-sm text-slate-300">
-            Real-time multi-stage tracking for your direct auction imports from Yokohama, Nagoya, and Kobe to Mombasa and Nairobi.
+            Real-time multi-stage tracking for your direct auction imports from Yokohama, Nagoya,
+            and Kobe to Mombasa and Nairobi.
           </p>
         </div>
 
@@ -95,7 +98,10 @@ function ImportTrackerPage() {
               className="h-11 pl-9 rounded-xl bg-slate-900 border-slate-700 text-white text-xs font-mono placeholder:text-slate-500"
             />
           </div>
-          <Button type="submit" className="w-full h-10 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 text-xs">
+          <Button
+            type="submit"
+            className="w-full h-10 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 text-xs"
+          >
             Track Vehicle
           </Button>
         </form>
@@ -106,7 +112,8 @@ function ImportTrackerPage() {
         {/* Left: Shipment Selector Cards */}
         <div className="space-y-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Ship className="h-4 w-4 text-teal-400" /> Active Vessels in Transit ({DEMO_SHIPMENTS.length})
+            <Ship className="h-4 w-4 text-teal-400" /> Active Vessels in Transit (
+            {DEMO_SHIPMENTS.length})
           </h2>
 
           <div className="space-y-2.5">
@@ -129,7 +136,9 @@ function ImportTrackerPage() {
                   />
                   <div className="flex-1 min-w-0">
                     <span className="font-mono text-[10px] font-bold text-teal-400">{s.id}</span>
-                    <h4 className="text-xs font-bold text-foreground truncate mt-0.5">{s.carTitle}</h4>
+                    <h4 className="text-xs font-bold text-foreground truncate mt-0.5">
+                      {s.carTitle}
+                    </h4>
                     <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
                       <Clock className="h-3 w-3 text-primary" /> ETA: {s.eta}
                     </p>
@@ -145,7 +154,8 @@ function ImportTrackerPage() {
               <ShieldCheck className="h-4 w-4" /> 100% Insured Ro-Ro Sea Freight
             </p>
             <p className="text-[11px] leading-relaxed">
-              Every vehicle shipped through AutoConnect includes comprehensive marine insurance, JEVIC pre-export radiation testing, and KRA Simba customs bond clearance.
+              Every vehicle shipped through AutoConnect includes comprehensive marine insurance,
+              JEVIC pre-export radiation testing, and KRA Simba customs bond clearance.
             </p>
           </div>
         </div>

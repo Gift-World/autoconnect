@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import { 
-  X, 
-  MapPin, 
-  Gauge, 
-  Fuel, 
-  Settings2, 
-  Calendar, 
-  ShieldCheck, 
-  Plane, 
-  ArrowRight, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  X,
+  MapPin,
+  Gauge,
+  Fuel,
+  Settings2,
+  Calendar,
+  ShieldCheck,
+  Plane,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
   Share2,
   FileCheck,
   Zap,
   CheckCircle2,
-  Scale
+  Scale,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
@@ -76,9 +76,8 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
   if (!car) return null;
 
   const rawImages = car.car_images || [];
-  const images = rawImages.length > 0 
-    ? rawImages.map(img => img.image_url) 
-    : ["/images/hero-driving-suv.jpg"];
+  const images =
+    rawImages.length > 0 ? rawImages.map((img) => img.image_url) : ["/images/hero-driving-suv.jpg"];
 
   const country = countryByCode(car.country);
   const numericPrice = typeof car.price === "number" ? car.price : parseFloat(car.price) || 0;
@@ -111,8 +110,8 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent 
-        side="right" 
+      <SheetContent
+        side="right"
         className="w-full sm:max-w-xl md:max-w-2xl p-0 overflow-y-auto bg-background text-foreground border-l border-border/80"
       >
         <SheetHeader className="sr-only">
@@ -124,7 +123,9 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
           <div className="min-w-0 pr-3">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-semibold">
               <span>{country?.flag ?? "🌐"}</span>
-              <span className="truncate">{car.location_display || country?.name || car.country}</span>
+              <span className="truncate">
+                {car.location_display || country?.name || car.country}
+              </span>
               <span>•</span>
               <span className="text-teal-600 dark:text-teal-400 font-bold">{car.year}</span>
             </div>
@@ -161,7 +162,6 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
 
         {/* Drawer Scrollable Content */}
         <div className="p-4 sm:p-6 space-y-6 pb-24">
-          
           {/* 1. Image Stage Carousel */}
           <div className="space-y-2">
             <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-slate-900 border border-border/60 shadow-lg group">
@@ -205,8 +205,8 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
                     key={idx}
                     onClick={() => setSelectedImgIndex(idx)}
                     className={`relative aspect-[16/10] rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImgIndex === idx 
-                        ? "border-teal-500 shadow-sm" 
+                      selectedImgIndex === idx
+                        ? "border-teal-500 shadow-sm"
                         : "border-border/60 opacity-60 hover:opacity-100"
                     }`}
                   >
@@ -259,42 +259,56 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Mileage</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Mileage
+                </span>
                 <span className="text-xs font-bold text-foreground">
-                  {car.mileage ? `${car.mileage.toLocaleString()} ${car.mileage_unit || "km"}` : "N/A"}
+                  {car.mileage
+                    ? `${car.mileage.toLocaleString()} ${car.mileage_unit || "km"}`
+                    : "N/A"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Transmission</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Transmission
+                </span>
                 <span className="text-xs font-bold text-foreground">
                   {car.transmission || "Automatic"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Fuel / Powertrain</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Fuel / Powertrain
+                </span>
                 <span className="text-xs font-bold text-foreground">
                   {car.fuel_type || "Gasoline"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Steering Position</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Steering Position
+                </span>
                 <span className="text-xs font-bold text-foreground">
                   {car.right_hand_drive ? "Right-Hand (RHD)" : "Left-Hand (LHD)"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Engine Displacement</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Engine Displacement
+                </span>
                 <span className="text-xs font-bold text-foreground">
                   {car.engine_size || "Performance"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-border bg-card">
-                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">Body Type</span>
+                <span className="text-[10px] uppercase font-semibold text-muted-foreground block">
+                  Body Type
+                </span>
                 <span className="text-xs font-bold text-foreground">
                   {car.body_type || "Vehicle"}
                 </span>
@@ -332,14 +346,17 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
             sellerPhone={car.seller?.phone}
             sellerEmail={car.seller?.email}
           />
-
         </div>
 
         {/* Sticky Drawer Footer with Full Page Action */}
         <div className="sticky bottom-0 z-30 flex items-center justify-between p-4 sm:px-6 bg-background/95 backdrop-blur-md border-t border-border/80">
           <div>
-            <span className="text-[11px] text-muted-foreground block">Need full inspection breakdown?</span>
-            <span className="text-xs font-bold text-foreground">View passport & deposit options</span>
+            <span className="text-[11px] text-muted-foreground block">
+              Need full inspection breakdown?
+            </span>
+            <span className="text-xs font-bold text-foreground">
+              View passport & deposit options
+            </span>
           </div>
 
           <Link
@@ -352,7 +369,6 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-
       </SheetContent>
     </Sheet>
   );

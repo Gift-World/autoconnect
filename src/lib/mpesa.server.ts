@@ -40,9 +40,7 @@ function allowSimulation() {
 }
 
 function getBaseUrl(env: "sandbox" | "production") {
-  return env === "production"
-    ? "https://api.safaricom.co.ke"
-    : "https://sandbox.safaricom.co.ke";
+  return env === "production" ? "https://api.safaricom.co.ke" : "https://sandbox.safaricom.co.ke";
 }
 
 /**
@@ -66,9 +64,9 @@ export function formatKenyanPhone(phone: string): string {
  */
 async function getOAuthToken(config: DarajaConfig): Promise<string> {
   const url = `${getBaseUrl(config.environment)}/oauth/v1/generate?grant_type=client_credentials`;
-  const authHeader = Buffer.from(
-    `${config.consumerKey}:${config.consumerSecret}`,
-  ).toString("base64");
+  const authHeader = Buffer.from(`${config.consumerKey}:${config.consumerSecret}`).toString(
+    "base64",
+  );
 
   const res = await fetch(url, {
     method: "GET",
@@ -149,14 +147,13 @@ export async function sendMpesaStkPush({
     try {
       const token = await getOAuthToken(config);
       const timestamp = getDarajaTimestamp();
-      const password = Buffer.from(
-        `${config.shortcode}${config.passkey}${timestamp}`,
-      ).toString("base64");
+      const password = Buffer.from(`${config.shortcode}${config.passkey}${timestamp}`).toString(
+        "base64",
+      );
 
       const endpoint = `${getBaseUrl(config.environment)}/mpesa/stkpush/v1/processrequest`;
       const fallbackCallback =
-        callbackUrl ||
-        `${process.env.APP_URL || "https://autoconnect.ke"}/api/webhooks/mpesa`;
+        callbackUrl || `${process.env.APP_URL || "https://autoconnect.ke"}/api/webhooks/mpesa`;
 
       const payload = {
         BusinessShortCode: config.shortcode,
@@ -183,9 +180,7 @@ export async function sendMpesaStkPush({
 
       const json = await res.json();
       if (!res.ok || json.ResponseCode !== "0") {
-        throw new Error(
-          json.errorMessage || json.ResponseDescription || "Daraja STK push failed",
-        );
+        throw new Error(json.errorMessage || json.ResponseDescription || "Daraja STK push failed");
       }
 
       return {
@@ -203,7 +198,9 @@ export async function sendMpesaStkPush({
   }
 
   if (!allowSimulation()) {
-    throw new Error("M-Pesa is not configured. Contact AutoConnect support or choose another payment method.");
+    throw new Error(
+      "M-Pesa is not configured. Contact AutoConnect support or choose another payment method.",
+    );
   }
 
   // High-fidelity Sandbox Simulator for development & preview
@@ -250,9 +247,9 @@ export async function queryMpesaStkPush({
     try {
       const token = await getOAuthToken(config);
       const timestamp = getDarajaTimestamp();
-      const password = Buffer.from(
-        `${config.shortcode}${config.passkey}${timestamp}`,
-      ).toString("base64");
+      const password = Buffer.from(`${config.shortcode}${config.passkey}${timestamp}`).toString(
+        "base64",
+      );
 
       const endpoint = `${getBaseUrl(config.environment)}/mpesa/stkpushquery/v1/query`;
       const res = await fetch(endpoint, {

@@ -223,4 +223,3 @@ export const aiFraudCheck = createServerFn({ method: "POST" })
     });
     return output;
   });
-

@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { MessageCircle, X, Send, Sparkles, Calendar, ShieldCheck, Video, Copy, Check } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Sparkles,
+  Calendar,
+  ShieldCheck,
+  Video,
+  Copy,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { toast } from "sonner";
@@ -23,7 +33,11 @@ interface WhatsAppConciergeProps {
 
 const DEFAULT_CONCIERGE_NUMBER = "+254700000000"; // Platform VIP concierge line
 
-export function WhatsAppConcierge({ car, className = "", compact = false }: WhatsAppConciergeProps) {
+export function WhatsAppConcierge({
+  car,
+  className = "",
+  compact = false,
+}: WhatsAppConciergeProps) {
   const [mounted, setMounted] = useState(false);
   const { formatPrice } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
@@ -37,7 +51,11 @@ export function WhatsAppConcierge({ car, className = "", compact = false }: What
 
   if (!mounted && !compact) return null;
 
-  const phoneNumber = (car?.seller_whatsapp || car?.seller_phone || DEFAULT_CONCIERGE_NUMBER).replace(/[^0-9+]/g, "");
+  const phoneNumber = (
+    car?.seller_whatsapp ||
+    car?.seller_phone ||
+    DEFAULT_CONCIERGE_NUMBER
+  ).replace(/[^0-9+]/g, "");
 
   const refId = car ? `AC-${car.id.slice(0, 8).toUpperCase()}` : undefined;
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
@@ -140,7 +158,9 @@ export function WhatsAppConcierge({ car, className = "", compact = false }: What
                     WhatsApp AutoConnect Direct
                     <span className="inline-block h-2 w-2 rounded-full bg-emerald-300"></span>
                   </h3>
-                  <p className="text-[11px] opacity-85">Instant verified seller & concierge dispatch</p>
+                  <p className="text-[11px] opacity-85">
+                    Instant verified seller & concierge dispatch
+                  </p>
                 </div>
               </div>
               <button
@@ -159,7 +179,8 @@ export function WhatsAppConcierge({ car, className = "", compact = false }: What
                     {car.year} {car.make} {car.model}
                   </span>
                   <span className="text-muted-foreground block text-[11px]">
-                    Ref: <span className="font-mono text-accent">{refId}</span> • {formatPrice(car.price)}
+                    Ref: <span className="font-mono text-accent">{refId}</span> •{" "}
+                    {formatPrice(car.price)}
                   </span>
                 </div>
                 <span className="shrink-0 bg-accent/15 text-accent px-2 py-0.5 rounded-full font-medium text-[10px]">
@@ -187,7 +208,9 @@ export function WhatsAppConcierge({ car, className = "", compact = false }: What
                           : "border-border hover:border-muted-foreground/30 bg-muted/30 text-muted-foreground"
                       }`}
                     >
-                      <Icon className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-[#25D366]" : "text-muted-foreground"}`} />
+                      <Icon
+                        className={`h-3.5 w-3.5 shrink-0 ${isSelected ? "text-[#25D366]" : "text-muted-foreground"}`}
+                      />
                       <span className="truncate text-[11px]">{item.label}</span>
                     </button>
                   );
@@ -202,7 +225,11 @@ export function WhatsAppConcierge({ car, className = "", compact = false }: What
                     onClick={handleCopy}
                     className="flex items-center gap-1 hover:text-foreground text-[10px] text-accent transition-colors"
                   >
-                    {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                    {copied ? (
+                      <Check className="h-3 w-3 text-emerald-500" />
+                    ) : (
+                      <Copy className="h-3 w-3" />
+                    )}
                     {copied ? "Copied!" : "Copy message"}
                   </button>
                 </div>

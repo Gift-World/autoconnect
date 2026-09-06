@@ -1,15 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Bell, CheckCheck, MessageSquare, Megaphone, Car, ShieldCheck, Inbox, Mail } from "lucide-react";
+import {
+  Bell,
+  CheckCheck,
+  MessageSquare,
+  Megaphone,
+  Car,
+  ShieldCheck,
+  Inbox,
+  Mail,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 interface NotificationRow {
@@ -78,7 +83,12 @@ export function NotificationBell() {
       .channel(`notif:${user.id}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
         (payload) => {
           const n = payload.new as NotificationRow;
           setItems((cur) => [n, ...cur].slice(0, 20));
@@ -95,7 +105,11 @@ export function NotificationBell() {
   async function markAllRead() {
     if (!user || unread === 0) return;
     setItems((cur) => cur.map((n) => ({ ...n, is_read: true })));
-    await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false);
+    await supabase
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("user_id", user.id)
+      .eq("is_read", false);
   }
 
   async function openItem(n: NotificationRow) {
@@ -159,10 +173,14 @@ export function NotificationBell() {
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2">
                     <span className="truncate text-sm font-medium text-foreground">{n.title}</span>
-                    <span className="shrink-0 text-[11px] text-muted-foreground">{timeAgo(n.created_at)}</span>
+                    <span className="shrink-0 text-[11px] text-muted-foreground">
+                      {timeAgo(n.created_at)}
+                    </span>
                   </span>
                   {n.body && (
-                    <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">{n.body}</span>
+                    <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">
+                      {n.body}
+                    </span>
                   )}
                 </span>
                 {!n.is_read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent" />}

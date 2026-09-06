@@ -32,18 +32,37 @@ function SellerInspections() {
     setLoading(true);
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) return;
-    const { data: s } = await supabase.from("sellers").select("id").eq("profile_id", u.user.id).maybeSingle();
-    if (!s) { setLoading(false); return; }
+    const { data: s } = await supabase
+      .from("sellers")
+      .select("id")
+      .eq("profile_id", u.user.id)
+      .maybeSingle();
+    if (!s) {
+      setLoading(false);
+      return;
+    }
     setSellerId(s.id);
     const [{ data: insp }, { data: c }] = await Promise.all([
-      supabase.from("inspections").select("id,status,scheduled_date,mechanic_verdict,admin_approved,created_at,cars(id,title)").eq("seller_id", s.id).order("created_at", { ascending: false }),
-      supabase.from("cars").select("id,title,status").eq("seller_id", s.id).in("status", ["pending", "approved"]),
+      supabase
+        .from("inspections")
+        .select(
+          "id,status,scheduled_date,mechanic_verdict,admin_approved,created_at,cars(id,title)",
+        )
+        .eq("seller_id", s.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("cars")
+        .select("id,title,status")
+        .eq("seller_id", s.id)
+        .in("status", ["pending", "approved"]),
     ]);
     setRows((insp ?? []) as unknown as Row[]);
     setCars(c ?? []);
     setLoading(false);
   }
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   async function requestInspection(carId: string) {
     if (!sellerId) return;
@@ -56,29 +75,50 @@ function SellerInspections() {
       requested_by: u.user?.id ?? null,
     });
     setRequesting(null);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Inspection requested — admin will assign a mechanic");
     load();
   }
 
-  const requestable = cars.filter((c) => !rows.some((r) => r.cars?.id === c.id && !["cancelled", "no_show"].includes(r.status)));
+  const requestable = cars.filter(
+    (c) => !rows.some((r) => r.cars?.id === c.id && !["cancelled", "no_show"].includes(r.status)),
+  );
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold tracking-tight">Inspections</h1>
-        <p className="text-sm text-muted-foreground">Independent mechanical inspection increases buyer trust.</p>
+        <p className="text-sm text-muted-foreground">
+          Independent mechanical inspection increases buyer trust.
+        </p>
       </header>
 
       {requestable.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Request an inspection</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Request an inspection</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-2">
             {requestable.map((c) => (
-              <div key={c.id} className="flex items-center justify-between rounded-md border p-3 text-sm">
+              <div
+                key={c.id}
+                className="flex items-center justify-between rounded-md border p-3 text-sm"
+              >
                 <span>{c.title}</span>
-                <Button size="sm" variant="secondary" disabled={requesting === c.id} onClick={() => requestInspection(c.id)}>
-                  {requesting === c.id ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Wrench className="mr-1.5 h-3.5 w-3.5" />}
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={requesting === c.id}
+                  onClick={() => requestInspection(c.id)}
+                >
+                  {requesting === c.id ? (
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Wrench className="mr-1.5 h-3.5 w-3.5" />
+                  )}
                   Request inspection
                 </Button>
               </div>
@@ -88,10 +128,14 @@ function SellerInspections() {
       )}
 
       <Card>
-        <CardHeader><CardTitle className="text-base">Your inspections</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Your inspections</CardTitle>
+        </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="py-6 text-center text-sm text-muted-foreground"><Loader2 className="mx-auto h-4 w-4 animate-spin" /></div>
+            <div className="py-6 text-center text-sm text-muted-foreground">
+              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
+            </div>
           ) : rows.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">No inspections yet.</p>
           ) : (
@@ -99,7 +143,11 @@ function SellerInspections() {
               {rows.map((r) => (
                 <li key={r.id} className="flex items-center justify-between py-3 text-sm">
                   <div>
-                    <Link to="/cars/$id" params={{ id: r.cars?.id ?? "" }} className="font-medium hover:underline">
+                    <Link
+                      to="/cars/$id"
+                      params={{ id: r.cars?.id ?? "" }}
+                      className="font-medium hover:underline"
+                    >
                       {r.cars?.title ?? "Car"}
                     </Link>
                     <div className="text-xs text-muted-foreground">
@@ -119,8 +167,18 @@ function SellerInspections() {
 }
 
 function StatusBadge({ status, approved }: { status: string; approved: boolean | null }) {
-  if (approved) return <Badge className="bg-success text-success-foreground"><CheckCircle2 className="mr-1 h-3 w-3" /> Approved</Badge>;
+  if (approved)
+    return (
+      <Badge className="bg-success text-success-foreground">
+        <CheckCircle2 className="mr-1 h-3 w-3" /> Approved
+      </Badge>
+    );
   if (status === "completed") return <Badge variant="secondary">Awaiting admin review</Badge>;
-  if (status === "scheduled" || status === "in_progress") return <Badge variant="outline"><Clock className="mr-1 h-3 w-3" /> {status}</Badge>;
+  if (status === "scheduled" || status === "in_progress")
+    return (
+      <Badge variant="outline">
+        <Clock className="mr-1 h-3 w-3" /> {status}
+      </Badge>
+    );
   return <Badge variant="outline">{status}</Badge>;
 }

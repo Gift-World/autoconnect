@@ -35,7 +35,12 @@ function SellerInquiriesPage() {
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const { data: items, isLoading, refetch, isFetching } = useQuery({
+  const {
+    data: items,
+    isLoading,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["seller_inquiries", user?.id],
     queryFn: async () => {
       if (!user) return null;
@@ -67,8 +72,8 @@ function SellerInquiriesPage() {
     setActiveId(r.id);
     if (!r.is_read) {
       await supabase.from("inquiries").update({ is_read: true }).eq("id", r.id);
-      queryClient.setQueryData(["seller_inquiries", user?.id], (old: InqRow[] | undefined) => 
-        old?.map((x) => (x.id === r.id ? { ...x, is_read: true } : x))
+      queryClient.setQueryData(["seller_inquiries", user?.id], (old: InqRow[] | undefined) =>
+        old?.map((x) => (x.id === r.id ? { ...x, is_read: true } : x)),
       );
     }
   }
@@ -76,7 +81,9 @@ function SellerInquiriesPage() {
   if (isLoading || items === undefined) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map((i) => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-20 w-full rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -96,7 +103,9 @@ function SellerInquiriesPage() {
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Inquiries</h1>
-          <p className="text-sm text-muted-foreground">{items.length} conversation{items.length === 1 ? "" : "s"}</p>
+          <p className="text-sm text-muted-foreground">
+            {items.length} conversation{items.length === 1 ? "" : "s"}
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={cn("mr-2 h-4 w-4", isFetching && "animate-spin")} />
@@ -130,10 +139,14 @@ function SellerInquiriesPage() {
                   <Badge variant="outline" className="text-[10px] capitalize">
                     {r.inquiry_type.replace("_", " ")}
                   </Badge>
-                  <Badge variant="outline" className={cn("text-[10px] capitalize",
-                    r.status === "open" && "border-warning/40 text-warning",
-                    r.status === "responded" && "border-success/40 text-success",
-                  )}>
+                  <Badge
+                    variant="outline"
+                    className={cn(
+                      "text-[10px] capitalize",
+                      r.status === "open" && "border-warning/40 text-warning",
+                      r.status === "responded" && "border-success/40 text-success",
+                    )}
+                  >
                     {r.status}
                   </Badge>
                 </div>
@@ -150,15 +163,22 @@ function SellerInquiriesPage() {
                   <div>
                     <h2 className="font-semibold">{active.buyer_name}</h2>
                     <p className="text-xs text-muted-foreground">
-                      About: {active.cars ? `${active.cars.year} ${active.cars.title}` : "Listing removed"}
+                      About:{" "}
+                      {active.cars ? `${active.cars.year} ${active.cars.title}` : "Listing removed"}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                    <a href={`mailto:${active.buyer_email}`} className="inline-flex items-center gap-1 hover:text-foreground">
+                    <a
+                      href={`mailto:${active.buyer_email}`}
+                      className="inline-flex items-center gap-1 hover:text-foreground"
+                    >
                       <Mail className="h-3.5 w-3.5" /> {active.buyer_email}
                     </a>
                     {active.buyer_phone && (
-                      <a href={`tel:${active.buyer_phone}`} className="inline-flex items-center gap-1 hover:text-foreground">
+                      <a
+                        href={`tel:${active.buyer_phone}`}
+                        className="inline-flex items-center gap-1 hover:text-foreground"
+                      >
                         <Phone className="h-3.5 w-3.5" /> {active.buyer_phone}
                       </a>
                     )}

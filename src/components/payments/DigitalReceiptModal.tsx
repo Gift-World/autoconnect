@@ -14,12 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
@@ -48,11 +43,7 @@ interface DigitalReceiptModalProps {
   receipt: TransactionReceiptData;
 }
 
-export function DigitalReceiptModal({
-  open,
-  onOpenChange,
-  receipt,
-}: DigitalReceiptModalProps) {
+export function DigitalReceiptModal({ open, onOpenChange, receipt }: DigitalReceiptModalProps) {
   const { formatPrice } = useCurrency();
 
   const handlePrint = () => {
@@ -65,7 +56,7 @@ export function DigitalReceiptModal({
     try {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(
-          `AutoConnect Verified Escrow Receipt: ${receipt.transactionId} for ${receipt.carTitle} (${formatPrice(receipt.amount)})`
+          `AutoConnect Verified Escrow Receipt: ${receipt.transactionId} for ${receipt.carTitle} (${formatPrice(receipt.amount)})`,
         );
         toast.success("Receipt details copied to clipboard!");
       }
@@ -87,9 +78,7 @@ export function DigitalReceiptModal({
               <DialogTitle className="text-sm font-bold text-white">
                 Official Digital Escrow Receipt
               </DialogTitle>
-              <p className="text-[11px] text-slate-400 font-mono">
-                Ref: {receipt.transactionId}
-              </p>
+              <p className="text-[11px] text-slate-400 font-mono">Ref: {receipt.transactionId}</p>
             </div>
           </div>
 
@@ -156,12 +145,20 @@ export function DigitalReceiptModal({
             <div>
               <span className="text-muted-foreground block text-[10px]">BUYER IDENTITY</span>
               <span className="font-semibold text-foreground">{receipt.buyerName}</span>
-              {receipt.buyerPhone && <span className="text-[10px] text-muted-foreground block">{receipt.buyerPhone}</span>}
+              {receipt.buyerPhone && (
+                <span className="text-[10px] text-muted-foreground block">
+                  {receipt.buyerPhone}
+                </span>
+              )}
             </div>
             <div>
               <span className="text-muted-foreground block text-[10px]">SELLER ENTITY</span>
               <span className="font-semibold text-foreground">{receipt.sellerName}</span>
-              {receipt.sellerLocation && <span className="text-[10px] text-muted-foreground block">{receipt.sellerLocation}</span>}
+              {receipt.sellerLocation && (
+                <span className="text-[10px] text-muted-foreground block">
+                  {receipt.sellerLocation}
+                </span>
+              )}
             </div>
           </div>
 
@@ -177,9 +174,7 @@ export function DigitalReceiptModal({
                   Chassis / VIN: {receipt.carVin}
                 </p>
               )}
-              <p className="text-muted-foreground text-[11px]">
-                Plan: {receipt.paymentPlan}
-              </p>
+              <p className="text-muted-foreground text-[11px]">Plan: {receipt.paymentPlan}</p>
             </div>
           </div>
 
@@ -190,7 +185,8 @@ export function DigitalReceiptModal({
                 <CheckCircle2 className="h-3.5 w-3.5" /> Instant NTSA / Escrow QR Verification
               </p>
               <p className="text-[10px] text-slate-400 leading-tight">
-                Scan this code at Nairobi Yard to verify logbook title release or pickup authorization.
+                Scan this code at Nairobi Yard to verify logbook title release or pickup
+                authorization.
               </p>
             </div>
             <div className="grid h-16 w-16 place-items-center rounded-xl bg-white p-1 shrink-0 text-slate-950 shadow-inner">

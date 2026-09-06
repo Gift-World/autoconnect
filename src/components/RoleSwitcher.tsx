@@ -159,7 +159,7 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
     }
   };
 
-  const handlePersonaSelect = (persona: typeof TEST_PERSONAS[0]) => {
+  const handlePersonaSelect = (persona: (typeof TEST_PERSONAS)[0]) => {
     setActiveRole(persona.role);
     const targetPath = roleHomePath(persona.role);
 
@@ -191,7 +191,9 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
           <span className="flex items-center gap-1.5">
             <CurrentIcon className={`h-3.5 w-3.5 ${currentRole.colorClass}`} />
             <span className="font-semibold max-w-[180px] truncate">
-              {userName ? `${userName} · ${currentRole.shortLabel} View` : `${currentRole.shortLabel} View`}
+              {userName
+                ? `${userName} · ${currentRole.shortLabel} View`
+                : `${currentRole.shortLabel} View`}
             </span>
           </span>
           <ChevronDown className="h-3 w-3 text-muted-foreground opacity-70" />
@@ -199,9 +201,13 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-2 shadow-2xl border-border rounded-2xl">
         <DropdownMenuLabel className="px-2.5 py-1.5 text-xs">
-          <span className="font-bold text-foreground">{DEMO_MODE ? "Preview workspace" : "Switch Perspective"}</span>
+          <span className="font-bold text-foreground">
+            {DEMO_MODE ? "Preview workspace" : "Switch Perspective"}
+          </span>
           <p className="text-[11px] font-normal text-muted-foreground mt-0.5">
-            {DEMO_MODE ? "Explore simulated views. Protected actions still require a real account." : "Select a role to view the workspace from that point of view."}
+            {DEMO_MODE
+              ? "Explore simulated views. Protected actions still require a real account."
+              : "Select a role to view the workspace from that point of view."}
           </p>
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-1" />
@@ -219,7 +225,9 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
                   isSelected ? "bg-primary/10 text-foreground font-semibold" : "hover:bg-muted/60"
                 }`}
               >
-                <div className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border/60 ${r.bgClass}`}>
+                <div
+                  className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border border-border/60 ${r.bgClass}`}
+                >
                   <Icon className={`h-4 w-4 ${r.colorClass}`} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -277,15 +285,23 @@ export function RoleSwitcher({ className = "" }: RoleSwitcherProps) {
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[10px] font-bold ${p.avatarBg}`}>
+                          <div
+                            className={`grid h-6 w-6 shrink-0 place-items-center rounded-md border text-[10px] font-bold ${p.avatarBg}`}
+                          >
                             {p.initials}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-semibold text-foreground truncate">{p.name}</span>
-                              <span className="text-[9px] font-medium text-muted-foreground">· {p.badge}</span>
+                              <span className="text-xs font-semibold text-foreground truncate">
+                                {p.name}
+                              </span>
+                              <span className="text-[9px] font-medium text-muted-foreground">
+                                · {p.badge}
+                              </span>
                             </div>
-                            <p className="text-[10px] text-muted-foreground truncate">{p.tagline}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">
+                              {p.tagline}
+                            </p>
                           </div>
                         </div>
                         {isSelected && <Check className="h-3.5 w-3.5 text-primary shrink-0 ml-1" />}

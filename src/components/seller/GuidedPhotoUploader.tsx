@@ -172,7 +172,12 @@ export function GuidedPhotoUploader({ userId, value, onChange }: Props) {
                 )}
                 <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition group-hover:opacity-100">
                   {!p.isPrimary && (
-                    <Button size="icon" variant="secondary" type="button" onClick={() => makePrimary(p)}>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      type="button"
+                      onClick={() => makePrimary(p)}
+                    >
                       <Star className="h-4 w-4" />
                     </Button>
                   )}
@@ -259,11 +264,7 @@ function PhotoSlot({
           ) : (
             <span className="text-muted-foreground">Cover photo</span>
           )}
-          <button
-            type="button"
-            onClick={onRemove}
-            className="text-destructive hover:underline"
-          >
+          <button type="button" onClick={onRemove} className="text-destructive hover:underline">
             Remove
           </button>
         </div>

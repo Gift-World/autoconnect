@@ -4,15 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import {
-  Search,
-  FileText,
-  Handshake,
-  Ship,
-  CheckCircle2,
-  Globe2,
-  ShieldCheck,
-} from "lucide-react";
+import { Search, FileText, Handshake, Ship, CheckCircle2, Globe2, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -29,7 +21,21 @@ import {
 import { COUNTRIES } from "@/lib/countries";
 import { KraCrspCalculator } from "@/components/import/KraCrspCalculator";
 
-const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AED", "KES", "NGN", "GHS", "ZAR", "CNY", "INR", "AUD", "CAD"] as const;
+const CURRENCIES = [
+  "USD",
+  "EUR",
+  "GBP",
+  "JPY",
+  "AED",
+  "KES",
+  "NGN",
+  "GHS",
+  "ZAR",
+  "CNY",
+  "INR",
+  "AUD",
+  "CAD",
+] as const;
 
 const schema = z.object({
   buyer_name: z.string().trim().min(2, "Name required").max(100),
@@ -38,10 +44,30 @@ const schema = z.object({
   buyer_country: z.string().min(2, "Country required"),
   make_name: z.string().trim().min(1, "Make required").max(60),
   model_name: z.string().trim().max(80).optional().or(z.literal("")),
-  year_from: z.coerce.number().int().min(1950).max(2030).optional().or(z.literal("" as unknown as number)),
-  year_to: z.coerce.number().int().min(1950).max(2030).optional().or(z.literal("" as unknown as number)),
-  budget_min: z.coerce.number().min(0).optional().or(z.literal("" as unknown as number)),
-  budget_max: z.coerce.number().min(0).optional().or(z.literal("" as unknown as number)),
+  year_from: z.coerce
+    .number()
+    .int()
+    .min(1950)
+    .max(2030)
+    .optional()
+    .or(z.literal("" as unknown as number)),
+  year_to: z.coerce
+    .number()
+    .int()
+    .min(1950)
+    .max(2030)
+    .optional()
+    .or(z.literal("" as unknown as number)),
+  budget_min: z.coerce
+    .number()
+    .min(0)
+    .optional()
+    .or(z.literal("" as unknown as number)),
+  budget_max: z.coerce
+    .number()
+    .min(0)
+    .optional()
+    .or(z.literal("" as unknown as number)),
   budget_currency: z.string().default("USD"),
   preferred_condition: z.enum(["new", "foreign-used", "locally-used", "any"]).default("any"),
   preferred_source_country: z.string().optional().or(z.literal("")),
@@ -64,8 +90,7 @@ export const Route = createFileRoute("/import")({
       { property: "og:title", content: "Import a Car — AutoConnect" },
       {
         property: "og:description",
-        content:
-          "Submit an import request and get matched with verified exporters globally.",
+        content: "Submit an import request and get matched with verified exporters globally.",
       },
     ],
   }),
@@ -136,12 +161,10 @@ function ImportPage() {
           <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm">
             <Globe2 className="h-4 w-4" /> Worldwide import network
           </div>
-          <h1 className="mt-4 text-4xl font-bold md:text-5xl">
-            Import the exact car you want
-          </h1>
+          <h1 className="mt-4 text-4xl font-bold md:text-5xl">Import the exact car you want</h1>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
-            Tell us your specs and budget. We'll match you with verified
-            exporters in Japan, UK, UAE, Germany, USA, and more.
+            Tell us your specs and budget. We'll match you with verified exporters in Japan, UK,
+            UAE, Germany, USA, and more.
           </p>
         </div>
       </section>
@@ -151,8 +174,8 @@ function ImportPage() {
         <div className="rounded-lg border bg-card p-6 md:p-8 shadow-sm">
           <h2 className="text-2xl font-semibold">Submit import request</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            All fields marked * are required. We share approved requests only
-            with verified exporters.
+            All fields marked * are required. We share approved requests only with verified
+            exporters.
           </p>
 
           {submitted ? (
@@ -160,7 +183,8 @@ function ImportPage() {
               <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
               <h3 className="mt-3 text-xl font-semibold">Request received</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Verified exporters will be notified. Our import specialists typically respond within 24-48 hours.
+                Verified exporters will be notified. Our import specialists typically respond within
+                24-48 hours.
               </p>
               <div className="mt-5 flex flex-wrap justify-center gap-3">
                 <Button variant="outline" onClick={() => setSubmitted(false)}>
@@ -184,16 +208,24 @@ function ImportPage() {
                   <div>
                     <Label htmlFor="buyer_name">Full name *</Label>
                     <Input id="buyer_name" {...register("buyer_name")} />
-                    {errors.buyer_name && <p className="mt-1 text-xs text-destructive">{errors.buyer_name.message}</p>}
+                    {errors.buyer_name && (
+                      <p className="mt-1 text-xs text-destructive">{errors.buyer_name.message}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="buyer_email">Email *</Label>
                     <Input id="buyer_email" type="email" {...register("buyer_email")} />
-                    {errors.buyer_email && <p className="mt-1 text-xs text-destructive">{errors.buyer_email.message}</p>}
+                    {errors.buyer_email && (
+                      <p className="mt-1 text-xs text-destructive">{errors.buyer_email.message}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="buyer_phone">Phone (with country code)</Label>
-                    <Input id="buyer_phone" placeholder="+254 712 345 678" {...register("buyer_phone")} />
+                    <Input
+                      id="buyer_phone"
+                      placeholder="+254 712 345 678"
+                      {...register("buyer_phone")}
+                    />
                   </div>
                   <div>
                     <Label>Destination country *</Label>
@@ -201,14 +233,22 @@ function ImportPage() {
                       value={watch("buyer_country") || undefined}
                       onValueChange={(v) => setValue("buyer_country", v, { shouldValidate: true })}
                     >
-                      <SelectTrigger><SelectValue placeholder="Where to deliver" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Where to deliver" />
+                      </SelectTrigger>
                       <SelectContent>
                         {COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
+                          <SelectItem key={c.code} value={c.code}>
+                            {c.flag} {c.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors.buyer_country && <p className="mt-1 text-xs text-destructive">{errors.buyer_country.message}</p>}
+                    {errors.buyer_country && (
+                      <p className="mt-1 text-xs text-destructive">
+                        {errors.buyer_country.message}
+                      </p>
+                    )}
                   </div>
                 </div>
               </section>
@@ -221,7 +261,9 @@ function ImportPage() {
                   <div>
                     <Label htmlFor="make_name">Make *</Label>
                     <Input id="make_name" placeholder="Toyota" {...register("make_name")} />
-                    {errors.make_name && <p className="mt-1 text-xs text-destructive">{errors.make_name.message}</p>}
+                    {errors.make_name && (
+                      <p className="mt-1 text-xs text-destructive">{errors.make_name.message}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="model_name">Model</Label>
@@ -229,19 +271,35 @@ function ImportPage() {
                   </div>
                   <div>
                     <Label htmlFor="year_from">Year from</Label>
-                    <Input id="year_from" type="number" min={1950} max={2030} {...register("year_from")} />
+                    <Input
+                      id="year_from"
+                      type="number"
+                      min={1950}
+                      max={2030}
+                      {...register("year_from")}
+                    />
                   </div>
                   <div>
                     <Label htmlFor="year_to">Year to</Label>
-                    <Input id="year_to" type="number" min={1950} max={2030} {...register("year_to")} />
+                    <Input
+                      id="year_to"
+                      type="number"
+                      min={1950}
+                      max={2030}
+                      {...register("year_to")}
+                    />
                   </div>
                   <div>
                     <Label>Condition</Label>
                     <Select
                       value={watch("preferred_condition")}
-                      onValueChange={(v) => setValue("preferred_condition", v as FormValues["preferred_condition"])}
+                      onValueChange={(v) =>
+                        setValue("preferred_condition", v as FormValues["preferred_condition"])
+                      }
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="any">Any</SelectItem>
                         <SelectItem value="new">New</SelectItem>
@@ -256,10 +314,14 @@ function ImportPage() {
                       value={watch("preferred_source_country") || undefined}
                       onValueChange={(v) => setValue("preferred_source_country", v)}
                     >
-                      <SelectTrigger><SelectValue placeholder="No preference" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="No preference" />
+                      </SelectTrigger>
                       <SelectContent>
                         {COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>{c.flag} {c.name}</SelectItem>
+                          <SelectItem key={c.code} value={c.code}>
+                            {c.flag} {c.name}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -270,7 +332,9 @@ function ImportPage() {
                       value={watch("transmission_preference") || undefined}
                       onValueChange={(v) => setValue("transmission_preference", v)}
                     >
-                      <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="automatic">Automatic</SelectItem>
                         <SelectItem value="manual">Manual</SelectItem>
@@ -284,7 +348,9 @@ function ImportPage() {
                       value={watch("fuel_preference") || undefined}
                       onValueChange={(v) => setValue("fuel_preference", v)}
                     >
-                      <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Any" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="petrol">Petrol</SelectItem>
                         <SelectItem value="diesel">Diesel</SelectItem>
@@ -315,10 +381,14 @@ function ImportPage() {
                       value={watch("budget_currency")}
                       onValueChange={(v) => setValue("budget_currency", v)}
                     >
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {CURRENCIES.map((c) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -362,7 +432,9 @@ function ImportPage() {
               Browse live listings marked "Available for export".
             </p>
             <Link to="/cars" search={{ exportOnly: true }}>
-              <Button variant="outline" className="mt-3 w-full">Browse exportable cars</Button>
+              <Button variant="outline" className="mt-3 w-full">
+                Browse exportable cars
+              </Button>
             </Link>
           </div>
         </aside>
@@ -374,7 +446,8 @@ function ImportPage() {
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold">Calculate Your Import Duty</h2>
             <p className="mt-2 text-muted-foreground">
-              Use our built-in KRA CRSP calculator to estimate the total duty payable for your imported vehicle based on current rates.
+              Use our built-in KRA CRSP calculator to estimate the total duty payable for your
+              imported vehicle based on current rates.
             </p>
           </div>
           <KraCrspCalculator />
@@ -391,10 +464,30 @@ function ImportPage() {
             </p>
           </div>
           <div className="mt-10 grid gap-6 md:grid-cols-4">
-            <Step n={1} icon={<FileText className="h-6 w-6" />} title="Submit request" desc="Tell us the make, model, year range, and budget." />
-            <Step n={2} icon={<Search className="h-6 w-6" />} title="Get matched" desc="Verified exporters review and send proposals with photos." />
-            <Step n={3} icon={<Handshake className="h-6 w-6" />} title="Choose &amp; pay" desc="Compare offers, agree terms, and pay the exporter directly." />
-            <Step n={4} icon={<Ship className="h-6 w-6" />} title="Ship &amp; receive" desc="Track shipment to your port. We help with duty estimates." />
+            <Step
+              n={1}
+              icon={<FileText className="h-6 w-6" />}
+              title="Submit request"
+              desc="Tell us the make, model, year range, and budget."
+            />
+            <Step
+              n={2}
+              icon={<Search className="h-6 w-6" />}
+              title="Get matched"
+              desc="Verified exporters review and send proposals with photos."
+            />
+            <Step
+              n={3}
+              icon={<Handshake className="h-6 w-6" />}
+              title="Choose &amp; pay"
+              desc="Compare offers, agree terms, and pay the exporter directly."
+            />
+            <Step
+              n={4}
+              icon={<Ship className="h-6 w-6" />}
+              title="Ship &amp; receive"
+              desc="Track shipment to your port. We help with duty estimates."
+            />
           </div>
         </div>
       </section>
@@ -402,7 +495,17 @@ function ImportPage() {
   );
 }
 
-function Step({ n, icon, title, desc }: { n: number; icon: React.ReactNode; title: string; desc: string }) {
+function Step({
+  n,
+  icon,
+  title,
+  desc,
+}: {
+  n: number;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
   return (
     <div className="relative rounded-lg border bg-card p-6 shadow-sm">
       <div className="absolute -top-3 -left-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">

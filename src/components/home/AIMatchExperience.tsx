@@ -38,7 +38,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nairobi, Kenya",
         matchScore: 98,
         matchReason: "22 km/L Hybrid efficiency + spacious 5-seater luxury cabin",
-        image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1000&auto=format&fit=crop&q=80",
         mileage: "48,000 km",
       },
       {
@@ -49,7 +50,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Mombasa, Kenya",
         matchScore: 94,
         matchReason: "Full 7-seater configuration with rear climate & cruise control",
-        image: "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1594502184342-2e12f877aa73?w=1000&auto=format&fit=crop&q=80",
         mileage: "62,000 km",
       },
       {
@@ -60,7 +62,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nairobi, Kenya",
         matchScore: 92,
         matchReason: "AWD stability, EyeSight safety suite & expansive cargo room",
-        image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1000&auto=format&fit=crop&q=80",
         mileage: "34,000 km",
       },
     ],
@@ -77,7 +80,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nairobi, Kenya",
         matchScore: 99,
         matchReason: "Panoramic glass roof, Burmester surround sound & AMG styling",
-        image: "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=1000&auto=format&fit=crop&q=80",
         mileage: "41,000 km",
       },
       {
@@ -88,7 +92,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nairobi, Kenya",
         matchScore: 96,
         matchReason: "Executive M-Sport package with Dakota leather & digital cockpit",
-        image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1000&auto=format&fit=crop&q=80",
         mileage: "38,000 km",
       },
       {
@@ -99,7 +104,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Mombasa Port",
         matchScore: 93,
         matchReason: "Whisper-quiet hybrid powertrain with Mark Levinson audio",
-        image: "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=1000&auto=format&fit=crop&q=80",
         mileage: "45,000 km",
       },
     ],
@@ -116,7 +122,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nakuru, Kenya",
         matchScore: 99,
         matchReason: "Heavy-duty 4x4 differential lock + 3.5-ton towing capability",
-        image: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1000&auto=format&fit=crop&q=80",
         mileage: "52,000 km",
       },
       {
@@ -127,7 +134,8 @@ const AI_PRESETS: { prompt: string; count: number; matches: MatchedVehicle[] }[]
         location: "Nairobi, Kenya",
         matchScore: 95,
         matchReason: "Terrain Management System with roller shutter bed & tow package",
-        image: "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1000&auto=format&fit=crop&q=80",
+        image:
+          "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1000&auto=format&fit=crop&q=80",
         mileage: "36,000 km",
       },
     ],
@@ -168,13 +176,17 @@ export function AIMatchExperience() {
             Meet your digital car advisor.
           </h2>
           <p className="mt-4 text-base sm:text-lg text-slate-300 leading-relaxed">
-            Skip complex filters. Tell our concierge exactly what your lifestyle, budget, and driving conditions require — and receive curated, verified recommendations in seconds.
+            Skip complex filters. Tell our concierge exactly what your lifestyle, budget, and
+            driving conditions require — and receive curated, verified recommendations in seconds.
           </p>
         </div>
 
         {/* Concierge Interactive Consultation Box */}
         <div className="mx-auto mt-10 max-w-3xl">
-          <form onSubmit={handleRunAi} className="relative rounded-3xl border border-teal-500/30 bg-slate-900/90 p-2 shadow-2xl backdrop-blur-xl">
+          <form
+            onSubmit={handleRunAi}
+            className="relative rounded-3xl border border-teal-500/30 bg-slate-900/90 p-2 shadow-2xl backdrop-blur-xl"
+          >
             <div className="flex flex-col sm:flex-row items-center gap-2">
               <div className="flex w-full items-center gap-3 px-3 py-2">
                 <Sparkles className="h-5 w-5 text-teal-400 shrink-0 animate-pulse" />

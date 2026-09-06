@@ -137,7 +137,9 @@ function YardPage() {
   const yard = Route.useLoaderData();
   const [q, setQ] = useState("");
   const [selectedMake, setSelectedMake] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "newest">("featured");
+  const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "newest">(
+    "featured",
+  );
   const country = countryByCode(yard.country);
 
   // Deterministic cover fallback
@@ -296,7 +298,10 @@ function YardPage() {
                     </Badge>
                   )}
                   {yard.is_featured && (
-                    <Badge variant="outline" className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <Badge
+                      variant="outline"
+                      className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    >
                       Featured Hub
                     </Badge>
                   )}
@@ -342,7 +347,11 @@ function YardPage() {
               )}
 
               {yard.phone && (
-                <Button asChild variant="outline" className="rounded-xl px-4 py-2.5 text-sm font-semibold">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold"
+                >
                   <a href={`tel:${yard.phone}`}>
                     <Phone className="mr-2 h-4 w-4 text-primary" /> Call Dealership
                   </a>
@@ -350,8 +359,14 @@ function YardPage() {
               )}
 
               {yard.email && (
-                <Button asChild variant="outline" className="rounded-xl px-4 py-2.5 text-sm font-semibold">
-                  <a href={`mailto:${yard.email}?subject=${encodeURIComponent(`AutoConnect Inquiry — ${yard.name}`)}`}>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-xl px-4 py-2.5 text-sm font-semibold"
+                >
+                  <a
+                    href={`mailto:${yard.email}?subject=${encodeURIComponent(`AutoConnect Inquiry — ${yard.name}`)}`}
+                  >
                     <Mail className="mr-2 h-4 w-4 text-muted-foreground" /> Email
                   </a>
                 </Button>
@@ -397,9 +412,7 @@ function YardPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Escrow Guarantee
                 </p>
-                <p className="text-sm font-bold text-foreground">
-                  Protected Payments
-                </p>
+                <p className="text-sm font-bold text-foreground">Protected Payments</p>
               </div>
             </div>
 
@@ -411,9 +424,7 @@ function YardPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Viewing & Inspection
                 </p>
-                <p className="text-sm font-bold text-foreground">
-                  Physical Bay Ready
-                </p>
+                <p className="text-sm font-bold text-foreground">Physical Bay Ready</p>
               </div>
             </div>
           </div>
@@ -437,13 +448,16 @@ function YardPage() {
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Physical Vehicle Viewing
               </Badge>
               <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Pre-Purchase Multi-Point Diagnostics
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Pre-Purchase Multi-Point
+                Diagnostics
               </Badge>
               <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Escrow Handover Verification
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Escrow Handover
+                Verification
               </Badge>
               <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> NTSA Logbook Transfer Assistance
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> NTSA Logbook Transfer
+                Assistance
               </Badge>
             </div>
           </div>
@@ -457,7 +471,10 @@ function YardPage() {
                 <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
                   Yard Inventory
                 </h2>
-                <Badge variant="outline" className="rounded-full px-2.5 py-0.5 font-semibold text-xs">
+                <Badge
+                  variant="outline"
+                  className="rounded-full px-2.5 py-0.5 font-semibold text-xs"
+                >
                   {filteredCars.length} {filteredCars.length === 1 ? "Car" : "Cars"}
                 </Badge>
               </div>
@@ -533,7 +550,9 @@ function YardPage() {
                 <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
                   <CarIcon className="h-6 w-6" />
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold">No vehicles match your search</h3>
+                <h3 className="mt-4 font-display text-lg font-bold">
+                  No vehicles match your search
+                </h3>
                 <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                   Try adjusting your search terms or filters to find what you're looking for.
                 </p>
@@ -571,14 +590,18 @@ function YardPage() {
                   AutoConnect Escrow Protection at {yard.name}
                 </h3>
                 <p className="mt-1 max-w-2xl text-xs text-muted-foreground sm:text-sm leading-relaxed">
-                  Every transaction conducted at this yard is safeguarded by the AutoConnect Escrow Guarantee. Your funds are held securely until you inspect the vehicle in person at the yard and authorize release with your 6-digit cryptographic PIN code.
+                  Every transaction conducted at this yard is safeguarded by the AutoConnect Escrow
+                  Guarantee. Your funds are held securely until you inspect the vehicle in person at
+                  the yard and authorize release with your 6-digit cryptographic PIN code.
                 </p>
               </div>
             </div>
-            <Button asChild variant="outline" className="rounded-xl shrink-0 border-emerald-600/30 font-semibold">
-              <Link to="/how-payments-work">
-                Learn How Escrow Works
-              </Link>
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-xl shrink-0 border-emerald-600/30 font-semibold"
+            >
+              <Link to="/how-payments-work">Learn How Escrow Works</Link>
             </Button>
           </div>
         </section>
@@ -586,4 +609,3 @@ function YardPage() {
     </div>
   );
 }
-

@@ -41,7 +41,10 @@ export function NotificationPreferences() {
   };
 
   return (
-    <form onSubmit={handleSave} className="rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-6">
+    <form
+      onSubmit={handleSave}
+      className="rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-sm space-y-6"
+    >
       <div className="flex items-center justify-between border-b border-border/80 pb-4">
         <div className="flex items-center gap-3">
           <div className="grid h-10 w-10 place-items-center rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
@@ -49,7 +52,9 @@ export function NotificationPreferences() {
           </div>
           <div>
             <h3 className="text-base font-bold text-foreground">Smart Alert Preferences</h3>
-            <p className="text-xs text-muted-foreground">Configure vehicle notifications and tracking alerts</p>
+            <p className="text-xs text-muted-foreground">
+              Configure vehicle notifications and tracking alerts
+            </p>
           </div>
         </div>
       </div>
@@ -66,7 +71,9 @@ export function NotificationPreferences() {
               <Search className="h-4 w-4 text-teal-400 shrink-0" />
               <div>
                 <Label className="text-xs font-bold text-foreground">Saved Search Matches</Label>
-                <p className="text-[11px] text-muted-foreground">Get notified when a new vehicle matches your criteria</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Get notified when a new vehicle matches your criteria
+                </p>
               </div>
             </div>
             <Switch checked={savedSearchAlerts} onCheckedChange={setSavedSearchAlerts} />
@@ -77,7 +84,9 @@ export function NotificationPreferences() {
               <TrendingDown className="h-4 w-4 text-emerald-400 shrink-0" />
               <div>
                 <Label className="text-xs font-bold text-foreground">Price Drop Alerts</Label>
-                <p className="text-[11px] text-muted-foreground">Instant notification when a favorited car reduces in price</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Instant notification when a favorited car reduces in price
+                </p>
               </div>
             </div>
             <Switch checked={priceDropAlerts} onCheckedChange={setPriceDropAlerts} />
@@ -87,8 +96,12 @@ export function NotificationPreferences() {
             <div className="flex items-center gap-3">
               <Ship className="h-4 w-4 text-blue-400 shrink-0" />
               <div>
-                <Label className="text-xs font-bold text-foreground">Japan Import Shipping Stage Updates</Label>
-                <p className="text-[11px] text-muted-foreground">Vessel loading, Indian Ocean transit, and Mombasa clearance</p>
+                <Label className="text-xs font-bold text-foreground">
+                  Japan Import Shipping Stage Updates
+                </Label>
+                <p className="text-[11px] text-muted-foreground">
+                  Vessel loading, Indian Ocean transit, and Mombasa clearance
+                </p>
               </div>
             </div>
             <Switch checked={importUpdates} onCheckedChange={setImportUpdates} />
@@ -98,8 +111,12 @@ export function NotificationPreferences() {
             <div className="flex items-center gap-3">
               <Lock className="h-4 w-4 text-amber-400 shrink-0" />
               <div>
-                <Label className="text-xs font-bold text-foreground">Escrow Payment & Title Milestones</Label>
-                <p className="text-[11px] text-muted-foreground">NTSA logbook verification and fund release approvals</p>
+                <Label className="text-xs font-bold text-foreground">
+                  Escrow Payment & Title Milestones
+                </Label>
+                <p className="text-[11px] text-muted-foreground">
+                  NTSA logbook verification and fund release approvals
+                </p>
               </div>
             </div>
             <Switch checked={escrowMilestones} onCheckedChange={setEscrowMilestones} />
@@ -129,7 +146,9 @@ export function NotificationPreferences() {
               <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                 <Mail className="h-3.5 w-3.5" /> Email Digest
               </span>
-              <Badge variant="outline" className="text-[9px]">Coming Soon</Badge>
+              <Badge variant="outline" className="text-[9px]">
+                Coming Soon
+              </Badge>
             </div>
             <p className="text-[10px] text-muted-foreground">Weekly price drops & matches</p>
           </div>
@@ -139,7 +158,9 @@ export function NotificationPreferences() {
               <span className="text-xs font-bold text-muted-foreground flex items-center gap-1.5">
                 <Smartphone className="h-3.5 w-3.5" /> WhatsApp Bot
               </span>
-              <Badge variant="outline" className="text-[9px]">Coming Soon</Badge>
+              <Badge variant="outline" className="text-[9px]">
+                Coming Soon
+              </Badge>
             </div>
             <p className="text-[10px] text-muted-foreground">Direct instant WhatsApp ping</p>
           </div>

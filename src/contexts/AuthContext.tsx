@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,8 +7,7 @@ export type AppRole = "buyer" | "seller" | "yard_manager" | "admin";
 // Preview personas are explicitly opt-in. They only provide simulated client-side
 // identities for navigation and visual QA; Supabase RLS still rejects protected
 // reads and every write without a real authenticated session.
-export const DEMO_MODE =
-  import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
+export const DEMO_MODE = import.meta.env.VITE_ENABLE_DEMO_PERSONAS === "true";
 
 export interface RoleInfo {
   role: AppRole;

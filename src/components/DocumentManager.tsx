@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Upload, FileText, CheckCircle2, Clock, XCircle, Trash2, Loader2, Download } from "lucide-react";
+import {
+  Upload,
+  FileText,
+  CheckCircle2,
+  Clock,
+  XCircle,
+  Trash2,
+  Loader2,
+  Download,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -55,12 +64,29 @@ interface DocRow {
 
 function statusPill(status: DocRow["status"]) {
   const map = {
-    pending: { icon: <Clock className="h-3 w-3" />, cls: "bg-amber-500/10 text-amber-700 dark:text-amber-400", label: "Pending review" },
-    verified: { icon: <CheckCircle2 className="h-3 w-3" />, cls: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400", label: "Verified" },
-    rejected: { icon: <XCircle className="h-3 w-3" />, cls: "bg-destructive/10 text-destructive", label: "Rejected" },
+    pending: {
+      icon: <Clock className="h-3 w-3" />,
+      cls: "bg-amber-500/10 text-amber-700 dark:text-amber-400",
+      label: "Pending review",
+    },
+    verified: {
+      icon: <CheckCircle2 className="h-3 w-3" />,
+      cls: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
+      label: "Verified",
+    },
+    rejected: {
+      icon: <XCircle className="h-3 w-3" />,
+      cls: "bg-destructive/10 text-destructive",
+      label: "Rejected",
+    },
   }[status];
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", map.cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+        map.cls,
+      )}
+    >
       {map.icon}
       {map.label}
     </span>
@@ -86,7 +112,9 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
   async function load() {
     const { data, error } = await supabase
       .from("car_documents")
-      .select("id,car_id,seller_id,kind,label,file_path,mime_type,size_bytes,status,review_notes,reviewed_at,created_at")
+      .select(
+        "id,car_id,seller_id,kind,label,file_path,mime_type,size_bytes,status,review_notes,reviewed_at,created_at",
+      )
       .eq("car_id", carId)
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
@@ -165,7 +193,9 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
         <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-4">
           <div className="grid gap-3 sm:grid-cols-[180px_1fr_auto]">
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Document type</Label>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                Document type
+              </Label>
               <Select value={kind} onValueChange={(v) => setKind(v as DocKind)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -180,7 +210,9 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs uppercase tracking-wide text-muted-foreground">Label (optional)</Label>
+              <Label className="text-xs uppercase tracking-wide text-muted-foreground">
+                Label (optional)
+              </Label>
               <Input
                 placeholder="e.g. Original title scan, page 2"
                 value={label}
@@ -206,15 +238,19 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
                     uploading && "pointer-events-none opacity-70",
                   )}
                 >
-                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  {uploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
                   {uploading ? "Uploading…" : "Upload"}
                 </span>
               </label>
             </div>
           </div>
           <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-            PDF or image, up to 15 MB. Documents are private — only you and our verification team can see
-            them. Buyers see only a verified-document badge on your listing.
+            PDF or image, up to 15 MB. Documents are private — only you and our verification team
+            can see them. Buyers see only a verified-document badge on your listing.
           </p>
         </div>
       )}

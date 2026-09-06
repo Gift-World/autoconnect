@@ -31,7 +31,8 @@ export function FinalCinematicCTA() {
           </h2>
 
           <p className="mt-6 text-base sm:text-xl font-normal text-slate-300 leading-relaxed max-w-2xl mx-auto">
-            Buy locally with complete inspection clarity. Import globally without middleman risk. Pay securely through bank-grade escrow.
+            Buy locally with complete inspection clarity. Import globally without middleman risk.
+            Pay securely through bank-grade escrow.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -64,7 +65,7 @@ export function FinalCinematicCTA() {
               variant="ghost"
               className="h-14 rounded-2xl px-6 text-base font-semibold text-slate-300 hover:text-white hover:bg-white/10"
             >
-              <Link to="/register" search={{ role: 'seller' } as any}>
+              <Link to="/register" search={{ role: "seller" } as any}>
                 Sell Your Car <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -73,7 +74,9 @@ export function FinalCinematicCTA() {
           {/* Guarantee pill */}
           <div className="mt-12 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-xs text-slate-400 backdrop-blur-md">
             <ShieldCheck className="h-4 w-4 text-teal-400" />
-            <span>Escrow payment protection & 150-point inspection guaranteed on all listings.</span>
+            <span>
+              Escrow payment protection & 150-point inspection guaranteed on all listings.
+            </span>
           </div>
         </div>
       </div>

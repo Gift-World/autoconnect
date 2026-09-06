@@ -50,7 +50,8 @@ export function SpotlightDiscovery() {
             </h2>
           </div>
           <p className="max-w-md text-sm text-muted-foreground leading-relaxed">
-            Every week our automotive curators highlight an exceptional verified listing with full logbook clearance, on-site diagnostics, and escrow backing.
+            Every week our automotive curators highlight an exceptional verified listing with full
+            logbook clearance, on-site diagnostics, and escrow backing.
           </p>
         </div>
 
@@ -111,7 +112,10 @@ export function SpotlightDiscovery() {
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Current inventory, independently verified
                   </span>
-                  <Badge variant="outline" className="border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold">
+                  <Badge
+                    variant="outline"
+                    className="border-teal-500/30 bg-teal-500/10 text-teal-600 dark:text-teal-400 text-[10px] font-bold"
+                  >
                     Right Hand Drive
                   </Badge>
                 </div>
@@ -153,7 +157,9 @@ export function SpotlightDiscovery() {
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Gauge className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Vehicle data</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">
+                        Vehicle data
+                      </p>
                       <p className="text-sm font-bold text-foreground">Shown on each listing</p>
                     </div>
                   </div>
@@ -161,7 +167,9 @@ export function SpotlightDiscovery() {
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Fuel className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Photos</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">
+                        Photos
+                      </p>
                       <p className="text-sm font-bold text-foreground">Reviewed per vehicle</p>
                     </div>
                   </div>
@@ -169,7 +177,9 @@ export function SpotlightDiscovery() {
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Settings2 className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">History</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">
+                        History
+                      </p>
                       <p className="text-sm font-bold text-foreground">Passport available</p>
                     </div>
                   </div>
@@ -177,7 +187,9 @@ export function SpotlightDiscovery() {
                   <div className="flex items-center gap-3 rounded-2xl bg-secondary/50 p-3">
                     <Calendar className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0" />
                     <div>
-                      <p className="text-[11px] font-medium text-muted-foreground uppercase">Protection</p>
+                      <p className="text-[11px] font-medium text-muted-foreground uppercase">
+                        Protection
+                      </p>
                       <p className="text-sm font-bold text-foreground">Escrow-aware checkout</p>
                     </div>
                   </div>
@@ -200,9 +212,7 @@ export function SpotlightDiscovery() {
                   variant="outline"
                   className="w-full sm:w-auto h-12 rounded-2xl border-border hover:bg-muted font-semibold"
                 >
-                  <Link to="/how-payments-work">
-                    How Escrow Works
-                  </Link>
+                  <Link to="/how-payments-work">How Escrow Works</Link>
                 </Button>
               </div>
             </div>

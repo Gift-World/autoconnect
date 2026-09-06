@@ -16,9 +16,13 @@ export const Route = createFileRoute("/_authenticated/account/favorites")({
 function formatPrice(price: number, currency: string) {
   try {
     return new Intl.NumberFormat(undefined, {
-      style: "currency", currency, maximumFractionDigits: 0,
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
     }).format(price);
-  } catch { return `${currency} ${price.toLocaleString()}`; }
+  } catch {
+    return `${currency} ${price.toLocaleString()}`;
+  }
 }
 
 function FavoritesPage() {
@@ -42,7 +46,9 @@ function FavoritesPage() {
   if (isLoading) {
     return (
       <div className="grid gap-4 sm:grid-cols-2">
-        {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-56 w-full rounded-xl" />)}
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="h-56 w-full rounded-xl" />
+        ))}
       </div>
     );
   }
@@ -63,9 +69,16 @@ function FavoritesPage() {
     <div className="grid gap-4 sm:grid-cols-2">
       {data.map((fav) => {
         const car = fav.cars as unknown as {
-          id: string; title: string; year: number; price: number; currency: string;
-          country: string; location_display: string | null;
-          available_for_export: boolean; right_hand_drive: boolean; status: string;
+          id: string;
+          title: string;
+          year: number;
+          price: number;
+          currency: string;
+          country: string;
+          location_display: string | null;
+          available_for_export: boolean;
+          right_hand_drive: boolean;
+          status: string;
           car_images: { image_url: string; is_primary: boolean; sort_order: number }[];
         } | null;
         if (!car) return null;
@@ -81,9 +94,16 @@ function FavoritesPage() {
           >
             <div className="relative aspect-[16/10] bg-muted">
               {img ? (
-                <img src={img} alt={car.title} className="h-full w-full object-cover" loading="lazy" />
+                <img
+                  src={img}
+                  alt={car.title}
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
               ) : (
-                <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">No photo</div>
+                <div className="grid h-full w-full place-items-center text-xs text-muted-foreground">
+                  No photo
+                </div>
               )}
               <FavoriteButton carId={car.id} className="absolute right-2 top-2" />
               <div className="absolute left-2 top-2 flex gap-1.5">
@@ -92,9 +112,7 @@ function FavoritesPage() {
                     <Plane className="mr-1 h-3 w-3" /> Export
                   </Badge>
                 )}
-                {car.status !== "approved" && (
-                  <Badge variant="destructive">Unavailable</Badge>
-                )}
+                {car.status !== "approved" && <Badge variant="destructive">Unavailable</Badge>}
               </div>
             </div>
             <div className="p-4">

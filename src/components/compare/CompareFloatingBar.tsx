@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 
 export function CompareFloatingBar() {
   const [mounted, setMounted] = useState(false);
-  const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } = useVehicleComparison();
+  const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } =
+    useVehicleComparison();
   const { formatPrice } = useCurrency();
 
   useEffect(() => {
@@ -49,7 +50,9 @@ export function CompareFloatingBar() {
                   <p className="font-semibold truncate">
                     {car.year} {car.make} {car.model}
                   </p>
-                  <p className="text-[10px] text-muted-foreground font-mono">{formatPrice(car.price, { compact: true })}</p>
+                  <p className="text-[10px] text-muted-foreground font-mono">
+                    {formatPrice(car.price, { compact: true })}
+                  </p>
                 </div>
                 <button
                   onClick={() => removeFromCompare(car.id)}

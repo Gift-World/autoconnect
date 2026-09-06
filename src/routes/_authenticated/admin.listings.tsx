@@ -1,7 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Star, Eye, Sparkles, Loader2, ShieldAlert, FileCheck2, BadgeCheck, Wrench } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Star,
+  Eye,
+  Sparkles,
+  Loader2,
+  ShieldAlert,
+  FileCheck2,
+  BadgeCheck,
+  Wrench,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiFraudCheck } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
@@ -101,7 +112,9 @@ function AdminListingsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("cars")
-        .select("id, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)")
+        .select(
+          "id, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)",
+        )
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []) as CarRow[];
@@ -114,13 +127,9 @@ function AdminListingsPage() {
   useEffect(() => {
     const channel = supabase
       .channel("admin-cars-rt")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "cars" },
-        () => {
-          qc.invalidateQueries({ queryKey: ["admin-cars"] });
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "cars" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-cars"] });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
@@ -128,7 +137,10 @@ function AdminListingsPage() {
   }, [qc]);
 
   async function approve(c: CarRow) {
-    const { error } = await supabase.from("cars").update({ status: "approved", rejection_reason: null }).eq("id", c.id);
+    const { error } = await supabase
+      .from("cars")
+      .update({ status: "approved", rejection_reason: null })
+      .eq("id", c.id);
     if (error) return toast.error(error.message);
     toast.success("Listing approved");
     refresh();
@@ -139,16 +151,25 @@ function AdminListingsPage() {
     toast.success(c.featured ? "Removed from featured" : "Marked as featured");
     refresh();
   }
-  async function toggleFlag(c: CarRow, field: "documents_verified" | "ntsa_verified" | "inspection_verified") {
+  async function toggleFlag(
+    c: CarRow,
+    field: "documents_verified" | "ntsa_verified" | "inspection_verified",
+  ) {
     const next = !c[field];
-    const { error } = await supabase.from("cars").update({ [field]: next }).eq("id", c.id);
+    const { error } = await supabase
+      .from("cars")
+      .update({ [field]: next })
+      .eq("id", c.id);
     if (error) return toast.error(error.message);
     toast.success(next ? "Marked as checked" : "Unmarked");
     refresh();
   }
   async function submitReject() {
     if (!rejecting) return;
-    const { error } = await supabase.from("cars").update({ status: "rejected", rejection_reason: reason || "Not specified" }).eq("id", rejecting.id);
+    const { error } = await supabase
+      .from("cars")
+      .update({ status: "rejected", rejection_reason: reason || "Not specified" })
+      .eq("id", rejecting.id);
     if (error) return toast.error(error.message);
     toast.success("Listing rejected");
     setRejecting(null);
@@ -195,16 +216,48 @@ function AdminListingsPage() {
           <TabsTrigger value="sold">Sold ({sold.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="pending" className="mt-4">
-          <CarsList rows={pending} scans={scans} onScan={runScan} onApprove={approve} onReject={(c) => setRejecting(c)} onFeature={toggleFeatured} onToggleFlag={toggleFlag} />
+          <CarsList
+            rows={pending}
+            scans={scans}
+            onScan={runScan}
+            onApprove={approve}
+            onReject={(c) => setRejecting(c)}
+            onFeature={toggleFeatured}
+            onToggleFlag={toggleFlag}
+          />
         </TabsContent>
         <TabsContent value="approved" className="mt-4">
-          <CarsList rows={approved} scans={scans} onScan={runScan} onApprove={approve} onReject={(c) => setRejecting(c)} onFeature={toggleFeatured} onToggleFlag={toggleFlag} />
+          <CarsList
+            rows={approved}
+            scans={scans}
+            onScan={runScan}
+            onApprove={approve}
+            onReject={(c) => setRejecting(c)}
+            onFeature={toggleFeatured}
+            onToggleFlag={toggleFlag}
+          />
         </TabsContent>
         <TabsContent value="rejected" className="mt-4">
-          <CarsList rows={rejected} scans={scans} onScan={runScan} onApprove={approve} onReject={(c) => setRejecting(c)} onFeature={toggleFeatured} onToggleFlag={toggleFlag} />
+          <CarsList
+            rows={rejected}
+            scans={scans}
+            onScan={runScan}
+            onApprove={approve}
+            onReject={(c) => setRejecting(c)}
+            onFeature={toggleFeatured}
+            onToggleFlag={toggleFlag}
+          />
         </TabsContent>
         <TabsContent value="sold" className="mt-4">
-          <CarsList rows={sold} scans={scans} onScan={runScan} onApprove={approve} onReject={(c) => setRejecting(c)} onFeature={toggleFeatured} onToggleFlag={toggleFlag} />
+          <CarsList
+            rows={sold}
+            scans={scans}
+            onScan={runScan}
+            onApprove={approve}
+            onReject={(c) => setRejecting(c)}
+            onFeature={toggleFeatured}
+            onToggleFlag={toggleFlag}
+          />
         </TabsContent>
       </Tabs>
 
@@ -214,10 +267,20 @@ function AdminListingsPage() {
             <DialogTitle>Reject listing</DialogTitle>
           </DialogHeader>
           <Label htmlFor="lr">Reason</Label>
-          <Textarea id="lr" rows={4} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why is this listing being rejected?" />
+          <Textarea
+            id="lr"
+            rows={4}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Why is this listing being rejected?"
+          />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejecting(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={submitReject}>Reject</Button>
+            <Button variant="outline" onClick={() => setRejecting(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={submitReject}>
+              Reject
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -264,10 +327,17 @@ function CarsList({
   onApprove: (c: CarRow) => void;
   onReject: (c: CarRow) => void;
   onFeature: (c: CarRow) => void;
-  onToggleFlag: (c: CarRow, field: "documents_verified" | "ntsa_verified" | "inspection_verified") => void;
+  onToggleFlag: (
+    c: CarRow,
+    field: "documents_verified" | "ntsa_verified" | "inspection_verified",
+  ) => void;
 }) {
   if (rows.length === 0) {
-    return <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">No listings in this group.</div>;
+    return (
+      <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
+        No listings in this group.
+      </div>
+    );
   }
   return (
     <div className="space-y-3">
@@ -280,7 +350,9 @@ function CarsList({
               {primary ? (
                 <img src={primary.image_url} alt={c.title} className="h-full w-full object-cover" />
               ) : (
-                <div className="grid h-full place-items-center text-xs text-muted-foreground">No photo</div>
+                <div className="grid h-full place-items-center text-xs text-muted-foreground">
+                  No photo
+                </div>
               )}
             </div>
             <div className="min-w-0 flex-1">
@@ -288,11 +360,14 @@ function CarsList({
                 <div>
                   <h3 className="font-semibold">{c.title}</h3>
                   <div className="text-xs text-muted-foreground">
-                    {c.year} · {c.make_name} {c.model_name} · {country?.flag} {country?.name ?? c.country}
+                    {c.year} · {c.make_name} {c.model_name} · {country?.flag}{" "}
+                    {country?.name ?? c.country}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold">{c.currency} {c.price.toLocaleString()}</div>
+                  <div className="font-semibold">
+                    {c.currency} {c.price.toLocaleString()}
+                  </div>
                   <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
                     <Eye className="h-3 w-3" /> {c.views}
                   </div>
@@ -311,36 +386,58 @@ function CarsList({
                 <ListingChecklist carId={c.id} variant="admin" />
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <FlagButton on={c.documents_verified} icon={<FileCheck2 className="mr-1 h-4 w-4" />} label="Logbook" onClick={() => onToggleFlag(c, "documents_verified")} />
-                <FlagButton on={c.ntsa_verified} icon={<BadgeCheck className="mr-1 h-4 w-4" />} label="NTSA" onClick={() => onToggleFlag(c, "ntsa_verified")} />
-                <FlagButton on={c.inspection_verified} icon={<Wrench className="mr-1 h-4 w-4" />} label="Inspection" onClick={() => onToggleFlag(c, "inspection_verified")} />
+                <FlagButton
+                  on={c.documents_verified}
+                  icon={<FileCheck2 className="mr-1 h-4 w-4" />}
+                  label="Logbook"
+                  onClick={() => onToggleFlag(c, "documents_verified")}
+                />
+                <FlagButton
+                  on={c.ntsa_verified}
+                  icon={<BadgeCheck className="mr-1 h-4 w-4" />}
+                  label="NTSA"
+                  onClick={() => onToggleFlag(c, "ntsa_verified")}
+                />
+                <FlagButton
+                  on={c.inspection_verified}
+                  icon={<Wrench className="mr-1 h-4 w-4" />}
+                  label="Inspection"
+                  onClick={() => onToggleFlag(c, "inspection_verified")}
+                />
               </div>
-              {scans[c.id] && scans[c.id] !== "loading" && (() => {
-                const r = scans[c.id] as FraudResult;
-                const tone =
-                  r.risk === "high"
-                    ? "border-destructive/30 bg-destructive/10 text-destructive"
-                    : r.risk === "medium"
-                      ? "border-amber-300 bg-amber-50 text-amber-900"
-                      : "border-emerald-300 bg-emerald-50 text-emerald-900";
-                return (
-                  <div className={`mt-2 rounded-md border px-3 py-2 text-xs ${tone}`}>
-                    <div className="flex items-center gap-1.5 font-semibold">
-                      <ShieldAlert className="h-3.5 w-3.5" />
-                      AI risk: {r.risk.toUpperCase()} · score {r.score}/100 · recommend {r.recommendation}
+              {scans[c.id] &&
+                scans[c.id] !== "loading" &&
+                (() => {
+                  const r = scans[c.id] as FraudResult;
+                  const tone =
+                    r.risk === "high"
+                      ? "border-destructive/30 bg-destructive/10 text-destructive"
+                      : r.risk === "medium"
+                        ? "border-amber-300 bg-amber-50 text-amber-900"
+                        : "border-emerald-300 bg-emerald-50 text-emerald-900";
+                  return (
+                    <div className={`mt-2 rounded-md border px-3 py-2 text-xs ${tone}`}>
+                      <div className="flex items-center gap-1.5 font-semibold">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        AI risk: {r.risk.toUpperCase()} · score {r.score}/100 · recommend{" "}
+                        {r.recommendation}
+                      </div>
+                      <p className="mt-1">{r.summary}</p>
+                      {r.signals.length > 0 && (
+                        <ul className="mt-1 list-inside list-disc">
+                          {r.signals.map((s, i) => (
+                            <li key={i}>{s}</li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
-                    <p className="mt-1">{r.summary}</p>
-                    {r.signals.length > 0 && (
-                      <ul className="mt-1 list-inside list-disc">
-                        {r.signals.map((s, i) => <li key={i}>{s}</li>)}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })()}
+                  );
+                })()}
               <div className="mt-3 flex flex-wrap gap-2">
                 <Link to="/cars/$id" params={{ id: c.id }}>
-                  <Button size="sm" variant="outline">View</Button>
+                  <Button size="sm" variant="outline">
+                    View
+                  </Button>
                 </Link>
                 <Button
                   size="sm"
@@ -367,7 +464,9 @@ function CarsList({
                 )}
                 {c.status === "approved" && (
                   <Button size="sm" variant="outline" onClick={() => onFeature(c)}>
-                    <Star className={`mr-1 h-4 w-4 ${c.featured ? "fill-accent text-accent" : ""}`} />
+                    <Star
+                      className={`mr-1 h-4 w-4 ${c.featured ? "fill-accent text-accent" : ""}`}
+                    />
                     {c.featured ? "Unfeature" : "Feature"}
                   </Button>
                 )}

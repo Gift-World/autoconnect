@@ -73,7 +73,8 @@ export function TrustPipeline() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            AutoConnect is not a passive classifieds board. We are a strict trust infrastructure ensuring zero broker scams, zero tampered odometers, and guaranteed escrow protection.
+            AutoConnect is not a passive classifieds board. We are a strict trust infrastructure
+            ensuring zero broker scams, zero tampered odometers, and guaranteed escrow protection.
           </p>
         </div>
 
@@ -117,7 +118,9 @@ export function TrustPipeline() {
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 dark:text-teal-400">
                     <CheckCircle2 className="h-3.5 w-3.5" /> {s.tag}
                   </span>
-                  <span className="text-[11px] text-muted-foreground font-medium">Stage {s.step}</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    Stage {s.step}
+                  </span>
                 </div>
               </div>
             );

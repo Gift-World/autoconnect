@@ -96,7 +96,9 @@ export function CinematicImport() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Direct international vehicle procurement without middleman markups. From Japanese auction houses to UK luxury dealer networks — delivered to your doorstep with full escrow protection.
+            Direct international vehicle procurement without middleman markups. From Japanese
+            auction houses to UK luxury dealer networks — delivered to your doorstep with full
+            escrow protection.
           </p>
         </div>
 
@@ -216,7 +218,8 @@ export function CinematicImport() {
                 </h3>
 
                 <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                  Know exact KRA duties, shipping freight, port handling charges, and inspection fees before committing a single shilling.
+                  Know exact KRA duties, shipping freight, port handling charges, and inspection
+                  fees before committing a single shilling.
                 </p>
 
                 {/* Estimated sample pill */}

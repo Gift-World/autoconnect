@@ -43,7 +43,15 @@ export function CinematicHero() {
           <Select value={budget} onValueChange={setBudget}><SelectTrigger className="h-14 rounded-2xl border-0 bg-slate-50 px-4 text-sm font-semibold text-slate-700 shadow-none"><SelectValue placeholder="Choose a budget" /></SelectTrigger><SelectContent><SelectItem value="all">Any budget</SelectItem><SelectItem value="1500000">Under KSh 1.5M</SelectItem><SelectItem value="3000000">Under KSh 3M</SelectItem><SelectItem value="5000000">Under KSh 5M</SelectItem><SelectItem value="8000000">Under KSh 8M</SelectItem></SelectContent></Select>
           <Button type="submit" className="h-14 rounded-2xl bg-teal-500 px-6 font-bold text-slate-950 hover:bg-teal-400"><Search className="mr-2 h-4 w-4" />Find a car</Button>
         </form>
-        <div className="mt-2 flex flex-col gap-2 rounded-2xl bg-teal-50 px-4 py-3 sm:flex-row sm:items-center"><Sparkles className="h-4 w-4 shrink-0 text-teal-600" /><input value={aiQuery} onChange={(event) => setAiQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); askAI(aiQuery); } }} className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-500" placeholder="Tell AutoConnect what you need — “family SUV under KSh 4M”" /><div className="flex flex-wrap gap-1.5">{prompts.map((prompt) => <button key={prompt} type="button" onClick={() => askAI(prompt)} className="rounded-full border border-teal-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-teal-700 hover:bg-teal-100">{prompt}</button>)}</div></div>
+        <div className="mt-2 flex flex-col gap-3 rounded-2xl bg-teal-50 px-4 py-3 sm:flex-row sm:items-center">
+          <div className="flex flex-1 min-w-0 items-center gap-2">
+            <Sparkles className="h-4 w-4 shrink-0 text-teal-600" />
+            <input value={aiQuery} onChange={(event) => setAiQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); askAI(aiQuery); } }} className="min-w-0 flex-1 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-500 placeholder:truncate" placeholder="Tell AutoConnect what you need — “family SUV under KSh 4M”" />
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {prompts.map((prompt) => <button key={prompt} type="button" onClick={() => askAI(prompt)} className="rounded-full border border-teal-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-teal-700 hover:bg-teal-100 whitespace-nowrap">{prompt}</button>)}
+          </div>
+        </div>
       </div>
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-3 px-4 py-10 sm:grid-cols-3 sm:px-6 lg:px-0">{[{ icon: Car, title: "Buy", copy: "Verified local inventory" }, { icon: Plane, title: "Import", copy: "Clear cost and logistics" }, { icon: ShieldCheck, title: "Care", copy: "A trusted car life network" }].map(({ icon: Icon, title, copy }) => <div key={title} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-teal-50 text-teal-700"><Icon className="h-4 w-4" /></span><div><p className="text-sm font-bold text-slate-900">{title}</p><p className="text-xs text-slate-500">{copy}</p></div></div>)}</div>
     </section>

@@ -101,7 +101,7 @@ export function Navbar() {
         {/* Right Action Area */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Universal Role Perspective Switcher */}
-          <RoleSwitcher />
+          <RoleSwitcher className="hidden sm:flex" />
 
           {loading ? (
             <div className="h-9 w-20 animate-pulse rounded-xl bg-muted" />

@@ -10,16 +10,10 @@ export const Route = createFileRoute("/api/public/service-providers")({
           .eq("is_approved", true)
           .order("name");
         if (error) {
-          const code = error.code;
-          if (code === "PGRST205" || code === "42P01" || error.message?.includes("does not exist")) {
-            return Response.json(
-              { data: [] },
-              { headers: { "Cache-Control": "public, max-age=30, s-maxage=60" } },
-            );
-          }
+          console.error("Error fetching service providers:", error);
           return Response.json(
-            { error: "Service directory is temporarily unavailable." },
-            { status: 503 },
+            { data: [] },
+            { headers: { "Cache-Control": "public, max-age=30, s-maxage=60" } },
           );
         }
         return Response.json(

@@ -7,14 +7,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/passport/$carId")({
   loader: async ({ params }) => {
-    const { data: car, error } = await supabase
+    let { data: car, error } = await supabase
       .from("cars")
       .select("id, title, make_name, model_name, year")
       .eq("id", params.carId)
       .maybeSingle();
       
     if (error || !car) {
-      throw new Error("Vehicle not found");
+      const { data: garageCar } = await supabase
+        .from("garage_vehicles")
+        .select("id, nickname as title, make_name, model_name, year")
+        .eq("id", params.carId)
+        .maybeSingle();
+
+      if (!garageCar) {
+        throw new Error("Vehicle not found");
+      }
+      car = garageCar;
     }
     
     return { car };

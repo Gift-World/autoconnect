@@ -24,6 +24,7 @@ import {
   Info,
   Loader2,
   Sparkles,
+  Car,
 } from "lucide-react";
 
 type State = "checked" | "pending" | "more_info" | "not_started";
@@ -109,6 +110,23 @@ export function VehiclePassport({ carId }: { carId: string }) {
     );
   }
   if (!data) return null;
+
+  if (data.isManualGarageVehicle) {
+    return (
+      <div className="rounded-2xl border border-dashed border-muted-foreground/25 bg-card/50 p-8 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <Car className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <h3 className="mt-4 text-lg font-bold">Unverified Garage Vehicle</h3>
+        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
+          You added this vehicle manually. To unlock the full Vehicle Passport, including verified service history, AI diagnostics, and NTSA checks, please verify your ownership.
+        </p>
+        <Button className="mt-6" variant="default">
+          Verify Vehicle
+        </Button>
+      </div>
+    );
+  }
 
   const checks = [
     {

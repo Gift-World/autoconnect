@@ -15,14 +15,29 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { carId } = data;
 
-    const { data: car } = await supabaseAdmin
+    let { data: car } = await supabaseAdmin
       .from("cars")
       .select(
         "id, seller_id, documents_verified, ntsa_verified, inspection_verified, verification_level, sellers(id, business_name, verification_badge, is_verified, created_at)",
       )
       .eq("id", carId)
       .maybeSingle();
-    if (!car) return null;
+      
+    let isManualGarageVehicle = false;
+    if (!car) {
+      const { data: garageCar } = await supabaseAdmin
+        .from("garage_vehicles")
+        .select("id")
+        .eq("id", carId)
+        .maybeSingle();
+        
+      if (garageCar) {
+        isManualGarageVehicle = true;
+        car = garageCar as any;
+      } else {
+        return null;
+      }
+    }
 
     const seller = (car as any).sellers ?? null;
 
@@ -171,6 +186,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
             tyres: null,
           },
       events: vehicleEvents,
+      isManualGarageVehicle,
     };
   });
 

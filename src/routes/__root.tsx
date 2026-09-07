@@ -167,6 +167,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap",
       },
     ],
+    scripts: [
+      {
+        type: "module",
+        src: "https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js",
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

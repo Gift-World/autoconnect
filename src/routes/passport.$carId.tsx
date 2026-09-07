@@ -16,7 +16,7 @@ export const Route = createFileRoute("/passport/$carId")({
     if (error || !car) {
       const { data: garageCar } = await supabase
         .from("garage_vehicles")
-        .select("id, nickname as title, make_name, model_name, year")
+        .select("id, title:nickname, make_name, model_name, year")
         .eq("id", params.carId)
         .maybeSingle();
 

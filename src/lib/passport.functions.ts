@@ -12,10 +12,10 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
     return { carId };
   })
   .handler(async ({ data }) => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabasePublicServer, supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { carId } = data;
 
-    let { data: car } = await supabaseAdmin
+    let { data: car } = await supabasePublicServer
       .from("cars")
       .select(
         "id, seller_id, documents_verified, ntsa_verified, inspection_verified, verification_level, sellers(id, business_name, verification_badge, is_verified, created_at)",
@@ -25,7 +25,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
       
     let isManualGarageVehicle = false;
     if (!car) {
-      const { data: garageCar } = await supabaseAdmin
+      const { data: garageCar } = await supabasePublicServer
         .from("garage_vehicles")
         .select("id")
         .eq("id", carId)

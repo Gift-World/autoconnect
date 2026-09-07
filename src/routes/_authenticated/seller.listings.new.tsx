@@ -22,8 +22,6 @@ import { Loader2, Sparkles, ArrowLeft } from "lucide-react";
 import { aiGenerateDescription } from "@/lib/ai.functions";
 import { COUNTRIES, CURRENCIES } from "@/lib/countries";
 import {
-  getAllMakes,
-  getModelsForMake,
   decodeVin,
   normalizeBody,
   normalizeFuel,
@@ -31,6 +29,8 @@ import {
   type NhtsaMake,
   type NhtsaModel,
 } from "@/lib/nhtsa";
+import { getFleetByteMakes, getFleetByteModels } from "@/lib/fleetbyte";
+import { FuelEconomyEnricher } from "@/components/seller/FuelEconomyEnricher";
 import { GuidedPhotoUploader, type UploadedPhoto } from "@/components/seller/GuidedPhotoUploader";
 import { REQUIRED_PHOTO_KINDS, PHOTO_LABELS } from "@/lib/listing-checklist";
 import { Link } from "@tanstack/react-router";
@@ -100,8 +100,8 @@ type FormValues = z.infer<typeof schema>;
 
 function NewListing() {
   const navigate = useNavigate();
-  const [makes, setMakes] = useState<NhtsaMake[]>([]);
-  const [models, setModels] = useState<NhtsaModel[]>([]);
+  const [makes, setMakes] = useState<{ id: string; name: string }[]>([]);
+  const [models, setModels] = useState<{ id: string; name: string }[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [decodingVin, setDecodingVin] = useState(false);
   const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
@@ -194,7 +194,7 @@ function NewListing() {
         if (yard) setYardId(yard.id);
       }
       try {
-        setMakes(await getAllMakes());
+        setMakes(await getFleetByteMakes());
       } catch (e) {
         console.error(e);
       }
@@ -208,7 +208,7 @@ function NewListing() {
       return;
     }
     setLoadingModels(true);
-    getModelsForMake(watchMake)
+    getFleetByteModels(watchMake)
       .then(setModels)
       .catch(() => setModels([]))
       .finally(() => setLoadingModels(false));
@@ -410,8 +410,8 @@ function NewListing() {
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
                   {makes.map((m) => (
-                    <SelectItem key={m.Make_ID} value={m.Make_Name}>
-                      {titleCase(m.Make_Name)}
+                    <SelectItem key={m.id} value={m.name}>
+                      {titleCase(m.name)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -433,8 +433,8 @@ function NewListing() {
                 </SelectTrigger>
                 <SelectContent className="max-h-72">
                   {models.map((m) => (
-                    <SelectItem key={m.Model_ID} value={m.Model_Name}>
-                      {m.Model_Name}
+                    <SelectItem key={m.id} value={m.name}>
+                      {m.name}
                     </SelectItem>
                   ))}
                   {!loadingModels && models.length === 0 && watchMake && (
@@ -589,6 +589,18 @@ function NewListing() {
               </div>
             </Field>
           </CardContent>
+          <div className="px-6 pb-6 pt-0">
+            <FuelEconomyEnricher
+              make={watchMake || ""}
+              model={watch("model_name") || ""}
+              year={watch("year") || 0}
+              onAccept={(data) => {
+                if (data.engine_size) setValue("engine_size", data.engine_size);
+                if (data.fuel_type) setValue("fuel_type", data.fuel_type as never);
+                if (data.transmission) setValue("transmission", data.transmission as never);
+              }}
+            />
+          </div>
         </Card>
 
         {/* Price & Location */}

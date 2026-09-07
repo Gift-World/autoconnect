@@ -51,6 +51,7 @@ import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
 import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
 import { ArPreviewModal } from "@/components/vehicle/ArPreviewModal";
+import { SafetyRatings } from "@/components/vehicle/SafetyRatings";
 import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
 import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
@@ -534,6 +535,13 @@ function CarDetailPage() {
               {car.vin && <Spec icon={ShieldCheck} label="VIN" value={car.vin} />}
             </dl>
           </div>
+
+          {/* Safety Ratings */}
+          {car.make_name && car.model_name && car.year && (
+            <div className="mt-4">
+              <SafetyRatings make={car.make_name} model={car.model_name} year={car.year} />
+            </div>
+          )}
 
           {/* Features */}
           {car.features && car.features.length > 0 && (

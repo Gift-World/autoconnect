@@ -111,22 +111,20 @@ export function VehiclePassport({ carId }: { carId: string }) {
   }
   if (!data) return null;
 
-  if (data.isManualGarageVehicle) {
-    return (
-      <div className="rounded-2xl border border-dashed border-muted-foreground/25 bg-card/50 p-8 text-center">
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-          <Car className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <h3 className="mt-4 text-lg font-bold">Unverified Garage Vehicle</h3>
-        <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-          You added this vehicle manually. To unlock the full Vehicle Passport, including verified service history, AI diagnostics, and NTSA checks, please verify your ownership.
-        </p>
-        <Button className="mt-6" variant="default">
-          Verify Vehicle
-        </Button>
+  const unverifiedBanner = data.isManualGarageVehicle ? (
+    <div className="mb-6 rounded-2xl border border-dashed border-amber-500/25 bg-amber-500/5 p-6 text-center animate-in fade-in">
+      <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 mb-3">
+        <AlertCircle className="h-5 w-5 text-amber-600" />
       </div>
-    );
-  }
+      <h3 className="text-base font-bold text-amber-700">Unverified Garage Vehicle</h3>
+      <p className="mt-1 text-xs text-amber-700/80 max-w-md mx-auto">
+        You added this vehicle manually. To unlock verified service history, AI diagnostics, and NTSA checks, please verify your ownership with AutoConnect.
+      </p>
+      <Button className="mt-4 bg-amber-600 hover:bg-amber-700 text-white" size="sm">
+        Verify Ownership
+      </Button>
+    </div>
+  ) : null;
 
   const checks = [
     {
@@ -188,7 +186,10 @@ export function VehiclePassport({ carId }: { carId: string }) {
     warnings.push("Inspection found serious issues. Please read the summary.");
 
   return (
-    <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
+    <div className="space-y-6">
+      {unverifiedBanner}
+      
+      <section className="overflow-hidden rounded-xl border bg-card shadow-sm">
       {/* Header */}
       <div className="border-b bg-muted/30 p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -541,6 +542,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
         Private documents, ID numbers and internal notes are never shown publicly. AutoConnect keeps
         them for verification only.
       </p>
-    </section>
+      </section>
+    </div>
   );
 }

@@ -50,7 +50,6 @@ import { BuyWithConfidencePlan } from "@/components/buyer/BuyWithConfidencePlan"
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
 import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
-import { ArPreviewModal } from "@/components/vehicle/ArPreviewModal";
 import { SafetyRatings } from "@/components/vehicle/SafetyRatings";
 import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
@@ -58,7 +57,7 @@ import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorMo
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
-import { Video, Box } from "lucide-react";
+import { Video } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -301,7 +300,6 @@ function CarDetailPage() {
   const { toggleCompare, isInComparison } = useVehicleComparison();
   const [mediaTab, setMediaTab] = useState<"photos" | "360">("photos");
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [arModalOpen, setArModalOpen] = useState(false);
   const [tradeInOpen, setTradeInOpen] = useState(false);
 
   const { data: car } = useQuery({
@@ -424,14 +422,6 @@ function CarDetailPage() {
                 <Badge className="bg-teal-500 text-slate-950 text-[9px] font-bold py-0 px-1">
                   Verified ✓
                 </Badge>
-              </button>
-              <button
-                type="button"
-                onClick={() => setArModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 text-purple-400 hover:text-purple-300 transition-all"
-              >
-                <Box className="h-3.5 w-3.5" />
-                <span>AR Preview</span>
               </button>
             </div>
           </div>
@@ -680,7 +670,6 @@ function CarDetailPage() {
       />
 
       {/* AR Driveway Preview Modal */}
-      <ArPreviewModal open={arModalOpen} onOpenChange={setArModalOpen} carTitle={car.title} />
 
       {/* Trade-In Estimator Modal */}
       <TradeInEstimatorModal

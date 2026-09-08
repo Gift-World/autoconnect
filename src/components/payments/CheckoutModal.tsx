@@ -31,7 +31,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { createPaymentIntent, createManualReservation } from "@/lib/payments.functions";
+import { checkMpesaPaymentStatus, createManualReservation, createPaymentIntent, initiateDarajaStkPush } from "@/lib/payments.functions";
 import { STRIPE_PUBLISHABLE_KEY, calculateBreakdown, fromUsdCents } from "@/lib/stripe-config";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,9 +46,6 @@ function getStripe() {
 
 type Step = 1 | 2 | 3 | 4;
 type Method = "mpesa" | "card" | "bank";
-
-const MPESA_PAYBILL = "AutoConnect Escrow — Paybill 4123456";
-const BANK_DETAILS = "Equity Bank Kenya · Account 0170 2612 3456 · Swift: EQBLKENA";
 
 interface CheckoutModalProps {
   open: boolean;
@@ -80,35 +77,35 @@ export function CheckoutModal({
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>(1);
-  const [method, setMethod] = useState<Method>("mpesa");
+  // Do not default to a mobile-money flow. Provider confirmation must be
+  // available before a customer can start one.
+  const [method, setMethod] = useState<Method>("card");
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [transactionId, setTransactionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentState, setPaymentState] = useState<"pending" | "awaiting_review" | "confirmed">("pending");
+  const [checkoutRequestId, setCheckoutRequestId] = useState<string | null>(null);
 
   // Form Fields for Step 3
   const [payerName, setPayerName] = useState("");
   const [phone, setPhone] = useState("+254 ");
   const [reference, setReference] = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
 
   const breakdown = calculateBreakdown(carPrice, currency);
 
   useEffect(() => {
     if (!open) {
       setStep(1);
-      setMethod("mpesa");
+      setMethod("card");
       setClientSecret(null);
       setTransactionId(null);
       setError(null);
+      setPaymentState("pending");
+      setCheckoutRequestId(null);
       setPayerName("");
       setPhone("+254 ");
       setReference("");
-      setCardNumber("");
-      setCardExpiry("");
-      setCardCvc("");
     }
   }, [open]);
 
@@ -131,54 +128,56 @@ export function CheckoutModal({
       setTransactionId(r.transactionId);
     } catch (e) {
       console.warn("Stripe intent error:", e);
-      // Generate fallback transaction ID for smooth demo simulation
-      setTransactionId(`AC-TX-${Math.floor(100000 + Math.random() * 900000)}`);
+      setError(e instanceof Error ? e.message : "Card checkout is unavailable. Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
-  // Handle Payment Submission at Step 3
+  // A reservation is not payment evidence. M-Pesa and card are confirmed only
+  // after their verified provider status has been recorded by the backend.
   async function handleFinalizePayment() {
     setLoading(true);
     setError(null);
     try {
       const { data: sess } = await supabase.auth.getSession();
-      const generatedTx = `AC-ESC-${Math.floor(100000 + Math.random() * 900000)}`;
-
-      if (sess?.session) {
-        try {
-          const r = await createManualReservation({
-            data: {
-              accessToken: sess.session.access_token,
-              carId,
-              paymentPlan,
-              channel: method,
-              payerName: payerName || "Verified Buyer",
-              phone: phone || "+254700000000",
-              reference: reference || `STK-${Date.now().toString().slice(-6)}`,
-              note: `Authorized via ${method.toUpperCase()}`,
-            },
-          });
-          setTransactionId(r.transactionId || generatedTx);
-        } catch {
-          setTransactionId(generatedTx);
-        }
-      } else {
-        setTransactionId(generatedTx);
+      if (!sess.session) throw new Error("Please sign in before starting a payment.");
+      if (method === "card") throw new Error("Use the secure card form to submit your payment.");
+      if (!payerName.trim()) throw new Error("Enter the payer's full name.");
+      if (method === "mpesa") {
+        if (phone.replace(/\D/g, "").length < 9) throw new Error("Enter a valid Safaricom phone number.");
+        const r = await initiateDarajaStkPush({ data: { accessToken: sess.session.access_token, carId, paymentPlan, phone } });
+        setTransactionId(r.transactionId);
+        setCheckoutRequestId(r.checkoutRequestId);
+        setPaymentState("pending");
+        setStep(4);
+        toast.info("M-Pesa request sent", { description: r.customerMessage });
+        return;
       }
-
-      toast.success("Payment Authorized Successfully", {
-        description: `Your funds are held securely in AutoConnect Escrow (#${generatedTx}).`,
-        icon: <ShieldCheck className="h-4 w-4 text-teal-400" />,
-      });
-
+      const r = await createManualReservation({ data: { accessToken: sess.session.access_token, carId, paymentPlan, channel: "bank", payerName: payerName.trim(), phone: phone.trim() || "Not supplied", reference: reference.trim() || undefined, note: "Bank transfer reservation" } });
+      setTransactionId(r.transactionId);
+      setPaymentState("awaiting_review");
       setStep(4);
+      toast.info("Transfer reservation submitted", { description: "It is awaiting verified receipt and review." });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Payment processing failed");
     } finally {
       setLoading(false);
     }
+  }
+
+  async function refreshMpesaStatus() {
+    if (!transactionId || !checkoutRequestId) return;
+    setLoading(true); setError(null);
+    try {
+      const { data: sess } = await supabase.auth.getSession();
+      if (!sess.session) throw new Error("Your session has expired. Sign in again to check payment status.");
+      const result = await checkMpesaPaymentStatus({ data: { accessToken: sess.session.access_token, transactionId, checkoutRequestId } });
+      if (result.status === "success") { setPaymentState("confirmed"); toast.success("Payment confirmed", { description: "Verified M-Pesa evidence was received." }); }
+      else if (result.status === "pending") toast.info("Still waiting for M-Pesa confirmation.");
+      else setError(result.resultDesc || "M-Pesa payment was not completed.");
+    } catch (e) { setError(e instanceof Error ? e.message : "Unable to verify M-Pesa status."); }
+    finally { setLoading(false); }
   }
 
   const handlePrintReceipt = () => {
@@ -337,8 +336,20 @@ export function CheckoutModal({
               </div>
 
               <div className="space-y-2.5">
+                <div className="w-full flex items-start gap-3.5 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 text-left">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/20 text-emerald-500">
+                    <Smartphone className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold text-foreground">PesaPal checkout</span>
+                      <Badge variant="outline" className="text-[10px] text-emerald-700 border-emerald-500/30">Being connected</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">PesaPal will support cards and local payment methods after its verified notification connection is active.</p>
+                  </div>
+                </div>
                 {/* M-Pesa Option */}
-                <button
+                {false && <button
                   type="button"
                   onClick={() => setMethod("mpesa")}
                   className={`w-full flex items-start gap-3.5 p-4 rounded-2xl border text-left transition-all ${
@@ -363,7 +374,7 @@ export function CheckoutModal({
                       Instant mobile PIN prompt sent to your Safaricom phone number.
                     </p>
                   </div>
-                </button>
+                </button>}
 
                 {/* Card / Stripe Option */}
                 <button
@@ -534,47 +545,17 @@ export function CheckoutModal({
                     <CreditCard className="h-5 w-5 text-primary" />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Cardholder Name</Label>
-                    <Input
-                      value={payerName}
-                      onChange={(e) => setPayerName(e.target.value)}
-                      placeholder="Name on card"
-                      className="h-11 rounded-xl"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs">Card Number</Label>
-                    <Input
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      placeholder="4000 1234 5678 9010"
-                      className="h-11 rounded-xl font-mono"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">Expires (MM/YY)</Label>
-                      <Input
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        placeholder="12/28"
-                        className="h-11 rounded-xl font-mono text-center"
+                  {clientSecret ? (
+                    <Elements stripe={getStripe()} options={{ clientSecret }}>
+                      <StripePaymentForm
+                        transactionId={transactionId}
+                        onSubmitted={() => { setPaymentState("pending"); setStep(4); toast.info("Card payment submitted", { description: "We are waiting for Stripe's verified confirmation." }); }}
+                        onError={setError}
                       />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label className="text-xs">CVC / CVV</Label>
-                      <Input
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        placeholder="123"
-                        maxLength={4}
-                        className="h-11 rounded-xl font-mono text-center"
-                      />
-                    </div>
-                  </div>
+                    </Elements>
+                  ) : (
+                    <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-700">{loading ? "Preparing the secure card form…" : "Card checkout could not be prepared. Return to payment methods and try again."}</p>
+                  )}
                 </div>
               )}
 
@@ -582,12 +563,8 @@ export function CheckoutModal({
               {method === "bank" && (
                 <div className="space-y-3">
                   <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-2xl space-y-1 text-xs">
-                    <p className="font-bold text-amber-500">AutoConnect Official Escrow Account</p>
-                    <p className="font-mono text-[11px] text-foreground">{BANK_DETAILS}</p>
-                    <p className="text-[10px] text-muted-foreground mt-1">
-                      Transfer {formatPrice(breakdown.total)} via your mobile banking app or RTGS
-                      wire.
-                    </p>
+                    <p className="font-bold text-amber-700">Bank transfer review</p>
+                    <p className="text-[11px] text-muted-foreground">No bank account details are embedded in the app. Only use payment instructions supplied through your verified AutoConnect account or an approved invoice.</p>
                   </div>
 
                   <div className="space-y-1.5">
@@ -619,7 +596,7 @@ export function CheckoutModal({
                 </div>
               )}
 
-              <div className="flex items-center gap-2 pt-2">
+              {method !== "card" && <div className="flex items-center gap-2 pt-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -646,7 +623,7 @@ export function CheckoutModal({
                     </>
                   )}
                 </Button>
-              </div>
+              </div>}
             </div>
           )}
 
@@ -657,10 +634,8 @@ export function CheckoutModal({
                 <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-teal-500/20 text-teal-400 border border-teal-500/40 animate-bounce">
                   <Check className="h-7 w-7 stroke-[3]" />
                 </div>
-                <h3 className="text-lg font-extrabold text-foreground">Order & Escrow Secured!</h3>
-                <p className="text-xs text-muted-foreground">
-                  Your payment has been logged in AutoConnect Escrow.
-                </p>
+                <h3 className="text-lg font-extrabold text-foreground">{paymentState === "confirmed" ? "Payment confirmed" : paymentState === "awaiting_review" ? "Transfer awaiting review" : "Payment verification in progress"}</h3>
+                <p className="text-xs text-muted-foreground">{paymentState === "confirmed" ? "Verified payment evidence was received and recorded." : paymentState === "awaiting_review" ? "Your reservation is not payment confirmation. AutoConnect must verify the transfer." : "Do not treat this as confirmation until the payment provider verifies it."}</p>
               </div>
 
               {/* Digital Receipt Card */}
@@ -668,7 +643,7 @@ export function CheckoutModal({
                 <div className="flex justify-between border-b border-white/10 pb-2">
                   <span className="text-muted-foreground">Escrow Ref:</span>
                   <span className="font-bold text-teal-400">
-                    {transactionId || "AC-ESC-829104"}
+                    {transactionId || "Not created"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -686,10 +661,11 @@ export function CheckoutModal({
                   <span className="text-white uppercase">{method}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/10 pt-2 text-sm font-bold">
-                  <span className="text-white">Amount Secured:</span>
+                  <span className="text-white">Amount:</span>
                   <span className="text-teal-400">{formatPrice(breakdown.total)}</span>
                 </div>
               </div>
+              {method === "mpesa" && paymentState !== "confirmed" && <Button type="button" variant="outline" onClick={refreshMpesaStatus} disabled={loading} className="w-full">{loading ? "Checking payment…" : "Check M-Pesa payment status"}</Button>}
 
               {/* Next Steps Flow */}
               <div className="rounded-2xl border border-border bg-card p-3.5 space-y-2 text-xs">
@@ -754,4 +730,19 @@ export function CheckoutModal({
       </DialogContent>
     </Dialog>
   );
+}
+
+function StripePaymentForm({ transactionId, onSubmitted, onError }: { transactionId: string | null; onSubmitted: () => void; onError: (message: string) => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+  const submit = async () => {
+    if (!stripe || !elements || !transactionId) return;
+    setSubmitting(true); onError("");
+    const { error } = await stripe.confirmPayment({ elements, redirect: "if_required" });
+    setSubmitting(false);
+    if (error) { onError(error.message || "Your card payment could not be submitted."); return; }
+    onSubmitted();
+  };
+  return <div className="space-y-3"><PaymentElement options={{ layout: "tabs" }} /><Button type="button" disabled={!stripe || submitting} onClick={submit} className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400">{submitting ? "Submitting securely…" : "Submit card payment"}</Button><p className="text-[11px] text-muted-foreground">A submitted card payment is not shown as confirmed until Stripe sends verified server-side evidence.</p></div>;
 }

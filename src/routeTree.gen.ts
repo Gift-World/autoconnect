@@ -33,6 +33,7 @@ import { Route as AuthenticatedCompleteProfileRouteImport } from './routes/_auth
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
 import { Route as AuthenticatedSellerRouteImport } from './routes/_authenticated/seller'
+import { Route as AuthenticatedServiceBookingsRouteImport } from './routes/_authenticated/service-bookings'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as CarsIndexRouteImport } from './routes/cars.index'
 import { Route as CarsIdRouteImport } from './routes/cars.$id'
@@ -74,6 +75,7 @@ import { Route as ApiPublicPartsShopsRouteImport } from './routes/api/public/par
 import { Route as ApiPublicPreviewGarageRouteImport } from './routes/api/public/preview-garage'
 import { Route as ApiPublicServiceProvidersRouteImport } from './routes/api/public/service-providers'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
+import { Route as PartsShopsSlugRouteImport } from './routes/parts.shops.$slug'
 import { Route as AuthenticatedAdminInspectionsIndexRouteImport } from './routes/_authenticated/admin.inspections.index'
 import { Route as AuthenticatedAdminInspectionsIdRouteImport } from './routes/_authenticated/admin.inspections.$id'
 import { Route as AuthenticatedSellerListingsNewRouteImport } from './routes/_authenticated/seller.listings.new'
@@ -198,6 +200,12 @@ const AuthenticatedSellerRoute = AuthenticatedSellerRouteImport.update({
   path: '/seller',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedServiceBookingsRoute =
+  AuthenticatedServiceBookingsRouteImport.update({
+    id: '/service-bookings',
+    path: '/service-bookings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
   id: '/admin/login',
   path: '/admin/login',
@@ -427,6 +435,11 @@ const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
   path: '/api/public/stripe-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PartsShopsSlugRoute = PartsShopsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => PartsShopsRoute,
+} as any)
 const AuthenticatedAdminInspectionsIndexRoute =
   AuthenticatedAdminInspectionsIndexRouteImport.update({
     id: '/',
@@ -470,10 +483,11 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/garage': typeof AuthenticatedGarageRoute
   '/seller': typeof AuthenticatedSellerRouteWithChildren
+  '/service-bookings': typeof AuthenticatedServiceBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
-  '/parts/shops': typeof PartsShopsRoute
+  '/parts/shops': typeof PartsShopsRouteWithChildren
   '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
@@ -508,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
@@ -533,10 +548,11 @@ export interface FileRoutesByTo {
   '/complete-profile': typeof AuthenticatedCompleteProfileRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/garage': typeof AuthenticatedGarageRoute
+  '/service-bookings': typeof AuthenticatedServiceBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
-  '/parts/shops': typeof PartsShopsRoute
+  '/parts/shops': typeof PartsShopsRouteWithChildren
   '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars': typeof CarsIndexRoute
@@ -570,6 +586,7 @@ export interface FileRoutesByTo {
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
@@ -603,10 +620,11 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/garage': typeof AuthenticatedGarageRoute
   '/_authenticated/seller': typeof AuthenticatedSellerRouteWithChildren
+  '/_authenticated/service-bookings': typeof AuthenticatedServiceBookingsRoute
   '/admin/login': typeof AdminLoginRoute
   '/cars/$id': typeof CarsIdRoute
   '/parts/$id': typeof PartsIdRoute
-  '/parts/shops': typeof PartsShopsRoute
+  '/parts/shops': typeof PartsShopsRouteWithChildren
   '/passport/$carId': typeof PassportCarIdRoute
   '/yards/$slug': typeof YardsSlugRoute
   '/cars/': typeof CarsIndexRoute
@@ -641,6 +659,7 @@ export interface FileRoutesById {
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
+  '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
@@ -674,6 +693,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/garage'
     | '/seller'
+    | '/service-bookings'
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
@@ -712,6 +732,7 @@ export interface FileRouteTypes {
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-webhook'
+    | '/parts/shops/$slug'
     | '/account/'
     | '/admin/'
     | '/seller/'
@@ -737,6 +758,7 @@ export interface FileRouteTypes {
     | '/complete-profile'
     | '/dashboard'
     | '/garage'
+    | '/service-bookings'
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
@@ -774,6 +796,7 @@ export interface FileRouteTypes {
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-webhook'
+    | '/parts/shops/$slug'
     | '/account'
     | '/admin'
     | '/seller'
@@ -806,6 +829,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/garage'
     | '/_authenticated/seller'
+    | '/_authenticated/service-bookings'
     | '/admin/login'
     | '/cars/$id'
     | '/parts/$id'
@@ -844,6 +868,7 @@ export interface FileRouteTypes {
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-webhook'
+    | '/parts/shops/$slug'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
     | '/_authenticated/seller/'
@@ -1048,6 +1073,13 @@ declare module '@tanstack/react-router' {
       path: '/seller'
       fullPath: '/seller'
       preLoaderRoute: typeof AuthenticatedSellerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/service-bookings': {
+      id: '/_authenticated/service-bookings'
+      path: '/service-bookings'
+      fullPath: '/service-bookings'
+      preLoaderRoute: typeof AuthenticatedServiceBookingsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/admin/login': {
@@ -1337,6 +1369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parts/shops/$slug': {
+      id: '/parts/shops/$slug'
+      path: '/$slug'
+      fullPath: '/parts/shops/$slug'
+      preLoaderRoute: typeof PartsShopsSlugRouteImport
+      parentRoute: typeof PartsShopsRoute
+    }
     '/_authenticated/admin/inspections/': {
       id: '/_authenticated/admin/inspections/'
       path: '/'
@@ -1470,6 +1509,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
   AuthenticatedSellerRoute: typeof AuthenticatedSellerRouteWithChildren
+  AuthenticatedServiceBookingsRoute: typeof AuthenticatedServiceBookingsRoute
   AuthenticatedTransactionsIdRoute: typeof AuthenticatedTransactionsIdRoute
 }
 
@@ -1480,6 +1520,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGarageRoute: AuthenticatedGarageRoute,
   AuthenticatedSellerRoute: AuthenticatedSellerRouteWithChildren,
+  AuthenticatedServiceBookingsRoute: AuthenticatedServiceBookingsRoute,
   AuthenticatedTransactionsIdRoute: AuthenticatedTransactionsIdRoute,
 }
 
@@ -1498,15 +1539,27 @@ const CarsRouteChildren: CarsRouteChildren = {
 
 const CarsRouteWithChildren = CarsRoute._addFileChildren(CarsRouteChildren)
 
+interface PartsShopsRouteChildren {
+  PartsShopsSlugRoute: typeof PartsShopsSlugRoute
+}
+
+const PartsShopsRouteChildren: PartsShopsRouteChildren = {
+  PartsShopsSlugRoute: PartsShopsSlugRoute,
+}
+
+const PartsShopsRouteWithChildren = PartsShopsRoute._addFileChildren(
+  PartsShopsRouteChildren,
+)
+
 interface PartsRouteChildren {
   PartsIdRoute: typeof PartsIdRoute
-  PartsShopsRoute: typeof PartsShopsRoute
+  PartsShopsRoute: typeof PartsShopsRouteWithChildren
   PartsIndexRoute: typeof PartsIndexRoute
 }
 
 const PartsRouteChildren: PartsRouteChildren = {
   PartsIdRoute: PartsIdRoute,
-  PartsShopsRoute: PartsShopsRoute,
+  PartsShopsRoute: PartsShopsRouteWithChildren,
   PartsIndexRoute: PartsIndexRoute,
 }
 

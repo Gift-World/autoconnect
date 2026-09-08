@@ -124,7 +124,7 @@ function ShopCard({ shop }: { shop: Shop }) {
       )}
       <div className="mt-5 flex gap-2">
         <Button asChild className="flex-1" size="sm">
-          <Link to="/parts">
+          <Link to="/parts/shops/$slug" params={{ slug: shop.slug }}>
             View stock <PackageCheck className="ml-2 h-4 w-4" />
           </Link>
         </Button>

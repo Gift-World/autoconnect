@@ -44,8 +44,11 @@ type GarageVehicle = {
 const PREVIEW_GARAGE_OWNER_ID = "f98e074f-e3ad-42e6-9a20-80f55e323045";
 
 function GaragePage() {
-  const { user } = useAuth();
-  const isPreview = DEMO_MODE;
+  const { user, session } = useAuth();
+  // Demo records are only for a visitor with no authenticated Supabase session.
+  // A real customer must always see their own garage, even when preview personas
+  // are enabled in a staging build.
+  const isPreview = DEMO_MODE && !session;
   const ownerId = isPreview ? PREVIEW_GARAGE_OWNER_ID : user?.id;
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);

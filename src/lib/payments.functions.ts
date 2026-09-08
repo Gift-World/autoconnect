@@ -700,6 +700,16 @@ export const initiateDarajaStkPush = createServerFn({ method: "POST" })
       throw error;
     }
 
+    const { error: evidenceError } = await supabaseAdmin
+      .from("transactions")
+      .update({ mpesa_checkout_request_id: stk.checkoutRequestId })
+      .eq("id", tx.id)
+      .eq("status", "pending");
+    if (evidenceError) {
+      await supabaseAdmin.from("transactions").update({ status: "cancelled" }).eq("id", tx.id);
+      throw new Error("Unable to securely bind the M-Pesa request to this transaction.");
+    }
+
     return {
       transactionId: tx.id,
       checkoutRequestId: stk.checkoutRequestId,
@@ -727,11 +737,13 @@ export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
 
     const { data: tx } = await supabaseAdmin
       .from("transactions")
-      .select("id, status, buyer_id, car_id, cars!inner(title), sellers!inner(profile_id)")
+      .select("id, status, buyer_id, car_id, mpesa_checkout_request_id, cars!inner(title), sellers!inner(profile_id)")
       .eq("id", data.transactionId)
       .maybeSingle();
 
     if (!tx || tx.buyer_id !== user.id) throw new Error("Transaction not found");
+    if (!tx.mpesa_checkout_request_id || tx.mpesa_checkout_request_id !== data.checkoutRequestId)
+      throw new Error("M-Pesa request does not match this transaction");
 
     const result = await queryMpesaStkPush({ checkoutRequestId: data.checkoutRequestId });
 
@@ -742,6 +754,7 @@ export const checkMpesaPaymentStatus = createServerFn({ method: "POST" })
           .update({
             status: "payment_received",
             paid_at: new Date().toISOString(),
+            payment_evidence_received_at: new Date().toISOString(),
             manual_reference:
               result.mpesaReceiptNumber || `MPESA-${Date.now().toString().slice(-6)}`,
           })
@@ -818,6 +831,7 @@ export const confirmManualPayment = createServerFn({ method: "POST" })
       .update({
         status: "payment_received",
         paid_at: new Date().toISOString(),
+        payment_evidence_received_at: new Date().toISOString(),
         manual_confirmed_by: user.id,
         manual_confirmed_at: new Date().toISOString(),
         manual_reference: data.reference ?? undefined,

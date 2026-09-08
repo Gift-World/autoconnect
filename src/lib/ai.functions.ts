@@ -1,14 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
 import { generateText, Output } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "./ai-gateway.server";
+import { createOpenAiProvider } from "./ai-gateway.server";
 
-const MODEL = "google/gemini-3-flash-preview";
+const MODEL = process.env.OPENAI_MODEL || "gpt-4.1-mini";
 
 function gateway() {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("Missing LOVABLE_API_KEY");
-  return createLovableAiGatewayProvider(key);
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) throw new Error("AI is not configured. Set OPENAI_API_KEY on the server.");
+  return createOpenAiProvider(key);
 }
 
 /* ------------------------------------------------------------------ */

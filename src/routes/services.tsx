@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { BadgeCheck, CalendarPlus, CarFront, MapPin, ShieldCheck, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
@@ -16,6 +17,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/services")({
   head: () => ({ meta: [{ title: "Mechanics & Garages — AutoConnect" }] }),
@@ -74,6 +78,9 @@ function ServicesPage() {
           >
             <Link to="/parts">Find parts</Link>
           </Button>
+          <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+            <Link to="/service-bookings">Manage service requests</Link>
+          </Button>
         </div>
       </section>
       {providers.isLoading ? (
@@ -105,8 +112,47 @@ function ServicesPage() {
   );
 }
 function ProviderCard({ provider }: { provider: Provider }) {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [open, setOpen] = useState(false);
+  const [vehicleId, setVehicleId] = useState("");
+  const [serviceType, setServiceType] = useState("Routine service");
+  const [requestedFor, setRequestedFor] = useState("");
+  const [notes, setNotes] = useState("");
+  const vehicles = useQuery({
+    queryKey: ["booking-garage-vehicles", session?.user.id],
+    enabled: !!session?.user.id && open,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("garage_vehicles")
+        .select("id,make_name,model_name,year,nickname")
+        .eq("owner_id", session!.user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+  const booking = useMutation({
+    mutationFn: async () => {
+      if (!session?.user) throw new Error("Please sign in to request an appointment.");
+      if (!vehicleId) throw new Error("Choose the vehicle this work is for.");
+      if (!requestedFor) throw new Error("Choose a preferred date and time.");
+      const { error } = await supabase.from("service_bookings").insert({
+        customer_id: session.user.id,
+        provider_id: provider.id,
+        garage_vehicle_id: vehicleId,
+        service_type: serviceType.trim() || "Service request",
+        requested_for: new Date(requestedFor).toISOString(),
+        customer_notes: notes.trim(),
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Service request sent", { description: "The provider can now quote or confirm it." });
+      setOpen(false);
+      setNotes("");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
 
   return (
     <article className="flex min-h-60 flex-col rounded-2xl border bg-card p-6 shadow-sm">
@@ -133,9 +179,9 @@ function ProviderCard({ provider }: { provider: Provider }) {
         </p>
       )}
       
-      {!user ? (
+      {!user || !session ? (
         <Button
-          onClick={() => toast.info("Sign in to request an appointment.")}
+          onClick={() => toast.info("Sign in with a test or customer account to request an appointment.")}
           className="mt-auto w-full"
           size="sm"
         >
@@ -156,13 +202,31 @@ function ProviderCard({ provider }: { provider: Provider }) {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-4">
-              <div className="rounded-xl border bg-muted/40 p-4 flex flex-col items-center justify-center gap-2 text-center text-sm">
-                <CarFront className="h-6 w-6 text-muted-foreground" />
-                <p className="text-muted-foreground">This feature requires a completed Garage integration.</p>
-                <Button onClick={() => setOpen(false)} variant="outline" size="sm" asChild>
-                  <Link to="/garage">Go to My Garage</Link>
-                </Button>
-              </div>
+              {vehicles.isLoading ? (
+                <p className="text-sm text-muted-foreground">Loading your garage…</p>
+              ) : !vehicles.data?.length ? (
+                <div className="rounded-xl border bg-muted/40 p-4 text-center text-sm">
+                  <CarFront className="mx-auto mb-2 h-6 w-6 text-muted-foreground" />
+                  <p className="text-muted-foreground">Add a vehicle to My Garage before requesting service.</p>
+                  <Button onClick={() => setOpen(false)} variant="outline" size="sm" className="mt-3" asChild>
+                    <Link to="/garage">Go to My Garage</Link>
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor={`vehicle-${provider.id}`}>Vehicle</Label>
+                    <select id={`vehicle-${provider.id}`} value={vehicleId} onChange={(event) => setVehicleId(event.target.value)} className="h-10 rounded-md border bg-background px-3 text-sm">
+                      <option value="">Select a vehicle</option>
+                      {vehicles.data.map((vehicle) => <option value={vehicle.id} key={vehicle.id}>{`${vehicle.year ?? ""} ${vehicle.make_name} ${vehicle.model_name ?? ""}`.trim()}{vehicle.nickname ? ` · ${vehicle.nickname}` : ""}</option>)}
+                    </select>
+                  </div>
+                  <div className="grid gap-1.5"><Label htmlFor={`service-${provider.id}`}>Service needed</Label><Input id={`service-${provider.id}`} value={serviceType} onChange={(event) => setServiceType(event.target.value)} placeholder="Diagnostics, maintenance, inspection…" /></div>
+                  <div className="grid gap-1.5"><Label htmlFor={`when-${provider.id}`}>Preferred time</Label><Input id={`when-${provider.id}`} type="datetime-local" value={requestedFor} onChange={(event) => setRequestedFor(event.target.value)} /></div>
+                  <div className="grid gap-1.5"><Label htmlFor={`notes-${provider.id}`}>What should the provider know?</Label><Textarea id={`notes-${provider.id}`} value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Symptoms, inspection notes, or a question…" /></div>
+                  <Button disabled={booking.isPending} onClick={() => booking.mutate()} className="w-full">{booking.isPending ? "Sending request…" : "Send service request"}</Button>
+                </>
+              )}
             </div>
           </DialogContent>
         </Dialog>

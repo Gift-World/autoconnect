@@ -44,6 +44,7 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
             .update({
               status: "payment_received",
               paid_at: new Date().toISOString(),
+              payment_evidence_received_at: new Date().toISOString(),
               stripe_charge_id:
                 typeof pi.latest_charge === "string"
                   ? pi.latest_charge

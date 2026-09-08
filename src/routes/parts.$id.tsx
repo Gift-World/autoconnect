@@ -68,11 +68,21 @@ type Fitment = {
 
 function PartDetailPage() {
   const { id } = Route.useParams();
-  const { user } = useAuth();
+  const { session } = useAuth();
   const [open, setOpen] = useState(false);
   const [quantity, setQuantity] = useState("1");
   const [country, setCountry] = useState("");
   const [message, setMessage] = useState("");
+  const [vehicleId, setVehicleId] = useState("");
+  const vehicles = useQuery({
+    queryKey: ["quote-garage-vehicles", session?.user.id],
+    enabled: !!session?.user.id && open,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("garage_vehicles").select("id,make_name,model_name,year,nickname").eq("owner_id", session!.user.id).order("created_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
   const partQuery = useQuery({
     queryKey: ["part", id],
     queryFn: async () => {
@@ -102,13 +112,14 @@ function PartDetailPage() {
   const quote = useMutation({
     mutationFn: async () => {
       const part = partQuery.data;
-      if (!part || !user) throw new Error("Please sign in before requesting a quote.");
+      if (!part || !session?.user) throw new Error("Please sign in before requesting a quote.");
       if (message.trim().length < 5)
         throw new Error("Add a short message so the supplier can help.");
       const { error } = await supabase.from("part_inquiries").insert({
         part_id: part.id,
         shop_id: part.shop_id,
-        buyer_id: user.id,
+        buyer_id: session.user.id,
+        garage_vehicle_id: vehicleId || null,
         quantity: Number(quantity) || 1,
         destination_country: country.trim() || null,
         message: message.trim(),
@@ -243,7 +254,7 @@ function PartDetailPage() {
           </div>
           <Button
             onClick={() =>
-              user ? setOpen(true) : toast.info("Sign in to request a supplier quote.")
+              session ? setOpen(true) : toast.info("Sign in to request a supplier quote.")
             }
             className="mt-7 w-full"
           >
@@ -264,6 +275,7 @@ function PartDetailPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
+            {vehicles.data?.length ? <div><Label htmlFor="quote-vehicle">Connect this to My Garage (optional)</Label><select id="quote-vehicle" value={vehicleId} onChange={(event) => setVehicleId(event.target.value)} className="mt-1 h-10 w-full rounded-md border bg-background px-3 text-sm"><option value="">Not linked to a vehicle</option>{vehicles.data.map(vehicle => <option key={vehicle.id} value={vehicle.id}>{`${vehicle.year ?? ""} ${vehicle.make_name} ${vehicle.model_name ?? ""}`.trim()}{vehicle.nickname ? ` · ${vehicle.nickname}` : ""}</option>)}</select></div> : null}
             <div>
               <Label htmlFor="quantity">Quantity</Label>
               <Input

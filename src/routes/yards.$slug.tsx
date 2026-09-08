@@ -292,7 +292,7 @@ function YardPage() {
                   <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
                     {yard.name}
                   </h1>
-                  {yard.sellers?.verification_badge !== false && (
+                  {yard.sellers?.verification_badge === true && (
                     <Badge className="border-0 bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-600">
                       <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verified Yard
                     </Badge>

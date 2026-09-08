@@ -95,16 +95,16 @@ function Purchases() {
     setSelectedReceipt({
       transactionId: r.id,
       carTitle: r.cars?.title || "Vehicle Purchase",
-      buyerName: profile?.full_name || user?.email?.split("@")[0] || "Alice Mwangi",
-      buyerPhone: profile?.phone || "+254 712 345 678",
-      sellerName: "AutoConnect Verified Yard (Nairobi Hub)",
-      sellerLocation: "Karen, Nairobi, Kenya",
+      buyerName: profile?.full_name || user?.email?.split("@")[0] || "Buyer",
+      buyerPhone: profile?.phone || "Not recorded",
+      sellerName: "AutoConnect marketplace seller",
+      sellerLocation: "See transaction record",
       amount: Number(r.display_total),
       currency: r.display_currency || "KES",
-      paymentMethod: "M-Pesa / Bank Escrow",
-      paymentPlan: "Full Escrow Deposit",
+      paymentMethod: "Recorded after payment confirmation",
+      paymentPlan: "Transaction record",
       timestamp: new Date(r.initiated_at).toLocaleString(),
-      escrowStatus: "Funds Held in Neutral Escrow",
+      escrowStatus: r.status,
     });
   };
 

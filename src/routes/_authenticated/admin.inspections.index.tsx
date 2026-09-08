@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Wrench } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/admin/inspections/")({
   component: AdminInspections,
@@ -42,13 +43,12 @@ function AdminInspections() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Inspections queue</h1>
-        <p className="text-sm text-muted-foreground">
-          Assign mechanics, fill reports, and approve completed inspections.
-        </p>
-      </header>
-      <Card>
+      <PageHeader
+        eyebrow="Inspection operations"
+        title="Review the evidence trail"
+        description="Assign work, collect the report, then make an accountable approval decision."
+      />
+      <Card className="rounded-2xl shadow-card">
         <CardHeader>
           <CardTitle className="text-base">All inspections</CardTitle>
         </CardHeader>

@@ -341,7 +341,7 @@ function CarDetailPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="app-surface flex items-center justify-between gap-3 p-3 sm:p-4">
         <Link
           to="/cars"
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -417,9 +417,6 @@ function CarDetailPage() {
               >
                 <Video className="h-3.5 w-3.5 text-teal-400" />
                 <span>Watch Video</span>
-                <Badge className="bg-teal-500 text-slate-950 text-[9px] font-bold py-0 px-1">
-                  Verified ✓
-                </Badge>
               </button>
             </div>
           </div>
@@ -436,7 +433,7 @@ function CarDetailPage() {
           )}
 
           {/* Title + badges */}
-          <div>
+          <div className="app-surface p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-2">
               {car.featured && (
                 <Badge className="bg-accent text-accent-foreground hover:bg-accent">Featured</Badge>

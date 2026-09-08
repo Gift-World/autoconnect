@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { CheckCircle2, XCircle, FileText, Building2, User } from "lucide-react";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/admin/verification")({
   head: () => ({ meta: [{ title: "Verification queue — Admin" }] }),
@@ -25,17 +26,24 @@ export const Route = createFileRoute("/_authenticated/admin/verification")({
 function AdminVerificationPage() {
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Verification queue</h1>
-        <p className="text-sm text-muted-foreground">
-          Review seller and buyer identity submissions.
-        </p>
-      </header>
-      <Tabs defaultValue="sellers">
-        <TabsList>
-          <TabsTrigger value="sellers">Sellers</TabsTrigger>
-          <TabsTrigger value="buyers">Buyers</TabsTrigger>
-        </TabsList>
+      <PageHeader
+        eyebrow="TRUST OPERATIONS"
+        title="Identity review queue"
+        description="Review buyer and seller submissions carefully. Only approved evidence changes public trust status."
+      />
+      <Tabs defaultValue="sellers" className="app-surface p-4 sm:p-6">
+        <div className="flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold">Review workspace</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Open a record to examine the submitted details and leave an accountable decision.
+            </p>
+          </div>
+          <TabsList className="self-start">
+            <TabsTrigger value="sellers">Sellers</TabsTrigger>
+            <TabsTrigger value="buyers">Buyers</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="sellers" className="mt-4">
           <SellersQueue />
         </TabsContent>
@@ -148,7 +156,7 @@ function SellersQueue() {
 
   return (
     <>
-      <div className="mb-3 flex gap-2">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {["pending", "under_review", "verified", "rejected", "all"].map((f) => (
           <Button
             key={f}
@@ -173,13 +181,13 @@ function SellersQueue() {
                 setSelected(r);
                 setNotes(r.admin_notes ?? "");
               }}
-              className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-muted/40"
+              className="group flex w-full items-center justify-between rounded-2xl border border-border/70 bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md"
             >
               <div className="flex items-center gap-3 min-w-0">
                 {r.is_dealer ? (
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
+                  <Building2 className="h-5 w-5 text-primary" />
                 ) : (
-                  <User className="h-5 w-5 text-muted-foreground" />
+                  <User className="h-5 w-5 text-primary" />
                 )}
                 <div className="min-w-0">
                   <div className="font-medium truncate">
@@ -352,7 +360,7 @@ function BuyersQueue() {
   const rows = q.data ?? [];
   return (
     <>
-      <div className="mb-3 flex gap-2">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {["submitted", "approved", "rejected", "all"].map((f) => (
           <Button
             key={f}
@@ -377,7 +385,7 @@ function BuyersQueue() {
                 setSelected(r);
                 setNotes(r.kyc_notes ?? "");
               }}
-              className="flex w-full items-center justify-between rounded-lg border bg-card p-4 text-left shadow-sm hover:bg-muted/40"
+              className="group flex w-full items-center justify-between rounded-2xl border border-border/70 bg-card p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-primary/25 hover:shadow-md"
             >
               <div className="min-w-0">
                 <div className="font-medium truncate">{r.full_name ?? "Unnamed"}</div>

@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminImportRequestsRouteImport } from './routes/_
 import { Route as AuthenticatedAdminInspectionsRouteImport } from './routes/_authenticated/admin.inspections'
 import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
 import { Route as AuthenticatedAdminMakesRouteImport } from './routes/_authenticated/admin.makes'
+import { Route as AuthenticatedAdminProviderClaimsRouteImport } from './routes/_authenticated/admin.provider-claims'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin.sellers'
 import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_authenticated/admin.transactions'
 import { Route as AuthenticatedAdminVerificationRouteImport } from './routes/_authenticated/admin.verification'
@@ -333,6 +334,12 @@ const AuthenticatedAdminMakesRoute = AuthenticatedAdminMakesRouteImport.update({
   path: '/makes',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminProviderClaimsRoute =
+  AuthenticatedAdminProviderClaimsRouteImport.update({
+    id: '/provider-claims',
+    path: '/provider-claims',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSellersRoute =
   AuthenticatedAdminSellersRouteImport.update({
     id: '/sellers',
@@ -505,6 +512,7 @@ export interface FileRoutesByFullPath {
   '/admin/inspections': typeof AuthenticatedAdminInspectionsRouteWithChildren
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/admin/makes': typeof AuthenticatedAdminMakesRoute
+  '/admin/provider-claims': typeof AuthenticatedAdminProviderClaimsRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/verification': typeof AuthenticatedAdminVerificationRoute
@@ -569,6 +577,7 @@ export interface FileRoutesByTo {
   '/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/admin/makes': typeof AuthenticatedAdminMakesRoute
+  '/admin/provider-claims': typeof AuthenticatedAdminProviderClaimsRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/verification': typeof AuthenticatedAdminVerificationRoute
@@ -642,6 +651,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/inspections': typeof AuthenticatedAdminInspectionsRouteWithChildren
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/_authenticated/admin/makes': typeof AuthenticatedAdminMakesRoute
+  '/_authenticated/admin/provider-claims': typeof AuthenticatedAdminProviderClaimsRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/verification': typeof AuthenticatedAdminVerificationRoute
@@ -715,6 +725,7 @@ export interface FileRouteTypes {
     | '/admin/inspections'
     | '/admin/listings'
     | '/admin/makes'
+    | '/admin/provider-claims'
     | '/admin/sellers'
     | '/admin/transactions'
     | '/admin/verification'
@@ -779,6 +790,7 @@ export interface FileRouteTypes {
     | '/admin/import-requests'
     | '/admin/listings'
     | '/admin/makes'
+    | '/admin/provider-claims'
     | '/admin/sellers'
     | '/admin/transactions'
     | '/admin/verification'
@@ -851,6 +863,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/inspections'
     | '/_authenticated/admin/listings'
     | '/_authenticated/admin/makes'
+    | '/_authenticated/admin/provider-claims'
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/verification'
@@ -1243,6 +1256,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMakesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/provider-claims': {
+      id: '/_authenticated/admin/provider-claims'
+      path: '/provider-claims'
+      fullPath: '/admin/provider-claims'
+      preLoaderRoute: typeof AuthenticatedAdminProviderClaimsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/sellers': {
       id: '/_authenticated/admin/sellers'
       path: '/sellers'
@@ -1449,6 +1469,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminInspectionsRoute: typeof AuthenticatedAdminInspectionsRouteWithChildren
   AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
   AuthenticatedAdminMakesRoute: typeof AuthenticatedAdminMakesRoute
+  AuthenticatedAdminProviderClaimsRoute: typeof AuthenticatedAdminProviderClaimsRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminTransactionsRoute: typeof AuthenticatedAdminTransactionsRoute
   AuthenticatedAdminVerificationRoute: typeof AuthenticatedAdminVerificationRoute
@@ -1464,6 +1485,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
     AuthenticatedAdminInspectionsRouteWithChildren,
   AuthenticatedAdminListingsRoute: AuthenticatedAdminListingsRoute,
   AuthenticatedAdminMakesRoute: AuthenticatedAdminMakesRoute,
+  AuthenticatedAdminProviderClaimsRoute: AuthenticatedAdminProviderClaimsRoute,
   AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
   AuthenticatedAdminTransactionsRoute: AuthenticatedAdminTransactionsRoute,
   AuthenticatedAdminVerificationRoute: AuthenticatedAdminVerificationRoute,

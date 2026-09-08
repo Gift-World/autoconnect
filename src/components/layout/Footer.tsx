@@ -28,8 +28,7 @@ export function Footer() {
               </span>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              The trusted global marketplace for buying, selling, and importing verified vehicles
-              across borders with full escrow protection.
+              Find a car, understand its evidence, and look after it — all connected to your vehicle.
             </p>
             <div className="flex gap-2.5 pt-2">
               {[Twitter, Instagram, Linkedin, Facebook].map((I, i) => (
@@ -53,7 +52,7 @@ export function Footer() {
               { to: "/yards", label: "Accredited Dealerships" },
               { to: "/import", label: "Global Import Corridors" },
               { to: "/pricing", label: "Seller Plans & Pricing" },
-              { to: "/how-payments-work", label: "How Escrow Works" },
+              { to: "/how-payments-work", label: "How payments work" },
               { to: "/trust", label: "Trust Center" },
             ]}
           />

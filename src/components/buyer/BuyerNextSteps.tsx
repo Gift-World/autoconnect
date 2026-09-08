@@ -1,25 +1,20 @@
-import { ShieldCheck, FileSearch, HandCoins, Handshake } from "lucide-react";
+import { CalendarCheck, FileSearch, MessageCircle } from "lucide-react";
 
 const STEPS = [
   {
     icon: FileSearch,
-    title: "Check the Vehicle Passport",
-    body: "See which checks AutoConnect has completed and what is still missing before you commit.",
+    title: "Read the evidence",
+    body: "See what is recorded on this listing and what still needs to be confirmed.",
   },
   {
-    icon: ShieldCheck,
-    title: "Reserve or pay through AutoConnect",
-    body: "Card, M-Pesa or bank transfer. Manual payments are reviewed by an admin before they count as received.",
+    icon: CalendarCheck,
+    title: "Arrange a viewing",
+    body: "Ask the seller for a time, location, inspection option and any documents you need to see.",
   },
   {
-    icon: Handshake,
-    title: "Inspect and take handover",
-    body: "The seller marks the car ready. Inspect it in person and confirm you received it.",
-  },
-  {
-    icon: HandCoins,
-    title: "Funds released after verification",
-    body: "Money is held until handover is confirmed. If something is wrong, raise a dispute before confirming.",
+    icon: MessageCircle,
+    title: "Agree the next step",
+    body: "Confirm price, delivery and the available payment method before you send any money.",
   },
 ];
 
@@ -27,15 +22,15 @@ const STEPS = [
 export function BuyerNextSteps() {
   return (
     <section className="overflow-hidden rounded-xl border bg-card">
-      <div className="border-b bg-muted/30 p-4">
+      <div className="border-b bg-muted/30 p-4 sm:p-5">
         <h2 className="flex items-center gap-2 text-base font-semibold">
-          <ShieldCheck className="h-5 w-5 text-primary" /> Payment protected — how buying works
+          <FileSearch className="h-5 w-5 text-primary" /> A clear path to this car
         </h2>
         <p className="mt-1 text-xs text-muted-foreground">
-          Documents reviewed by AutoConnect. Funds released after verification of handover.
+          A short, practical checklist for this listing. It does not replace an in-person inspection.
         </p>
       </div>
-      <ol className="grid gap-3 p-4 sm:grid-cols-2">
+      <ol className="grid gap-3 p-4 sm:grid-cols-3 sm:p-5">
         {STEPS.map((s, i) => (
           <li key={s.title} className="flex items-start gap-3 rounded-lg border p-3">
             <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -50,9 +45,8 @@ export function BuyerNextSteps() {
           </li>
         ))}
       </ol>
-      <p className="border-t bg-muted/20 p-3 text-[11px] text-muted-foreground">
-        AutoConnect reviews sellers, documents and payments. We do not guarantee the condition of
-        any vehicle — always inspect before confirming handover.
+      <p className="border-t bg-muted/20 p-3 text-[11px] text-muted-foreground sm:px-5">
+        Never send money based only on a listing. Verify the vehicle, seller and payment instructions before proceeding.
       </p>
     </section>
   );

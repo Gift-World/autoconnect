@@ -45,8 +45,6 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { VerifiedDocsBadge } from "@/components/DocumentManager";
 import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
-import { VehicleDecisionChecklist } from "@/components/buyer/VehicleDecisionChecklist";
-import { BuyWithConfidencePlan } from "@/components/buyer/BuyWithConfidencePlan";
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
 import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
@@ -615,27 +613,7 @@ function CarDetailPage() {
           </div>
           <VehiclePassport carId={car.id} />
           <InspectionSummary carId={car.id} />
-          <VehicleDecisionChecklist
-            carId={car.id}
-            documentsVerified={car.documents_verified}
-            titleVerified={car.ntsa_verified}
-            inspectionVerified={car.inspection_verified}
-          />
-          <BuyWithConfidencePlan
-            title={car.title}
-            imageCount={images.length}
-            documentsVerified={car.documents_verified}
-            titleVerified={car.ntsa_verified}
-            inspectionVerified={car.inspection_verified}
-            availableForExport={car.available_for_export}
-            onAskSeller={() =>
-              document
-                .getElementById("inquiry-form")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" })
-            }
-          />
           <BuyerNextSteps />
-          <TrustPanel />
 
           {/* Similar cars */}
           <SimilarCars car={car} />
@@ -1285,7 +1263,7 @@ function BuyBox({ car }: { car: CarDetail }) {
     <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-b from-primary/5 to-transparent p-5 shadow-card">
       <div className="flex items-center gap-2">
         <Lock className="h-4 w-4 text-primary" />
-        <h3 className="text-base font-semibold">Buy Securely Through AutoConnect</h3>
+        <h3 className="text-base font-semibold">Plan your purchase</h3>
       </div>
       {options.length > 1 && (
         <div className="mt-3 grid grid-cols-1 gap-1.5 rounded-lg border bg-background p-1">
@@ -1339,7 +1317,7 @@ function BuyBox({ car }: { car: CarDetail }) {
           setOpen(true);
         }}
       >
-        <Lock className="mr-2 h-4 w-4" /> Pay or reserve{" "}
+        <Lock className="mr-2 h-4 w-4" /> See payment options{" "}
         {formatPrice(breakdown.total, car.currency)}
       </Button>
       <WhatsAppConcierge
@@ -1349,17 +1327,16 @@ function BuyBox({ car }: { car: CarDetail }) {
       />
       <ul className="mt-4 space-y-1.5 text-[11px] text-muted-foreground">
         <li className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-success" /> Payment protected
+          <ShieldCheck className="h-3 w-3 text-success" /> Payment status is shown only after provider confirmation
         </li>
         <li className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-success" /> Funds released after verification
+          <ShieldCheck className="h-3 w-3 text-success" /> Confirm viewing and evidence before you pay
         </li>
         <li className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-success" /> Documents reviewed by AutoConnect
+          <ShieldCheck className="h-3 w-3 text-success" /> Documents shown in the Vehicle Passport
         </li>
         <li className="flex items-center gap-1.5">
-          <ShieldCheck className="h-3 w-3 text-success" /> Card, M-Pesa or bank transfer — manual
-          payment reviewed by admin
+          <ShieldCheck className="h-3 w-3 text-success" /> Available payment methods are confirmed during checkout
         </li>
       </ul>
       <Link

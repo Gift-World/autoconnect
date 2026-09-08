@@ -127,18 +127,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AutoConnect — Buy and Import Cars, Worldwide" },
+      { title: "AutoConnect — Find, Buy and Look After Your Car" },
       {
         name: "description",
         content:
-          "Browse verified car listings from sellers across the globe. Buy locally or import directly — no brokers.",
+          "Find a car, understand the recorded evidence, and manage the next step in one place.",
       },
       { name: "author", content: "AutoConnect" },
-      { property: "og:title", content: "AutoConnect — Buy and Import Cars, Worldwide" },
+      { property: "og:title", content: "AutoConnect — Find, Buy and Look After Your Car" },
       {
         property: "og:description",
-        content:
-          "Browse verified car listings from sellers across the globe. Buy locally or import directly — no brokers.",
+        content: "Find a car, understand its evidence, and look after it in one connected place.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

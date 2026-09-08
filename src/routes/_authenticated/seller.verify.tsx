@@ -9,8 +9,20 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { ShieldCheck, Clock, XCircle, Upload, Check, Loader2 } from "lucide-react";
+import {
+  ShieldCheck,
+  Clock,
+  XCircle,
+  Upload,
+  Check,
+  Loader2,
+  Building2,
+  FileCheck2,
+  LockKeyhole,
+  UserRound,
+} from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/seller/verify")({
   head: () => ({ meta: [{ title: "Verify seller — AutoConnect" }] }),
@@ -202,192 +214,268 @@ function SellerVerifyPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Seller verification</h1>
-        <p className="text-sm text-muted-foreground">
-          Verify to earn a trust badge on all your listings. Documents remain private.
-        </p>
-      </header>
-
-      <StatusBanner
-        status={status}
-        notes={vQ.data?.identity_rejection_reason ?? vQ.data?.admin_notes ?? null}
+    <div className="mx-auto max-w-[1180px] space-y-6">
+      <PageHeader
+        eyebrow="SELLER TRUST CENTRE"
+        title="Verify your selling profile"
+        description="Give buyers confidence in who they are dealing with. Your documents are private and reviewed only by AutoConnect."
       />
 
-      <Tabs
-        value={accountType}
-        onValueChange={(v) => !readOnly && setAccountType(v as "private" | "dealer")}
-      >
-        <TabsList>
-          <TabsTrigger value="private" disabled={readOnly && accountType !== "private"}>
-            Private seller
-          </TabsTrigger>
-          <TabsTrigger value="dealer" disabled={readOnly && accountType !== "dealer"}>
-            Dealership
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_290px]">
+        <div className="space-y-5">
+          <StatusBanner
+            status={status}
+            notes={vQ.data?.identity_rejection_reason ?? vQ.data?.admin_notes ?? null}
+          />
 
-        <TabsContent value="private" className="mt-4 space-y-4">
-          <Section title="Identity">
-            <TextField
-              label="ID / passport number"
-              value={form.national_id_number ?? ""}
-              onChange={(v) => setForm({ ...form, national_id_number: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="ID front photo"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.national_id_front_url ?? null}
-              onChange={(v) => setForm({ ...form, national_id_front_url: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="ID back photo (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.national_id_back_url ?? null}
-              onChange={(v) => setForm({ ...form, national_id_back_url: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="Selfie holding your ID (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.selfie_with_id_url ?? null}
-              onChange={(v) => setForm({ ...form, selfie_with_id_url: v })}
-              disabled={readOnly}
-            />
-          </Section>
-          <Section title="Address">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField
-                label="County / region"
-                value={form.address_county ?? ""}
-                onChange={(v) => setForm({ ...form, address_county: v })}
-                disabled={readOnly}
-              />
-              <TextField
-                label="Town / city"
-                value={form.address_town ?? ""}
-                onChange={(v) => setForm({ ...form, address_town: v })}
-                disabled={readOnly}
-              />
+          <Tabs
+            value={accountType}
+            onValueChange={(v) => !readOnly && setAccountType(v as "private" | "dealer")}
+            className="app-surface p-4 sm:p-6"
+          >
+            <div className="mb-5 flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold">Choose your seller type</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  We only ask for the documents needed to review this profile.
+                </p>
+              </div>
+              <TabsList>
+                <TabsTrigger
+                  value="private"
+                  disabled={readOnly && accountType !== "private"}
+                  className="gap-2"
+                >
+                  <UserRound className="h-3.5 w-3.5" /> Private seller
+                </TabsTrigger>
+                <TabsTrigger
+                  value="dealer"
+                  disabled={readOnly && accountType !== "dealer"}
+                  className="gap-2"
+                >
+                  <Building2 className="h-3.5 w-3.5" /> Dealership
+                </TabsTrigger>
+              </TabsList>
             </div>
-            <TextField
-              label="Street / estate (optional)"
-              value={form.address_street ?? ""}
-              onChange={(v) => setForm({ ...form, address_street: v })}
-              disabled={readOnly}
-            />
-          </Section>
-        </TabsContent>
 
-        <TabsContent value="dealer" className="mt-4 space-y-4">
-          <Section title="Business">
-            <TextField
-              label="Business name"
-              value={form.business_name ?? ""}
-              onChange={(v) => setForm({ ...form, business_name: v })}
-              disabled={readOnly}
-            />
-            <TextField
-              label="Registration / KRA PIN"
-              value={form.business_reg_number ?? ""}
-              onChange={(v) => setForm({ ...form, business_reg_number: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="Certificate of incorporation (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.incorporation_cert_url ?? null}
-              onChange={(v) => setForm({ ...form, incorporation_cert_url: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="KRA PIN certificate (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.kra_pin_url ?? null}
-              onChange={(v) => setForm({ ...form, kra_pin_url: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="Business permit (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.business_permit_url ?? null}
-              onChange={(v) => setForm({ ...form, business_permit_url: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="Premises photo (optional)"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.premises_photo_url ?? null}
-              onChange={(v) => setForm({ ...form, premises_photo_url: v })}
-              disabled={readOnly}
-            />
-          </Section>
-          <Section title="Owner / director ID">
-            <TextField
-              label="Owner ID / passport number"
-              value={form.national_id_number ?? ""}
-              onChange={(v) => setForm({ ...form, national_id_number: v })}
-              disabled={readOnly}
-            />
-            <FileField
-              label="Owner ID photo"
-              bucket={BUCKET}
-              userId={user!.id}
-              value={form.national_id_front_url ?? null}
-              onChange={(v) => setForm({ ...form, national_id_front_url: v })}
-              disabled={readOnly}
-            />
-          </Section>
-          <Section title="Address">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField
-                label="County / region"
-                value={form.address_county ?? ""}
-                onChange={(v) => setForm({ ...form, address_county: v })}
-                disabled={readOnly}
-              />
-              <TextField
-                label="Town / city"
-                value={form.address_town ?? ""}
-                onChange={(v) => setForm({ ...form, address_town: v })}
-                disabled={readOnly}
-              />
-            </div>
-          </Section>
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="private" className="mt-4 space-y-4">
+              <Section title="Identity">
+                <TextField
+                  label="ID / passport number"
+                  value={form.national_id_number ?? ""}
+                  onChange={(v) => setForm({ ...form, national_id_number: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="ID front photo"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.national_id_front_url ?? null}
+                  onChange={(v) => setForm({ ...form, national_id_front_url: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="ID back photo (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.national_id_back_url ?? null}
+                  onChange={(v) => setForm({ ...form, national_id_back_url: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="Selfie holding your ID (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.selfie_with_id_url ?? null}
+                  onChange={(v) => setForm({ ...form, selfie_with_id_url: v })}
+                  disabled={readOnly}
+                />
+              </Section>
+              <Section title="Address">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <TextField
+                    label="County / region"
+                    value={form.address_county ?? ""}
+                    onChange={(v) => setForm({ ...form, address_county: v })}
+                    disabled={readOnly}
+                  />
+                  <TextField
+                    label="Town / city"
+                    value={form.address_town ?? ""}
+                    onChange={(v) => setForm({ ...form, address_town: v })}
+                    disabled={readOnly}
+                  />
+                </div>
+                <TextField
+                  label="Street / estate (optional)"
+                  value={form.address_street ?? ""}
+                  onChange={(v) => setForm({ ...form, address_street: v })}
+                  disabled={readOnly}
+                />
+              </Section>
+            </TabsContent>
 
-      {!readOnly && (
-        <div className="flex justify-end">
-          <Button size="lg" onClick={submit} disabled={saving}>
-            {saving
-              ? "Submitting…"
-              : status === "rejected" || status === "more_info_needed"
-                ? "Resubmit"
-                : "Submit for review"}
-          </Button>
+            <TabsContent value="dealer" className="mt-4 space-y-4">
+              <Section title="Business">
+                <TextField
+                  label="Business name"
+                  value={form.business_name ?? ""}
+                  onChange={(v) => setForm({ ...form, business_name: v })}
+                  disabled={readOnly}
+                />
+                <TextField
+                  label="Registration / KRA PIN"
+                  value={form.business_reg_number ?? ""}
+                  onChange={(v) => setForm({ ...form, business_reg_number: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="Certificate of incorporation (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.incorporation_cert_url ?? null}
+                  onChange={(v) => setForm({ ...form, incorporation_cert_url: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="KRA PIN certificate (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.kra_pin_url ?? null}
+                  onChange={(v) => setForm({ ...form, kra_pin_url: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="Business permit (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.business_permit_url ?? null}
+                  onChange={(v) => setForm({ ...form, business_permit_url: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="Premises photo (optional)"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.premises_photo_url ?? null}
+                  onChange={(v) => setForm({ ...form, premises_photo_url: v })}
+                  disabled={readOnly}
+                />
+              </Section>
+              <Section title="Owner / director ID">
+                <TextField
+                  label="Owner ID / passport number"
+                  value={form.national_id_number ?? ""}
+                  onChange={(v) => setForm({ ...form, national_id_number: v })}
+                  disabled={readOnly}
+                />
+                <FileField
+                  label="Owner ID photo"
+                  bucket={BUCKET}
+                  userId={user!.id}
+                  value={form.national_id_front_url ?? null}
+                  onChange={(v) => setForm({ ...form, national_id_front_url: v })}
+                  disabled={readOnly}
+                />
+              </Section>
+              <Section title="Address">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <TextField
+                    label="County / region"
+                    value={form.address_county ?? ""}
+                    onChange={(v) => setForm({ ...form, address_county: v })}
+                    disabled={readOnly}
+                  />
+                  <TextField
+                    label="Town / city"
+                    value={form.address_town ?? ""}
+                    onChange={(v) => setForm({ ...form, address_town: v })}
+                    disabled={readOnly}
+                  />
+                </div>
+              </Section>
+            </TabsContent>
+            {!readOnly && (
+              <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  By submitting, you confirm these documents are accurate and belong to you or your
+                  business.
+                </p>
+                <Button size="lg" onClick={submit} disabled={saving} className="shrink-0">
+                  {saving
+                    ? "Submitting…"
+                    : status === "rejected" || status === "more_info_needed"
+                      ? "Resubmit for review"
+                      : "Submit for review"}
+                </Button>
+              </div>
+            )}
+          </Tabs>
         </div>
-      )}
+
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="overflow-hidden rounded-[24px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-950/10">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-300">
+              WHAT HAPPENS NEXT
+            </p>
+            <h2 className="mt-2 text-lg font-bold tracking-tight">
+              A clear path to a trusted profile.
+            </h2>
+            <ol className="mt-5 space-y-4 text-sm">
+              {[
+                ["1", "Share your details", "Tell us whether you sell privately or as a business."],
+                [
+                  "2",
+                  "Secure review",
+                  "Our team checks your submission before any badge is shown.",
+                ],
+                ["3", "Badge on listings", "Once verified, buyers can see your verified status."],
+              ].map(([number, title, copy]) => (
+                <li key={number} className="flex gap-3">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-teal-400/15 text-xs font-bold text-teal-200">
+                    {number}
+                  </span>
+                  <span>
+                    <strong className="block font-semibold text-white">{title}</strong>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-slate-300">
+                      {copy}
+                    </span>
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div className="app-surface p-5">
+            <div className="flex gap-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                <LockKeyhole className="h-4 w-4" />
+              </div>
+              <div>
+                <h2 className="text-sm font-semibold">Private by design</h2>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  ID numbers, files and internal review notes are never displayed on your public
+                  listings.
+                </p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border bg-card p-5 shadow-sm space-y-4">
-      <h2 className="font-semibold">{title}</h2>
+    <section className="rounded-2xl border border-border/70 bg-muted/20 p-4 shadow-none sm:p-5">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+          <FileCheck2 className="h-3.5 w-3.5" />
+        </span>
+        <h2 className="text-sm font-semibold">{title}</h2>
+      </div>
       {children}
-    </div>
+    </section>
   );
 }
 
@@ -478,7 +566,7 @@ function FileField({
 function StatusBanner({ status, notes }: { status: string; notes: string | null }) {
   if (status === "verified")
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-success/40 bg-success/5 p-4">
+      <div className="flex items-start gap-3 rounded-2xl border border-success/40 bg-success/5 p-4">
         <ShieldCheck className="h-5 w-5 text-success" />
         <div>
           <div className="font-medium">Verified</div>
@@ -490,7 +578,7 @@ function StatusBanner({ status, notes }: { status: string; notes: string | null 
     );
   if (status === "pending" || status === "under_review")
     return (
-      <div className="flex items-start gap-3 rounded-lg border bg-muted/40 p-4">
+      <div className="flex items-start gap-3 rounded-2xl border bg-muted/40 p-4">
         <Clock className="h-5 w-5 text-muted-foreground" />
         <div>
           <div className="font-medium">Under review</div>
@@ -502,7 +590,7 @@ function StatusBanner({ status, notes }: { status: string; notes: string | null 
     );
   if (status === "rejected" || status === "more_info_needed")
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
+      <div className="flex items-start gap-3 rounded-2xl border border-destructive/40 bg-destructive/5 p-4">
         <XCircle className="h-5 w-5 text-destructive" />
         <div>
           <div className="font-medium">

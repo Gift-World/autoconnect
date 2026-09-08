@@ -262,6 +262,24 @@
     box-shadow: 0 14px 38px -18px oklch(0.19 0.022 262 / 0.32);
   }
 }
+
+/* A small set of shared interaction rules keeps every surface feeling like one product. */
+@layer base {
+  button, a, input, textarea, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input, textarea, [role="combobox"] {
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+  }
+}
+
+@utility app-surface {
+  border: 1px solid color-mix(in oklab, var(--border) 85%, transparent);
+  border-radius: 1.25rem;
+  background: color-mix(in oklab, var(--card) 96%, transparent);
+  box-shadow: 0 1px 2px oklch(0.19 0.022 262 / 0.03), 0 12px 30px -24px oklch(0.19 0.022 262 / 0.3);
+}
 @utility btn-press {
   transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
   &:hover { filter: brightness(1.04); }

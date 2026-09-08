@@ -2,8 +2,11 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 /**
- * Global Vehicle History & Institutional Verification Adapters
- * Connects UK DVLA MOT, Japanese JEVIC/CarVX, Kenya NTSA TIMS, AKI DMID, and IPRS KYC.
+ * Vehicle-history partner adapters.
+ *
+ * These functions must never manufacture a result.  A partner's credential and
+ * an approved integration are required before its result can be shown as
+ * evidence in the product.
  */
 
 export type DvlaMotRecord = {
@@ -134,46 +137,12 @@ export const checkUkDvlaMot = createServerFn({ method: "POST" })
           }
         }
       } catch (err) {
-        console.warn("DVLA MOT live check failed, falling back to verified decoder:", err);
+        console.warn("DVLA MOT live check failed:", err);
+        throw new Error("The official MOT service is temporarily unavailable. Please try again later.");
       }
     }
 
-    // High-fidelity fallback MOT audit response
-    return {
-      registrationNumber: vrm,
-      make: "Land Rover",
-      model: "Range Rover Sport",
-      firstUsedDate: "2019-04-15",
-      fuelType: "Diesel",
-      primaryColour: "Santorini Black",
-      motStatus: "Valid",
-      motExpiryDate: "2027-04-20",
-      hasAdvisories: false,
-      totalTestsRecorded: 4,
-      odometerHistory: [
-        { date: "2026-04-12", value: 38450, unit: "mi" },
-        { date: "2025-04-10", value: 29800, unit: "mi" },
-        { date: "2024-04-08", value: 21200, unit: "mi" },
-        { date: "2023-04-15", value: 12400, unit: "mi" },
-      ],
-      recentTests: [
-        {
-          completedDate: "2026-04-12 11:24:00",
-          testResult: "PASSED",
-          expiryDate: "2027-04-20",
-          odometerValue: 38450,
-          defects: [],
-        },
-        {
-          completedDate: "2025-04-10 09:15:00",
-          testResult: "PASSED",
-          expiryDate: "2026-04-14",
-          odometerValue: 29800,
-          defects: [{ text: "Brake pad wearing close to minimum (Advisory)", type: "ADVISORY" }],
-        },
-      ],
-      isLiveApi: false,
-    };
+    throw new Error("MOT checks are not connected yet. No MOT result has been verified.");
   });
 
 export const checkJapaneseJevic = createServerFn({ method: "POST" })
@@ -185,26 +154,8 @@ export const checkJapaneseJevic = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<JapaneseJevicRecord> => {
-    const chassis = data.chassisNumber.toUpperCase().trim();
-    // Connects to JEVIC / CarVX inspection database
-    return {
-      chassisNumber: chassis,
-      make: "Toyota",
-      model: "Land Cruiser Prado TX-L",
-      modelCode: "GDJ150-0042819",
-      year: 2019,
-      auctionHouse: "USS Tokyo Auction",
-      auctionGrade: "4.5 / 5.0 (Excellent)",
-      interiorGrade: "B (Clean / Non-Smoker)",
-      exteriorGrade: "A (Original Paint)",
-      radiationChecked: true,
-      radiationLevel: "0.07 μSv/h (Clear / Below 0.14 threshold)",
-      odometerVerified: true,
-      exportOdometerKm: 42100,
-      inspectionCertificateNumber: `JEVIC-KEN-${Date.now().toString().slice(-6)}`,
-      issuingAuthority: "JEVIC",
-      status: "verified",
-    };
+    void data;
+    throw new Error("JEVIC/CarVX checks are not connected yet. Upload a real inspection certificate for review.");
   });
 
 export const checkNtsaTims = createServerFn({ method: "POST" })
@@ -216,20 +167,8 @@ export const checkNtsaTims = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<NtsaTimsRecord> => {
-    const reg = data.regNumber.toUpperCase().replace(/\s+/g, "");
-    return {
-      registrationNumber: reg,
-      logbookNumber: `LGB-${reg.slice(-3)}-${Date.now().toString().slice(-5)}`,
-      chassisNumber: "TRJ150-0098712",
-      engineNumber: "2TR-FE-782194",
-      make: "Toyota",
-      model: "Land Cruiser Prado",
-      registeredOwnerType: "Individual",
-      encumbranceStatus: "CLEAN_NO_CAVEATS",
-      roadworthinessExpiry: "2027-06-30",
-      dutyPaidStatus: "FULL_DUTY_PAID",
-      status: "verified",
-    };
+    void data;
+    throw new Error("NTSA verification is not connected yet. No ownership or clearance result has been verified.");
   });
 
 export const checkAkiInsurance = createServerFn({ method: "POST" })
@@ -241,14 +180,6 @@ export const checkAkiInsurance = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<AkiInsuranceRecord> => {
-    const reg = data.regNumber.toUpperCase().replace(/\s+/g, "");
-    return {
-      registrationNumber: reg,
-      policyStatus: "ACTIVE",
-      underwriter: "Jubilee Insurance Kenya",
-      coverType: "Comprehensive",
-      isTotalLossWriteOff: false,
-      salvageRegistryStatus: "CLEAN_NO_CLAIMS",
-      expiryDate: "2027-01-15",
-    };
+    void data;
+    throw new Error("Insurance verification is not connected yet. No cover or claims result has been verified.");
   });

@@ -8,6 +8,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getVehiclePassport } from "@/lib/passport.functions";
+import { getPublicRecallNotices } from "@/lib/public-vehicle-data.functions";
 import { aiExplainVerification } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -100,6 +101,19 @@ export function VehiclePassport({ carId }: { carId: string }) {
   const { data, isLoading } = useQuery({
     queryKey: ["vehicle-passport", carId],
     queryFn: () => getVehiclePassport({ data: { carId } }),
+  });
+  const recalls = useQuery({
+    queryKey: ["public-recalls", data?.vehicle.make, data?.vehicle.model, data?.vehicle.year],
+    enabled: !!data?.vehicle.make && !!data?.vehicle.model && !!data?.vehicle.year,
+    queryFn: () =>
+      getPublicRecallNotices({
+        data: {
+          make: data!.vehicle.make!,
+          model: data!.vehicle.model!,
+          year: data!.vehicle.year!,
+        },
+      }),
+    staleTime: 1000 * 60 * 60 * 12,
   });
 
   if (isLoading) {
@@ -459,39 +473,6 @@ export function VehiclePassport({ carId }: { carId: string }) {
                     ))}
                 </div>
 
-                {/* Detailed Verified Checkpoints */}
-                <div className="rounded-lg border border-border/70 bg-muted/20 p-3 space-y-2">
-                  <span className="font-semibold text-foreground text-xs block">
-                    Verified Digital Checkpoints:
-                  </span>
-                  <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 text-[11px]">
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      Engine starts clean, zero oil leaks
-                    </span>
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      Automatic/Manual gearbox shifts smoothly
-                    </span>
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      Braking & handbrake road test passed
-                    </span>
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      OBD-II scanner error-code diagnostic clean
-                    </span>
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      AC compressor & dual climate control cool
-                    </span>
-                    <span className="flex items-center gap-1.5 text-foreground/90">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                      Chassis alignment & panel gap verified
-                    </span>
-                  </div>
-                </div>
-
                 {data.inspection.tyres && (
                   <div className="rounded-lg border border-border/60 bg-card p-2.5 text-[11px]">
                     <span className="font-medium text-foreground">Tyres & Extras: </span>
@@ -504,8 +485,8 @@ export function VehiclePassport({ carId }: { carId: string }) {
                 )}
                 {fmt(data.inspection.completedAt) && (
                   <p className="text-[10px] text-muted-foreground">
-                    Inspected on {fmt(data.inspection.completedAt)} by AutoConnect Certified
-                    Independent Mechanic.
+                    Inspection completed on {fmt(data.inspection.completedAt)}. See the supplied
+                    checklist and summary above for the evidence available for this vehicle.
                   </p>
                 )}
               </div>
@@ -543,6 +524,38 @@ export function VehiclePassport({ carId }: { carId: string }) {
         them for verification only.
       </p>
       </section>
+      {data.vehicle.make && data.vehicle.model && data.vehicle.year && (
+        <section className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="flex items-start gap-2">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <div>
+              <h3 className="text-sm font-semibold">Public manufacturer recall notices</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                NHTSA public data for {data.vehicle.year} {data.vehicle.make} {data.vehicle.model}. It is not an AutoConnect inspection, proof of ownership, NTSA clearance, or proof that a recall was repaired.
+              </p>
+            </div>
+          </div>
+          {recalls.isLoading ? (
+            <p className="mt-3 text-xs text-muted-foreground">Checking public notices…</p>
+          ) : recalls.isError ? (
+            <p className="mt-3 text-xs text-amber-700">Public recall notices are unavailable right now. This does not mean there are no recalls.</p>
+          ) : recalls.data?.length ? (
+            <Accordion type="single" collapsible className="mt-3">
+              {recalls.data.slice(0, 5).map((recall) => (
+                <AccordionItem key={recall.campaignNumber} value={recall.campaignNumber}>
+                  <AccordionTrigger className="py-2 text-left text-xs">{recall.component} · {recall.campaignNumber}</AccordionTrigger>
+                  <AccordionContent className="space-y-2 text-xs text-muted-foreground">
+                    <p>{recall.summary}</p>
+                    {recall.remedy && <p><strong className="text-foreground">Remedy:</strong> {recall.remedy}</p>}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          ) : (
+            <p className="mt-3 text-xs text-muted-foreground">No matching public NHTSA notices were returned. This only covers the US public database.</p>
+          )}
+        </section>
+      )}
     </div>
   );
 }

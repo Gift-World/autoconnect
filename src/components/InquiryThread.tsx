@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { DEMO_MODE, useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -67,29 +67,9 @@ export function InquiryThread({
         .eq("inquiry_id", inquiryId)
         .order("created_at", { ascending: true });
 
-      if (data && data.length > 0) {
-        setMessages(data as Message[]);
-      } else {
-        // High-tech interactive simulation thread
-        setMessages([
-          {
-            id: "msg-1",
-            sender_id: "demo-buyer-alice",
-            sender_role: "buyer",
-            body: "Hi! I am reviewing the 150-point diagnostic passport for this vehicle. Is it ready for immediate escrow purchase?",
-            created_at: new Date(Date.now() - 3600000 * 3).toISOString(),
-          },
-          {
-            id: "msg-2",
-            sender_id: "demo-seller-kenji",
-            sender_role: "seller",
-            body: "Hello! Yes, all logbooks, chassis checks, and export documents are 100% verified. You can reserve with 20% deposit safely held in escrow.",
-            created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-          },
-        ]);
-      }
-    } catch {
-      // fallback
+      setMessages((data ?? []) as Message[]);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Unable to load this conversation.");
     }
     setLoaded(true);
   }
@@ -166,17 +146,22 @@ export function InquiryThread({
         .select()
         .single();
 
+      if (error) throw error;
       if (data) {
         setMessages((prev) => prev.map((m) => (m.id === tempId ? (data as Message) : m)));
       }
-    } catch {
-      // In offline/demo mode, preserve optimistic message
+    } catch (error) {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
+      setBody(textToSend);
+      toast.error(error instanceof Error ? error.message : "Your message was not sent. Please try again.");
+      setSending(false);
+      return;
     }
 
     setSending(false);
 
     // AI / Simulated counterparty response for testing
-    if (user.id.startsWith("demo-") || !isRealtimeActive) {
+    if (DEMO_MODE && user.id.startsWith("demo-")) {
       setIsTyping(true);
       setTimeout(() => {
         setIsTyping(false);

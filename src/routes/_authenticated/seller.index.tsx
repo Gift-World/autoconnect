@@ -31,6 +31,7 @@ import {
 import { countryByCode } from "@/lib/countries";
 import { SellerReadiness } from "@/components/seller/SellerReadiness";
 import { StatusPill } from "@/components/StatusPill";
+import { DEMO_MODE } from "@/contexts/AuthContext";
 
 export const Route = createFileRoute("/_authenticated/seller/")({
   component: SellerDashboard,
@@ -127,12 +128,15 @@ function SellerDashboard() {
   async function load() {
     try {
       const { data: u } = await supabase.auth.getUser();
-      if (!u?.user) {
+      if (!u?.user && DEMO_MODE) {
         setSellerId("demo-seller-kenji");
         setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
         setOpenInquiries(3);
         setRows(DEMO_SELLER_ROWS);
         return;
+      }
+      if (!u?.user) {
+        throw new Error("Your session has expired. Please sign in again.");
       }
       const { data: sellerRow } = await supabase
         .from("sellers")
@@ -140,12 +144,18 @@ function SellerDashboard() {
         .eq("profile_id", u.user.id)
         .maybeSingle();
 
-      if (!sellerRow) {
-        // Provide demo fallback for preview and persona exploration
+      if (!sellerRow && DEMO_MODE) {
         setSellerId("demo-seller-kenji");
         setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
         setOpenInquiries(3);
         setRows(DEMO_SELLER_ROWS);
+        return;
+      }
+      if (!sellerRow) {
+        setSellerId(null);
+        setSeller(null);
+        setOpenInquiries(0);
+        setRows([]);
         return;
       }
 
@@ -171,10 +181,7 @@ function SellerDashboard() {
         .eq("seller_id", sellerRow.id)
         .order("created_at", { ascending: false });
 
-      if (error) {
-        setRows(DEMO_SELLER_ROWS);
-        return;
-      }
+      if (error) throw error;
 
       const mapped = (cars ?? []).map((c: any) => {
         const imgs = (c.car_images ?? []) as {
@@ -189,12 +196,13 @@ function SellerDashboard() {
         return { ...c, primary_image: primary };
       });
 
-      setRows(mapped.length > 0 ? mapped : DEMO_SELLER_ROWS);
-    } catch {
-      setSellerId("demo-seller-kenji");
-      setSeller({ is_approved: true, is_suspended: false, rejection_reason: null });
-      setOpenInquiries(3);
-      setRows(DEMO_SELLER_ROWS);
+      setRows(mapped);
+    } catch (error) {
+      setSellerId(null);
+      setSeller(null);
+      setOpenInquiries(0);
+      setRows([]);
+      toast.error(error instanceof Error ? error.message : "Unable to load live seller data.");
     }
   }
 

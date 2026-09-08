@@ -46,20 +46,6 @@ function AdminOverview() {
         ]);
         const totalViews = (viewsAgg.data ?? []).reduce((s, r) => s + (r.views ?? 0), 0);
 
-        const realTotal = (sellersTotal.count ?? 0) + (carsTotal.count ?? 0);
-        if (realTotal === 0) {
-          // Provide realistic demo admin figures
-          return {
-            sellersTotal: 18,
-            sellersPending: 2,
-            carsTotal: 48,
-            carsPending: 6,
-            carsApproved: 42,
-            importsOpen: 9,
-            totalViews: 18450,
-          };
-        }
-
         return {
           sellersTotal: sellersTotal.count ?? 0,
           sellersPending: sellersPending.count ?? 0,
@@ -67,18 +53,10 @@ function AdminOverview() {
           carsPending: carsPending.count ?? 0,
           carsApproved: carsApproved.count ?? 0,
           importsOpen: importsOpen.count ?? 0,
-          totalViews: totalViews || 18450,
+          totalViews,
         };
-      } catch {
-        return {
-          sellersTotal: 18,
-          sellersPending: 2,
-          carsTotal: 48,
-          carsPending: 6,
-          carsApproved: 42,
-          importsOpen: 9,
-          totalViews: 18450,
-        };
+      } catch (error) {
+        throw error;
       }
     },
   });
@@ -95,15 +73,6 @@ function AdminOverview() {
           counts.set(c, (counts.get(c) ?? 0) + 1);
         });
 
-        if (counts.size === 0) {
-          return [
-            { code: "JP", name: "🇯🇵 Japan", count: 24 },
-            { code: "KE", name: "🇰🇪 Kenya", count: 12 },
-            { code: "GB", name: "🇬🇧 United Kingdom", count: 8 },
-            { code: "SG", name: "🇸🇬 Singapore", count: 4 },
-          ];
-        }
-
         return Array.from(counts.entries())
           .map(([code, count]) => {
             const meta = countryByCode(code);
@@ -111,13 +80,8 @@ function AdminOverview() {
           })
           .sort((a, b) => b.count - a.count)
           .slice(0, 12);
-      } catch {
-        return [
-          { code: "JP", name: "🇯🇵 Japan", count: 24 },
-          { code: "KE", name: "🇰🇪 Kenya", count: 12 },
-          { code: "GB", name: "🇬🇧 United Kingdom", count: 8 },
-          { code: "SG", name: "🇸🇬 Singapore", count: 4 },
-        ];
+      } catch (error) {
+        throw error;
       }
     },
   });
@@ -128,8 +92,14 @@ function AdminOverview() {
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Overview of the marketplace.</p>
+        <p className="text-sm text-muted-foreground">Live marketplace operations. Counts are never substituted with sample data.</p>
       </header>
+
+      {stats.isError && (
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+          Live operations data is temporarily unavailable. Nothing has been deleted; refresh to retry.
+        </div>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
@@ -175,6 +145,10 @@ function AdminOverview() {
         <div className="mt-6 h-80">
           {breakdown.isLoading ? (
             <div className="text-muted-foreground">Loading…</div>
+          ) : breakdown.isError ? (
+            <div className="grid h-full place-items-center text-sm text-destructive">
+              Live reporting is temporarily unavailable. Refresh to retry.
+            </div>
           ) : (breakdown.data?.length ?? 0) === 0 ? (
             <div className="grid h-full place-items-center text-sm text-muted-foreground">
               No approved listings yet.

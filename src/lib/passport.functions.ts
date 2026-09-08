@@ -18,7 +18,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
     let { data: car } = await supabasePublicServer
       .from("cars")
       .select(
-        "id, seller_id, documents_verified, ntsa_verified, inspection_verified, verification_level, sellers(id, business_name, verification_badge, is_verified, created_at)",
+        "id, seller_id, make_name, model_name, year, documents_verified, ntsa_verified, inspection_verified, verification_level, sellers(id, business_name, verification_badge, is_verified, created_at)",
       )
       .eq("id", carId)
       .maybeSingle();
@@ -27,7 +27,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
     if (!car) {
       const { data: garageCar } = await supabasePublicServer
         .from("garage_vehicles")
-        .select("id")
+        .select("id,make_name,model_name,year")
         .eq("id", carId)
         .maybeSingle();
         
@@ -114,6 +114,11 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
     const tyres = approved ? (checklist.tyres ?? null) : null;
 
     return {
+      vehicle: {
+        make: (car as any).make_name ?? null,
+        model: (car as any).model_name ?? null,
+        year: (car as any).year ?? null,
+      },
       verificationLevel: car.verification_level ?? 0,
       seller: {
         name: seller?.business_name ?? null,

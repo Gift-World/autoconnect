@@ -29,6 +29,15 @@ export interface DecodedVin {
   raw: Record<string, string>;
 }
 
+export interface NhtsaRecall {
+  campaignNumber: string;
+  component: string;
+  summary: string;
+  consequence: string;
+  remedy: string;
+  reportReceivedDate?: string;
+}
+
 /** Cache makes in memory — list is large but static. */
 let makesCache: NhtsaMake[] | null = null;
 
@@ -81,6 +90,42 @@ export async function decodeVin(vin: string): Promise<DecodedVin> {
     plant: r.PlantCountry || undefined,
     raw: r,
   };
+}
+
+/**
+ * Public US recall notices for a make/model/year. This is informational data,
+ * not a local safety inspection or proof that a particular vehicle was repaired.
+ */
+export async function getVehicleRecalls(input: {
+  make: string;
+  model: string;
+  year: number;
+}): Promise<NhtsaRecall[]> {
+  const params = new URLSearchParams({
+    make: input.make.trim(),
+    model: input.model.trim(),
+    modelYear: String(input.year),
+  });
+  const res = await fetch(`https://api.nhtsa.gov/recalls/recallsByVehicle?${params}`);
+  if (!res.ok) throw new Error("Unable to retrieve public recall notices");
+  const json = (await res.json()) as {
+    results?: Array<{
+      NHTSACampaignNumber?: string;
+      Component?: string;
+      Summary?: string;
+      Consequence?: string;
+      Remedy?: string;
+      ReportReceivedDate?: string;
+    }>;
+  };
+  return (json.results ?? []).map((item) => ({
+    campaignNumber: item.NHTSACampaignNumber ?? "Unknown campaign",
+    component: item.Component ?? "Vehicle component",
+    summary: item.Summary ?? "No public summary supplied.",
+    consequence: item.Consequence ?? "",
+    remedy: item.Remedy ?? "",
+    reportReceivedDate: item.ReportReceivedDate,
+  }));
 }
 
 /** Map NHTSA fuel/body/transmission strings to our DB enums. */

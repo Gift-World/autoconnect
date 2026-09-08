@@ -48,7 +48,6 @@ import {
   AiCarFinderSearchBar,
   type ParsedAiFilters,
 } from "@/components/search/AiCarFinderSearchBar";
-import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -828,20 +827,6 @@ function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow
             >
               {car.right_hand_drive ? "RHD" : "LHD"}
             </Badge>
-          </div>
-          <div className="absolute bottom-2 left-2 z-10">
-            <AutoConnectScoreBadge
-              vehicleData={{
-                condition: car.condition,
-                mileage: car.mileage,
-                mileage_unit: car.mileage_unit,
-                photosCount: images.length || 4,
-                isSellerVerified: !!car.featured,
-                documentsVerified: true,
-                hasVideo: car.featured,
-              }}
-              variant="compact"
-            />
           </div>
           <FavoriteButton carId={car.id} className="absolute bottom-2 right-2 z-10" />
 

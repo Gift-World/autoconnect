@@ -52,16 +52,16 @@ export function AutoConnectScoreBadge({
                   {result.score}
                 </span>
                 <span className="text-[10px] font-semibold text-white/90 hidden sm:inline">
-                  Score™
+                  Details
                 </span>
               </button>
             </TooltipTrigger>
             <TooltipContent className="bg-slate-900 text-white border-slate-700 p-2.5 max-w-[200px] text-xs">
               <p className="font-bold flex items-center gap-1 text-teal-400">
-                <Sparkles className="h-3 w-3" /> AutoConnect Score: {result.score}/100
+                <Sparkles className="h-3 w-3" /> Listing detail score: {result.score}/100
               </p>
               <p className="text-[11px] text-slate-300 mt-1">
-                {result.tierLabel} rating based on inspection, seller vetting & title verification.
+                Automatic summary of listing information. It is not an inspection or proof of ownership.
               </p>
               <p className="text-[10px] text-teal-300 underline mt-1.5 cursor-pointer">
                 Click to view breakdown →
@@ -98,7 +98,7 @@ export function AutoConnectScoreBadge({
             <div>
               <div className="flex items-center gap-2">
                 <h4 className="text-base font-bold text-foreground flex items-center gap-1.5">
-                  AutoConnect Score™
+                  Listing information score
                   <Badge
                     variant="outline"
                     className={`text-[10px] font-bold ${result.badgeBorder} ${result.textColor}`}
@@ -108,8 +108,8 @@ export function AutoConnectScoreBadge({
                 </h4>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                AI & human-audited trust index based on {result.breakdown.length} verification
-                benchmarks.
+                An automatic summary of {result.breakdown.length} listing data points. It is not an
+                inspection, valuation, or human audit.
               </p>
             </div>
           </div>
@@ -157,10 +157,10 @@ function ScoreExplanationDialog({
         <DialogHeader className="space-y-1">
           <DialogTitle className="flex items-center gap-2 text-lg">
             <ShieldCheck className="h-5 w-5 text-teal-400" />
-            AutoConnect Score™ Breakdown
+            Listing information score
           </DialogTitle>
           <DialogDescription className="text-xs">
-            How we calculate vehicle reliability, seller trust, and paperwork authentication.
+            This shows which listing details are present. Confirm condition, paperwork and seller details independently before purchase.
           </DialogDescription>
         </DialogHeader>
 
@@ -168,7 +168,7 @@ function ScoreExplanationDialog({
           {/* Header Score summary */}
           <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900 border border-slate-800 text-white">
             <div>
-              <p className="text-xs text-slate-400">Total Trust Rating</p>
+              <p className="text-xs text-slate-400">Listing detail score</p>
               <p className="text-2xl font-black font-mono text-teal-400">{result.score} / 100</p>
             </div>
             <Badge
@@ -181,7 +181,7 @@ function ScoreExplanationDialog({
           {/* Factor Rows */}
           <div className="space-y-2">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Weighted Factor Breakdown
+              Information included in this listing
             </p>
             <div className="space-y-2">
               {result.breakdown.map((item, idx) => (
@@ -206,24 +206,24 @@ function ScoreExplanationDialog({
 
           {/* Score Tier Legend */}
           <div className="p-3.5 rounded-2xl bg-muted/40 border border-border text-xs space-y-2">
-            <p className="font-bold text-foreground">Score Index Tiers:</p>
+            <p className="font-bold text-foreground">Detail score guide:</p>
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
                 <span>
-                  <strong>80-100:</strong> Excellent Trust
+                  <strong>80-100:</strong> Detailed listing
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-teal-400" />
                 <span>
-                  <strong>60-79:</strong> Good Quality
+                  <strong>60-79:</strong> Useful detail
                 </span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
                 <span>
-                  <strong>40-59:</strong> Fair Condition
+                  <strong>40-59:</strong> Basic detail
                 </span>
               </div>
               <div className="flex items-center gap-1.5">

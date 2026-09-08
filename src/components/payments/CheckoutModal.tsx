@@ -284,7 +284,7 @@ export function CheckoutModal({
                 </div>
                 <div className="flex justify-between text-muted-foreground text-xs">
                   <span className="flex items-center gap-1">
-                    AutoConnect Escrow Fee ({breakdown.feePercent}%)
+                    AutoConnect service fee ({breakdown.feePercent}%)
                     <ShieldCheck className="h-3.5 w-3.5 text-teal-500" />
                   </span>
                   <span className="font-semibold text-foreground">
@@ -295,7 +295,7 @@ export function CheckoutModal({
                   <div>
                     <span className="font-bold text-foreground">Total Payable Now</span>
                     <p className="text-[10px] text-muted-foreground">
-                      Held securely in neutral escrow
+                      Payment status is confirmed after provider evidence is received
                     </p>
                   </div>
                   <span className="text-xl font-extrabold text-teal-500 font-mono">
@@ -304,14 +304,14 @@ export function CheckoutModal({
                 </div>
               </div>
 
-              {/* Escrow Trust Bullet Points */}
+              {/* Payment-status notice */}
               <div className="rounded-xl border border-teal-500/20 bg-teal-500/5 p-3 text-xs text-muted-foreground space-y-1.5">
                 <p className="font-semibold text-teal-400 flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4" /> 100% Buyer Protection Guarantee
+                  <ShieldCheck className="h-4 w-4" /> Confirm evidence before payment
                 </p>
                 <p className="text-[11px] leading-relaxed">
-                  Funds are held in AutoConnect neutral escrow. The seller is only paid after the
-                  physical vehicle inspection is passed and title handover is confirmed.
+                  Check the vehicle, seller and payment instructions before sending money. A payment
+                  record is not shown as confirmed until the payment provider returns evidence.
                 </p>
               </div>
 
@@ -432,11 +432,12 @@ export function CheckoutModal({
                         variant="outline"
                         className="text-[10px] text-amber-600 border-amber-500/30"
                       >
-                        Escrow Account
+                        Manual review
                       </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      Transfer directly to AutoConnect verified Equity Bank escrow account.
+                      Enter your transfer reference for manual payment review. Bank details are only
+                      supplied through an approved invoice or verified account workflow.
                     </p>
                   </div>
                 </button>

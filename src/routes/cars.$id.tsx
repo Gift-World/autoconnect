@@ -47,7 +47,6 @@ import { VehiclePassport } from "@/components/VehiclePassport";
 import { BuyerNextSteps } from "@/components/buyer/BuyerNextSteps";
 import { StudioSpinViewer } from "@/components/vehicle/StudioSpinViewer";
 import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationChart";
-import { FinancingPreApprovalCard } from "@/components/vehicle/FinancingPreApprovalCard";
 import { SafetyRatings } from "@/components/vehicle/SafetyRatings";
 import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
@@ -470,13 +469,13 @@ function CarDetailPage() {
                 condition: car.condition,
                 mileage: car.mileage,
                 mileage_unit: car.mileage_unit,
-                photosCount: images.length || 4,
-                isSellerVerified: !!car.sellers?.verification_badge || car.featured,
+                photosCount: images.length,
+                isSellerVerified: car.sellers?.verification_badge === true,
                 isDealer: car.sellers?.is_dealer,
                 documentsVerified: car.documents_verified,
                 ntsaVerified: car.ntsa_verified,
                 inspectionVerified: car.inspection_verified,
-                hasVideo: car.featured,
+                hasVideo: false,
               }}
               variant="detail"
               className="mt-4"
@@ -622,11 +621,6 @@ function CarDetailPage() {
           <SellerCard car={car} />
           <BuyBox car={car} />
           <VehicleServices car={car} />
-          <FinancingPreApprovalCard
-            carId={car.id}
-            carTitle={car.title}
-            carPrice={Number(car.price)}
-          />
           <FavoriteButton carId={car.id} variant="full" />
           <InquiryForm car={car} />
         </aside>

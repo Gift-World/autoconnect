@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { FileBadge, ShieldCheck } from "lucide-react";
 import { DocumentManager } from "@/components/DocumentManager";
 import { ListingChecklist } from "@/components/ListingChecklist";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/seller/documents")({
   component: SellerDocuments,
@@ -90,13 +91,11 @@ function SellerDocuments() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold tracking-tight">Documents & verification</h1>
-        <p className="text-sm text-muted-foreground">
-          Upload titles, registration, inspection and export paperwork per listing. Verified
-          documents earn a trust badge on your listing.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Seller evidence centre"
+        title="Documents, clearly organised"
+        description="Attach the paperwork you actually hold to the right listing. Buyers and reviewers can then see what has been checked."
+      />
 
       {loading ? (
         <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">

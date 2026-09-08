@@ -367,6 +367,9 @@ function GarageCard({ vehicle }: { vehicle: GarageVehicle }) {
           <Link to="/parts" search={{ q: `${vehicle.make_name} ${vehicle.model_name}` }}>Parts</Link>
         </Button>
       </div>
+      <Button asChild size="sm" variant="ghost" className="mt-2 w-full text-primary hover:bg-primary/5">
+        <Link to="/services">Book service for this vehicle</Link>
+      </Button>
     </article>
   );
 }

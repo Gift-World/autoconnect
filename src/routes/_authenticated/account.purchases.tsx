@@ -9,6 +9,7 @@ import {
   DigitalReceiptModal,
   type TransactionReceiptData,
 } from "@/components/payments/DigitalReceiptModal";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/account/purchases")({
   component: Purchases,
@@ -109,19 +110,18 @@ function Purchases() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold tracking-tight">My Purchases & Transactions</h1>
-        <p className="text-sm text-muted-foreground">
-          Track payment, escrow milestones, and official proof of purchase receipts.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Ownership records"
+        title="Purchases & receipts"
+        description="Track confirmed transaction records and keep your ownership paperwork in one place."
+      />
 
       {rows === null ? (
         <p className="text-sm text-muted-foreground">Loading…</p>
       ) : rows.length === 0 ? (
         <div className="rounded-3xl border bg-card p-10 text-center space-y-2">
           <Receipt className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="text-sm font-semibold">You haven't made any escrow purchases yet.</p>
+          <p className="text-sm font-semibold">You don't have any confirmed purchases yet.</p>
           <Link to="/cars" className="inline-block text-xs font-bold text-teal-400 hover:underline">
             Browse Verified Cars →
           </Link>

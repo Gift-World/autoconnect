@@ -25,6 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/compare")({
   head: () => ({
@@ -117,24 +118,11 @@ function VehicleComparisonPage() {
 
   return (
     <div className="container-page py-8 sm:py-12 space-y-8">
-      {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-accent uppercase tracking-wider mb-2">
-            <Scale className="h-4 w-4" />
-            <span>Side-by-Side Analysis</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            Vehicle Comparison
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Comparing{" "}
-            <span className="font-semibold text-foreground">{comparedVehicles.length}</span> of{" "}
-            <span className="font-semibold text-foreground">{maxVehicles}</span> available slots.
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
+      <PageHeader
+        eyebrow="Side-by-side decision desk"
+        title="Compare what matters"
+        description={`Comparing ${comparedVehicles.length} of ${maxVehicles} vehicles. Highlight differences, save the link, and review the seller-supplied facts before you contact anyone.`}
+        actions={<div className="flex flex-wrap items-center gap-3">
           {/* Highlight Differences Toggle */}
           <div className="flex items-center space-x-2 bg-card border border-border px-3 py-2 rounded-xl text-xs">
             <Switch id="diff-mode" checked={onlyDifferences} onCheckedChange={setOnlyDifferences} />
@@ -172,8 +160,8 @@ function VehicleComparisonPage() {
             <Trash2 className="h-3.5 w-3.5 mr-1.5" />
             Clear All
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
       {/* Comparison Grid Table */}
       <div className="overflow-x-auto pb-6">
@@ -185,7 +173,7 @@ function VehicleComparisonPage() {
                 Vehicle Overview
               </span>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Verified listings with full history checks.
+                Compare seller-supplied details side by side.
               </p>
               {comparedVehicles.length < maxVehicles && (
                 <Link to="/cars" className="mt-4 inline-block">
@@ -350,23 +338,21 @@ function VehicleComparisonPage() {
             </h4>
 
             <SpecRow
-              label="Escrow Protection"
-              values={comparedVehicles.map(() => "100% Guaranteed")}
+              label="Listing status"
+              values={comparedVehicles.map((c) => (c.verified ? "Seller verified" : "Review listing details"))}
               icon={<ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />}
             />
             <SpecRow
-              label="150-Point Inspection"
-              values={comparedVehicles.map((c) =>
-                c.verified ? "Passed (Grade 4.5+)" : "Standard Verified",
-              )}
+              label="Inspection evidence"
+              values={comparedVehicles.map(() => "Ask seller or arrange inspection")}
             />
             <SpecRow
-              label="Odometer Audit"
-              values={comparedVehicles.map(() => "Verified Genuine")}
+              label="Mileage evidence"
+              values={comparedVehicles.map(() => "Confirm with seller")}
             />
             <SpecRow
-              label="Logbook & Title Clearance"
-              values={comparedVehicles.map(() => "Clear / No Caveats")}
+              label="Ownership documents"
+              values={comparedVehicles.map(() => "Request before purchase")}
             />
           </div>
 

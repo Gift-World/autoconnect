@@ -10,6 +10,7 @@ import { InquiryThread } from "@/components/InquiryThread";
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/seller/inquiries")({
   head: () => ({ meta: [{ title: "Inquiries — Seller — AutoConnect" }] }),
@@ -100,21 +101,18 @@ function SellerInquiriesPage() {
 
   return (
     <div className="space-y-4">
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Inquiries</h1>
-          <p className="text-sm text-muted-foreground">
-            {items.length} conversation{items.length === 1 ? "" : "s"}
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
+      <PageHeader
+        eyebrow="Buyer conversations"
+        title="Respond while interest is warm"
+        description={`${items.length} conversation${items.length === 1 ? "" : "s"}. Keep every response attached to the vehicle and next action.`}
+        actions={<Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
           <RefreshCw className={cn("mr-2 h-4 w-4", isFetching && "animate-spin")} />
           Refresh
-        </Button>
-      </header>
+        </Button>}
+      />
 
       <div className="grid gap-4 lg:grid-cols-[340px_1fr]">
-        <aside className="overflow-hidden rounded-xl border bg-card">
+        <aside className="app-surface overflow-hidden">
           <div className="max-h-[70vh] divide-y overflow-y-auto">
             {items.map((r) => (
               <button

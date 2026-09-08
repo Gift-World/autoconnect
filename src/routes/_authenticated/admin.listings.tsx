@@ -31,6 +31,7 @@ import { Label } from "@/components/ui/label";
 import { countryByCode } from "@/lib/countries";
 import { ListingChecklist } from "@/components/ListingChecklist";
 import { toast } from "sonner";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/admin/listings")({
   head: () => ({ meta: [{ title: "Listings — Admin — AutoConnect" }] }),
@@ -196,16 +197,17 @@ function AdminListingsPage() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Listings</h1>
-        <p className="text-sm text-muted-foreground">Approve, reject, or feature car listings.</p>
-      </header>
+      <PageHeader
+        eyebrow="Listing quality queue"
+        title="Review with evidence"
+        description="Approve, reject or feature listings based on the details and documents actually provided."
+      />
 
       <Input
         placeholder="Search by title, make, or model…"
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        className="max-w-md"
+        className="max-w-md rounded-xl"
       />
 
       <Tabs value={tab} onValueChange={setTab}>

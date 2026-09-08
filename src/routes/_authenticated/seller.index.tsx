@@ -32,6 +32,7 @@ import { countryByCode } from "@/lib/countries";
 import { SellerReadiness } from "@/components/seller/SellerReadiness";
 import { StatusPill } from "@/components/StatusPill";
 import { DEMO_MODE } from "@/contexts/AuthContext";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/seller/")({
   component: SellerDashboard,
@@ -261,19 +262,16 @@ function SellerDashboard() {
         </div>
       )}
 
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage your inventory, replies and account at a glance.
-          </p>
-        </div>
-        <Button asChild className="bg-primary hover:bg-primary/90">
+      <PageHeader
+        eyebrow="Seller workspace"
+        title="Run your showroom"
+        description="Keep listings, buyer conversations, documents and review readiness in one clear operating view."
+        actions={<Button asChild className="bg-primary hover:bg-primary/90 btn-press">
           <Link to="/seller/listings/new">
             <Plus className="mr-2 h-4 w-4" /> New listing
           </Link>
-        </Button>
-      </header>
+        </Button>}
+      />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat

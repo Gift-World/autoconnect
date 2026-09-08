@@ -53,6 +53,7 @@ import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorMo
 import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -344,12 +345,11 @@ function CarsListPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-col gap-1">
-          <h1 className="text-3xl font-bold tracking-tight">Browse Cars</h1>
-          <p className="text-sm text-muted-foreground">Verified listings from sellers worldwide.</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      <PageHeader
+        eyebrow="Find your next car"
+        title="Browse with confidence"
+        description="Search live marketplace listings, compare the information supplied, then decide your next step at your pace."
+        actions={<div className="flex items-center gap-2 flex-wrap">
           <Button
             type="button"
             variant="outline"
@@ -375,8 +375,8 @@ function CarsListPage() {
             <PlusCircle className="w-4 h-4" />
             <span>List a Vehicle</span>
           </Button>
-        </div>
-      </div>
+        </div>}
+      />
 
       {/* Prominent Smart AI Car Finder Bar */}
       <AiCarFinderSearchBar
@@ -390,7 +390,7 @@ function CarsListPage() {
           e.preventDefault();
           updateSearch({ q: qInput.trim() });
         }}
-        className="flex w-full min-w-0 max-w-full flex-col gap-2 rounded-xl border border-border bg-card p-3 shadow-sm sm:flex-row"
+        className="app-surface flex w-full min-w-0 max-w-full flex-col gap-2 p-3 sm:flex-row"
       >
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

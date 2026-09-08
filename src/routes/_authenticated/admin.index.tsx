@@ -4,6 +4,7 @@ import { Users, Car, Inbox, Eye, CheckCircle2, Clock } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { countryByCode } from "@/lib/countries";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   head: () => ({ meta: [{ title: "Admin Overview — AutoConnect" }] }),
@@ -90,10 +91,11 @@ function AdminOverview() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Live marketplace operations. Counts are never substituted with sample data.</p>
-      </header>
+      <PageHeader
+        eyebrow="Operations control room"
+        title="Marketplace review queue"
+        description="Live operational counts only. Review listings, sellers and imports from one accountable workspace."
+      />
 
       {stats.isError && (
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
@@ -139,7 +141,7 @@ function AdminOverview() {
         />
       </div>
 
-      <div className="rounded-lg border bg-card p-6 shadow-sm">
+      <div className="app-surface p-5 sm:p-6">
         <h2 className="text-lg font-semibold">Approved listings by country</h2>
         <p className="mt-1 text-sm text-muted-foreground">Top markets, live data.</p>
         <div className="mt-6 h-80">
@@ -206,7 +208,7 @@ function Stat({
           ? "bg-accent/10 text-accent"
           : "bg-primary/10 text-primary";
   return (
-    <div className="rounded-lg border bg-card p-4 shadow-sm">
+    <div className="app-surface card-lift p-4">
       <div className="flex items-center gap-3">
         <div className={`flex h-10 w-10 items-center justify-center rounded-md ${tone}`}>
           {icon}

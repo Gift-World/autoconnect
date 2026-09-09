@@ -85,15 +85,15 @@ function PartsPage() {
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="overflow-hidden rounded-3xl border border-teal-500/15 bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 px-6 py-9 text-white shadow-xl sm:px-9 sm:py-12">
+      <section className="overflow-hidden rounded-3xl border border-teal-500/15 bg-gradient-to-br from-teal-50 via-card to-cyan-50 px-6 py-9 shadow-card sm:px-9 sm:py-12">
         <div className="max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-300">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
             Global Parts Marketplace
           </p>
           <h1 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-5xl">
             The right part, without the usual guesswork.
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
             Search approved suppliers by part number, category or country. Every live listing shows
             its condition, seller and fulfilment details before you enquire.
           </p>
@@ -111,7 +111,7 @@ function PartsPage() {
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="h-12 rounded-xl border border-white/15 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:ring-2 focus:ring-teal-400"
+            className="h-12 rounded-xl border border-border bg-background px-3 text-sm font-semibold text-foreground outline-none focus:ring-2 focus:ring-teal-400"
           >
             <option value="all">All categories</option>
             {categories.map((item) => (

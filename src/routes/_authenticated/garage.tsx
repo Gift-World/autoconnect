@@ -81,13 +81,15 @@ function GaragePage() {
           .eq("owner_id", ownerId!)
           .order("created_at", { ascending: false });
         if (error) {
-           const code = error.code;
-           if (code !== "PGRST205" && code !== "42P01" && !error.message?.includes("does not exist")) throw error;
+          const code = error.code;
+          if (code !== "PGRST205" && code !== "42P01" && !error.message?.includes("does not exist"))
+            throw error;
         }
         if (data) manualVehicles = data as GarageVehicle[];
       } catch (err: any) {
         const code = err.code;
-        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist")) throw err;
+        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist"))
+          throw err;
       }
 
       // Fetch real ownership records, but gracefully handle missing table during development
@@ -95,22 +97,25 @@ function GaragePage() {
       try {
         const result = await supabase
           .from("ownerships")
-          .select(
-            "id,cars!inner(id,title,make_name,model_name,year,mileage,mileage_unit,vin)",
-          )
+          .select("id,cars!inner(id,title,make_name,model_name,year,mileage,mileage_unit,vin)")
           .eq("user_id", ownerId!)
           .eq("status", "current");
-        
+
         if (result.error) {
-           const code = result.error.code;
-           if (code !== "PGRST205" && code !== "42P01" && !result.error.message?.includes("does not exist")) {
-             throw result.error;
-           }
+          const code = result.error.code;
+          if (
+            code !== "PGRST205" &&
+            code !== "42P01" &&
+            !result.error.message?.includes("does not exist")
+          ) {
+            throw result.error;
+          }
         }
         ownData = result.data;
       } catch (err: any) {
         const code = err.code;
-        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist")) throw err;
+        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist"))
+          throw err;
       }
 
       const purchasedVehicles: GarageVehicle[] = [];
@@ -169,14 +174,14 @@ function GaragePage() {
 
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-slate-950 via-slate-900 to-teal-950 p-6 text-white shadow-xl sm:p-9">
+      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-teal-50 via-card to-white p-6 shadow-card sm:p-9">
         <div className="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
         <div className="relative max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-300">My Garage</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">My Garage</p>
           <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
             Your car life, in one calm place.
           </h1>
-          <p className="mt-3 text-sm leading-relaxed text-slate-300 sm:text-base">
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
             Keep your vehicles, evidence, service milestones and ownership decisions together.
             AutoConnect only uses data you add or verify.
           </p>
@@ -186,16 +191,16 @@ function GaragePage() {
             </p>
           )}
           <div className="mt-6 flex flex-wrap gap-2">
-                <Button
-                  onClick={() => setOpen(true)}
-                  className="rounded-full bg-teal-500 font-bold hover:bg-teal-600"
-                >
-                  <Plus className="mr-2 h-4 w-4" /> Add vehicle
-                </Button>
+            <Button
+              onClick={() => setOpen(true)}
+              className="rounded-full bg-teal-500 font-bold hover:bg-teal-600"
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add vehicle
+            </Button>
             <Button
               asChild
               variant="outline"
-              className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              className="border-border bg-background text-foreground hover:bg-muted"
             >
               <Link to="/parts">Find compatible parts</Link>
             </Button>
@@ -360,14 +365,28 @@ function GarageCard({ vehicle }: { vehicle: GarageVehicle }) {
         </p>
       </div>
       <div className="mt-4 flex gap-2">
-        <Button asChild size="sm" variant="default" className="flex-1 bg-teal-500 hover:bg-teal-600 text-white">
-          <Link to="/passport/$carId" params={{ carId: vehicle.id }}>Passport</Link>
+        <Button
+          asChild
+          size="sm"
+          variant="default"
+          className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
+        >
+          <Link to="/passport/$carId" params={{ carId: vehicle.id }}>
+            Passport
+          </Link>
         </Button>
         <Button asChild size="sm" variant="outline" className="flex-1">
-          <Link to="/parts" search={{ q: `${vehicle.make_name} ${vehicle.model_name}` }}>Parts</Link>
+          <Link to="/parts" search={{ q: `${vehicle.make_name} ${vehicle.model_name}` }}>
+            Parts
+          </Link>
         </Button>
       </div>
-      <Button asChild size="sm" variant="ghost" className="mt-2 w-full text-primary hover:bg-primary/5">
+      <Button
+        asChild
+        size="sm"
+        variant="ghost"
+        className="mt-2 w-full text-primary hover:bg-primary/5"
+      >
         <Link to="/services">Book service for this vehicle</Link>
       </Button>
     </article>

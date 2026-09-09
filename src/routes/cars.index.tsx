@@ -52,7 +52,6 @@ import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorMo
 import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
-import { PageHeader } from "@/components/layout/PageHeader";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -344,38 +343,62 @@ function CarsListPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <PageHeader
-        eyebrow="Find your next car"
-        title="Browse with confidence"
-        description="Search live marketplace listings, compare the information supplied, then decide your next step at your pace."
-        actions={<div className="flex items-center gap-2 flex-wrap">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setTradeInOpen(true)}
-            className="gap-1.5 text-xs font-semibold rounded-xl border-teal-500/40 text-teal-400 hover:bg-teal-500/10"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>What's Your Car Worth?</span>
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setSwipeModeOpen(true)}
-            className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-slate-700 bg-slate-900 text-slate-200"
-          >
-            <Smartphone className="w-3.5 h-3.5 text-teal-400" />
-            <span>Swipe Mode</span>
-          </Button>
-          <Button
-            onClick={() => setQuickListOpen(true)}
-            className="gap-2 self-start sm:self-auto font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md rounded-xl text-xs"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>List a Vehicle</span>
-          </Button>
-        </div>}
-      />
+      <section className="relative overflow-hidden rounded-[30px] bg-slate-950 px-5 py-7 text-white shadow-xl shadow-slate-950/10 sm:px-8 sm:py-9">
+        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-blue-500/15 blur-3xl" />
+        <div className="relative flex flex-wrap items-end justify-between gap-5">
+          <div className="max-w-2xl">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-300">
+              GLOBAL VEHICLE MARKETPLACE
+            </p>
+            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+              Find the right car, with the facts in view.
+            </h1>
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+              Search live marketplace listings, compare the information supplied, then decide your
+              next step at your pace.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-300">
+              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+                Search by make, budget or use
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+                Compare before you contact
+              </span>
+              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+                Evidence shown per listing
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setTradeInOpen(true)}
+              className="gap-1.5 text-xs font-semibold rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>What's Your Car Worth?</span>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setSwipeModeOpen(true)}
+              className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-teal-400" />
+              <span>Swipe Mode</span>
+            </Button>
+            <Button
+              onClick={() => setQuickListOpen(true)}
+              className="gap-2 self-start sm:self-auto font-bold bg-teal-400 hover:bg-teal-300 text-slate-950 shadow-md shadow-teal-400/10 rounded-xl text-xs"
+            >
+              <PlusCircle className="w-4 h-4" />
+              <span>List a Vehicle</span>
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Prominent Smart AI Car Finder Bar */}
       <AiCarFinderSearchBar
@@ -389,7 +412,7 @@ function CarsListPage() {
           e.preventDefault();
           updateSearch({ q: qInput.trim() });
         }}
-        className="app-surface flex w-full min-w-0 max-w-full flex-col gap-2 p-3 sm:flex-row"
+        className="app-surface -mt-2 flex w-full min-w-0 max-w-full flex-col gap-2 p-3 shadow-lg shadow-slate-950/5 sm:flex-row"
       >
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -424,7 +447,7 @@ function CarsListPage() {
       </form>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside className="hidden space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start">
+        <aside className="hidden space-y-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start">
           <div className="flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
               <Filter className="h-4 w-4" /> Filters
@@ -529,7 +552,7 @@ function CarsListPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 We couldn't find any current listings that match. Try widening your search criteria.
               </p>
-              
+
               {hasFilters && (
                 <Button
                   variant="outline"
@@ -546,11 +569,12 @@ function CarsListPage() {
                 </div>
                 <h4 className="text-base font-semibold">Can't find it locally?</h4>
                 <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                  AutoConnect's global sourcing team can find and import exactly what you're looking for. We handle the purchase, shipping, duties, and delivery.
+                  AutoConnect's global sourcing team can find and import exactly what you're looking
+                  for. We handle the purchase, shipping, duties, and delivery.
                 </p>
                 <Button
                   className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={() => document.getElementById('ai-search-input')?.focus()}
+                  onClick={() => document.getElementById("ai-search-input")?.focus()}
                 >
                   Tell AI what you want to import
                 </Button>

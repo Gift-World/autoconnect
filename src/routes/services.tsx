@@ -82,33 +82,33 @@ function ServicesPage() {
   );
   return (
     <main className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="overflow-hidden rounded-3xl border bg-slate-950 p-7 text-white shadow-xl sm:p-10">
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-300">
+      <section className="overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-teal-50 via-card to-white p-7 shadow-card sm:p-10">
+        <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-700">
           Car care network
         </p>
-        <h1 className="mt-3 max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="mt-3 max-w-2xl text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
           Care that stays connected to your car.
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
           One directory for workshops, individual mechanics and independent inspections. Choose a
           provider, attach the vehicle from My Garage, then keep the request and work record
           together.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild className="bg-teal-400 text-slate-950 hover:bg-teal-300">
+          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Link to="/garage">Open My Garage</Link>
           </Button>
           <Button
             asChild
             variant="outline"
-            className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+            className="border-border bg-background text-foreground hover:bg-muted"
           >
             <Link to="/parts">Find parts</Link>
           </Button>
           <Button
             asChild
             variant="outline"
-            className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+            className="border-border bg-background text-foreground hover:bg-muted"
           >
             <Link to="/service-bookings">Manage service requests</Link>
           </Button>

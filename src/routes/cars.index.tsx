@@ -343,29 +343,29 @@ function CarsListPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <section className="relative overflow-hidden rounded-[30px] bg-slate-950 px-5 py-7 text-white shadow-xl shadow-slate-950/10 sm:px-8 sm:py-9">
-        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-teal-400/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-blue-500/15 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[30px] border border-border/80 bg-card px-5 py-7 shadow-card sm:px-8 sm:py-9">
+        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl" />
         <div className="relative flex flex-wrap items-end justify-between gap-5">
           <div className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-300">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700">
               GLOBAL VEHICLE MARKETPLACE
             </p>
-            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
               Find the right car, with the facts in view.
             </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-300">
+            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
               Search live marketplace listings, compare the information supplied, then decide your
               next step at your pace.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-300">
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+            <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
                 Search by make, budget or use
               </span>
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
                 Compare before you contact
               </span>
-              <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5">
+              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
                 Evidence shown per listing
               </span>
             </div>
@@ -375,7 +375,7 @@ function CarsListPage() {
               type="button"
               variant="outline"
               onClick={() => setTradeInOpen(true)}
-              className="gap-1.5 text-xs font-semibold rounded-xl border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+              className="gap-1.5 text-xs font-semibold rounded-xl border-border bg-background text-foreground hover:bg-muted"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>What's Your Car Worth?</span>
@@ -384,14 +384,14 @@ function CarsListPage() {
               type="button"
               variant="outline"
               onClick={() => setSwipeModeOpen(true)}
-              className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-white/20 bg-white/5 text-slate-100 hover:bg-white/10"
+              className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-border bg-background text-foreground hover:bg-muted"
             >
               <Smartphone className="w-3.5 h-3.5 text-teal-400" />
               <span>Swipe Mode</span>
             </Button>
             <Button
               onClick={() => setQuickListOpen(true)}
-              className="gap-2 self-start sm:self-auto font-bold bg-teal-400 hover:bg-teal-300 text-slate-950 shadow-md shadow-teal-400/10 rounded-xl text-xs"
+              className="gap-2 self-start sm:self-auto font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/10 rounded-xl text-xs"
             >
               <PlusCircle className="w-4 h-4" />
               <span>List a Vehicle</span>
@@ -412,7 +412,7 @@ function CarsListPage() {
           e.preventDefault();
           updateSearch({ q: qInput.trim() });
         }}
-        className="app-surface -mt-2 flex w-full min-w-0 max-w-full flex-col gap-2 p-3 shadow-lg shadow-slate-950/5 sm:flex-row"
+        className="app-surface -mt-2 flex w-full min-w-0 max-w-full flex-col gap-2 p-3 shadow-lg shadow-primary/5 sm:flex-row"
       >
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

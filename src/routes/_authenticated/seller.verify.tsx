@@ -414,8 +414,8 @@ function SellerVerifyPage() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="overflow-hidden rounded-[24px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-950/10">
-            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-300">
+          <div className="app-surface overflow-hidden bg-gradient-to-br from-teal-50 to-white p-5">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-700">
               WHAT HAPPENS NEXT
             </p>
             <h2 className="mt-2 text-lg font-bold tracking-tight">
@@ -432,12 +432,12 @@ function SellerVerifyPage() {
                 ["3", "Badge on listings", "Once verified, buyers can see your verified status."],
               ].map(([number, title, copy]) => (
                 <li key={number} className="flex gap-3">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-teal-400/15 text-xs font-bold text-teal-200">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                     {number}
                   </span>
                   <span>
-                    <strong className="block font-semibold text-white">{title}</strong>
-                    <span className="mt-0.5 block text-xs leading-relaxed text-slate-300">
+                    <strong className="block font-semibold text-foreground">{title}</strong>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                       {copy}
                     </span>
                   </span>

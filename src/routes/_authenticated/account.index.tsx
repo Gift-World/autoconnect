@@ -216,25 +216,27 @@ function ProfilePage() {
           </Form>
         </div>
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="overflow-hidden rounded-[24px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-950/10">
-            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-300">YOUR CONTACTS</p>
+          <div className="app-surface overflow-hidden bg-gradient-to-br from-teal-50 to-white p-5">
+            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-700">YOUR CONTACTS</p>
             <h2 className="mt-2 text-lg font-bold tracking-tight">
               Small details keep your ownership journey moving.
             </h2>
-            <div className="mt-5 space-y-4 text-sm text-slate-300">
+            <div className="mt-5 space-y-4 text-sm text-muted-foreground">
               <div className="flex gap-3">
-                <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-teal-300" />
+                <MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <p>
-                  <strong className="font-semibold text-white">WhatsApp is optional.</strong>
+                  <strong className="font-semibold text-foreground">WhatsApp is optional.</strong>
                   <br />
                   Add it if you want sellers and service providers to have a convenient reply
                   channel.
                 </p>
               </div>
               <div className="flex gap-3">
-                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal-300" />
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <p>
-                  <strong className="font-semibold text-white">Your account stays yours.</strong>
+                  <strong className="font-semibold text-foreground">
+                    Your account stays yours.
+                  </strong>
                   <br />
                   Changing these details never changes a completed purchase or service record.
                 </p>

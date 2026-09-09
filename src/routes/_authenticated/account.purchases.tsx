@@ -122,7 +122,7 @@ function Purchases() {
         <div className="rounded-3xl border bg-card p-10 text-center space-y-2">
           <Receipt className="mx-auto h-10 w-10 text-muted-foreground" />
           <p className="text-sm font-semibold">You don't have any confirmed purchases yet.</p>
-          <Link to="/cars" className="inline-block text-xs font-bold text-teal-400 hover:underline">
+          <Link to="/cars" className="inline-block text-xs font-bold text-primary hover:underline">
             Browse Verified Cars →
           </Link>
         </div>
@@ -135,7 +135,7 @@ function Purchases() {
             return (
               <li
                 key={r.id}
-                className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm hover:shadow-md transition-all"
+                className="app-surface flex flex-col gap-4 p-4 transition-all hover:shadow-card-hover sm:flex-row sm:items-center sm:justify-between"
               >
                 <div className="flex items-center gap-4 min-w-0">
                   <div className="h-16 w-24 overflow-hidden rounded-xl bg-muted shrink-0 border border-border">
@@ -154,32 +154,36 @@ function Purchases() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-border/80 w-full mt-4">
                   <div className="flex-1 w-full max-w-xl">
                     <div className="flex justify-between text-xs mb-2">
-                      <span className="font-semibold text-teal-400">Escrow Secured</span>
-                      <span className="text-muted-foreground">Delivery</span>
+                      <span className="font-semibold text-primary">Transaction progress</span>
+                      <span className="text-muted-foreground">Vehicle handover</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
-                      <div className="bg-teal-500 h-2 rounded-full" style={{ width: r.status === 'escrow_secured' ? '30%' : '100%' }}></div>
+                      <div
+                        className="bg-primary h-2 rounded-full"
+                        style={{ width: r.status === "escrow_secured" ? "30%" : "100%" }}
+                      ></div>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2">
-                      <ShieldCheck className="inline h-3 w-3 text-teal-400 mr-1" />
-                      Funds are held securely by AutoConnect until you inspect and accept the vehicle.
+                      <ShieldCheck className="mr-1 inline h-3 w-3 text-primary" />
+                      Status is shown from the transaction record. Payment protection terms are
+                      confirmed only where evidence is available.
                     </p>
                   </div>
 
                   <div className="text-left sm:text-right shrink-0">
-                    <p className="font-mono font-bold text-teal-400">
+                    <p className="font-mono font-bold text-primary">
                       {fmt(Number(r.display_total), r.display_currency)}
                     </p>
                     <Badge
                       variant="outline"
-                      className="text-[10px] bg-teal-500/10 text-teal-300 border-teal-500/20"
+                      className="border-primary/20 bg-primary/10 text-[10px] text-primary"
                     >
                       {r.status.replace("_", " ")}
                     </Badge>
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
-                    {['completed', 'escrow_released', 'escrow_secured'].includes(r.status) && (
+                    {["completed", "escrow_released", "escrow_secured"].includes(r.status) && (
                       <Button
                         type="button"
                         size="sm"
@@ -196,7 +200,7 @@ function Purchases() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleOpenReceipt(r)}
-                      className="h-9 rounded-xl text-xs gap-1.5 border-teal-500/30 text-teal-400 hover:bg-teal-500/10 shrink-0"
+                      className="h-9 shrink-0 gap-1.5 rounded-xl border-primary/30 text-xs text-primary hover:bg-primary/10"
                     >
                       <Receipt className="h-3.5 w-3.5" />
                       <span>Digital Receipt</span>

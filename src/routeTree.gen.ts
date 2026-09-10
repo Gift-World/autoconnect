@@ -52,6 +52,7 @@ import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/
 import { Route as AuthenticatedAccountPurchasesRouteImport } from './routes/_authenticated/account.purchases'
 import { Route as AuthenticatedAccountVerifyRouteImport } from './routes/_authenticated/account.verify'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAuctionsRouteImport } from './routes/_authenticated/admin.auctions'
 import { Route as AuthenticatedAdminBroadcastRouteImport } from './routes/_authenticated/admin.broadcast'
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
 import { Route as AuthenticatedAdminImportRequestsRouteImport } from './routes/_authenticated/admin.import-requests'
@@ -306,6 +307,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAuctionsRoute =
+  AuthenticatedAdminAuctionsRouteImport.update({
+    id: '/auctions',
+    path: '/auctions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminBroadcastRoute =
   AuthenticatedAdminBroadcastRouteImport.update({
     id: '/broadcast',
@@ -520,6 +527,7 @@ export interface FileRoutesByFullPath {
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/purchases': typeof AuthenticatedAccountPurchasesRoute
   '/account/verify': typeof AuthenticatedAccountVerifyRoute
+  '/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
@@ -588,6 +596,7 @@ export interface FileRoutesByTo {
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/purchases': typeof AuthenticatedAccountPurchasesRoute
   '/account/verify': typeof AuthenticatedAccountVerifyRoute
+  '/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
@@ -663,6 +672,7 @@ export interface FileRoutesById {
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/_authenticated/account/purchases': typeof AuthenticatedAccountPurchasesRoute
   '/_authenticated/account/verify': typeof AuthenticatedAccountVerifyRoute
+  '/_authenticated/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/_authenticated/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
   '/_authenticated/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
@@ -739,6 +749,7 @@ export interface FileRouteTypes {
     | '/account/notifications'
     | '/account/purchases'
     | '/account/verify'
+    | '/admin/auctions'
     | '/admin/broadcast'
     | '/admin/documents'
     | '/admin/import-requests'
@@ -807,6 +818,7 @@ export interface FileRouteTypes {
     | '/account/notifications'
     | '/account/purchases'
     | '/account/verify'
+    | '/admin/auctions'
     | '/admin/broadcast'
     | '/admin/documents'
     | '/admin/import-requests'
@@ -881,6 +893,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/notifications'
     | '/_authenticated/account/purchases'
     | '/_authenticated/account/verify'
+    | '/_authenticated/admin/auctions'
     | '/_authenticated/admin/broadcast'
     | '/_authenticated/admin/documents'
     | '/_authenticated/admin/import-requests'
@@ -1247,6 +1260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/auctions': {
+      id: '/_authenticated/admin/auctions'
+      path: '/auctions'
+      fullPath: '/admin/auctions'
+      preLoaderRoute: typeof AuthenticatedAdminAuctionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/broadcast': {
       id: '/_authenticated/admin/broadcast'
       path: '/broadcast'
@@ -1503,6 +1523,7 @@ const AuthenticatedAdminInspectionsRouteWithChildren =
   )
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAuctionsRoute: typeof AuthenticatedAdminAuctionsRoute
   AuthenticatedAdminBroadcastRoute: typeof AuthenticatedAdminBroadcastRoute
   AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
   AuthenticatedAdminImportRequestsRoute: typeof AuthenticatedAdminImportRequestsRoute
@@ -1518,6 +1539,7 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAuctionsRoute: AuthenticatedAdminAuctionsRoute,
   AuthenticatedAdminBroadcastRoute: AuthenticatedAdminBroadcastRoute,
   AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,
   AuthenticatedAdminImportRequestsRoute: AuthenticatedAdminImportRequestsRoute,

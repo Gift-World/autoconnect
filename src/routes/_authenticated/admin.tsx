@@ -12,6 +12,7 @@ import {
   Wallet,
   Wrench,
   Store,
+  Gavel,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -81,6 +82,7 @@ function AdminLayout() {
             { to: "/admin/inspections", icon: <Wrench />, label: "Inspections" },
             { to: "/admin/provider-claims", icon: <Wrench />, label: "Provider claims" },
             { to: "/admin/import-requests", icon: <Inbox />, label: "Import requests" },
+            { to: "/admin/auctions", icon: <Gavel />, label: "Auction review" },
           ],
         },
         {

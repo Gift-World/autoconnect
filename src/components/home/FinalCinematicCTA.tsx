@@ -32,7 +32,7 @@ export function FinalCinematicCTA() {
 
           <p className="mt-6 text-base sm:text-xl font-normal text-slate-300 leading-relaxed max-w-2xl mx-auto">
             Buy locally with complete inspection clarity. Import globally without middleman risk.
-            Pay securely through bank-grade escrow.
+            Follow a clear reservation and verified-payment workflow.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
@@ -75,7 +75,7 @@ export function FinalCinematicCTA() {
           <div className="mt-12 inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-xs text-slate-400 backdrop-blur-md">
             <ShieldCheck className="h-4 w-4 text-teal-400" />
             <span>
-              Escrow payment protection & 150-point inspection guaranteed on all listings.
+              Payment and inspection status shown only where supporting evidence exists.
             </span>
           </div>
         </div>

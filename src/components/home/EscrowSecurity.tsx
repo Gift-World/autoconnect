@@ -22,17 +22,16 @@ export function EscrowSecurity() {
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white/85 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm backdrop-blur-md">
-            <Lock className="h-3.5 w-3.5 text-teal-600" /> Guaranteed Escrow Security
+            <Lock className="h-3.5 w-3.5 text-teal-600" /> Verified payment workflow
           </div>
 
           <h2 className="font-display mt-4 text-3xl font-extrabold tracking-tight sm:text-5xl">
-            Your money stays protected.
+            Know exactly where your purchase stands.
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed">
-            Never send direct money to strangers. AutoConnect holds your deposit or full purchase
-            amount in a secured trust account until you physically test-drive and verify the
-            vehicle.
+            Never send direct money to strangers. A reservation remains payment-pending until
+            payment evidence is verified, and each next step is recorded against the transaction.
           </p>
         </div>
 
@@ -52,12 +51,12 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Buyer Deposits</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-500">
-                  Payment is made via Card (Stripe), M-Pesa, or direct Bank Wire into a ring-fenced
-                  escrow account.
+                  Choose only a payment method that is available for this transaction. A transfer
+                  reference alone is not payment confirmation.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-200 text-[11px] font-medium text-emerald-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Escrow Locked
+                <CheckCircle2 className="h-3.5 w-3.5" /> Awaiting verification
               </div>
             </div>
 
@@ -74,12 +73,12 @@ export function EscrowSecurity() {
                   <h4 className="font-display text-sm font-bold text-slate-900">Secure Custody</h4>
                 </div>
                 <p className="mt-2.5 text-xs leading-relaxed text-slate-600">
-                  AutoConnect notifies the seller that funds are secured. Zero funds are accessible
-                  by the seller yet.
+                  Sellers are notified only after the transaction state is updated from verified
+                  payment evidence. Do not release a vehicle from a reservation alone.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-teal-200 text-[11px] font-medium text-teal-700 flex items-center gap-1">
-                <ShieldCheck className="h-3.5 w-3.5" /> Escrow Protected
+                <ShieldCheck className="h-3.5 w-3.5" /> Transaction tracked
               </div>
             </div>
 

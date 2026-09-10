@@ -587,11 +587,11 @@ function YardPage() {
               </div>
               <div>
                 <h3 className="font-display text-lg font-bold text-foreground sm:text-xl">
-                  AutoConnect Escrow Protection at {yard.name}
+                  AutoConnect transaction workflow at {yard.name}
                 </h3>
                 <p className="mt-1 max-w-2xl text-xs text-muted-foreground sm:text-sm leading-relaxed">
-                  Every transaction conducted at this yard is safeguarded by the AutoConnect Escrow
-                  Guarantee. Your funds are held securely until you inspect the vehicle in person at
+                  Each transaction at this yard follows a recorded purchase workflow. Payment is not
+                  shown as confirmed until verified evidence is recorded; inspect the vehicle in person at
                   the yard and authorize release with your 6-digit cryptographic PIN code.
                 </p>
               </div>

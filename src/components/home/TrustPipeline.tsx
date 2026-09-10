@@ -13,44 +13,44 @@ const VERIFICATION_STEPS = [
   {
     step: "01",
     icon: FileCheck,
-    title: "Vehicle Identity Verification",
-    desc: "Digital chassis & VIN matching with structured verification protocols and export documentation cross-checks.",
-    tag: "Chassis & VIN Cleared",
+    title: "Vehicle evidence review",
+    desc: "Seller documents and vehicle evidence can be submitted for review. Only reviewed evidence is marked as verified.",
+    tag: "Evidence shown per listing",
   },
   {
     step: "02",
     icon: ShieldCheck,
-    title: "Ownership & Seller KYC",
-    desc: "Verification of official logbook title, import entry declarations, and verified seller identity protocols.",
-    tag: "Clean Title Guaranteed",
+    title: "Seller & document review",
+    desc: "Seller identity and documents are shown as reviewed only when AutoConnect has recorded a completed review.",
+    tag: "Review status visible",
   },
   {
     step: "03",
     icon: History,
-    title: "Odometer & History Audit",
-    desc: "Comprehensive mileage rollback detection through auction house history and pre-export inspection reports.",
-    tag: "Authentic Mileage",
+    title: "History evidence",
+    desc: "Mileage, inspection and history claims require a supporting report. Missing evidence is shown as missing, not assumed.",
+    tag: "No unsupported claims",
   },
   {
     step: "04",
     icon: Wrench,
-    title: "150-Point Mechanical Scan",
-    desc: "On-site ECU computer diagnostics, transmission compression tests, structural frame checks, and flood damage analysis.",
-    tag: "Diagnostic Report Ready",
+    title: "Inspection evidence",
+    desc: "Inspection results appear only when a provider or reviewer attaches an actual report to the vehicle.",
+    tag: "Report required",
   },
   {
     step: "05",
     icon: Lock,
-    title: "Regulated Bank Escrow",
-    desc: "Your purchase funds are held securely in a ring-fenced bank escrow account. Zero money reaches the seller upfront.",
-    tag: "Escrow Protected Funds",
+    title: "Verified payment status",
+    desc: "A reservation does not mean payment is complete. Payment status changes only after provider or bank evidence is verified.",
+    tag: "Evidence before release",
   },
   {
     step: "06",
     icon: Handshake,
-    title: "6-Digit Release Handover",
-    desc: "You test drive and inspect the car in person. Funds disburse only when you input your private 6-digit release PIN.",
-    tag: "Buyer Authorizes Payout",
+    title: "Documented handover",
+    desc: "The buyer, seller and AutoConnect record the handover steps. Any future payout automation depends on a contracted payment partner.",
+    tag: "Handover recorded",
   },
 ];
 
@@ -73,8 +73,8 @@ export function TrustPipeline() {
           </h2>
 
           <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            AutoConnect is not a passive classifieds board. We are a strict trust infrastructure
-            ensuring zero broker scams, zero tampered odometers, and guaranteed escrow protection.
+            AutoConnect is built to show evidence, transaction status and the next accountable step.
+            We do not present unreviewed claims as verified facts.
           </p>
         </div>
 

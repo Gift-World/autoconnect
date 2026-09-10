@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { ArrowRight, Car, Check, MapPin, Plane, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Car, Check, CirclePlay, MapPin, Plane, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { ProductDemoReel } from "@/components/home/ProductDemoReel";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -21,6 +22,7 @@ export function CinematicHero() {
   const [make, setMake] = useState("");
   const [budget, setBudget] = useState("");
   const [aiQuery, setAiQuery] = useState("");
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const searchCars = (event?: React.FormEvent) => {
     event?.preventDefault();
@@ -60,6 +62,16 @@ export function CinematicHero() {
                 <Link to="/cars">
                   Explore verified cars <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                variant="outline"
+                onClick={() => setDemoOpen(true)}
+                className="h-12 rounded-full border-slate-200 bg-white px-6 font-bold text-slate-800 hover:bg-teal-50"
+              >
+                <CirclePlay className="mr-2 h-4 w-4 text-teal-600" />
+                Watch product demo
               </Button>
               <Button
                 asChild
@@ -215,6 +227,7 @@ export function CinematicHero() {
           </div>
         ))}
       </div>
+      <ProductDemoReel open={demoOpen} onOpenChange={setDemoOpen} />
     </section>
   );
 }

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuctionsRouteImport } from './routes/auctions'
 import { Route as CarsRouteImport } from './routes/cars'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DisputesRouteImport } from './routes/disputes'
@@ -88,6 +89,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuctionsRoute = AuctionsRouteImport.update({
+  id: '/auctions',
+  path: '/auctions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CarsRoute = CarsRouteImport.update({
@@ -468,6 +474,7 @@ const AuthenticatedSellerListingsNewRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auctions': typeof AuctionsRoute
   '/cars': typeof CarsRouteWithChildren
   '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
@@ -540,6 +547,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auctions': typeof AuctionsRoute
   '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
   '/how-payments-work': typeof HowPaymentsWorkRoute
@@ -607,6 +615,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auctions': typeof AuctionsRoute
   '/cars': typeof CarsRouteWithChildren
   '/compare': typeof CompareRoute
   '/disputes': typeof DisputesRoute
@@ -681,6 +690,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auctions'
     | '/cars'
     | '/compare'
     | '/disputes'
@@ -753,6 +763,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auctions'
     | '/compare'
     | '/disputes'
     | '/how-payments-work'
@@ -819,6 +830,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/auctions'
     | '/cars'
     | '/compare'
     | '/disputes'
@@ -893,6 +905,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuctionsRoute: typeof AuctionsRoute
   CarsRoute: typeof CarsRouteWithChildren
   CompareRoute: typeof CompareRoute
   DisputesRoute: typeof DisputesRoute
@@ -932,6 +945,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auctions': {
+      id: '/auctions'
+      path: '/auctions'
+      fullPath: '/auctions'
+      preLoaderRoute: typeof AuctionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cars': {
@@ -1602,6 +1622,7 @@ const YardsRouteWithChildren = YardsRoute._addFileChildren(YardsRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuctionsRoute: AuctionsRoute,
   CarsRoute: CarsRouteWithChildren,
   CompareRoute: CompareRoute,
   DisputesRoute: DisputesRoute,

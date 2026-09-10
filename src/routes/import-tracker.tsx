@@ -76,14 +76,14 @@ function ImportTrackerPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-teal-950/60 border border-teal-500/30 text-white shadow-xl">
         <div className="space-y-2 max-w-xl">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-mono">
-            <Anchor className="h-3.5 w-3.5" /> LIVE RO-RO CARRIER TRACKING
+            <Anchor className="h-3.5 w-3.5" /> IMPORT ORDER TRACKER PREVIEW
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Japan & Global Import Shipping Tracker
+            Import order tracker
           </h1>
           <p className="text-xs sm:text-sm text-slate-300">
-            Real-time multi-stage tracking for your direct auction imports from Yokohama, Nagoya,
-            and Kobe to Mombasa and Nairobi.
+            A clear view of the milestones, documents and handoff points that will be attached to
+            each import purchase when carrier and clearing records are connected.
           </p>
         </div>
 
@@ -112,7 +112,7 @@ function ImportTrackerPage() {
         {/* Left: Shipment Selector Cards */}
         <div className="space-y-3">
           <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Ship className="h-4 w-4 text-teal-400" /> Active Vessels in Transit (
+            <Ship className="h-4 w-4 text-teal-400" /> Example order timelines (
             {DEMO_SHIPMENTS.length})
           </h2>
 
@@ -148,14 +148,14 @@ function ImportTrackerPage() {
             ))}
           </div>
 
-          {/* Guaranteed Logistics Assurance Card */}
+          {/* Deliberately labelled preview until carrier integrations are live. */}
           <div className="rounded-2xl border border-teal-500/20 bg-teal-500/5 p-4 text-xs text-muted-foreground space-y-2">
             <p className="font-bold text-teal-400 flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4" /> 100% Insured Ro-Ro Sea Freight
+              <ShieldCheck className="h-4 w-4" /> What the final tracker will show
             </p>
             <p className="text-[11px] leading-relaxed">
-              Every vehicle shipped through AutoConnect includes comprehensive marine insurance,
-              JEVIC pre-export radiation testing, and KRA Simba customs bond clearance.
+              Carrier milestones, ETD/ETA, bills of lading, inspection documents, duty and
+              clearing handoff. This preview is not live carrier or customs data.
             </p>
           </div>
         </div>

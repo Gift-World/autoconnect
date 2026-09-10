@@ -51,12 +51,12 @@ export function VehiclePlaceholder({
           <h4 className="text-sm font-bold text-slate-900 line-clamp-1">
             {make ? `${make} ${model || ""}` : "Verified Vehicle"}
           </h4>
-          <p className="text-[11px] text-slate-500">Physical diagnostics & title verified</p>
+          <p className="text-[11px] text-slate-500">Review listing details and attached evidence</p>
         </div>
 
         <div className="mt-3 flex items-center gap-1 rounded-full border border-teal-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold text-slate-600 backdrop-blur-sm">
           <ShieldCheck className="h-3 w-3 text-teal-600" />
-          <span>Inspection Cleared</span>
+          <span>Evidence may be available</span>
         </div>
       </div>
     </div>

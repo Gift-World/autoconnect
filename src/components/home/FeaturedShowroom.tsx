@@ -89,8 +89,8 @@ export function FeaturedShowroom() {
               Featured Verified Vehicles
             </h2>
             <p className="mt-2 text-sm text-muted-foreground max-w-xl">
-              Every vehicle has undergone on-site physical diagnostics, chassis verification, and is
-              backed by escrow protection.
+              Review the seller-supplied facts, photos and any evidence attached to each listing
+              before you contact the seller or arrange an inspection.
             </p>
           </div>
 
@@ -214,7 +214,7 @@ export function FeaturedShowroom() {
                     {/* Trust footer & Quick Specs action */}
                     <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-[11px]">
                       <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Escrow Protected
+                        <ShieldCheck className="h-3.5 w-3.5" /> Evidence shown per listing
                       </span>
                       <button
                         type="button"

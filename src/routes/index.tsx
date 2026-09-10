@@ -5,19 +5,20 @@ import { FeaturedShowroom } from "@/components/home/FeaturedShowroom";
 import { TrustPipeline } from "@/components/home/TrustPipeline";
 import { CinematicImport } from "@/components/home/CinematicImport";
 import { FinalCinematicCTA } from "@/components/home/FinalCinematicCTA";
+import { LiveMarketplace } from "@/components/home/LiveMarketplace";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AutoConnect — Global Verified Automotive Platform & Escrow" },
+      { title: "AutoConnect — Find, Buy and Look After Your Car" },
       {
         name: "description",
         content:
-          "Browse verified vehicles, understand the evidence and payment process, and import with confidence.",
+          "Browse vehicle listings, understand the evidence shown, and manage the next step for your car.",
       },
       {
         property: "og:title",
-        content: "AutoConnect — Global Verified Automotive Platform & Escrow",
+        content: "AutoConnect — Find, Buy and Look After Your Car",
       },
       {
         property: "og:description",
@@ -36,6 +37,7 @@ function HomePage() {
       <CinematicHero />
       <EcosystemLoop />
       <FeaturedShowroom />
+      <LiveMarketplace />
       <TrustPipeline />
       <CinematicImport />
       <FinalCinematicCTA />

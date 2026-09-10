@@ -5,6 +5,7 @@ import { BadgeCheck, CalendarPlus, CarFront, ClipboardCheck, MapPin, Wrench } fr
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
@@ -250,6 +251,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
       toast.success("Service request sent", {
         description: "The provider can now quote or confirm it.",
       });
+      void trackProductEvent("service_booking_requested", { provider_id: provider.id, garage_vehicle_id: vehicleId, service_type: serviceType });
       setOpen(false);
       setNotes("");
     },

@@ -75,6 +75,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { CheckoutModal } from "@/components/payments/CheckoutModal";
 import { calculateBreakdown, fromUsdCents, SERVICE_FEE_PERCENT } from "@/lib/stripe-config";
 import { VehiclePlaceholder } from "@/components/VehicleImage";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 type CarDetail = {
   id: string;
@@ -307,6 +308,7 @@ function CarDetailPage() {
   // Increment views once on mount
   useEffect(() => {
     supabase.rpc("increment_car_views", { car_id: id });
+    void trackProductEvent("vehicle_listing_viewed", { car_id: id });
   }, [id]);
 
   if (!car) return null;
@@ -1410,6 +1412,7 @@ function InquiryForm({ car }: { car: CarDetail }) {
     },
     onSuccess: () => {
       toast.success("Message sent to the seller!");
+      void trackProductEvent("seller_enquiry_sent", { car_id: car.id, inquiry_type: form.getValues("inquiry_type") });
       form.reset({ ...form.getValues(), message: "" });
     },
     onError: (e: Error) => toast.error(e.message || "Failed to send inquiry"),

@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { trackProductEvent } from "@/lib/product-analytics";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -128,6 +129,7 @@ function PartDetailPage() {
     },
     onSuccess: () => {
       toast.success("Quote request sent");
+      void trackProductEvent("parts_quote_requested", { part_id: id, garage_vehicle_id: vehicleId || null });
       setOpen(false);
       setMessage("");
     },

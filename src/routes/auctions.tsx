@@ -9,6 +9,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 export const Route = createFileRoute("/auctions")({
   validateSearch: (search: Record<string, unknown>) => ({ auction: typeof search.auction === "string" ? search.auction : undefined }),
@@ -56,6 +57,7 @@ function AuctionsPage() {
     const { error } = await supabase.rpc("submit_auction_bid", { p_auction_id: selected.id, p_amount: Number(bidAmount) });
     if (error) { toast.error("Bid was not accepted", { description: error.message }); return; }
     toast.success("Bid placed", { description: "The public feed shows a masked bidder alias, never your full name." });
+    void trackProductEvent("auction_bid_placed", { auction_id: selected.id, sale_mode: selected.sale_mode });
     void queryClient.invalidateQueries({ queryKey: ["vehicle-auctions"] });
     void queryClient.invalidateQueries({ queryKey: ["auction-public-bids", selected.id] });
   };
@@ -68,6 +70,7 @@ function AuctionsPage() {
     setClaiming(false);
     if (error) { toast.error("Reservation could not be created", { description: error.message }); return; }
     toast.success("Reservation created", { description: `Your reservation holds the winning price until ${new Date(data.expires_at).toLocaleString()}. Payment remains pending verification.` });
+    void trackProductEvent("auction_reservation_created", { auction_id: selected.id, reservation_id: data.id, sale_mode: selected.sale_mode });
     void queryClient.invalidateQueries({ queryKey: ["vehicle-auctions"] });
   };
 

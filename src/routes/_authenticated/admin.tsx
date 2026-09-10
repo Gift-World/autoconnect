@@ -79,6 +79,7 @@ function AdminLayout() {
             { to: "/admin/listings", icon: <Car />, label: "Listings" },
             { to: "/admin/yards", icon: <Store />, label: "Car yards" },
             { to: "/admin/documents", icon: <ShieldCheck />, label: "Documents" },
+            { to: "/admin/evidence", icon: <ShieldCheck />, label: "Vehicle evidence" },
             { to: "/admin/inspections", icon: <Wrench />, label: "Inspections" },
             { to: "/admin/provider-claims", icon: <Wrench />, label: "Provider claims" },
             { to: "/admin/import-requests", icon: <Inbox />, label: "Import requests" },

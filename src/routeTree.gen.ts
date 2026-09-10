@@ -55,6 +55,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminAuctionsRouteImport } from './routes/_authenticated/admin.auctions'
 import { Route as AuthenticatedAdminBroadcastRouteImport } from './routes/_authenticated/admin.broadcast'
 import { Route as AuthenticatedAdminDocumentsRouteImport } from './routes/_authenticated/admin.documents'
+import { Route as AuthenticatedAdminEvidenceRouteImport } from './routes/_authenticated/admin.evidence'
 import { Route as AuthenticatedAdminImportRequestsRouteImport } from './routes/_authenticated/admin.import-requests'
 import { Route as AuthenticatedAdminInspectionsRouteImport } from './routes/_authenticated/admin.inspections'
 import { Route as AuthenticatedAdminListingsRouteImport } from './routes/_authenticated/admin.listings'
@@ -67,6 +68,7 @@ import { Route as AuthenticatedAdminYardsRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellerIndexRouteImport } from './routes/_authenticated/seller.index'
 import { Route as AuthenticatedSellerAuctionsRouteImport } from './routes/_authenticated/seller.auctions'
 import { Route as AuthenticatedSellerDocumentsRouteImport } from './routes/_authenticated/seller.documents'
+import { Route as AuthenticatedSellerEvidenceRouteImport } from './routes/_authenticated/seller.evidence'
 import { Route as AuthenticatedSellerImportRequestsRouteImport } from './routes/_authenticated/seller.import-requests'
 import { Route as AuthenticatedSellerInquiriesRouteImport } from './routes/_authenticated/seller.inquiries'
 import { Route as AuthenticatedSellerInspectionsRouteImport } from './routes/_authenticated/seller.inspections'
@@ -325,6 +327,12 @@ const AuthenticatedAdminDocumentsRoute =
     path: '/documents',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminEvidenceRoute =
+  AuthenticatedAdminEvidenceRouteImport.update({
+    id: '/evidence',
+    path: '/evidence',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminImportRequestsRoute =
   AuthenticatedAdminImportRequestsRouteImport.update({
     id: '/import-requests',
@@ -393,6 +401,12 @@ const AuthenticatedSellerDocumentsRoute =
   AuthenticatedSellerDocumentsRouteImport.update({
     id: '/documents',
     path: '/documents',
+    getParentRoute: () => AuthenticatedSellerRoute,
+  } as any)
+const AuthenticatedSellerEvidenceRoute =
+  AuthenticatedSellerEvidenceRouteImport.update({
+    id: '/evidence',
+    path: '/evidence',
     getParentRoute: () => AuthenticatedSellerRoute,
   } as any)
 const AuthenticatedSellerImportRequestsRoute =
@@ -530,6 +544,7 @@ export interface FileRoutesByFullPath {
   '/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/evidence': typeof AuthenticatedAdminEvidenceRoute
   '/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
   '/admin/inspections': typeof AuthenticatedAdminInspectionsRouteWithChildren
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
@@ -541,6 +556,7 @@ export interface FileRoutesByFullPath {
   '/admin/yards': typeof AuthenticatedAdminYardsRoute
   '/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/seller/documents': typeof AuthenticatedSellerDocumentsRoute
+  '/seller/evidence': typeof AuthenticatedSellerEvidenceRoute
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
@@ -599,6 +615,7 @@ export interface FileRoutesByTo {
   '/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/admin/evidence': typeof AuthenticatedAdminEvidenceRoute
   '/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
   '/admin/listings': typeof AuthenticatedAdminListingsRoute
   '/admin/makes': typeof AuthenticatedAdminMakesRoute
@@ -609,6 +626,7 @@ export interface FileRoutesByTo {
   '/admin/yards': typeof AuthenticatedAdminYardsRoute
   '/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/seller/documents': typeof AuthenticatedSellerDocumentsRoute
+  '/seller/evidence': typeof AuthenticatedSellerEvidenceRoute
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
@@ -675,6 +693,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/auctions': typeof AuthenticatedAdminAuctionsRoute
   '/_authenticated/admin/broadcast': typeof AuthenticatedAdminBroadcastRoute
   '/_authenticated/admin/documents': typeof AuthenticatedAdminDocumentsRoute
+  '/_authenticated/admin/evidence': typeof AuthenticatedAdminEvidenceRoute
   '/_authenticated/admin/import-requests': typeof AuthenticatedAdminImportRequestsRoute
   '/_authenticated/admin/inspections': typeof AuthenticatedAdminInspectionsRouteWithChildren
   '/_authenticated/admin/listings': typeof AuthenticatedAdminListingsRoute
@@ -686,6 +705,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/yards': typeof AuthenticatedAdminYardsRoute
   '/_authenticated/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/_authenticated/seller/documents': typeof AuthenticatedSellerDocumentsRoute
+  '/_authenticated/seller/evidence': typeof AuthenticatedSellerEvidenceRoute
   '/_authenticated/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/_authenticated/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/_authenticated/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
@@ -752,6 +772,7 @@ export interface FileRouteTypes {
     | '/admin/auctions'
     | '/admin/broadcast'
     | '/admin/documents'
+    | '/admin/evidence'
     | '/admin/import-requests'
     | '/admin/inspections'
     | '/admin/listings'
@@ -763,6 +784,7 @@ export interface FileRouteTypes {
     | '/admin/yards'
     | '/seller/auctions'
     | '/seller/documents'
+    | '/seller/evidence'
     | '/seller/import-requests'
     | '/seller/inquiries'
     | '/seller/inspections'
@@ -821,6 +843,7 @@ export interface FileRouteTypes {
     | '/admin/auctions'
     | '/admin/broadcast'
     | '/admin/documents'
+    | '/admin/evidence'
     | '/admin/import-requests'
     | '/admin/listings'
     | '/admin/makes'
@@ -831,6 +854,7 @@ export interface FileRouteTypes {
     | '/admin/yards'
     | '/seller/auctions'
     | '/seller/documents'
+    | '/seller/evidence'
     | '/seller/import-requests'
     | '/seller/inquiries'
     | '/seller/inspections'
@@ -896,6 +920,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/auctions'
     | '/_authenticated/admin/broadcast'
     | '/_authenticated/admin/documents'
+    | '/_authenticated/admin/evidence'
     | '/_authenticated/admin/import-requests'
     | '/_authenticated/admin/inspections'
     | '/_authenticated/admin/listings'
@@ -907,6 +932,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/yards'
     | '/_authenticated/seller/auctions'
     | '/_authenticated/seller/documents'
+    | '/_authenticated/seller/evidence'
     | '/_authenticated/seller/import-requests'
     | '/_authenticated/seller/inquiries'
     | '/_authenticated/seller/inspections'
@@ -1281,6 +1307,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDocumentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/evidence': {
+      id: '/_authenticated/admin/evidence'
+      path: '/evidence'
+      fullPath: '/admin/evidence'
+      preLoaderRoute: typeof AuthenticatedAdminEvidenceRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/import-requests': {
       id: '/_authenticated/admin/import-requests'
       path: '/import-requests'
@@ -1363,6 +1396,13 @@ declare module '@tanstack/react-router' {
       path: '/documents'
       fullPath: '/seller/documents'
       preLoaderRoute: typeof AuthenticatedSellerDocumentsRouteImport
+      parentRoute: typeof AuthenticatedSellerRoute
+    }
+    '/_authenticated/seller/evidence': {
+      id: '/_authenticated/seller/evidence'
+      path: '/evidence'
+      fullPath: '/seller/evidence'
+      preLoaderRoute: typeof AuthenticatedSellerEvidenceRouteImport
       parentRoute: typeof AuthenticatedSellerRoute
     }
     '/_authenticated/seller/import-requests': {
@@ -1526,6 +1566,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAuctionsRoute: typeof AuthenticatedAdminAuctionsRoute
   AuthenticatedAdminBroadcastRoute: typeof AuthenticatedAdminBroadcastRoute
   AuthenticatedAdminDocumentsRoute: typeof AuthenticatedAdminDocumentsRoute
+  AuthenticatedAdminEvidenceRoute: typeof AuthenticatedAdminEvidenceRoute
   AuthenticatedAdminImportRequestsRoute: typeof AuthenticatedAdminImportRequestsRoute
   AuthenticatedAdminInspectionsRoute: typeof AuthenticatedAdminInspectionsRouteWithChildren
   AuthenticatedAdminListingsRoute: typeof AuthenticatedAdminListingsRoute
@@ -1542,6 +1583,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAuctionsRoute: AuthenticatedAdminAuctionsRoute,
   AuthenticatedAdminBroadcastRoute: AuthenticatedAdminBroadcastRoute,
   AuthenticatedAdminDocumentsRoute: AuthenticatedAdminDocumentsRoute,
+  AuthenticatedAdminEvidenceRoute: AuthenticatedAdminEvidenceRoute,
   AuthenticatedAdminImportRequestsRoute: AuthenticatedAdminImportRequestsRoute,
   AuthenticatedAdminInspectionsRoute:
     AuthenticatedAdminInspectionsRouteWithChildren,
@@ -1561,6 +1603,7 @@ const AuthenticatedAdminRouteWithChildren =
 interface AuthenticatedSellerRouteChildren {
   AuthenticatedSellerAuctionsRoute: typeof AuthenticatedSellerAuctionsRoute
   AuthenticatedSellerDocumentsRoute: typeof AuthenticatedSellerDocumentsRoute
+  AuthenticatedSellerEvidenceRoute: typeof AuthenticatedSellerEvidenceRoute
   AuthenticatedSellerImportRequestsRoute: typeof AuthenticatedSellerImportRequestsRoute
   AuthenticatedSellerInquiriesRoute: typeof AuthenticatedSellerInquiriesRoute
   AuthenticatedSellerInspectionsRoute: typeof AuthenticatedSellerInspectionsRoute
@@ -1574,6 +1617,7 @@ interface AuthenticatedSellerRouteChildren {
 const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
   AuthenticatedSellerAuctionsRoute: AuthenticatedSellerAuctionsRoute,
   AuthenticatedSellerDocumentsRoute: AuthenticatedSellerDocumentsRoute,
+  AuthenticatedSellerEvidenceRoute: AuthenticatedSellerEvidenceRoute,
   AuthenticatedSellerImportRequestsRoute:
     AuthenticatedSellerImportRequestsRoute,
   AuthenticatedSellerInquiriesRoute: AuthenticatedSellerInquiriesRoute,

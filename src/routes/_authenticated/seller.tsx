@@ -90,6 +90,7 @@ function SellerLayout() {
             { to: "/seller/auctions", icon: <Gavel />, label: "Auctions & flash offers" },
             { to: "/seller/yard", icon: <Store />, label: "My car yard" },
             { to: "/seller/documents", icon: <FileBadge />, label: "Documents" },
+            { to: "/seller/evidence", icon: <ShieldCheck />, label: "Vehicle evidence" },
             { to: "/seller/inspections", icon: <Wrench />, label: "Inspections" },
             { to: "/seller/import-requests", icon: <Inbox />, label: "Import requests" },
           ],

@@ -64,6 +64,7 @@ import { Route as AuthenticatedAdminTransactionsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminVerificationRouteImport } from './routes/_authenticated/admin.verification'
 import { Route as AuthenticatedAdminYardsRouteImport } from './routes/_authenticated/admin.yards'
 import { Route as AuthenticatedSellerIndexRouteImport } from './routes/_authenticated/seller.index'
+import { Route as AuthenticatedSellerAuctionsRouteImport } from './routes/_authenticated/seller.auctions'
 import { Route as AuthenticatedSellerDocumentsRouteImport } from './routes/_authenticated/seller.documents'
 import { Route as AuthenticatedSellerImportRequestsRouteImport } from './routes/_authenticated/seller.import-requests'
 import { Route as AuthenticatedSellerInquiriesRouteImport } from './routes/_authenticated/seller.inquiries'
@@ -375,6 +376,12 @@ const AuthenticatedSellerIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedSellerRoute,
   } as any)
+const AuthenticatedSellerAuctionsRoute =
+  AuthenticatedSellerAuctionsRouteImport.update({
+    id: '/auctions',
+    path: '/auctions',
+    getParentRoute: () => AuthenticatedSellerRoute,
+  } as any)
 const AuthenticatedSellerDocumentsRoute =
   AuthenticatedSellerDocumentsRouteImport.update({
     id: '/documents',
@@ -524,6 +531,7 @@ export interface FileRoutesByFullPath {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/verification': typeof AuthenticatedAdminVerificationRoute
   '/admin/yards': typeof AuthenticatedAdminYardsRoute
+  '/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/seller/documents': typeof AuthenticatedSellerDocumentsRoute
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
@@ -590,6 +598,7 @@ export interface FileRoutesByTo {
   '/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/admin/verification': typeof AuthenticatedAdminVerificationRoute
   '/admin/yards': typeof AuthenticatedAdminYardsRoute
+  '/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/seller/documents': typeof AuthenticatedSellerDocumentsRoute
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
@@ -665,6 +674,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/transactions': typeof AuthenticatedAdminTransactionsRoute
   '/_authenticated/admin/verification': typeof AuthenticatedAdminVerificationRoute
   '/_authenticated/admin/yards': typeof AuthenticatedAdminYardsRoute
+  '/_authenticated/seller/auctions': typeof AuthenticatedSellerAuctionsRoute
   '/_authenticated/seller/documents': typeof AuthenticatedSellerDocumentsRoute
   '/_authenticated/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/_authenticated/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
@@ -740,6 +750,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/verification'
     | '/admin/yards'
+    | '/seller/auctions'
     | '/seller/documents'
     | '/seller/import-requests'
     | '/seller/inquiries'
@@ -806,6 +817,7 @@ export interface FileRouteTypes {
     | '/admin/transactions'
     | '/admin/verification'
     | '/admin/yards'
+    | '/seller/auctions'
     | '/seller/documents'
     | '/seller/import-requests'
     | '/seller/inquiries'
@@ -880,6 +892,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/transactions'
     | '/_authenticated/admin/verification'
     | '/_authenticated/admin/yards'
+    | '/_authenticated/seller/auctions'
     | '/_authenticated/seller/documents'
     | '/_authenticated/seller/import-requests'
     | '/_authenticated/seller/inquiries'
@@ -1318,6 +1331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerIndexRouteImport
       parentRoute: typeof AuthenticatedSellerRoute
     }
+    '/_authenticated/seller/auctions': {
+      id: '/_authenticated/seller/auctions'
+      path: '/auctions'
+      fullPath: '/seller/auctions'
+      preLoaderRoute: typeof AuthenticatedSellerAuctionsRouteImport
+      parentRoute: typeof AuthenticatedSellerRoute
+    }
     '/_authenticated/seller/documents': {
       id: '/_authenticated/seller/documents'
       path: '/documents'
@@ -1517,6 +1537,7 @@ const AuthenticatedAdminRouteWithChildren =
   AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedSellerRouteChildren {
+  AuthenticatedSellerAuctionsRoute: typeof AuthenticatedSellerAuctionsRoute
   AuthenticatedSellerDocumentsRoute: typeof AuthenticatedSellerDocumentsRoute
   AuthenticatedSellerImportRequestsRoute: typeof AuthenticatedSellerImportRequestsRoute
   AuthenticatedSellerInquiriesRoute: typeof AuthenticatedSellerInquiriesRoute
@@ -1529,6 +1550,7 @@ interface AuthenticatedSellerRouteChildren {
 }
 
 const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
+  AuthenticatedSellerAuctionsRoute: AuthenticatedSellerAuctionsRoute,
   AuthenticatedSellerDocumentsRoute: AuthenticatedSellerDocumentsRoute,
   AuthenticatedSellerImportRequestsRoute:
     AuthenticatedSellerImportRequestsRoute,

@@ -12,6 +12,7 @@ import {
   Wrench,
   Store,
   Sparkles,
+  Gavel,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -86,6 +87,7 @@ function SellerLayout() {
           label: "Inventory",
           items: [
             { to: "/seller/listings/new", icon: <Plus />, label: "New listing" },
+            { to: "/seller/auctions", icon: <Gavel />, label: "Auctions & flash offers" },
             { to: "/seller/yard", icon: <Store />, label: "My car yard" },
             { to: "/seller/documents", icon: <FileBadge />, label: "Documents" },
             { to: "/seller/inspections", icon: <Wrench />, label: "Inspections" },

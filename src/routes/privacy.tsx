@@ -7,7 +7,7 @@ export const Route = createFileRoute("/privacy")({
     <PublicPolicyPage
       eyebrow="Privacy notice"
       title="How we handle your information"
-      intro="This notice explains the information AutoConnect needs to operate a secure vehicle marketplace."
+      intro="Version 2026 09 10. This notice explains the information AutoConnect needs to operate a secure vehicle marketplace. It requires business and legal review before a public launch."
       sections={[
         {
           title: "Information we collect",
@@ -20,6 +20,10 @@ export const Route = createFileRoute("/privacy")({
         {
           title: "Sharing and retention",
           body: "Information is shared only with parties needed to deliver the service, such as transaction providers and verified counterparties, or where required by law.",
+        },
+        {
+          title: "Your choices",
+          body: "Use Account and Support to update information, manage communications or ask questions about your data. The final launch notice must include the registered business contact and the legally required data rights for each market.",
         },
       ]}
     />

@@ -6,6 +6,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Globe, Loader2, ShoppingCart, Store, Eye, EyeOff, Mail, Smartphone } from "lucide-react";
 import { PhoneAuthForm } from "@/components/auth/PhoneAuthForm";
+import { Checkbox } from "@/components/ui/checkbox";
+import { recordConsent, TERMS_VERSION } from "@/lib/consent";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +46,7 @@ function RegisterPage() {
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const {
     register,
@@ -60,13 +63,17 @@ function RegisterPage() {
   const country = watch("country");
 
   const onSubmit = async (values: FormValues) => {
+    if (!acceptedTerms) {
+      toast.error("Please agree to the Terms and Privacy Notice before continuing.");
+      return;
+    }
     setSubmitting(true);
     const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
       options: {
         emailRedirectTo: `${window.location.origin}/login`,
-        data: { full_name: values.full_name },
+        data: { full_name: values.full_name, terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() },
       },
     });
     if (error) {
@@ -90,6 +97,8 @@ function RegisterPage() {
       void navigate({ to: "/login" });
       return;
     }
+
+    await Promise.all([recordConsent("terms"), recordConsent("privacy")]);
 
     // Update auto-created profile with the rest of the details
     const { error: profErr } = await supabase
@@ -278,31 +287,30 @@ function RegisterPage() {
               )}
 
               <div className="flex items-start gap-2 pt-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="terms"
-                  required
-                  className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  checked={acceptedTerms}
+                  onCheckedChange={(checked) => setAcceptedTerms(checked === true)}
+                  className="mt-0.5"
                 />
                 <Label
                   htmlFor="terms"
                   className="text-sm font-normal text-muted-foreground leading-snug"
                 >
-                  I agree to the{" "}
+                  I agree to the AutoConnect{" "}
                   <Link to="/terms" className="text-primary hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link to="/privacy" className="text-primary hover:underline">
-                    Privacy Policy
-                  </Link>
-                  .
+                  Privacy Policy
+                  </Link>{" "}(version {TERMS_VERSION}).
                 </Label>
               </div>
 
               <Button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !acceptedTerms}
                 className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md"
               >
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { roleHomePath, type AppRole } from "@/contexts/AuthContext";
+import { Checkbox } from "@/components/ui/checkbox";
+import { recordConsent, TERMS_VERSION } from "@/lib/consent";
+import { Link } from "@tanstack/react-router";
 
 // A six-digit local shortcut is deliberately unavailable in deployed builds.
 // Production sign-in must create a real Supabase session from a real SMS OTP.
@@ -58,6 +61,7 @@ export function PhoneAuthForm({
   const [otpCode, setOtpCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Countdown timer for resend OTP
   useEffect(() => {
@@ -81,6 +85,10 @@ export function PhoneAuthForm({
     const cleanNumber = phoneNumber.trim().replace(/\D/g, "");
     if (!cleanNumber || cleanNumber.length < 7) {
       toast.error("Please enter a valid phone number");
+      return;
+    }
+    if (mode === "register" && !acceptedTerms) {
+      toast.error("Please agree to the Terms and Privacy Notice before continuing.");
       return;
     }
 
@@ -171,6 +179,8 @@ export function PhoneAuthForm({
         }
       }
 
+      if (mode === "register") await Promise.all([recordConsent("terms"), recordConsent("privacy")]);
+
       toast.success("Signed in successfully with Phone!", {
         description: `Logged in as ${fullPhone}`,
         icon: <ShieldCheck className="h-4 w-4 text-teal-400" />,
@@ -234,9 +244,11 @@ export function PhoneAuthForm({
             </p>
           </div>
 
+          {mode === "register" && <div className="flex items-start gap-2 rounded-xl border border-border bg-muted/30 p-3"><Checkbox id="phone-terms" checked={acceptedTerms} onCheckedChange={(checked) => setAcceptedTerms(checked === true)} className="mt-0.5"/><Label htmlFor="phone-terms" className="text-xs font-normal leading-5 text-muted-foreground">I agree to the AutoConnect <Link to="/terms" className="font-semibold text-primary hover:underline">Terms</Link> and <Link to="/privacy" className="font-semibold text-primary hover:underline">Privacy Notice</Link> (version {TERMS_VERSION}).</Label></div>}
+
           <Button
             type="submit"
-            disabled={submitting || !phoneNumber.trim()}
+            disabled={submitting || !phoneNumber.trim() || (mode === "register" && !acceptedTerms)}
             className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
           >
             {submitting ? (

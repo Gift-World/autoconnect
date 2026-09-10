@@ -196,6 +196,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { CompareFloatingBar } from "@/components/compare/CompareFloatingBar";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+import { AppTour } from "@/components/tour/AppTour";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -215,6 +216,7 @@ function RootComponent() {
             </div>
             <CompareFloatingBar />
             <WhatsAppConcierge />
+            <AppTour />
             <Toaster richColors position="top-right" />
           </ComparisonProvider>
         </CurrencyProvider>

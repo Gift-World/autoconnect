@@ -17,14 +17,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
+  AlertTriangle,
+  Clock3,
   Eye,
   Pencil,
   Plus,
   Trash2,
+  FileSpreadsheet,
+  Zap,
   Car as CarIcon,
-  Clock3,
   CheckCircle2,
-  AlertTriangle,
   TrendingUp,
   MessageSquare,
 } from "lucide-react";
@@ -178,7 +180,7 @@ function SellerDashboard() {
       const { data: cars, error } = await supabase
         .from("cars")
         .select(
-          "id, title, status, price, currency, country, year, views, featured, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
+          "id, title, status, price, currency, country, year, views, featured, is_premium, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
         )
         .eq("seller_id", sellerRow.id)
         .order("created_at", { ascending: false });
@@ -218,6 +220,29 @@ function SellerDashboard() {
     else {
       toast.success("Listing deleted");
       load();
+    }
+  }
+
+  async function handleBoostListing(carId: string) {
+    if (!sellerId) return;
+    try {
+      const res = await fetch("/api/public/stripe-checkout-premium", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          carId,
+          sellerId,
+          returnUrl: window.location.href,
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error(data.error || "Failed to initiate boost checkout.");
+      }
+    } catch (e: any) {
+      toast.error(e.message || "Failed to initiate boost");
     }
   }
 
@@ -385,6 +410,7 @@ function SellerDashboard() {
                             <div className="text-xs text-muted-foreground">
                               {r.year}
                               {r.featured && " · Featured"}
+                              {r.is_premium && " · Premium ⚡"}
                               {r.available_for_export && " · Export"}
                             </div>
                           </div>
@@ -410,6 +436,17 @@ function SellerDashboard() {
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
+                          {!r.is_premium && (
+                            <Button 
+                              size="icon" 
+                              variant="ghost" 
+                              title="Boost Listing ($19.99)" 
+                              className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                              onClick={() => handleBoostListing(r.id)}
+                            >
+                              <Zap className="h-4 w-4" />
+                            </Button>
+                          )}
                           <Button size="icon" variant="ghost" title="Edit (coming soon)" disabled>
                             <Pencil className="h-4 w-4" />
                           </Button>

@@ -37,6 +37,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Separator } from "@/components/ui/separator";
+import { VehicleHistoryReport } from "@/components/cars/VehicleHistoryReport";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -106,6 +108,7 @@ type CarDetail = {
   shipping_info: string | null;
   import_duties_note: string | null;
   vin: string | null;
+  registration_number?: string | null;
   featured: boolean;
   views: number;
   created_at: string;
@@ -611,6 +614,12 @@ function CarDetailPage() {
             <VerifiedDocsBadge carId={car.id} />
           </div>
           <VehiclePassport carId={car.id} />
+          <VehicleHistoryReport 
+            carId={car.id} 
+            country={car.country}
+            vin={car.vin}
+            regNumber={car.registration_number}
+          />
           <InspectionSummary carId={car.id} />
           <BuyerNextSteps />
 
@@ -647,6 +656,7 @@ function CarDetailPage() {
       <TradeInEstimatorModal
         open={tradeInOpen}
         onOpenChange={setTradeInOpen}
+        targetCarId={car.id}
         targetCarTitle={car.title}
         targetCarPrice={Number(car.price)}
       />

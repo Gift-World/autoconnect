@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Scale,
   Smartphone,
+  Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
@@ -108,6 +109,7 @@ type CarRow = {
   right_hand_drive: boolean;
   available_for_export: boolean;
   featured: boolean;
+  is_premium?: boolean;
   created_at: string;
   latitude: number | null;
   longitude: number | null;
@@ -243,9 +245,10 @@ function CarsListPage() {
       let query = supabase
         .from("cars")
         .select(
-          "id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,condition,steering_side,right_hand_drive,available_for_export,featured,created_at,latitude,longitude,car_images(image_url,is_primary,sort_order)",
+          "id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,condition,steering_side,right_hand_drive,available_for_export,featured,is_premium,created_at,latitude,longitude,car_images(image_url,is_primary,sort_order)",
         )
         .eq("status", "approved")
+        .order("is_premium", { ascending: false, nullsFirst: false })
         .order("featured", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(60);

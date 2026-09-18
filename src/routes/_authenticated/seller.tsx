@@ -13,6 +13,7 @@ import {
   Store,
   Sparkles,
   Gavel,
+  ArrowRightLeft,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -79,6 +80,7 @@ function SellerLayout() {
           label: "Overview",
           items: [
             { to: "/seller", icon: <LayoutDashboard />, label: "Dashboard", exact: true },
+            { to: "/seller/trade-ins", icon: <ArrowRightLeft />, label: "Trade-In Leads" },
             { to: "/seller/verify", icon: <ShieldCheck />, label: "Verify account" },
             { to: "/seller/inquiries", icon: <MessageSquare />, label: "Inquiries" },
           ],

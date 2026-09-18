@@ -72,6 +72,7 @@ import { Route as AuthenticatedSellerEvidenceRouteImport } from './routes/_authe
 import { Route as AuthenticatedSellerImportRequestsRouteImport } from './routes/_authenticated/seller.import-requests'
 import { Route as AuthenticatedSellerInquiriesRouteImport } from './routes/_authenticated/seller.inquiries'
 import { Route as AuthenticatedSellerInspectionsRouteImport } from './routes/_authenticated/seller.inspections'
+import { Route as AuthenticatedSellerTradeInsRouteImport } from './routes/_authenticated/seller.trade-ins'
 import { Route as AuthenticatedSellerTransactionsRouteImport } from './routes/_authenticated/seller.transactions'
 import { Route as AuthenticatedSellerVerifyRouteImport } from './routes/_authenticated/seller.verify'
 import { Route as AuthenticatedSellerYardRouteImport } from './routes/_authenticated/seller.yard'
@@ -80,6 +81,7 @@ import { Route as ApiPublicPartsRouteImport } from './routes/api/public/parts'
 import { Route as ApiPublicPartsShopsRouteImport } from './routes/api/public/parts-shops'
 import { Route as ApiPublicPreviewGarageRouteImport } from './routes/api/public/preview-garage'
 import { Route as ApiPublicServiceProvidersRouteImport } from './routes/api/public/service-providers'
+import { Route as ApiPublicStripeCheckoutPremiumRouteImport } from './routes/api/public/stripe-checkout-premium'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
 import { Route as PartsShopsSlugRouteImport } from './routes/parts.shops.$slug'
 import { Route as AuthenticatedAdminInspectionsIndexRouteImport } from './routes/_authenticated/admin.inspections.index'
@@ -428,6 +430,12 @@ const AuthenticatedSellerInspectionsRoute =
     path: '/inspections',
     getParentRoute: () => AuthenticatedSellerRoute,
   } as any)
+const AuthenticatedSellerTradeInsRoute =
+  AuthenticatedSellerTradeInsRouteImport.update({
+    id: '/trade-ins',
+    path: '/trade-ins',
+    getParentRoute: () => AuthenticatedSellerRoute,
+  } as any)
 const AuthenticatedSellerTransactionsRoute =
   AuthenticatedSellerTransactionsRouteImport.update({
     id: '/transactions',
@@ -470,6 +478,12 @@ const ApiPublicServiceProvidersRoute =
   ApiPublicServiceProvidersRouteImport.update({
     id: '/api/public/service-providers',
     path: '/api/public/service-providers',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicStripeCheckoutPremiumRoute =
+  ApiPublicStripeCheckoutPremiumRouteImport.update({
+    id: '/api/public/stripe-checkout-premium',
+    path: '/api/public/stripe-checkout-premium',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicStripeWebhookRoute = ApiPublicStripeWebhookRouteImport.update({
@@ -567,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
+  '/seller/trade-ins': typeof AuthenticatedSellerTradeInsRoute
   '/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
@@ -575,6 +590,7 @@ export interface FileRoutesByFullPath {
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
+  '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
@@ -638,6 +654,7 @@ export interface FileRoutesByTo {
   '/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
+  '/seller/trade-ins': typeof AuthenticatedSellerTradeInsRoute
   '/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
@@ -646,6 +663,7 @@ export interface FileRoutesByTo {
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
+  '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/account': typeof AuthenticatedAccountIndexRoute
@@ -718,6 +736,7 @@ export interface FileRoutesById {
   '/_authenticated/seller/import-requests': typeof AuthenticatedSellerImportRequestsRoute
   '/_authenticated/seller/inquiries': typeof AuthenticatedSellerInquiriesRoute
   '/_authenticated/seller/inspections': typeof AuthenticatedSellerInspectionsRoute
+  '/_authenticated/seller/trade-ins': typeof AuthenticatedSellerTradeInsRoute
   '/_authenticated/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/_authenticated/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/_authenticated/seller/yard': typeof AuthenticatedSellerYardRoute
@@ -726,6 +745,7 @@ export interface FileRoutesById {
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
+  '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
   '/parts/shops/$slug': typeof PartsShopsSlugRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
@@ -798,6 +818,7 @@ export interface FileRouteTypes {
     | '/seller/import-requests'
     | '/seller/inquiries'
     | '/seller/inspections'
+    | '/seller/trade-ins'
     | '/seller/transactions'
     | '/seller/verify'
     | '/seller/yard'
@@ -806,6 +827,7 @@ export interface FileRouteTypes {
     | '/api/public/parts-shops'
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
+    | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
     | '/parts/shops/$slug'
     | '/account/'
@@ -869,6 +891,7 @@ export interface FileRouteTypes {
     | '/seller/import-requests'
     | '/seller/inquiries'
     | '/seller/inspections'
+    | '/seller/trade-ins'
     | '/seller/transactions'
     | '/seller/verify'
     | '/seller/yard'
@@ -877,6 +900,7 @@ export interface FileRouteTypes {
     | '/api/public/parts-shops'
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
+    | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
     | '/parts/shops/$slug'
     | '/account'
@@ -948,6 +972,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seller/import-requests'
     | '/_authenticated/seller/inquiries'
     | '/_authenticated/seller/inspections'
+    | '/_authenticated/seller/trade-ins'
     | '/_authenticated/seller/transactions'
     | '/_authenticated/seller/verify'
     | '/_authenticated/seller/yard'
@@ -956,6 +981,7 @@ export interface FileRouteTypes {
     | '/api/public/parts-shops'
     | '/api/public/preview-garage'
     | '/api/public/service-providers'
+    | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
     | '/parts/shops/$slug'
     | '/_authenticated/account/'
@@ -993,6 +1019,7 @@ export interface RootRouteChildren {
   ApiPublicPartsShopsRoute: typeof ApiPublicPartsShopsRoute
   ApiPublicPreviewGarageRoute: typeof ApiPublicPreviewGarageRoute
   ApiPublicServiceProvidersRoute: typeof ApiPublicServiceProvidersRoute
+  ApiPublicStripeCheckoutPremiumRoute: typeof ApiPublicStripeCheckoutPremiumRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
 }
 
@@ -1439,6 +1466,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerInspectionsRouteImport
       parentRoute: typeof AuthenticatedSellerRoute
     }
+    '/_authenticated/seller/trade-ins': {
+      id: '/_authenticated/seller/trade-ins'
+      path: '/trade-ins'
+      fullPath: '/seller/trade-ins'
+      preLoaderRoute: typeof AuthenticatedSellerTradeInsRouteImport
+      parentRoute: typeof AuthenticatedSellerRoute
+    }
     '/_authenticated/seller/transactions': {
       id: '/_authenticated/seller/transactions'
       path: '/transactions'
@@ -1493,6 +1527,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/service-providers'
       fullPath: '/api/public/service-providers'
       preLoaderRoute: typeof ApiPublicServiceProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/stripe-checkout-premium': {
+      id: '/api/public/stripe-checkout-premium'
+      path: '/api/public/stripe-checkout-premium'
+      fullPath: '/api/public/stripe-checkout-premium'
+      preLoaderRoute: typeof ApiPublicStripeCheckoutPremiumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/stripe-webhook': {
@@ -1627,6 +1668,7 @@ interface AuthenticatedSellerRouteChildren {
   AuthenticatedSellerImportRequestsRoute: typeof AuthenticatedSellerImportRequestsRoute
   AuthenticatedSellerInquiriesRoute: typeof AuthenticatedSellerInquiriesRoute
   AuthenticatedSellerInspectionsRoute: typeof AuthenticatedSellerInspectionsRoute
+  AuthenticatedSellerTradeInsRoute: typeof AuthenticatedSellerTradeInsRoute
   AuthenticatedSellerTransactionsRoute: typeof AuthenticatedSellerTransactionsRoute
   AuthenticatedSellerVerifyRoute: typeof AuthenticatedSellerVerifyRoute
   AuthenticatedSellerYardRoute: typeof AuthenticatedSellerYardRoute
@@ -1643,6 +1685,7 @@ const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
     AuthenticatedSellerImportRequestsRoute,
   AuthenticatedSellerInquiriesRoute: AuthenticatedSellerInquiriesRoute,
   AuthenticatedSellerInspectionsRoute: AuthenticatedSellerInspectionsRoute,
+  AuthenticatedSellerTradeInsRoute: AuthenticatedSellerTradeInsRoute,
   AuthenticatedSellerTransactionsRoute: AuthenticatedSellerTransactionsRoute,
   AuthenticatedSellerVerifyRoute: AuthenticatedSellerVerifyRoute,
   AuthenticatedSellerYardRoute: AuthenticatedSellerYardRoute,
@@ -1756,6 +1799,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPartsShopsRoute: ApiPublicPartsShopsRoute,
   ApiPublicPreviewGarageRoute: ApiPublicPreviewGarageRoute,
   ApiPublicServiceProvidersRoute: ApiPublicServiceProvidersRoute,
+  ApiPublicStripeCheckoutPremiumRoute: ApiPublicStripeCheckoutPremiumRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport

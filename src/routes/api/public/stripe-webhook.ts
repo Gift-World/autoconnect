@@ -112,6 +112,26 @@ export const Route = createFileRoute("/api/public/stripe-webhook")({
               stripe_payouts_enabled: acct.payouts_enabled ?? false,
             })
             .eq("stripe_account_id", acct.id);
+        } else if (event.type === "checkout.session.completed") {
+          const session = event.data.object as import("stripe").Stripe.Checkout.Session;
+          if (session.metadata?.type === "premium_boost") {
+            const carId = session.metadata.car_id;
+            const sellerId = session.metadata.seller_id;
+            
+            if (carId) {
+              // Set premium status for 7 days
+              const premiumUntil = new Date();
+              premiumUntil.setDate(premiumUntil.getDate() + 7);
+              
+              await supabaseAdmin
+                .from("cars")
+                .update({ 
+                  is_premium: true,
+                  premium_until: premiumUntil.toISOString()
+                })
+                .eq("id", carId);
+            }
+          }
         }
 
         return new Response("ok");

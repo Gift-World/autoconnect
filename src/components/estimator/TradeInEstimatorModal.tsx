@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const POPULAR_MAKES = [
   "Toyota",
@@ -78,6 +80,7 @@ const BASELINE_VALUATIONS: Record<string, number> = {
 interface TradeInEstimatorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  targetCarId?: string;
   targetCarTitle?: string;
   targetCarPrice?: number;
 }
@@ -85,10 +88,12 @@ interface TradeInEstimatorModalProps {
 export function TradeInEstimatorModal({
   open,
   onOpenChange,
+  targetCarId,
   targetCarTitle,
   targetCarPrice,
 }: TradeInEstimatorModalProps) {
   const { formatPrice } = useCurrency();
+  const { user } = useAuth();
 
   const [make, setMake] = useState("Toyota");
   const [model, setModel] = useState("Prado");
@@ -100,6 +105,7 @@ export function TradeInEstimatorModal({
   const [estimatedMin, setEstimatedMin] = useState<number | null>(null);
   const [estimatedMax, setEstimatedMax] = useState<number | null>(null);
   const [calculated, setCalculated] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const calculateTradeInValue = (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,11 +157,45 @@ export function TradeInEstimatorModal({
     setCalculated(true);
   };
 
-  const handleApplyTradeIn = () => {
+  const handleApplyTradeIn = async () => {
+    setIsSubmitting(true);
+    
+    if (user && targetCarId) {
+      // 1. Fetch the seller of the target car
+      const { data: carData } = await supabase
+        .from('cars')
+        .select('seller_id')
+        .eq('id', targetCarId)
+        .single();
+        
+      if (carData?.seller_id) {
+        // 2. Submit the trade-in lead
+        const { error } = await supabase.from('trade_in_requests').insert({
+          user_id: user.id,
+          seller_id: carData.seller_id,
+          target_car_id: targetCarId,
+          make,
+          model,
+          year: parseInt(year, 10),
+          mileage: parseInt(mileage, 10),
+          condition,
+          location,
+          est_min: estimatedMin || 0,
+          est_max: estimatedMax || 0
+        });
+        
+        if (error) {
+          console.error("Failed to submit trade-in", error);
+        }
+      }
+    }
+    
     toast.success("Trade-In Estimate Applied!", {
-      description: `Valuation of ${formatPrice(estimatedMin || 0)} - ${formatPrice(estimatedMax || 0)} saved to your profile.`,
+      description: `Valuation of ${formatPrice(estimatedMin || 0)} - ${formatPrice(estimatedMax || 0)} sent to the dealer.`,
       icon: <CheckCircle2 className="h-4 w-4 text-teal-400" />,
     });
+    
+    setIsSubmitting(false);
     onOpenChange(false);
   };
 
@@ -338,10 +378,11 @@ export function TradeInEstimatorModal({
                 </Button>
                 <Button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={handleApplyTradeIn}
                   className="flex-1 h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
                 >
-                  <span>Apply Toward New Purchase</span>
+                  <span>{isSubmitting ? "Submitting..." : "Apply Toward New Purchase"}</span>
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>

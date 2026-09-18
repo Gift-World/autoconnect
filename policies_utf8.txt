@@ -1,0 +1,114 @@
+﻿db/0001_init.sql:create policy "profiles_select_own" on public.profiles
+db/0001_init.sql:create policy "profiles_update_own" on public.profiles
+db/0001_init.sql:create policy "profiles_insert_self" on public.profiles
+db/0001_init.sql:create policy "profiles_admin_all" on public.profiles
+db/0001_init.sql:create policy "sellers_public_approved" on public.sellers
+db/0001_init.sql:create policy "sellers_self_select" on public.sellers
+db/0001_init.sql:create policy "sellers_self_insert" on public.sellers
+db/0001_init.sql:create policy "sellers_self_update" on public.sellers
+db/0001_init.sql:create policy "sellers_admin_all" on public.sellers
+db/0001_init.sql:create policy "car_makes_public_read" on public.car_makes
+db/0001_init.sql:create policy "car_makes_admin_write" on public.car_makes
+db/0001_init.sql:create policy "car_models_public_read" on public.car_models
+db/0001_init.sql:create policy "car_models_admin_write" on public.car_models
+db/0001_init.sql:create policy "cars_public_approved" on public.cars
+db/0001_init.sql:create policy "cars_seller_own_select" on public.cars
+db/0001_init.sql:create policy "cars_seller_own_insert" on public.cars
+db/0001_init.sql:create policy "cars_seller_own_update" on public.cars
+db/0001_init.sql:create policy "cars_seller_own_delete" on public.cars
+db/0001_init.sql:create policy "cars_admin_all" on public.cars
+db/0001_init.sql:create policy "car_images_public_approved" on public.car_images
+db/0001_init.sql:create policy "car_images_seller_own" on public.car_images
+db/0001_init.sql:create policy "car_images_admin_all" on public.car_images
+db/0001_init.sql:create policy "inquiries_anyone_insert" on public.inquiries
+db/0001_init.sql:create policy "inquiries_buyer_select_own" on public.inquiries
+db/0001_init.sql:create policy "inquiries_seller_select_own" on public.inquiries
+db/0001_init.sql:create policy "inquiries_seller_update_own" on public.inquiries
+db/0001_init.sql:create policy "inquiries_admin_all" on public.inquiries
+db/0001_init.sql:create policy "import_requests_anyone_insert" on public.import_requests
+db/0001_init.sql:create policy "import_requests_buyer_select_own" on public.import_requests
+db/0001_init.sql:create policy "import_requests_buyer_update_own" on public.import_requests
+db/0001_init.sql:create policy "import_requests_seller_select_open" on public.import_requests
+db/0001_init.sql:create policy "import_requests_admin_all" on public.import_requests
+db/0001_init.sql:create policy "favorites_own_all" on public.favorites
+db/0001_init.sql:create policy "reports_auth_insert" on public.reports
+db/0001_init.sql:create policy "reports_admin_all" on public.reports
+db/0001_init.sql:create policy "car_images_public_read" on storage.objects
+db/0001_init.sql:create policy "car_images_owner_write" on storage.objects
+db/0001_init.sql:create policy "car_images_owner_update" on storage.objects
+db/0001_init.sql:create policy "car_images_owner_delete" on storage.objects
+db/0002_phase7.sql:create policy "notifications_own_select" on public.notifications
+db/0002_phase7.sql:create policy "notifications_own_update" on public.notifications
+db/0002_phase7.sql:create policy "notifications_auth_insert" on public.notifications
+db/0002_phase7.sql:create policy "notifications_admin_all" on public.notifications
+db/0002_phase7.sql:create policy "inquiry_messages_participant_select" on public.inquiry_messages
+db/0002_phase7.sql:create policy "inquiry_messages_participant_insert" on public.inquiry_messages
+db/0002_phase7.sql:create policy "inquiry_messages_participant_update" on public.inquiry_messages
+db/0002_phase7.sql:create policy "activity_own_select" on public.activity_log
+db/0002_phase7.sql:create policy "activity_auth_insert" on public.activity_log
+db/0003_phase_b.sql:create policy "car_documents_seller_rw" on public.car_documents
+db/0003_phase_b.sql:create policy "car_documents_admin_all" on public.car_documents
+db/0003_phase_b.sql:create policy "car_documents_public_read_verified" on public.car_documents
+db/0003_phase_b.sql:create policy "car_docs_seller_upload" on storage.objects
+db/0003_phase_b.sql:create policy "car_docs_seller_read" on storage.objects
+db/0003_phase_b.sql:create policy "car_docs_seller_delete" on storage.objects
+db/0004_payments.sql:CREATE POLICY transactions_admin_all ON public.transactions
+db/0004_payments.sql:CREATE POLICY transactions_buyer_select ON public.transactions
+db/0004_payments.sql:CREATE POLICY transactions_seller_select ON public.transactions
+db/0005_verification.sql:create policy sv_self_select on public.seller_verifications
+db/0005_verification.sql:create policy sv_self_insert on public.seller_verifications
+db/0005_verification.sql:create policy sv_self_update on public.seller_verifications
+db/0005_verification.sql:create policy sv_admin_all on public.seller_verifications
+db/0005_verification.sql:create policy cv_self_select on public.car_verifications
+db/0005_verification.sql:create policy cv_self_insert on public.car_verifications
+db/0005_verification.sql:create policy cv_self_update on public.car_verifications
+db/0005_verification.sql:create policy cv_admin_all on public.car_verifications
+db/0005_verification.sql:create policy mech_self_select on public.mechanics
+db/0005_verification.sql:create policy mech_admin_all on public.mechanics
+db/0005_verification.sql:create policy insp_mechanic_select on public.inspections
+db/0005_verification.sql:create policy insp_mechanic_update on public.inspections
+db/0005_verification.sql:create policy insp_seller_select on public.inspections
+db/0005_verification.sql:create policy insp_admin_all on public.inspections
+db/0005_verification.sql:create policy dr_buyer_select on public.document_releases
+db/0005_verification.sql:create policy dr_buyer_ack on public.document_releases
+db/0005_verification.sql:create policy dr_admin_all on public.document_releases
+db/0010_inspection_checklist.sql:create policy insp_seller_insert on public.inspections
+db/0011_admin_profiles_update.sql:create policy profiles_admin_update on public.profiles
+db/0013_car_yards.sql:create policy "yards_public_approved" on public.car_yards
+db/0013_car_yards.sql:create policy "yards_owner_select" on public.car_yards
+db/0013_car_yards.sql:create policy "yards_owner_insert" on public.car_yards
+db/0013_car_yards.sql:create policy "yards_owner_update" on public.car_yards
+db/0013_car_yards.sql:create policy "yards_admin_all" on public.car_yards
+db/0015_automotive_ecosystem.sql:create policy "garage_vehicles_owner_all" on public.garage_vehicles
+db/0015_automotive_ecosystem.sql:create policy "parts_shops_public_approved" on public.parts_shops
+db/0015_automotive_ecosystem.sql:create policy "parts_shops_owner_all" on public.parts_shops
+db/0015_automotive_ecosystem.sql:create policy "parts_shops_admin_all" on public.parts_shops
+db/0015_automotive_ecosystem.sql:create policy "parts_public_published" on public.parts
+db/0015_automotive_ecosystem.sql:create policy "parts_shop_owner_all" on public.parts
+db/0015_automotive_ecosystem.sql:create policy "parts_admin_all" on public.parts
+db/0015_automotive_ecosystem.sql:create policy "part_fitments_public_for_published" on public.part_fitments
+db/0015_automotive_ecosystem.sql:create policy "part_fitments_shop_owner_all" on public.part_fitments
+db/0015_automotive_ecosystem.sql:create policy "parts_orders_buyer_select" on public.parts_orders for select to authenticated using (buyer_id = auth.uid());
+db/0015_automotive_ecosystem.sql:create policy "parts_orders_buyer_insert" on public.parts_orders for insert to authenticated with check (buyer_id = auth.uid());
+db/0015_automotive_ecosystem.sql:create policy "parts_orders_shop_select" on public.parts_orders for select to authenticated using (shop_id in (select id from public.parts_shops where owner_id = auth.uid()));
+db/0015_automotive_ecosystem.sql:create policy "parts_orders_shop_update" on public.parts_orders for update to authenticated using (shop_id in (select id from public.parts_shops where owner_id = auth.uid())) with check (shop_id in (select id from public.parts_shops where owner_id = auth.uid()));
+db/0015_automotive_ecosystem.sql:create policy "parts_orders_admin_all" on public.parts_orders for all to authenticated using (public.has_role(auth.uid(), 'admin')) with check (public.has_role(auth.uid(), 'admin'));
+db/0015_automotive_ecosystem.sql:create policy "service_providers_public_approved" on public.service_providers for select to anon, authenticated using (is_approved = true);
+db/0015_automotive_ecosystem.sql:create policy "service_providers_owner_all" on public.service_providers for all to authenticated using (owner_id = auth.uid()) with check (owner_id = auth.uid());
+db/0015_automotive_ecosystem.sql:create policy "service_providers_admin_all" on public.service_providers for all to authenticated using (public.has_role(auth.uid(), 'admin')) with check (public.has_role(auth.uid(), 'admin'));
+db/0016_parts_mvp.sql:create policy "part_inquiries_buyer_read" on public.part_inquiries for select to authenticated using (buyer_id = auth.uid());
+db/0016_parts_mvp.sql:create policy "part_inquiries_buyer_insert" on public.part_inquiries for insert to authenticated with check (buyer_id = auth.uid());
+db/0016_parts_mvp.sql:create policy "part_inquiries_shop_read" on public.part_inquiries for select to authenticated using (shop_id in (select id from public.parts_shops where owner_id = auth.uid()));
+db/0016_parts_mvp.sql:create policy "part_inquiries_shop_update" on public.part_inquiries for update to authenticated using (shop_id in (select id from public.parts_shops where owner_id = auth.uid())) with check (shop_id in (select id from public.parts_shops where owner_id = auth.uid()));
+db/0016_parts_mvp.sql:create policy "part_inquiries_admin_all" on public.part_inquiries for all to authenticated using (public.has_role(auth.uid(), 'admin')) with check (public.has_role(auth.uid(), 'admin'));
+supabase/migrations/0017_preview_marketplace_seed.sql:create policy "preview garage sample readable" on public.garage_vehicles
+supabase/migrations/0017_preview_marketplace_seed.sql:create policy "public approved parts shops" on public.parts_shops
+supabase/migrations/0017_preview_marketplace_seed.sql:create policy "public approved service providers" on public.service_providers
+supabase/migrations/0018_create_ownerships.sql:CREATE POLICY "Users can view their own ownerships" 
+supabase/migrations/0019_create_vehicle_events.sql:CREATE POLICY "Anyone can view vehicle events" 
+supabase/migrations/0020_create_garage_vehicles.sql:CREATE POLICY "Users can view their own garage vehicles"
+supabase/migrations/0020_create_garage_vehicles.sql:CREATE POLICY "Users can insert their own garage vehicles"
+supabase/migrations/0020_create_garage_vehicles.sql:CREATE POLICY "Users can update their own garage vehicles"
+supabase/migrations/0020_create_garage_vehicles.sql:CREATE POLICY "Users can delete their own garage vehicles"
+supabase/migrations/0021_create_service_providers.sql:CREATE POLICY "Public can view approved service providers"
+supabase/migrations/0021_create_service_providers.sql:CREATE POLICY "Admins can manage service providers"

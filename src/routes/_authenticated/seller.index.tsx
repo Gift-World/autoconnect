@@ -33,6 +33,7 @@ import { SellerReadiness } from "@/components/seller/SellerReadiness";
 import { StatusPill } from "@/components/StatusPill";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { AnalyticsChart } from "@/components/seller/AnalyticsChart";
 
 export const Route = createFileRoute("/_authenticated/seller/")({
   component: SellerDashboard,
@@ -266,11 +267,20 @@ function SellerDashboard() {
         eyebrow="Seller workspace"
         title="Run your showroom"
         description="Keep listings, buyer conversations, documents and review readiness in one clear operating view."
-        actions={<Button asChild className="bg-primary hover:bg-primary/90 btn-press">
-          <Link to="/seller/listings/new">
-            <Plus className="mr-2 h-4 w-4" /> New listing
-          </Link>
-        </Button>}
+        actions={
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link to="/seller/listings/import">
+                Bulk Import
+              </Link>
+            </Button>
+            <Button asChild className="bg-primary hover:bg-primary/90 btn-press">
+              <Link to="/seller/listings/new">
+                <Plus className="mr-2 h-4 w-4" /> New listing
+              </Link>
+            </Button>
+          </div>
+        }
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -300,6 +310,8 @@ function SellerDashboard() {
           tone="accent"
         />
       </div>
+
+      {rows && rows.length > 0 && <AnalyticsChart listings={rows} />}
 
       {sellerId && <SellerReadiness sellerId={sellerId} />}
 

@@ -50,8 +50,9 @@ import { PriceDepreciationChart } from "@/components/vehicle/PriceDepreciationCh
 import { SafetyRatings } from "@/components/vehicle/SafetyRatings";
 import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge";
 import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
-import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+import { ChatWithSellerModal } from "@/components/vehicle/ChatWithSellerModal";
+import { FinanceCalculator } from "@/components/vehicle/FinanceCalculator";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
 import { Video } from "lucide-react";
@@ -592,8 +593,8 @@ function CarDetailPage() {
             </div>
           )}
 
-          {/* Payment estimator */}
-          <PaymentEstimator price={Number(car.price)} currency={car.currency} />
+          {/* Finance & Insurance Calculator */}
+          <FinanceCalculator price={Number(car.price)} currency={car.currency} />
 
           {/* Price Trend & Depreciation Forecast Chart */}
           <PriceDepreciationChart
@@ -659,18 +660,20 @@ function CarDetailPage() {
             compact
             className="h-10 px-3 shrink-0 rounded-xl"
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() =>
-              document
-                .getElementById("inquiry-form")
-                ?.scrollIntoView({ behavior: "smooth", block: "start" })
+          <ChatWithSellerModal
+            carId={car.id}
+            sellerId={car.seller_id}
+            carTitle={car.title}
+            customTrigger={
+              <Button
+                type="button"
+                variant="outline"
+                className="shrink-0 rounded-xl h-10 px-3"
+              >
+                <Send className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Live Chat</span>
+              </Button>
             }
-            className="shrink-0 rounded-xl h-10 px-3"
-          >
-            <Send className="sm:mr-2 h-4 w-4" /> <span className="hidden sm:inline">Contact</span>
-          </Button>
+          />
           <Button
             type="button"
             onClick={() => {
@@ -740,104 +743,6 @@ function ShareButton({ title }: { title: string }) {
     <Button type="button" variant="outline" size="sm" onClick={onShare}>
       <Share2 className="mr-2 h-4 w-4" /> Share
     </Button>
-  );
-}
-
-function PaymentEstimator({ price, currency }: { price: number; currency: string }) {
-  const [down, setDown] = useState(Math.round(price * 0.2));
-  const [months, setMonths] = useState(60);
-  const [apr, setApr] = useState(7.5);
-
-  const monthly = useMemo(() => {
-    const principal = Math.max(0, price - down);
-    const r = apr / 100 / 12;
-    if (principal <= 0) return 0;
-    if (r === 0) return principal / months;
-    return (principal * r) / (1 - Math.pow(1 + r, -months));
-  }, [price, down, months, apr]);
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
-      <div className="flex items-center gap-2">
-        <Calculator className="h-5 w-5 text-primary" />
-        <h2 className="text-base font-semibold">Estimate your monthly payment</h2>
-      </div>
-      <p className="mt-1 text-xs text-muted-foreground">
-        Indicative only. Final rates depend on your lender and country.
-      </p>
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
-        <label className="block text-xs">
-          <span className="text-muted-foreground">Down payment</span>
-          <Input
-            type="number"
-            min={0}
-            max={price}
-            value={down}
-            onChange={(e) => setDown(Math.min(price, Math.max(0, Number(e.target.value) || 0)))}
-            className="mt-1"
-          />
-        </label>
-        <label className="block text-xs">
-          <span className="text-muted-foreground">Term (months)</span>
-          <Select value={String(months)} onValueChange={(v) => setMonths(Number(v))}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[24, 36, 48, 60, 72, 84].map((m) => (
-                <SelectItem key={m} value={String(m)}>
-                  {m} months
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </label>
-        <label className="block text-xs">
-          <span className="text-muted-foreground">APR %</span>
-          <Input
-            type="number"
-            step="0.1"
-            min={0}
-            max={40}
-            value={apr}
-            onChange={(e) => setApr(Math.max(0, Math.min(40, Number(e.target.value) || 0)))}
-            className="mt-1"
-          />
-        </label>
-      </div>
-      <div className="mt-5 flex items-end justify-between rounded-lg border border-primary/20 bg-primary/5 p-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Estimated monthly</p>
-          <p className="mt-1 text-3xl font-bold text-primary">
-            {formatPrice(Math.round(monthly), currency)}
-          </p>
-        </div>
-        <p className="text-right text-xs text-muted-foreground">
-          for {months} months
-          <br />
-          at {apr.toFixed(1)}% APR
-        </p>
-      </div>
-      
-      {/* Real Cost of Ownership (TCO) */}
-      <div className="mt-4 pt-4 border-t border-border">
-        <h3 className="text-sm font-semibold mb-2">Real Cost of Ownership (Annual)</h3>
-        <div className="space-y-1.5 text-xs text-muted-foreground">
-          <div className="flex justify-between">
-            <span>Insurance (Est.)</span>
-            <span className="font-medium text-foreground">{formatPrice(price * 0.04, currency)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Maintenance & Fuel</span>
-            <span className="font-medium text-foreground">{formatPrice(price * 0.03, currency)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Depreciation (Yr 1)</span>
-            <span className="font-medium text-foreground">{formatPrice(price * 0.15, currency)}</span>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -1313,6 +1218,16 @@ function BuyBox({ car }: { car: CarDetail }) {
         <Lock className="mr-2 h-4 w-4" /> See payment options{" "}
         {formatPrice(breakdown.total, car.currency)}
       </Button>
+      <ChatWithSellerModal
+        carId={car.id}
+        sellerId={car.seller_id}
+        carTitle={car.title}
+        customTrigger={
+          <Button className="mt-2.5 w-full h-11 rounded-xl gap-2 font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md btn-press">
+            <MessageCircle className="h-4 w-4" /> Chat with Dealer Live
+          </Button>
+        }
+      />
       <WhatsAppConcierge
         car={toConciergeCar(car)}
         compact

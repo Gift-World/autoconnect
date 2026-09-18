@@ -6,42 +6,33 @@ import { Button } from "@/components/ui/button";
 
 type TourStep = { kicker: string; title: string; body: string; to?: string; action?: string };
 
-function stepsFor(pathname: string, role: string): TourStep[] {
-  if (pathname.startsWith("/admin")) return [
-    { kicker: "ADMIN TOUR", title: "Start with the queues", body: "Review listings, documents, provider claims and vehicle evidence before anything becomes public." },
-    { kicker: "ADMIN TOUR", title: "Control the marketplace", body: "Auction review protects timed sales. Transactions and disputes are for recorded decisions, not guesses.", to: "/admin/auctions", action: "Open auction review" },
-    { kicker: "ADMIN TOUR", title: "Leave a trail", body: "Use reasons and notes for approvals, rejections and cancellations. The audit log is your operational memory." },
+function stepsFor(pathname: string, role: string): TourStep[] | null {
+  if (pathname === "/admin") return [
+    { kicker: "ADMIN TOUR", title: "Start with the queues", body: "Click on 'Pending review' in the stats dashboard above to review listings and sellers before anything becomes public." },
+    { kicker: "ADMIN TOUR", title: "Control the marketplace", body: "Click on 'Auctions' in the sidebar. Auction review protects timed sales. Transactions and disputes are for recorded decisions, not guesses.", to: "/admin/auctions", action: "Open auction review" },
+    { kicker: "ADMIN TOUR", title: "Leave a trail", body: "When reviewing an item, use the text areas for reasons and notes. The audit log is your operational memory." },
   ];
-  if (pathname.startsWith("/seller")) return [
-    { kicker: "SELLER TOUR", title: "Your seller control room", body: "Create accurate listings, then follow the review status before promoting anything." },
-    { kicker: "SELLER TOUR", title: "Evidence earns trust", body: "Upload documents and vehicle evidence. It stays private until an administrator verifies it.", to: "/seller/evidence", action: "Open evidence" },
-    { kicker: "SELLER TOUR", title: "Use auctions carefully", body: "A timed auction or flash offer requires an approved vehicle and admin approval before it becomes public.", to: "/seller/auctions", action: "Open auctions" },
+  if (pathname === "/seller") return [
+    { kicker: "SELLER TOUR", title: "Your seller control room", body: "Click 'New Listing' at the top right to create accurate listings, then follow the review status in your dashboard." },
+    { kicker: "SELLER TOUR", title: "Evidence earns trust", body: "Click 'Evidence' in the sidebar. Upload documents and vehicle evidence. It stays private until an administrator verifies it.", to: "/seller/evidence", action: "Open evidence" },
+    { kicker: "SELLER TOUR", title: "Use auctions carefully", body: "Click 'Auctions' in the sidebar. A timed auction or flash offer requires an approved vehicle and admin approval before it becomes public.", to: "/seller/auctions", action: "Open auctions" },
   ];
-  if (pathname.startsWith("/service-bookings") || pathname.startsWith("/services")) return [
-    { kicker: "CARE TOUR", title: "Choose the right kind of help", body: "A garage is a workshop, a mechanic is a specialist, and an inspection provider checks condition independently." },
+  if (pathname === "/service-bookings") return [
+    { kicker: "CARE TOUR", title: "Service Dashboard", body: "Click on a booking in the list to manage requests. A garage is a workshop, a mechanic is a specialist, and an inspection provider checks condition independently." },
     { kicker: "CARE TOUR", title: "Keep work connected", body: "Choose a vehicle from My Garage so the request, quote, receipt and future service history stay together.", to: "/garage", action: "Open My Garage" },
-    { kicker: "CARE TOUR", title: "Follow the real status", body: "A request becomes a quote, then your approval, then completed work and a receipt. Nothing should jump ahead." },
+    { kicker: "CARE TOUR", title: "Follow the real status", body: "Inside a booking, provide a quote. A request becomes a quote, then your approval, then completed work and a receipt. Nothing should jump ahead." },
   ];
-  if (pathname.startsWith("/garage") || pathname.startsWith("/passport")) return [
-    { kicker: "GARAGE TOUR", title: "Your vehicle home", body: "Add the real vehicle first. Mileage, receipts, parts and service records should all attach to it." },
-    { kicker: "GARAGE TOUR", title: "Use reminders", body: "Record mileage and upcoming work. This makes the Garage useful after the day you buy the car." },
-    { kicker: "GARAGE TOUR", title: "Check the passport", body: "Evidence is shown only when it exists. Missing evidence stays marked missing rather than being assumed." },
+  if (pathname === "/garage") return [
+    { kicker: "GARAGE TOUR", title: "Your vehicle home", body: "Click 'Add Vehicle' at the top right first. Mileage, receipts, parts and service records should all attach to it." },
+    { kicker: "GARAGE TOUR", title: "Use reminders", body: "Click on a vehicle card to record mileage and upcoming work. This makes the Garage useful after the day you buy the car." },
+    { kicker: "GARAGE TOUR", title: "Check the passport", body: "Click 'View Passport' on your vehicle. Evidence is shown only when it exists. Missing evidence stays marked missing rather than being assumed." },
   ];
-  if (pathname.startsWith("/auctions")) return [
-    { kicker: "AUCTION TOUR", title: "Read before you bid", body: "Check the deadline, current price and evidence. Other bidders see a masked alias, never your full name." },
-    { kicker: "AUCTION TOUR", title: "Bid with intention", body: "A valid bid is recorded against your account. Winning creates a short reservation, not a payment confirmation." },
-    { kicker: "AUCTION TOUR", title: "Know the next step", body: "The reservation remains payment pending until real provider or bank evidence is verified." },
+  if (pathname === "/account") return [
+    { kicker: "BUYER TOUR", title: "Find the right starting point", body: "Click 'Purchases' in the sidebar to track your orders, or 'Favorites' to review saved vehicles." },
+    { kicker: "BUYER TOUR", title: "Keep decisions connected", body: "Click 'My Garage' in the sidebar to keep ownership records. Compare the total picture before you enquire.", to: "/garage", action: "Open My Garage" },
+    { kicker: "BUYER TOUR", title: "Use status, not promises", body: "Click 'Inquiries' to follow up. A reservation is not payment confirmation. Missing evidence is not a verified claim." },
   ];
-  if (pathname.startsWith("/import") || pathname.startsWith("/import-tracker")) return [
-    { kicker: "IMPORT TOUR", title: "Start with an estimate", body: "Destination costs are estimates until a supplier and carrier confirm the actual order." },
-    { kicker: "IMPORT TOUR", title: "Track what is real", body: "An order tracker shows only milestones, documents and dates attached to your purchase record." },
-    { kicker: "IMPORT TOUR", title: "Ask before assuming", body: "If a carrier or clearing update is not present, the site should say it is missing." },
-  ];
-  return [
-    { kicker: role === "buyer" ? "BUYER TOUR" : "WELCOME TOUR", title: "Find the right starting point", body: "Search real listings, compare the total picture, and look for evidence before you enquire." },
-    { kicker: "BUYER TOUR", title: "Keep decisions connected", body: "Save a vehicle, send an enquiry, arrange viewing, then keep ownership records in My Garage.", to: "/garage", action: "Open My Garage" },
-    { kicker: "BUYER TOUR", title: "Use status, not promises", body: "A reservation is not payment confirmation. Missing evidence is not a verified claim." },
-  ];
+  return null;
 }
 
 export function AppTour() {
@@ -55,9 +46,15 @@ export function AppTour() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
+    if (!steps) {
+      setOpen(false);
+      return;
+    }
     setIndex(0);
     try { setOpen(!sessionStorage.getItem(tourKey)); } catch { setOpen(false); }
-  }, [tourKey]);
+  }, [tourKey, steps]);
+
+  if (!steps) return null;
 
   const close = () => {
     try { sessionStorage.setItem(tourKey, "1"); } catch { /* no storage available */ }

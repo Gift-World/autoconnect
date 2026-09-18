@@ -84,6 +84,7 @@ import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/
 import { Route as PartsShopsSlugRouteImport } from './routes/parts.shops.$slug'
 import { Route as AuthenticatedAdminInspectionsIndexRouteImport } from './routes/_authenticated/admin.inspections.index'
 import { Route as AuthenticatedAdminInspectionsIdRouteImport } from './routes/_authenticated/admin.inspections.$id'
+import { Route as AuthenticatedSellerListingsImportRouteImport } from './routes/_authenticated/seller.listings.import'
 import { Route as AuthenticatedSellerListingsNewRouteImport } from './routes/_authenticated/seller.listings.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -493,6 +494,12 @@ const AuthenticatedAdminInspectionsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedAdminInspectionsRoute,
   } as any)
+const AuthenticatedSellerListingsImportRoute =
+  AuthenticatedSellerListingsImportRouteImport.update({
+    id: '/listings/import',
+    path: '/listings/import',
+    getParentRoute: () => AuthenticatedSellerRoute,
+  } as any)
 const AuthenticatedSellerListingsNewRoute =
   AuthenticatedSellerListingsNewRouteImport.update({
     id: '/listings/new',
@@ -574,6 +581,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
   '/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
+  '/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
   '/admin/inspections/': typeof AuthenticatedAdminInspectionsIndexRoute
 }
@@ -644,6 +652,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
   '/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
+  '/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
   '/admin/inspections': typeof AuthenticatedAdminInspectionsIndexRoute
 }
@@ -723,6 +732,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
   '/_authenticated/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
+  '/_authenticated/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/_authenticated/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
   '/_authenticated/admin/inspections/': typeof AuthenticatedAdminInspectionsIndexRoute
 }
@@ -802,6 +812,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/seller/'
     | '/admin/inspections/$id'
+    | '/seller/listings/import'
     | '/seller/listings/new'
     | '/admin/inspections/'
   fileRoutesByTo: FileRoutesByTo
@@ -872,6 +883,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/seller'
     | '/admin/inspections/$id'
+    | '/seller/listings/import'
     | '/seller/listings/new'
     | '/admin/inspections'
   id:
@@ -950,6 +962,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/seller/'
     | '/_authenticated/admin/inspections/$id'
+    | '/_authenticated/seller/listings/import'
     | '/_authenticated/seller/listings/new'
     | '/_authenticated/admin/inspections/'
   fileRoutesById: FileRoutesById
@@ -1510,6 +1523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminInspectionsIdRouteImport
       parentRoute: typeof AuthenticatedAdminInspectionsRoute
     }
+    '/_authenticated/seller/listings/import': {
+      id: '/_authenticated/seller/listings/import'
+      path: '/listings/import'
+      fullPath: '/seller/listings/import'
+      preLoaderRoute: typeof AuthenticatedSellerListingsImportRouteImport
+      parentRoute: typeof AuthenticatedSellerRoute
+    }
     '/_authenticated/seller/listings/new': {
       id: '/_authenticated/seller/listings/new'
       path: '/listings/new'
@@ -1611,6 +1631,7 @@ interface AuthenticatedSellerRouteChildren {
   AuthenticatedSellerVerifyRoute: typeof AuthenticatedSellerVerifyRoute
   AuthenticatedSellerYardRoute: typeof AuthenticatedSellerYardRoute
   AuthenticatedSellerIndexRoute: typeof AuthenticatedSellerIndexRoute
+  AuthenticatedSellerListingsImportRoute: typeof AuthenticatedSellerListingsImportRoute
   AuthenticatedSellerListingsNewRoute: typeof AuthenticatedSellerListingsNewRoute
 }
 
@@ -1626,6 +1647,8 @@ const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
   AuthenticatedSellerVerifyRoute: AuthenticatedSellerVerifyRoute,
   AuthenticatedSellerYardRoute: AuthenticatedSellerYardRoute,
   AuthenticatedSellerIndexRoute: AuthenticatedSellerIndexRoute,
+  AuthenticatedSellerListingsImportRoute:
+    AuthenticatedSellerListingsImportRoute,
   AuthenticatedSellerListingsNewRoute: AuthenticatedSellerListingsNewRoute,
 }
 

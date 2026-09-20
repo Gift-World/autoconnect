@@ -59,12 +59,7 @@ export const PHOTO_LABELS: Record<PhotoKind, string> = {
 
 export type RequiredDocKind = "logbook" | "seller_id" | "insurance" | "inspection";
 
-export const REQUIRED_DOC_KINDS: RequiredDocKind[] = [
-  "logbook",
-  "seller_id",
-  "insurance",
-  "inspection",
-];
+export const REQUIRED_DOC_KINDS: RequiredDocKind[] = [];
 
 export const DOC_LABELS: Record<string, string> = {
   logbook: "Logbook",

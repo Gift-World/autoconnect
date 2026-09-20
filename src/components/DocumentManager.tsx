@@ -36,13 +36,13 @@ export type DocKind =
   | "other";
 
 const KIND_LABEL: Record<DocKind, string> = {
-  logbook: "Logbook (required)",
-  seller_id: "Seller ID (required)",
-  insurance: "Insurance certificate (required)",
-  inspection: "Inspection certificate (required)",
+  logbook: "Logbook (Copy)",
+  seller_id: "National ID / Passport",
+  insurance: "Insurance certificate",
+  inspection: "Inspection certificate",
   title: "Title / Ownership",
-  registration: "Registration",
-  export_cert: "Export certificate",
+  registration: "KRA PIN Certificate",
+  export_cert: "Sale Agreement",
   customs: "Customs / Duty",
   other: "Other",
 };

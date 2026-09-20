@@ -27,6 +27,15 @@ import {
   Sparkles,
   Car,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DocumentManager } from "@/components/DocumentManager";
+import { useAuth } from "@/contexts/AuthContext";
 
 type State = "checked" | "pending" | "more_info" | "not_started";
 
@@ -93,6 +102,8 @@ const SECTION_LABEL: Record<string, string> = {
 };
 
 export function VehiclePassport({ carId }: { carId: string }) {
+  const { user } = useAuth();
+  const [showDocs, setShowDocs] = useState(false);
   const [explain, setExplain] = useState<
     | { headline: string; what_is_checked: string[]; what_to_watch: string[]; next_step: string }
     | "loading"
@@ -142,9 +153,31 @@ export function VehiclePassport({ carId }: { carId: string }) {
           remain unconfirmed until supporting evidence is reviewed.
         </p>
       </div>
-      <Button className="bg-amber-600 text-white hover:bg-amber-700" size="sm">
+      <Button 
+        className="bg-amber-600 text-white hover:bg-amber-700" 
+        size="sm"
+        onClick={() => setShowDocs(true)}
+      >
         Start ownership review
       </Button>
+
+      <Dialog open={showDocs} onOpenChange={setShowDocs}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Vehicle Documents & Ownership</DialogTitle>
+            <DialogDescription>
+              Upload documents securely to verify this vehicle's ownership and history.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4">
+            {user?.id ? (
+              <DocumentManager carId={carId} sellerId={user.id} />
+            ) : (
+              <p className="text-sm text-muted-foreground">Please sign in to upload documents.</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   ) : null;
 

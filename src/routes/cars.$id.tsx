@@ -34,6 +34,7 @@ import {
   RotateCcw,
   Sparkles,
   Wrench,
+  MessageCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +55,7 @@ import { AutoConnectScoreBadge } from "@/components/trust/AutoConnectScoreBadge"
 import { VideoVerificationModal } from "@/components/trust/VideoVerificationModal";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
 import { ChatWithSellerModal } from "@/components/vehicle/ChatWithSellerModal";
+import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { FinanceCalculator } from "@/components/vehicle/FinanceCalculator";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
@@ -617,8 +619,8 @@ function CarDetailPage() {
           <VehicleHistoryReport 
             carId={car.id} 
             country={car.country}
-            vin={car.vin}
-            regNumber={car.registration_number}
+            vin={car.vin || undefined}
+            regNumber={car.registration_number || undefined}
           />
           <InspectionSummary carId={car.id} />
           <BuyerNextSteps />

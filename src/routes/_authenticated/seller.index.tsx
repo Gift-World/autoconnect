@@ -410,7 +410,7 @@ function SellerDashboard() {
                             <div className="text-xs text-muted-foreground">
                               {r.year}
                               {r.featured && " · Featured"}
-                              {r.is_premium && " · Premium ⚡"}
+                              {r.featured && " · Premium ⚡"}
                               {r.available_for_export && " · Export"}
                             </div>
                           </div>
@@ -436,12 +436,12 @@ function SellerDashboard() {
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
-                          {!r.is_premium && (
+                          {!r.featured && (
                             <Button 
                               size="icon" 
                               variant="ghost" 
                               title="Boost Listing ($19.99)" 
-                              className="text-amber-500 hover:text-amber-600 hover:bg-amber-50"
+                              className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
                               onClick={() => handleBoostListing(r.id)}
                             >
                               <Zap className="h-4 w-4" />

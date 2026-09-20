@@ -6,13 +6,17 @@ export const Route = createFileRoute("/api/public/parts")({
       GET: async ({ request }) => {
         const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
         const shop = new URL(request.url).searchParams.get("shop");
-        let query = supabasePublicServer
-          .from("parts")
-          .select(
-            shop
-              ? "id,title,brand,part_number,category,condition,description,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,return_policy,image_url,is_sample,parts_shops!inner(name,slug,is_verified,country,city,shipping_regions,return_policy)"
-              : "id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,image_url,is_sample,parts_shops(name,slug,is_verified,country)",
-          )
+        let query;
+        if (shop) {
+          query = supabasePublicServer
+            .from("parts")
+            .select("id,title,brand,part_number,category,condition,description,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,return_policy,image_url,is_sample,parts_shops!inner(name,slug,is_verified,country,city,shipping_regions,return_policy)");
+        } else {
+          query = supabasePublicServer
+            .from("parts")
+            .select("id,title,brand,part_number,category,condition,price,currency,country,city,stock_quantity,shipping_regions,warranty_text,image_url,is_sample,parts_shops(name,slug,is_verified,country)");
+        }
+        query = query
           .eq("status", "published")
           .order("created_at", { ascending: false });
         if (shop) query = query.eq("parts_shops.slug", shop);

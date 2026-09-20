@@ -71,10 +71,13 @@ export function Navbar() {
       <div className="mx-auto flex h-16 sm:h-18 max-w-[1280px] items-center justify-between px-4 sm:px-6">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <span className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-white shadow-md border border-white/10 group-hover:border-teal-500/40 transition-colors">
-            <Globe className="h-4 w-4 text-teal-400 opacity-60 group-hover:rotate-45 transition-transform duration-500" />
-            <Car className="absolute h-3.5 w-3.5 text-white translate-y-[1px]" />
-          </span>
+          <div className="relative grid h-10 w-10 overflow-hidden rounded-xl bg-white shadow-md border border-border group-hover:border-teal-500/40 transition-colors">
+            <img 
+              src="/logo-mark.jpg" 
+              alt="AutoConnect Logo Mark" 
+              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" 
+            />
+          </div>
           <div className="flex flex-col">
             <span className="font-display text-lg sm:text-xl text-foreground font-extrabold tracking-tight">
               Auto<span className="text-teal-500">Connect</span>

@@ -220,19 +220,20 @@ function SellerTransactions() {
               <th className="px-4 py-3 text-left">You receive</th>
               <th className="px-4 py-3 text-left">Status</th>
               <th className="px-4 py-3 text-left">Paid</th>
+              <th className="px-4 py-3 text-right">Invoice</th>
               <th className="px-4 py-3 text-right">Handover</th>
             </tr>
           </thead>
           <tbody>
             {rows === null ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">
                   Loading…
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
+                <td colSpan={9} className="p-8 text-center text-muted-foreground">
                   No transactions yet.
                 </td>
               </tr>
@@ -259,6 +260,11 @@ function SellerTransactions() {
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground">
                     {r.paid_at ? new Date(r.paid_at).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Link to="/transactions/$id/invoice" params={{ id: r.id }} className="text-primary hover:underline text-xs">
+                      View
+                    </Link>
                   </td>
                   <td className="px-4 py-3 text-right">
                     {r.status === "payment_received" ? (

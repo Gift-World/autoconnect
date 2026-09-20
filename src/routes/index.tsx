@@ -7,6 +7,8 @@ import { CinematicImport } from "@/components/home/CinematicImport";
 import { FinalCinematicCTA } from "@/components/home/FinalCinematicCTA";
 import { LiveMarketplace } from "@/components/home/LiveMarketplace";
 
+import { SellYourCarCTA } from "@/components/home/SellYourCarCTA";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -33,13 +35,14 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <main className="min-h-screen bg-background text-foreground selection:bg-teal-500 selection:text-slate-950">
+    <main className="min-h-screen bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-950 dark:bg-slate-950 dark:text-slate-50 dark:selection:bg-slate-800 dark:selection:text-white font-sans">
       <CinematicHero />
-      <EcosystemLoop />
-      <FeaturedShowroom />
       <LiveMarketplace />
+      <FeaturedShowroom />
       <TrustPipeline />
+      <EcosystemLoop />
       <CinematicImport />
+      <SellYourCarCTA />
       <FinalCinematicCTA />
     </main>
   );

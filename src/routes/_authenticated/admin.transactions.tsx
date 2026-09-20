@@ -274,7 +274,10 @@ function AdminTransactions() {
                     )}
                   </td>
                   <td className="px-3 py-3 text-right">
-                    <div className="flex justify-end gap-1">
+                    <div className="flex flex-wrap justify-end gap-1">
+                      <Button size="sm" variant="secondary" asChild>
+                        <Link to="/transactions/$id/invoice" params={{ id: r.id }}>Invoice</Link>
+                      </Button>
                       {r.status === "awaiting_manual_payment" && (
                         <Button size="sm" onClick={() => setConfirmOpen(r)}>
                           Confirm payment

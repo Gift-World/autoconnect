@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 export const Route = createFileRoute("/api/public/stripe-checkout-premium")({
-  POST: async ({ request }) => {
+  server: {
+    handlers: {
+      POST: async ({ request }) => {
     try {
       const body = await request.json();
       const parsed = z.object({
@@ -41,8 +43,10 @@ export const Route = createFileRoute("/api/public/stripe-checkout-premium")({
       return new Response(JSON.stringify({ url: session.url }), {
         headers: { "Content-Type": "application/json" },
       });
-    } catch (err: any) {
-      return new Response(JSON.stringify({ error: err.message }), { status: 400 });
-    }
+      } catch (err: any) {
+        return new Response(JSON.stringify({ error: err.message }), { status: 400 });
+      }
+    },
   },
+}
 });

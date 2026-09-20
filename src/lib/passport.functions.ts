@@ -119,7 +119,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
         model: (car as any).model_name ?? null,
         year: (car as any).year ?? null,
       },
-      verificationLevel: car.verification_level ?? 0,
+      verificationLevel: car?.verification_level ?? 0,
       seller: {
         name: seller?.business_name ?? null,
         verified: !!seller?.verification_badge,
@@ -131,7 +131,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
         memberSince: seller?.created_at ?? null,
       },
       documents: {
-        verified: !!car.documents_verified,
+        verified: !!car?.documents_verified,
         status: cv?.status ?? null,
         verifiedAt: cv?.documents_verified_at ?? null,
         verifiedBy: cv?.documents_verified_by
@@ -139,7 +139,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
           : null,
       },
       ntsa: {
-        verified: !!car.ntsa_verified,
+        verified: !!car?.ntsa_verified,
         status: cv?.status ?? null,
         verifiedAt: cv?.ntsa_verified_at ?? null,
         verifiedBy: cv?.ntsa_verified_by
@@ -163,7 +163,7 @@ export const getVehiclePassport = createServerFn({ method: "GET" })
       },
       inspection: approved
         ? {
-            done: !!car.inspection_verified,
+            done: !!car?.inspection_verified,
             verdict: insp?.mechanic_verdict ?? null,
             score: insp?.overall_condition_score ?? null,
             summary: insp?.buyer_summary ?? null,

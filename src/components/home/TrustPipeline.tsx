@@ -1,130 +1,60 @@
-import { useState } from "react";
-import {
-  FileCheck,
-  ShieldCheck,
-  History,
-  Wrench,
-  Lock,
-  Handshake,
-  CheckCircle2,
-} from "lucide-react";
-
-const VERIFICATION_STEPS = [
-  {
-    step: "01",
-    icon: FileCheck,
-    title: "Vehicle evidence review",
-    desc: "Seller documents and vehicle evidence can be submitted for review. Only reviewed evidence is marked as verified.",
-    tag: "Evidence shown per listing",
-  },
-  {
-    step: "02",
-    icon: ShieldCheck,
-    title: "Seller & document review",
-    desc: "Seller identity and documents are shown as reviewed only when AutoConnect has recorded a completed review.",
-    tag: "Review status visible",
-  },
-  {
-    step: "03",
-    icon: History,
-    title: "History evidence",
-    desc: "Mileage, inspection and history claims require a supporting report. Missing evidence is shown as missing, not assumed.",
-    tag: "No unsupported claims",
-  },
-  {
-    step: "04",
-    icon: Wrench,
-    title: "Inspection evidence",
-    desc: "Inspection results appear only when a provider or reviewer attaches an actual report to the vehicle.",
-    tag: "Report required",
-  },
-  {
-    step: "05",
-    icon: Lock,
-    title: "Verified payment status",
-    desc: "A reservation does not mean payment is complete. Payment status changes only after provider or bank evidence is verified.",
-    tag: "Evidence before release",
-  },
-  {
-    step: "06",
-    icon: Handshake,
-    title: "Documented handover",
-    desc: "The buyer, seller and AutoConnect record the handover steps. Any future payout automation depends on a contracted payment partner.",
-    tag: "Handover recorded",
-  },
-];
+import { Check } from "lucide-react";
 
 export function TrustPipeline() {
-  const [activeStep, setActiveStep] = useState(0);
-
   return (
-    <section className="bg-background py-20 lg:py-28 border-t border-border/80">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-teal-600 dark:text-teal-400">
-            <ShieldCheck className="h-4 w-4" /> Comprehensive Trust Infrastructure
-          </div>
-
-          <h2 className="font-display mt-4 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Every vehicle has a story.
-            <br />
-            <span className="text-teal-600 dark:text-teal-400">We help you verify it.</span>
+    <section className="bg-white dark:bg-slate-950 py-24 sm:py-32 border-t border-slate-100 dark:border-slate-900">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-light tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            Buy with evidence.
           </h2>
-
-          <p className="mt-4 text-base sm:text-lg text-muted-foreground leading-relaxed">
-            AutoConnect is built to show evidence, transaction status and the next accountable step.
-            We do not present unreviewed claims as verified facts.
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
+            Know what you're buying before you pay.
           </p>
         </div>
 
-        {/* 6-Stage Process Grid */}
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {VERIFICATION_STEPS.map((s, idx) => {
-            const Icon = s.icon;
-            const isHovered = activeStep === idx;
+        <div className="mt-16 flex justify-center">
+          <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl p-8 sm:p-10">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-green-50 dark:bg-green-500/10 px-3 py-1 mb-6">
+              <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <span className="text-xs font-bold uppercase tracking-wider text-green-700 dark:text-green-400">
+                Verified
+              </span>
+            </div>
 
-            return (
-              <div
-                key={s.step}
-                onMouseEnter={() => setActiveStep(idx)}
-                onClick={() => setActiveStep(idx)}
-                className={`relative flex flex-col justify-between rounded-3xl border p-7 transition-all duration-300 ${
-                  isHovered
-                    ? "border-teal-500/50 bg-card shadow-xl -translate-y-1"
-                    : "border-border/80 bg-secondary/30 hover:border-border"
-                }`}
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="grid h-12 w-12 place-items-center rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
-                      <Icon className="h-6 w-6" />
-                    </span>
-                    <span className="font-display text-2xl font-black text-muted-foreground/40">
-                      {s.step}
-                    </span>
-                  </div>
+            <h3 className="text-2xl font-medium text-slate-900 dark:text-slate-100 mb-8">
+              Toyota Harrier 2021
+            </h3>
 
-                  <h3 className="font-display mt-6 text-lg font-bold tracking-tight text-foreground">
-                    {s.title}
-                  </h3>
-
-                  <p className="mt-2.5 text-xs sm:text-sm leading-relaxed text-muted-foreground">
-                    {s.desc}
-                  </p>
+            <div className="space-y-4">
+              {[
+                "Inspection",
+                "Seller identity",
+                "Mileage",
+                "Vehicle history",
+                "Documents"
+              ].map((item) => (
+                <div key={item} className="flex items-center justify-between py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
+                  <span className="text-slate-600 dark:text-slate-400">{item}</span>
+                  <Check className="h-5 w-5 text-slate-900 dark:text-slate-100" />
                 </div>
+              ))}
+            </div>
 
-                <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-teal-600 dark:text-teal-400">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> {s.tag}
-                  </span>
-                  <span className="text-[11px] text-muted-foreground font-medium">
-                    Stage {s.step}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+            <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                42-point inspection completed
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto max-w-3xl mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-center text-sm font-medium text-slate-500">
+          <span>Seller verified</span>
+          <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
+          <span>Vehicle inspected</span>
+          <span className="hidden sm:inline text-slate-300 dark:text-slate-700">•</span>
+          <span>Documents reviewed</span>
         </div>
       </div>
     </section>

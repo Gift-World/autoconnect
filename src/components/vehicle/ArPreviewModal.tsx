@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -9,24 +10,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "model-viewer": React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
-          src?: string;
-          ar?: boolean;
-          "ar-modes"?: string;
-          "camera-controls"?: boolean;
-          "auto-rotate"?: boolean;
-          "shadow-intensity"?: string;
-          "environment-image"?: string;
-        },
-        HTMLElement
-      >;
-    }
-  }
-}
+
 
 interface ArPreviewModalProps {
   open: boolean;

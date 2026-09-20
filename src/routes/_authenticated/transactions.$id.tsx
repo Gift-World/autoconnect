@@ -222,12 +222,20 @@ function TransactionDetail() {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/account"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ChevronLeft className="h-4 w-4" /> Back to account
-      </Link>
+      <div className="flex items-center justify-between">
+        <Link
+          to="/account"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="h-4 w-4" /> Back to account
+        </Link>
+        
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/transactions/$id/invoice" params={{ id: tx.id }}>
+            View Invoice
+          </Link>
+        </Button>
+      </div>
 
       <EscrowMilestoneTracker
         currentStatus={

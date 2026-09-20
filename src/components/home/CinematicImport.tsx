@@ -1,262 +1,139 @@
-import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Globe,
-  Plane,
-  Ship,
-  ArrowRight,
-  ShieldCheck,
-  Sparkles,
-  Calculator,
-  CheckCircle2,
-  Clock,
-  Banknote,
-  TrendingDown,
-} from "lucide-react";
+import { ArrowRight, Plane, Ship } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-interface ImportCorridor {
-  id: string;
-  source: { country: string; flag: string; port: string };
-  dest: { country: string; flag: string; port: string };
-  popularModels: string;
-  shippingTime: string;
-  savings: string;
-  dutyStatus: string;
-  inspection: string;
-}
-
-const CORRIDORS: ImportCorridor[] = [
-  {
-    id: "jp-ke",
-    source: { country: "Japan", flag: "🇯🇵", port: "Yokohama / Kobe Port" },
-    dest: { country: "Kenya", flag: "🇰🇪", port: "Mombasa Port" },
-    popularModels: "Toyota Land Cruiser, Harrier, Prado, Subaru Outback",
-    shippingTime: "21–28 Days RoRo Freight",
-    savings: "Save 20–28% vs local showroom retail",
-    dutyStatus: "Full CRSP Duty & Customs Clearance Processing",
-    inspection: "Pre-Export Mileage & Condition Certification",
-  },
-  {
-    id: "uk-ke",
-    source: { country: "United Kingdom", flag: "🇬🇧", port: "Southampton Port" },
-    dest: { country: "Kenya", flag: "🇰🇪", port: "Mombasa Port" },
-    popularModels: "Range Rover Sport, Defender, BMW X5, Mercedes GLE",
-    shippingTime: "28–35 Days Containerized",
-    savings: "Save 18–25% on British Luxury Specifications",
-    dutyStatus: "UK Export Processing & Customs Clearances",
-    inspection: "Independent 150-Point Multi-Check & History Audit",
-  },
-  {
-    id: "ae-ke",
-    source: { country: "UAE (Dubai)", flag: "🇦🇪", port: "Jebel Ali Port" },
-    dest: { country: "Kenya", flag: "🇰🇪", port: "Mombasa Port" },
-    popularModels: "Lexus LX600, Nissan Patrol V8, Toyota LC300 GR-Sport",
-    shippingTime: "14–21 Days Express Sea Freight",
-    savings: "Direct Access to GCC Desert & Heavy-Duty Specs",
-    dutyStatus: "Direct Port-to-Port Documentation & Clearances",
-    inspection: "GCC Technical Appraisal & Verification Report",
-  },
-  {
-    id: "de-ke",
-    source: { country: "Germany", flag: "🇩🇪", port: "Hamburg Port" },
-    dest: { country: "Kenya", flag: "🇰🇪", port: "Mombasa Port" },
-    popularModels: "Porsche Cayenne, Audi Q7, BMW M-Performance",
-    shippingTime: "30–35 Days Maritime Transit",
-    savings: "Save on High-End European Executive Lineup",
-    dutyStatus: "EU Certificate of Conformity & Customs Processing",
-    inspection: "Comprehensive Technical Roadworthiness Report",
-  },
-];
 
 export function CinematicImport() {
-  const [activeCorridorId, setActiveCorridorId] = useState("jp-ke");
-  const activeCorridor = CORRIDORS.find((c) => c.id === activeCorridorId) || CORRIDORS[0];
-
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-teal-50/60 py-20 lg:py-28 text-slate-900">
-      {/* Subtle world grid and ambient glow */}
-      <div className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(#14b8a6_1px,transparent_1px)] [background-size:24px_24px]" />
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-teal-300/20 blur-[140px]" />
+    <>
+      <section className="bg-slate-900 text-slate-50 py-24 sm:py-32 overflow-hidden">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Left side */}
+            <div>
+              <h2 className="text-4xl font-light tracking-tight sm:text-6xl text-white mb-6">
+                Import without the uncertainty.
+              </h2>
+              <p className="text-lg text-slate-400 mb-10 max-w-lg">
+                Source directly from Japan and understand the complete landed cost before committing.
+              </p>
+              <Button asChild className="rounded-full bg-white text-slate-900 hover:bg-slate-200 px-8 py-6 text-sm font-semibold transition-all">
+                <Link to="/import">
+                  Explore Japan <ArrowRight className="mx-2 h-4 w-4" /> Kenya
+                </Link>
+              </Button>
+            </div>
 
-      <div className="relative mx-auto max-w-[1280px] px-4 sm:px-6">
-        {/* Section Header */}
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white/80 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-teal-700 shadow-sm backdrop-blur-md">
-            <Globe className="h-3.5 w-3.5 text-teal-600" />
-            Global Sourcing Infrastructure
-          </div>
-
-          <h2 className="font-display mt-4 text-3xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl leading-tight">
-            Your next car could be{" "}
-            <span className="bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 bg-clip-text text-transparent">
-              thousands of kilometres away.
-            </span>
-          </h2>
-
-          <p className="mt-4 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Direct international vehicle procurement without middleman markups. From Japanese
-            auction houses to UK luxury dealer networks — delivered to your doorstep with full
-            escrow protection.
-          </p>
-        </div>
-
-        {/* Corridor Switcher Tabs */}
-        <div className="mt-12 flex flex-wrap justify-center gap-2">
-          {CORRIDORS.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setActiveCorridorId(c.id)}
-              className={`flex items-center gap-2.5 rounded-2xl px-5 py-3 text-xs sm:text-sm font-bold transition-all duration-200 ${
-                activeCorridorId === c.id
-                  ? "bg-teal-500 text-slate-950 shadow-lg shadow-teal-500/20 scale-105"
-                  : "border border-slate-200 bg-white/85 text-slate-600 shadow-sm hover:border-teal-300 hover:bg-teal-50"
-              }`}
-            >
-              <span>{c.source.flag}</span>
-              <span>{c.source.country}</span>
-              <ArrowRight className="h-3.5 w-3.5 opacity-60" />
-              <span>{c.dest.flag}</span>
-              <span>{c.dest.country}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Interactive Corridor Display Panel */}
-        <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-6 sm:p-10 shadow-[0_24px_70px_-30px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
-            {/* Left: Corridor Route Visual */}
-            <div className="lg:col-span-7 space-y-6">
-              {/* Route Endpoints */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50/90 p-5">
-                {/* Origin */}
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl sm:text-4xl">{activeCorridor.source.flag}</span>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
-                      Origin Port
-                    </span>
-                    <h4 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                      {activeCorridor.source.country}
-                    </h4>
-                    <p className="text-xs text-slate-500">{activeCorridor.source.port}</p>
-                  </div>
-                </div>
-
-                {/* Freight Indicator */}
-                <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl bg-teal-500/10 border border-teal-500/20">
-                  <Ship className="h-5 w-5 text-teal-600 animate-pulse" />
-                  <span className="mt-1 text-[11px] font-bold text-teal-700">
-                    {activeCorridor.shippingTime}
-                  </span>
-                </div>
-
-                {/* Destination */}
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl sm:text-4xl">{activeCorridor.dest.flag}</span>
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-teal-600">
-                      Destination
-                    </span>
-                    <h4 className="font-display text-base sm:text-lg font-bold text-slate-900">
-                      {activeCorridor.dest.country}
-                    </h4>
-                    <p className="text-xs text-slate-500">{activeCorridor.dest.port}</p>
+            {/* Right side */}
+            <div className="relative">
+              <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-8 relative">
+                <img
+                  src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=2070&auto=format&fit=crop"
+                  alt="Vehicles being loaded onto a RoRo ship in Japan"
+                  className="h-full w-full object-cover opacity-80"
+                />
+                
+                {/* Overlay route graphic */}
+                <div className="absolute inset-0 flex flex-col justify-end p-8 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent">
+                  <div className="flex items-center justify-between text-xs font-bold tracking-widest uppercase text-white">
+                    <span>Japan</span>
+                    <div className="flex-1 border-b border-dashed border-slate-400 mx-4 relative">
+                      <Ship className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-4 text-slate-300 bg-slate-900 rounded-full" />
+                    </div>
+                    <span>Mombasa</span>
+                    <div className="flex-1 border-b border-dashed border-slate-400 mx-4" />
+                    <span>Your Door</span>
                   </div>
                 </div>
               </div>
 
-              {/* Benefits Checklist */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <TrendingDown className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">Direct Sourcing Value</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{activeCorridor.savings}</p>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div>
+                  <p className="text-xl font-medium text-white">21–28 days</p>
+                  <p className="mt-1 text-xs text-slate-400">Typical RoRo transit</p>
                 </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <ShieldCheck className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">Pre-Export Certification</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{activeCorridor.inspection}</p>
-                  </div>
+                <div>
+                  <p className="text-xl font-medium text-white">KRA + CRSP</p>
+                  <p className="mt-1 text-xs text-slate-400">Duty calculation</p>
                 </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <Banknote className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">Customs & Duty Protocol</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{activeCorridor.dutyStatus}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <CheckCircle2 className="h-5 w-5 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">Top Sourced Makes</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{activeCorridor.popularModels}</p>
-                  </div>
+                <div>
+                  <p className="text-xl font-medium text-white">Full landed cost</p>
+                  <p className="mt-1 text-xs text-slate-400">Before commitment</p>
                 </div>
               </div>
             </div>
 
-            {/* Right: Import Cost Calculator Card */}
-            <div className="lg:col-span-5 rounded-2xl border border-teal-200 bg-gradient-to-br from-teal-50 via-white to-cyan-50 p-6 sm:p-8 flex flex-col justify-between shadow-sm">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-teal-700">
-                    Live Duty & Landed Cost Engine
-                  </span>
-                  <Calculator className="h-5 w-5 text-teal-600" />
-                </div>
-
-                <h3 className="font-display mt-3 text-xl font-bold text-slate-900">
-                  Calculate Total Landed Cost in Under 60 Seconds
-                </h3>
-
-                <p className="mt-2 text-xs text-slate-600 leading-relaxed">
-                  Know exact KRA duties, shipping freight, port handling charges, and inspection
-                  fees before committing a single shilling.
-                </p>
-
-                {/* Estimated sample pill */}
-                <div className="mt-6 rounded-xl bg-white/80 border border-teal-100 p-3.5 space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500">Estimated CIF Value:</span>
-                    <span className="font-bold text-slate-900">From $12,500</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500">KRA Import Duty + VAT:</span>
-                    <span className="font-bold text-slate-900">Calculated by Engine</span>
-                  </div>
-                  <div className="flex justify-between text-xs border-t border-teal-500/20 pt-2">
-                    <span className="text-teal-700 font-semibold">Buyer Protection:</span>
-                    <span className="font-bold text-teal-700">100% Escrow Backed</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 space-y-3">
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full h-12 rounded-xl bg-teal-500 font-bold text-slate-950 hover:bg-teal-400 shadow-md shadow-teal-500/20"
-                >
-                  <Link to="/import">
-                    Calculate Import Cost <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-                <p className="text-center text-[11px] text-slate-500">
-                  Zero commitment. Get verified quote matches from vetted exporters.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Calculator Section */}
+      <section className="bg-slate-50 dark:bg-slate-950 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            
+            {/* Calculator Left side */}
+            <div className="order-2 lg:order-1">
+              <h2 className="text-xs font-bold tracking-widest text-slate-500 uppercase mb-4">
+                Know your number before you buy
+              </h2>
+              <h3 className="text-3xl font-light tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl mb-10">
+                Estimate your complete import cost.
+              </h3>
+              
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm max-w-md">
+                <div className="space-y-4">
+                  <div className="flex justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">Vehicle price</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100">$18,500</span>
+                  </div>
+                  <div className="flex justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">Shipping</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100">$1,200</span>
+                  </div>
+                  <div className="flex justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">Import duty</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100 text-slate-400 italic">Calculated</span>
+                  </div>
+                  <div className="flex justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">VAT</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100 text-slate-400 italic">Calculated</span>
+                  </div>
+                  <div className="flex justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                    <span className="text-slate-600 dark:text-slate-400">Port & clearance</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100 text-slate-400 italic">Calculated</span>
+                  </div>
+                  
+                  <div className="flex justify-between pt-4">
+                    <span className="text-lg font-medium text-slate-900 dark:text-slate-100">Estimated landed cost</span>
+                    <span className="text-xl font-bold text-slate-900 dark:text-slate-100">KSh 4,180,000</span>
+                  </div>
+                </div>
+
+                <div className="mt-8">
+                  <Button asChild className="w-full rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 py-6 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-200">
+                    <Link to="/import/calculator">
+                      Calculate my cost <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Calculator Right side */}
+            <div className="order-1 lg:order-2">
+              <div className="aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden relative shadow-xl">
+                <img
+                  src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?q=80&w=2070&auto=format&fit=crop"
+                  alt="Beautiful imported SUV"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

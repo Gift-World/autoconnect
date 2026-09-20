@@ -1,59 +1,57 @@
-import { ArrowRight, Search, ShieldCheck, CreditCard, Car, Wrench } from "lucide-react";
-
 export function EcosystemLoop() {
-  const steps = [
-    {
-      icon: <Search className="h-6 w-6 text-teal-600" />,
-      title: "Discover",
-      desc: "Find certified local and Japanese import inventory.",
-    },
-    {
-      icon: <ShieldCheck className="h-6 w-6 text-teal-600" />,
-      title: "Verify",
-      desc: "Every vehicle is backed by a 42-point inspection passport.",
-    },
-    {
-      icon: <CreditCard className="h-6 w-6 text-teal-600" />,
-      title: "Buy",
-      desc: "Secure escrow payments release funds only upon handover.",
-    },
-    {
-      icon: <Car className="h-6 w-6 text-teal-600" />,
-      title: "Own",
-      desc: "Manage your vehicle documents and history in one place.",
-    },
-    {
-      icon: <Wrench className="h-6 w-6 text-teal-600" />,
-      title: "Service",
-      desc: "Book maintenance and order parts straight from your garage.",
-    },
-  ];
-
   return (
-    <section className="bg-white py-16 sm:py-24 border-b border-slate-100">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-            The Complete Automotive Ecosystem
+    <section className="bg-slate-50 dark:bg-slate-900/50 py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-light tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            From search to keys.
           </h2>
-          <p className="mt-4 text-lg text-slate-600">
-            AutoConnect isn't just a marketplace. It's the operating system for your entire vehicle journey.
-          </p>
         </div>
 
-        <div className="relative">
-          <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8 relative z-10">
-            {steps.map((step, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center bg-white p-4 rounded-2xl">
-                <div className="h-16 w-16 bg-teal-50 rounded-full flex items-center justify-center mb-4 ring-8 ring-white shadow-sm border border-teal-100">
-                  {step.icon}
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-slate-500">{step.desc}</p>
-              </div>
-            ))}
-          </div>
+        <div className="mx-auto mt-20 max-w-5xl">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-12 gap-y-16 lg:max-w-none lg:grid-cols-4">
+            
+            <div className="flex flex-col border-t border-slate-200 dark:border-slate-800 pt-8">
+              <dt className="text-xl font-medium text-slate-900 dark:text-slate-100">
+                <span className="block text-4xl font-light text-slate-300 dark:text-slate-700 mb-4">01</span>
+                Find
+              </dt>
+              <dd className="mt-2 flex flex-auto flex-col text-base leading-7 text-slate-600 dark:text-slate-400">
+                <p className="flex-auto">Browse verified vehicles.</p>
+              </dd>
+            </div>
+            
+            <div className="flex flex-col border-t border-slate-200 dark:border-slate-800 pt-8">
+              <dt className="text-xl font-medium text-slate-900 dark:text-slate-100">
+                <span className="block text-4xl font-light text-slate-300 dark:text-slate-700 mb-4">02</span>
+                Verify
+              </dt>
+              <dd className="mt-2 flex flex-auto flex-col text-base leading-7 text-slate-600 dark:text-slate-400">
+                <p className="flex-auto">Review inspection, seller and vehicle evidence.</p>
+              </dd>
+            </div>
+            
+            <div className="flex flex-col border-t border-slate-200 dark:border-slate-800 pt-8">
+              <dt className="text-xl font-medium text-slate-900 dark:text-slate-100">
+                <span className="block text-4xl font-light text-slate-300 dark:text-slate-700 mb-4">03</span>
+                Reserve
+              </dt>
+              <dd className="mt-2 flex flex-auto flex-col text-base leading-7 text-slate-600 dark:text-slate-400">
+                <p className="flex-auto">Secure your vehicle through the protected payment workflow.</p>
+              </dd>
+            </div>
+            
+            <div className="flex flex-col border-t border-slate-200 dark:border-slate-800 pt-8">
+              <dt className="text-xl font-medium text-slate-900 dark:text-slate-100">
+                <span className="block text-4xl font-light text-slate-300 dark:text-slate-700 mb-4">04</span>
+                Drive
+              </dt>
+              <dd className="mt-2 flex flex-auto flex-col text-base leading-7 text-slate-600 dark:text-slate-400">
+                <p className="flex-auto">Complete handover and receive your vehicle record.</p>
+              </dd>
+            </div>
+
+          </dl>
         </div>
       </div>
     </section>

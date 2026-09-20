@@ -88,6 +88,7 @@ import { Route as AuthenticatedAdminInspectionsIndexRouteImport } from './routes
 import { Route as AuthenticatedAdminInspectionsIdRouteImport } from './routes/_authenticated/admin.inspections.$id'
 import { Route as AuthenticatedSellerListingsImportRouteImport } from './routes/_authenticated/seller.listings.import'
 import { Route as AuthenticatedSellerListingsNewRouteImport } from './routes/_authenticated/seller.listings.new'
+import { Route as AuthenticatedTransactionsIdInvoiceRouteImport } from './routes/_authenticated/transactions.$id.invoice'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -520,6 +521,12 @@ const AuthenticatedSellerListingsNewRoute =
     path: '/listings/new',
     getParentRoute: () => AuthenticatedSellerRoute,
   } as any)
+const AuthenticatedTransactionsIdInvoiceRoute =
+  AuthenticatedTransactionsIdInvoiceRouteImport.update({
+    id: '/invoice',
+    path: '/invoice',
+    getParentRoute: () => AuthenticatedTransactionsIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -585,7 +592,7 @@ export interface FileRoutesByFullPath {
   '/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
-  '/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
@@ -599,6 +606,7 @@ export interface FileRoutesByFullPath {
   '/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
   '/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
+  '/transactions/$id/invoice': typeof AuthenticatedTransactionsIdInvoiceRoute
   '/admin/inspections/': typeof AuthenticatedAdminInspectionsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -658,7 +666,7 @@ export interface FileRoutesByTo {
   '/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/seller/yard': typeof AuthenticatedSellerYardRoute
-  '/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
@@ -672,6 +680,7 @@ export interface FileRoutesByTo {
   '/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
   '/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
+  '/transactions/$id/invoice': typeof AuthenticatedTransactionsIdInvoiceRoute
   '/admin/inspections': typeof AuthenticatedAdminInspectionsIndexRoute
 }
 export interface FileRoutesById {
@@ -740,7 +749,7 @@ export interface FileRoutesById {
   '/_authenticated/seller/transactions': typeof AuthenticatedSellerTransactionsRoute
   '/_authenticated/seller/verify': typeof AuthenticatedSellerVerifyRoute
   '/_authenticated/seller/yard': typeof AuthenticatedSellerYardRoute
-  '/_authenticated/transactions/$id': typeof AuthenticatedTransactionsIdRoute
+  '/_authenticated/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
   '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
@@ -754,6 +763,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/inspections/$id': typeof AuthenticatedAdminInspectionsIdRoute
   '/_authenticated/seller/listings/import': typeof AuthenticatedSellerListingsImportRoute
   '/_authenticated/seller/listings/new': typeof AuthenticatedSellerListingsNewRoute
+  '/_authenticated/transactions/$id/invoice': typeof AuthenticatedTransactionsIdInvoiceRoute
   '/_authenticated/admin/inspections/': typeof AuthenticatedAdminInspectionsIndexRoute
 }
 export interface FileRouteTypes {
@@ -836,6 +846,7 @@ export interface FileRouteTypes {
     | '/admin/inspections/$id'
     | '/seller/listings/import'
     | '/seller/listings/new'
+    | '/transactions/$id/invoice'
     | '/admin/inspections/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -909,6 +920,7 @@ export interface FileRouteTypes {
     | '/admin/inspections/$id'
     | '/seller/listings/import'
     | '/seller/listings/new'
+    | '/transactions/$id/invoice'
     | '/admin/inspections'
   id:
     | '__root__'
@@ -990,6 +1002,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/inspections/$id'
     | '/_authenticated/seller/listings/import'
     | '/_authenticated/seller/listings/new'
+    | '/_authenticated/transactions/$id/invoice'
     | '/_authenticated/admin/inspections/'
   fileRoutesById: FileRoutesById
 }
@@ -1578,6 +1591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerListingsNewRouteImport
       parentRoute: typeof AuthenticatedSellerRoute
     }
+    '/_authenticated/transactions/$id/invoice': {
+      id: '/_authenticated/transactions/$id/invoice'
+      path: '/invoice'
+      fullPath: '/transactions/$id/invoice'
+      preLoaderRoute: typeof AuthenticatedTransactionsIdInvoiceRouteImport
+      parentRoute: typeof AuthenticatedTransactionsIdRoute
+    }
   }
 }
 
@@ -1698,6 +1718,21 @@ const AuthenticatedSellerRouteChildren: AuthenticatedSellerRouteChildren = {
 const AuthenticatedSellerRouteWithChildren =
   AuthenticatedSellerRoute._addFileChildren(AuthenticatedSellerRouteChildren)
 
+interface AuthenticatedTransactionsIdRouteChildren {
+  AuthenticatedTransactionsIdInvoiceRoute: typeof AuthenticatedTransactionsIdInvoiceRoute
+}
+
+const AuthenticatedTransactionsIdRouteChildren: AuthenticatedTransactionsIdRouteChildren =
+  {
+    AuthenticatedTransactionsIdInvoiceRoute:
+      AuthenticatedTransactionsIdInvoiceRoute,
+  }
+
+const AuthenticatedTransactionsIdRouteWithChildren =
+  AuthenticatedTransactionsIdRoute._addFileChildren(
+    AuthenticatedTransactionsIdRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
@@ -1706,7 +1741,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
   AuthenticatedSellerRoute: typeof AuthenticatedSellerRouteWithChildren
   AuthenticatedServiceBookingsRoute: typeof AuthenticatedServiceBookingsRoute
-  AuthenticatedTransactionsIdRoute: typeof AuthenticatedTransactionsIdRoute
+  AuthenticatedTransactionsIdRoute: typeof AuthenticatedTransactionsIdRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1717,7 +1752,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedGarageRoute: AuthenticatedGarageRoute,
   AuthenticatedSellerRoute: AuthenticatedSellerRouteWithChildren,
   AuthenticatedServiceBookingsRoute: AuthenticatedServiceBookingsRoute,
-  AuthenticatedTransactionsIdRoute: AuthenticatedTransactionsIdRoute,
+  AuthenticatedTransactionsIdRoute:
+    AuthenticatedTransactionsIdRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

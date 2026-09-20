@@ -18,13 +18,16 @@ export function Footer() {
         <div className="grid gap-10 md:grid-cols-5">
           {/* Brand Col */}
           <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-teal-500 text-slate-950 font-bold shadow-md shadow-teal-500/20">
-                <Globe className="h-5 w-5 opacity-40" />
-                <Car className="absolute h-4 w-4" />
-              </span>
-              <span className="font-display text-xl font-bold tracking-tight text-foreground">
-                AutoConnect
+            <div className="flex items-center gap-3">
+              <div className="relative grid h-10 w-10 overflow-hidden rounded-xl bg-white shadow-md shadow-teal-500/20 border border-border">
+                <img 
+                  src="/logo-mark.jpg" 
+                  alt="AutoConnect Logo Mark" 
+                  className="h-full w-full object-cover" 
+                />
+              </div>
+              <span className="font-display text-xl font-bold tracking-tight text-foreground leading-none">
+                Auto<span className="text-teal-500">Connect</span>
               </span>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">

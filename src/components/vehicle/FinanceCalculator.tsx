@@ -7,7 +7,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 
 export function FinanceCalculator({ price, currency }: { price: number; currency: string }) {
-  const { formatPrice } = useCurrency();
+  const localFormatPrice = (amount: number, curr: string) => {
+    return new Intl.NumberFormat(undefined, {
+      style: "currency",
+      currency: curr,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
   const [down, setDown] = useState(Math.round(price * 0.2));
   const [months, setMonths] = useState(60);
   const [apr, setApr] = useState(7.5);
@@ -52,7 +59,7 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <label className="text-xs font-medium text-foreground">Down payment</label>
-                    <span className="text-xs text-muted-foreground">{formatPrice(down, currency)}</span>
+                    <span className="text-xs text-muted-foreground">{localFormatPrice(down, currency)}</span>
                   </div>
                   <Slider 
                     value={[down]} 
@@ -105,18 +112,18 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
                 <div className="relative z-10">
                   <p className="text-xs uppercase tracking-wider font-semibold text-primary/80 mb-1">Estimated Payment</p>
                   <p className="text-4xl font-bold text-primary tracking-tight">
-                    {formatPrice(Math.round(totalMonthly), currency)}<span className="text-sm font-normal text-muted-foreground">/mo</span>
+                    {localFormatPrice(Math.round(totalMonthly), currency)}<span className="text-sm font-normal text-muted-foreground">/mo</span>
                   </p>
                   
                   <div className="mt-4 space-y-1.5 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Vehicle Principal + Int.</span>
-                      <span className="font-medium text-foreground">{formatPrice(Math.round(monthly), currency)}</span>
+                      <span className="font-medium text-foreground">{localFormatPrice(Math.round(monthly), currency)}</span>
                     </div>
                     {includeInsurance && (
                       <div className="flex justify-between text-blue-600 dark:text-blue-400">
                         <span>Insurance Est.</span>
-                        <span className="font-medium">+{formatPrice(Math.round(insuranceMonthly), currency)}</span>
+                        <span className="font-medium">+{localFormatPrice(Math.round(insuranceMonthly), currency)}</span>
                       </div>
                     )}
                   </div>
@@ -127,7 +134,7 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
           
           <TabsContent value="cash" className="py-4">
             <div className="text-center p-6 border rounded-xl bg-muted/20">
-              <p className="text-3xl font-bold">{formatPrice(price, currency)}</p>
+              <p className="text-3xl font-bold">{localFormatPrice(price, currency)}</p>
               <p className="text-sm text-muted-foreground mt-2">Total upfront cash price</p>
             </div>
           </TabsContent>
@@ -145,7 +152,7 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase text-muted-foreground">Insurance</p>
-                <p className="text-sm font-bold mt-0.5">{formatPrice(price * 0.04, currency)}</p>
+                <p className="text-sm font-bold mt-0.5">{localFormatPrice(price * 0.04, currency)}</p>
               </div>
             </div>
             
@@ -155,7 +162,7 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase text-muted-foreground">Maint. & Fuel</p>
-                <p className="text-sm font-bold mt-0.5">{formatPrice(price * 0.03, currency)}</p>
+                <p className="text-sm font-bold mt-0.5">{localFormatPrice(price * 0.03, currency)}</p>
               </div>
             </div>
             
@@ -165,7 +172,7 @@ export function FinanceCalculator({ price, currency }: { price: number; currency
               </div>
               <div>
                 <p className="text-[10px] font-semibold uppercase text-muted-foreground">Depreciation</p>
-                <p className="text-sm font-bold mt-0.5">{formatPrice(price * 0.15, currency)}</p>
+                <p className="text-sm font-bold mt-0.5">{localFormatPrice(price * 0.15, currency)}</p>
               </div>
             </div>
           </div>

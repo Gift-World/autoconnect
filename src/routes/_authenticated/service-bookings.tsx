@@ -137,7 +137,7 @@ function ServiceBookingsPage() {
     }) => {
       const values: Record<string, unknown> = { status };
       if (quoted) {
-        if (!amount || Number(amount) < 0) throw new Error("Enter a valid quote amount.");
+        if (!amount || Number(amount) < 0) throw new globalThis.Error("Enter a valid quote amount.");
         values.quoted_amount = Number(amount);
         values.provider_notes = note.trim() || null;
       }
@@ -161,7 +161,7 @@ function ServiceBookingsPage() {
   });
   const claim = useMutation({
     mutationFn: async () => {
-      if (!claimProviderId) throw new Error("Choose the business you represent.");
+      if (!claimProviderId) throw new globalThis.Error("Choose the business you represent.");
       const { error } = await supabase
         .from("service_provider_claims")
         .insert({

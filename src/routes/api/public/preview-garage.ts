@@ -1,12 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createAPIFileRoute } from "@tanstack/react-start/api";
 
 const PREVIEW_OWNER_ID = "f98e074f-e3ad-42e6-9a20-80f55e323045";
 
-export const Route = createFileRoute("/api/public/preview-garage")({
-  server: {
-    handlers: {
-      GET: async () => {
-        const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
+export const APIRoute = createAPIFileRoute("/api/public/preview-garage")({
+  GET: async () => {
+    const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabasePublicServer
           .from("garage_vehicles")
           .select(
@@ -23,6 +21,4 @@ export const Route = createFileRoute("/api/public/preview-garage")({
         }
         return Response.json({ data: data ?? [] }, { headers: { "Cache-Control": "no-store" } });
       },
-    },
-  },
 });

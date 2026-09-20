@@ -150,6 +150,7 @@ function GaragePage() {
 
   const addVehicle = useMutation({
     mutationFn: async () => {
+      if (isPreview) throw new Error("Preview vehicles cannot be modified. Please sign in to add your own.");
       if (!ownerId) throw new Error("Owner ID is missing");
       if (!form.make.trim()) throw new Error("Enter the vehicle make");
       const { error } = await supabase.from("garage_vehicles").insert({

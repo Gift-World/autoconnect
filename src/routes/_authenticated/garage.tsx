@@ -81,15 +81,12 @@ function GaragePage() {
           .eq("owner_id", ownerId!)
           .order("created_at", { ascending: false });
         if (error) {
-          const code = error.code;
-          if (code !== "PGRST205" && code !== "42P01" && !error.message?.includes("does not exist"))
-            throw error;
+          console.error("Error fetching garage_vehicles:", error);
+        } else if (data) {
+          manualVehicles = data as GarageVehicle[];
         }
-        if (data) manualVehicles = data as GarageVehicle[];
       } catch (err: any) {
-        const code = err.code;
-        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist"))
-          throw err;
+        console.error("Exception fetching garage_vehicles:", err);
       }
 
       // Fetch real ownership records, but gracefully handle missing table during development
@@ -102,20 +99,12 @@ function GaragePage() {
           .eq("status", "current");
 
         if (result.error) {
-          const code = result.error.code;
-          if (
-            code !== "PGRST205" &&
-            code !== "42P01" &&
-            !result.error.message?.includes("does not exist")
-          ) {
-            throw result.error;
-          }
+          console.error("Error fetching ownerships:", result.error);
+        } else {
+          ownData = result.data;
         }
-        ownData = result.data;
       } catch (err: any) {
-        const code = err.code;
-        if (code !== "PGRST205" && code !== "42P01" && !err.message?.includes("does not exist"))
-          throw err;
+        console.error("Exception fetching ownerships:", err);
       }
 
       const purchasedVehicles: GarageVehicle[] = [];

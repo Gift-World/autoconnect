@@ -180,7 +180,7 @@ function SellerDashboard() {
       const { data: cars, error } = await supabase
         .from("cars")
         .select(
-          "id, title, status, price, currency, country, year, views, featured, is_premium, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
+          "id, title, status, price, currency, country, year, views, featured, available_for_export, created_at, car_images(image_url, is_primary, sort_order)",
         )
         .eq("seller_id", sellerRow.id)
         .order("created_at", { ascending: false });
@@ -206,7 +206,7 @@ function SellerDashboard() {
       setSeller(null);
       setOpenInquiries(0);
       setRows([]);
-      toast.error(error instanceof Error ? error.message : "Unable to load live seller data.");
+      toast.error((error as any)?.message || "Unable to load live seller data.");
     }
   }
 

@@ -447,8 +447,10 @@ function SellerDashboard() {
                               <Zap className="h-4 w-4" />
                             </Button>
                           )}
-                          <Button size="icon" variant="ghost" title="Edit (coming soon)" disabled>
-                            <Pencil className="h-4 w-4" />
+                          <Button asChild size="icon" variant="ghost" title="Edit listing">
+                            <Link to="/seller/listings/new" search={{ edit: r.id }}>
+                              <Pencil className="h-4 w-4" />
+                            </Link>
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
@@ -531,8 +533,10 @@ function SellerDashboard() {
                           <Eye className="h-4 w-4" />
                         </Link>
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-8 w-8" disabled>
-                        <Pencil className="h-4 w-4" />
+                      <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Edit listing">
+                        <Link to="/seller/listings/new" search={{ edit: r.id }}>
+                          <Pencil className="h-4 w-4" />
+                        </Link>
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

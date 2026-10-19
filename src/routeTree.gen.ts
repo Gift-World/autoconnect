@@ -79,7 +79,6 @@ import { Route as AuthenticatedSellerYardRouteImport } from './routes/_authentic
 import { Route as AuthenticatedTransactionsIdRouteImport } from './routes/_authenticated/transactions.$id'
 import { Route as ApiPublicPartsRouteImport } from './routes/api/public/parts'
 import { Route as ApiPublicPartsShopsRouteImport } from './routes/api/public/parts-shops'
-import { Route as ApiPublicPreviewGarageRouteImport } from './routes/api/public/preview-garage'
 import { Route as ApiPublicServiceProvidersRouteImport } from './routes/api/public/service-providers'
 import { Route as ApiPublicStripeCheckoutPremiumRouteImport } from './routes/api/public/stripe-checkout-premium'
 import { Route as ApiPublicStripeWebhookRouteImport } from './routes/api/public/stripe-webhook'
@@ -470,11 +469,6 @@ const ApiPublicPartsShopsRoute = ApiPublicPartsShopsRouteImport.update({
   path: '/api/public/parts-shops',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicPreviewGarageRoute = ApiPublicPreviewGarageRouteImport.update({
-  id: '/api/public/preview-garage',
-  path: '/api/public/preview-garage',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicServiceProvidersRoute =
   ApiPublicServiceProvidersRouteImport.update({
     id: '/api/public/service-providers',
@@ -595,7 +589,6 @@ export interface FileRoutesByFullPath {
   '/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
-  '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -669,7 +662,6 @@ export interface FileRoutesByTo {
   '/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
-  '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -752,7 +744,6 @@ export interface FileRoutesById {
   '/_authenticated/transactions/$id': typeof AuthenticatedTransactionsIdRouteWithChildren
   '/api/public/parts': typeof ApiPublicPartsRoute
   '/api/public/parts-shops': typeof ApiPublicPartsShopsRoute
-  '/api/public/preview-garage': typeof ApiPublicPreviewGarageRoute
   '/api/public/service-providers': typeof ApiPublicServiceProvidersRoute
   '/api/public/stripe-checkout-premium': typeof ApiPublicStripeCheckoutPremiumRoute
   '/api/public/stripe-webhook': typeof ApiPublicStripeWebhookRoute
@@ -835,7 +826,6 @@ export interface FileRouteTypes {
     | '/transactions/$id'
     | '/api/public/parts'
     | '/api/public/parts-shops'
-    | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
@@ -909,7 +899,6 @@ export interface FileRouteTypes {
     | '/transactions/$id'
     | '/api/public/parts'
     | '/api/public/parts-shops'
-    | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
@@ -991,7 +980,6 @@ export interface FileRouteTypes {
     | '/_authenticated/transactions/$id'
     | '/api/public/parts'
     | '/api/public/parts-shops'
-    | '/api/public/preview-garage'
     | '/api/public/service-providers'
     | '/api/public/stripe-checkout-premium'
     | '/api/public/stripe-webhook'
@@ -1030,7 +1018,6 @@ export interface RootRouteChildren {
   PassportCarIdRoute: typeof PassportCarIdRoute
   ApiPublicPartsRoute: typeof ApiPublicPartsRoute
   ApiPublicPartsShopsRoute: typeof ApiPublicPartsShopsRoute
-  ApiPublicPreviewGarageRoute: typeof ApiPublicPreviewGarageRoute
   ApiPublicServiceProvidersRoute: typeof ApiPublicServiceProvidersRoute
   ApiPublicStripeCheckoutPremiumRoute: typeof ApiPublicStripeCheckoutPremiumRoute
   ApiPublicStripeWebhookRoute: typeof ApiPublicStripeWebhookRoute
@@ -1528,13 +1515,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPartsShopsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/preview-garage': {
-      id: '/api/public/preview-garage'
-      path: '/api/public/preview-garage'
-      fullPath: '/api/public/preview-garage'
-      preLoaderRoute: typeof ApiPublicPreviewGarageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/service-providers': {
       id: '/api/public/service-providers'
       path: '/api/public/service-providers'
@@ -1833,7 +1813,6 @@ const rootRouteChildren: RootRouteChildren = {
   PassportCarIdRoute: PassportCarIdRoute,
   ApiPublicPartsRoute: ApiPublicPartsRoute,
   ApiPublicPartsShopsRoute: ApiPublicPartsShopsRoute,
-  ApiPublicPreviewGarageRoute: ApiPublicPreviewGarageRoute,
   ApiPublicServiceProvidersRoute: ApiPublicServiceProvidersRoute,
   ApiPublicStripeCheckoutPremiumRoute: ApiPublicStripeCheckoutPremiumRoute,
   ApiPublicStripeWebhookRoute: ApiPublicStripeWebhookRoute,

@@ -36,6 +36,9 @@ import { REQUIRED_PHOTO_KINDS, PHOTO_LABELS } from "@/lib/listing-checklist";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/seller/listings/new")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    edit: typeof search.edit === "string" ? search.edit : undefined,
+  }),
   component: NewListing,
 });
 
@@ -100,6 +103,7 @@ type FormValues = z.infer<typeof schema>;
 
 function NewListing() {
   const navigate = useNavigate();
+  const { edit: editingId } = Route.useSearch();
   const [makes, setMakes] = useState<{ id: string; name: string }[]>([]);
   const [models, setModels] = useState<{ id: string; name: string }[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
@@ -149,6 +153,7 @@ function NewListing() {
     register,
     handleSubmit,
     setValue,
+    reset,
     watch,
     formState: { errors },
   } = form;
@@ -192,6 +197,51 @@ function NewListing() {
           .eq("seller_id", seller.id)
           .maybeSingle();
         if (yard) setYardId(yard.id);
+
+        if (editingId) {
+          const { data: existing, error: existingError } = await supabase
+            .from("cars")
+            .select("title, make_name, model_name, year, price, currency, country, city, mileage, mileage_unit, transmission, fuel_type, body_type, color, engine_size, condition, steering_side, vin, description, available_for_export, shipping_info, import_duties_note, pay_full, pay_deposit, pay_installments, deposit_percent, installment_months, installment_interest_rate")
+            .eq("id", editingId)
+            .eq("seller_id", seller.id)
+            .maybeSingle();
+          if (existingError) throw existingError;
+          if (!existing) {
+            toast.error("That listing is unavailable or does not belong to your seller account.");
+            navigate({ to: "/seller" });
+            return;
+          }
+          reset({
+            title: existing.title,
+            make_name: existing.make_name,
+            model_name: existing.model_name,
+            year: Number(existing.year),
+            price: Number(existing.price),
+            currency: existing.currency,
+            country: existing.country,
+            city: existing.city ?? "",
+            mileage: existing.mileage ?? 0,
+            mileage_unit: existing.mileage_unit ?? "km",
+            transmission: existing.transmission ?? "",
+            fuel_type: existing.fuel_type ?? "",
+            body_type: existing.body_type ?? "",
+            color: existing.color ?? "",
+            engine_size: existing.engine_size ?? "",
+            condition: existing.condition,
+            steering_side: existing.steering_side ?? "left",
+            vin: existing.vin ?? "",
+            description: existing.description ?? "",
+            available_for_export: Boolean(existing.available_for_export),
+            shipping_info: existing.shipping_info ?? "",
+            import_duties_note: existing.import_duties_note ?? "",
+            pay_full: Boolean(existing.pay_full),
+            pay_deposit: Boolean(existing.pay_deposit),
+            pay_installments: Boolean(existing.pay_installments),
+            deposit_percent: existing.deposit_percent ?? 20,
+            installment_months: existing.installment_months ?? 12,
+            installment_interest_rate: existing.installment_interest_rate ?? 0,
+          });
+        }
       }
       try {
         setMakes(await getFleetByteMakes());
@@ -199,7 +249,7 @@ function NewListing() {
         console.error(e);
       }
     })();
-  }, [setValue]);
+  }, [editingId, navigate, reset, setValue]);
 
   // Load models when make changes
   useEffect(() => {
@@ -246,19 +296,19 @@ function NewListing() {
       toast.error("Seller profile not found");
       return;
     }
-    if (photos.length === 0) {
+    if (!editingId && photos.length === 0) {
       toast.error("Add at least one photo");
       return;
     }
     const missing = REQUIRED_PHOTO_KINDS.filter((k) => !photos.some((p) => p.kind === k));
-    if (missing.length > 0) {
+    if (!editingId && missing.length > 0) {
       toast.error(`Missing required photos: ${missing.map((k) => PHOTO_LABELS[k]).join(", ")}`);
       return;
     }
     setSubmitting(true);
     try {
       const primary = photos.find((p) => p.isPrimary) ?? photos[0];
-      const insertPayload = {
+      const listingPayload = {
         seller_id: sellerId,
         title: values.title,
         make_name: values.make_name,
@@ -300,24 +350,34 @@ function NewListing() {
           : null,
       };
 
-      const { data: car, error: carErr } = await supabase
-        .from("cars")
-        .insert(insertPayload)
-        .select("id")
-        .single();
+      const { data: car, error: carErr } = editingId
+        ? await supabase
+            .from("cars")
+            .update({ ...listingPayload, status: "pending" })
+            .eq("id", editingId)
+            .eq("seller_id", sellerId)
+            .select("id")
+            .single()
+        : await supabase
+            .from("cars")
+            .insert(listingPayload)
+            .select("id")
+            .single();
       if (carErr) throw carErr;
 
-      const imageRows = photos.map((p, idx) => ({
-        car_id: car.id,
-        image_url: p.url,
-        is_primary: p.path === primary.path,
-        sort_order: idx,
-        photo_kind: p.kind === "extra" ? null : p.kind,
-      }));
-      const { error: imgErr } = await supabase.from("car_images").insert(imageRows);
-      if (imgErr) throw imgErr;
+      if (photos.length > 0) {
+        const imageRows = photos.map((p, idx) => ({
+          car_id: car.id,
+          image_url: p.url,
+          is_primary: p.path === primary.path,
+          sort_order: idx,
+          photo_kind: p.kind === "extra" ? null : p.kind,
+        }));
+        const { error: imgErr } = await supabase.from("car_images").insert(imageRows);
+        if (imgErr) throw imgErr;
+      }
 
-      toast.success("Listing submitted for review");
+      toast.success(editingId ? "Listing update submitted for review" : "Listing submitted for review");
       navigate({ to: "/seller" });
     } catch (e) {
       console.error(e);
@@ -342,9 +402,9 @@ function NewListing() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">New listing</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{editingId ? "Edit listing" : "New listing"}</h1>
             <p className="text-sm text-muted-foreground">
-              Listings are reviewed before they appear in the public marketplace.
+              {editingId ? "Changes are sent back for review before they appear publicly." : "Listings are reviewed before they appear in the public marketplace."}
             </p>
           </div>
         </div>

@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   Mail,
   Smartphone,
-  ShieldCheck,
   Check,
-  Sparkles,
   TrendingDown,
   Ship,
   Lock,
   Search,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -17,9 +16,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function NotificationPreferences() {
-  const [whatsappNumber, setWhatsappNumber] = useState("+254 ");
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // In-app switches
   const [savedSearchAlerts, setSavedSearchAlerts] = useState(true);
@@ -27,15 +30,54 @@ export function NotificationPreferences() {
   const [importUpdates, setImportUpdates] = useState(true);
   const [escrowMilestones, setEscrowMilestones] = useState(true);
 
-  // Channels
-  const [inAppChannel, setInAppChannel] = useState(true);
-  const [emailChannel, setEmailChannel] = useState(false);
-  const [whatsappChannel, setWhatsappChannel] = useState(false);
+  useEffect(() => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+    (async () => {
+      const { data, error } = await supabase
+        .from("notification_preferences")
+        .select("saved_search_alerts,price_drop_alerts,import_updates,transaction_milestones,in_app_enabled")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) {
+        toast.error("Could not load your alert preferences.");
+      } else if (data) {
+        setSavedSearchAlerts(data.saved_search_alerts);
+        setPriceDropAlerts(data.price_drop_alerts);
+        setImportUpdates(data.import_updates);
+        setEscrowMilestones(data.transaction_milestones);
+      }
+      setLoading(false);
+    })();
+  }, [user]);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error("Sign in to save alert preferences.");
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("notification_preferences").upsert({
+      user_id: user.id,
+      saved_search_alerts: savedSearchAlerts,
+      price_drop_alerts: priceDropAlerts,
+      import_updates: importUpdates,
+      transaction_milestones: escrowMilestones,
+      in_app_enabled: true,
+      email_enabled: false,
+      whatsapp_enabled: false,
+      updated_at: new Date().toISOString(),
+    });
+    setSaving(false);
+    if (error) {
+      toast.error("Could not save your alert preferences.", { description: error.message });
+      return;
+    }
     toast.success("Notification Preferences Saved", {
-      description: "You'll receive real-time alerts for your saved cars and shipments.",
+      description: "Your in-app alert choices are now saved to your account.",
       icon: <Bell className="h-4 w-4 text-teal-400" />,
     });
   };
@@ -60,7 +102,7 @@ export function NotificationPreferences() {
       </div>
 
       {/* Alert Triggers */}
-      <div className="space-y-3">
+      {loading ? <div className="flex items-center gap-2 rounded-2xl bg-muted/40 p-4 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin"/>Loading saved preferences…</div> : <><div className="space-y-3">
         <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
           Alert Triggers
         </h4>
@@ -112,10 +154,10 @@ export function NotificationPreferences() {
               <Lock className="h-4 w-4 text-amber-400 shrink-0" />
               <div>
                 <Label className="text-xs font-bold text-foreground">
-                  Escrow Payment & Title Milestones
+                  Transaction & Title Milestones
                 </Label>
                 <p className="text-[11px] text-muted-foreground">
-                  NTSA logbook verification and fund release approvals
+                  Saved now; sent only after payment and NTSA services are connected
                 </p>
               </div>
             </div>
@@ -147,10 +189,10 @@ export function NotificationPreferences() {
                 <Mail className="h-3.5 w-3.5" /> Email Digest
               </span>
               <Badge variant="outline" className="text-[9px]">
-                Coming Soon
+                Provider required
               </Badge>
             </div>
-            <p className="text-[10px] text-muted-foreground">Weekly price drops & matches</p>
+            <p className="text-[10px] text-muted-foreground">Requires an email delivery provider before it can be enabled.</p>
           </div>
 
           <div className="p-3.5 rounded-2xl border border-border bg-muted/20 space-y-1.5 opacity-80">
@@ -159,10 +201,10 @@ export function NotificationPreferences() {
                 <Smartphone className="h-3.5 w-3.5" /> WhatsApp Bot
               </span>
               <Badge variant="outline" className="text-[9px]">
-                Coming Soon
+                Provider required
               </Badge>
             </div>
-            <p className="text-[10px] text-muted-foreground">Direct instant WhatsApp ping</p>
+            <p className="text-[10px] text-muted-foreground">Requires an approved WhatsApp Business provider before it can be enabled.</p>
           </div>
         </div>
       </div>
@@ -170,11 +212,13 @@ export function NotificationPreferences() {
       <div className="flex justify-end pt-2">
         <Button
           type="submit"
+          disabled={saving}
           className="h-11 px-6 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
         >
-          <Check className="h-4 w-4" /> Save Alert Preferences
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} {saving ? "Saving…" : "Save Alert Preferences"}
         </Button>
       </div>
+      </>}
     </form>
   );
 }

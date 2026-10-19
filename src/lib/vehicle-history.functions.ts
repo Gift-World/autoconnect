@@ -142,40 +142,7 @@ export const checkUkDvlaMot = createServerFn({ method: "POST" })
       }
     }
     
-    // Return mock data if no API key is provided
-    const isClean = Math.random() > 0.3;
-    const year = new Date().getFullYear();
-    
-    return {
-      registrationNumber: vrm,
-      make: "Unknown",
-      model: "Vehicle",
-      firstUsedDate: `${year - 5}-05-15`,
-      fuelType: "Petrol",
-      primaryColour: "Black",
-      motStatus: isClean ? "Valid" : "Expired",
-      motExpiryDate: isClean ? `${year + 1}-05-15` : `${year - 1}-05-15`,
-      hasAdvisories: !isClean,
-      totalTestsRecorded: 5,
-      odometerHistory: [
-        { date: `${year - 1}-05-15`, value: 45000, unit: "mi" },
-        { date: `${year - 2}-05-15`, value: 35000, unit: "mi" },
-        { date: `${year - 3}-05-15`, value: 25000, unit: "mi" },
-      ],
-      recentTests: [
-        {
-          completedDate: `${year - 1}-05-15 10:00:00`,
-          testResult: isClean ? "PASSED" : "FAILED",
-          expiryDate: isClean ? `${year + 1}-05-15` : undefined,
-          odometerValue: 45000,
-          defects: isClean ? [] : [
-            { text: "Nearside Front Tyre worn close to legal limit", type: "ADVISORY" },
-            { text: "Offside Rear Brake pad(s) wearing thin", type: "ADVISORY" }
-          ],
-        }
-      ],
-      isLiveApi: false,
-    };
+    throw new Error("The official DVLA MOT connection is not configured. No vehicle history result was created.");
   });
 
 export const checkJapaneseJevic = createServerFn({ method: "POST" })
@@ -187,26 +154,8 @@ export const checkJapaneseJevic = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<JapaneseJevicRecord> => {
-    // Return mock data
-    const isClean = Math.random() > 0.2;
-    return {
-      chassisNumber: data.chassisNumber.toUpperCase(),
-      make: "Toyota", // Mocked
-      model: "Corolla", // Mocked
-      modelCode: "NZE161",
-      year: 2018,
-      auctionHouse: "USS Tokyo",
-      auctionGrade: isClean ? "4.5 / 5.0" : "3.0 / 5.0",
-      interiorGrade: isClean ? "B" : "C",
-      exteriorGrade: isClean ? "A" : "B",
-      radiationChecked: true,
-      radiationLevel: "0.08 μSv/h (Safe)",
-      odometerVerified: true,
-      exportOdometerKm: 54300,
-      inspectionCertificateNumber: `JEV-${Math.floor(Math.random() * 1000000)}`,
-      issuingAuthority: "JEVIC",
-      status: isClean ? "verified" : "clear",
-    };
+    void data;
+    throw new Error("Japanese inspection history is not connected yet. Upload a real inspection certificate for review instead.");
   });
 
 export const checkNtsaTims = createServerFn({ method: "POST" })
@@ -218,21 +167,8 @@ export const checkNtsaTims = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<NtsaTimsRecord> => {
-    const isClean = Math.random() > 0.2;
-    return {
-      registrationNumber: data.regNumber.toUpperCase(),
-      logbookNumber: `LOG-${Math.floor(Math.random() * 1000000)}`,
-      chassisNumber: `JTD123456789${Math.floor(Math.random() * 1000)}`,
-      engineNumber: `1NZ-${Math.floor(Math.random() * 100000)}`,
-      make: "Toyota",
-      model: "Axio",
-      registeredOwnerType: "Individual",
-      encumbranceStatus: isClean ? "CLEAN_NO_CAVEATS" : "FINANCIER_CAVEAT_HELD",
-      financierName: isClean ? undefined : "NCBA Bank Kenya",
-      roadworthinessExpiry: "2026-12-31",
-      dutyPaidStatus: "FULL_DUTY_PAID",
-      status: isClean ? "verified" : "flagged",
-    };
+    void data;
+    throw new Error("NTSA verification is not connected yet. No ownership, finance, or duty result was created.");
   });
 
 export const checkAkiInsurance = createServerFn({ method: "POST" })
@@ -244,14 +180,6 @@ export const checkAkiInsurance = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }): Promise<AkiInsuranceRecord> => {
-    const isClean = Math.random() > 0.1;
-    return {
-      registrationNumber: data.regNumber.toUpperCase(),
-      policyStatus: isClean ? "ACTIVE" : "EXPIRED",
-      underwriter: "Jubilee Insurance",
-      coverType: "Comprehensive",
-      isTotalLossWriteOff: false,
-      salvageRegistryStatus: isClean ? "CLEAN_NO_CLAIMS" : "MINOR_REPAIRED",
-      expiryDate: "2025-08-15",
-    };
+    void data;
+    throw new Error("Insurance verification is not connected yet. No cover or claims result was created.");
   });

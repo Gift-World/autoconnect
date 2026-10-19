@@ -27,6 +27,9 @@ interface VehicleHistoryReportProps {
 
 export function VehicleHistoryReport({ carId, country, vin, regNumber }: VehicleHistoryReportProps) {
   const [reportType, setReportType] = useState<string | null>(null);
+  const providerName = country === "KE" ? "NTSA and insurance" : country === "JP" ? "Japanese inspection" : "DVLA MOT";
+  const hasReference = Boolean(vin || regNumber);
+  const canRequest = country === "GB" && hasReference;
   
   const dvlaMutation = useMutation({
     mutationFn: () => checkUkDvlaMot({ data: { vrmOrVin: vin || regNumber || "TEST1234" } }),
@@ -57,9 +60,7 @@ export function VehicleHistoryReport({ carId, country, vin, regNumber }: Vehicle
       ntsaMutation.mutate();
       akiMutation.mutate();
     } else {
-      // Default fallback
-      setReportType("dvla");
-      dvlaMutation.mutate();
+      setReportType("unavailable");
     }
   };
 
@@ -72,16 +73,16 @@ export function VehicleHistoryReport({ carId, country, vin, regNumber }: Vehicle
           <div>
             <CardTitle className="text-xl flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Automated Vehicle History
+              Vehicle history evidence
             </CardTitle>
             <CardDescription>
-              Verify MOT, odometer, accidents, and finance records instantly.
+              Official records appear only when the relevant provider connection is active. We never manufacture a check result.
             </CardDescription>
           </div>
           {!reportType && (
-            <Button onClick={generateReport} disabled={isLoading} className="gap-2">
+            <Button onClick={generateReport} disabled={isLoading || !canRequest} className="gap-2">
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              Generate Report
+              {canRequest ? "Check official MOT record" : `${providerName} connection pending`}
             </Button>
           )}
         </div>
@@ -224,7 +225,14 @@ export function VehicleHistoryReport({ carId, country, vin, regNumber }: Vehicle
         </CardContent>
       )}
       
-      {dvlaMutation.isError && <div className="p-4 text-red-500">Failed to generate report.</div>}
+      {(reportType === "unavailable" || dvlaMutation.isError || jevicMutation.isError || ntsaMutation.isError || akiMutation.isError) && (
+        <CardContent className="pt-6">
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+            <p className="font-semibold">No verified history report is available yet.</p>
+            <p className="mt-1 leading-5 text-amber-900">{dvlaMutation.error?.message || jevicMutation.error?.message || ntsaMutation.error?.message || akiMutation.error?.message || "This vehicle’s provider connection is not active. Ask the seller for original evidence or arrange an independent inspection."}</p>
+          </div>
+        </CardContent>
+      )}
     </Card>
   );
 }

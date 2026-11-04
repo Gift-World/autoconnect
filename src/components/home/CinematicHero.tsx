@@ -42,11 +42,11 @@ export function CinematicHero() {
       <div className="mx-auto grid min-h-[760px] max-w-[1440px] grid-cols-1 items-stretch lg:grid-cols-[minmax(0,0.94fr)_minmax(500px,1.06fr)]">
         <div className="relative z-10 flex flex-col justify-center px-5 py-20 sm:px-10 lg:pl-16 lg:pr-10 xl:pl-24">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700 shadow-sm">
+            <div className="fintech-hero-chip shadow-[0_12px_28px_-18px_rgba(13,148,136,.65)]">
               <span className="h-1.5 w-1.5 rounded-full bg-teal-500" />
               Automotive, made certain
             </div>
-            <h1 className="mt-7 font-display text-5xl font-extrabold leading-[0.98] tracking-[-0.055em] text-slate-950 sm:text-6xl xl:text-[76px]">
+            <h1 className="fintech-display mt-7 text-5xl text-slate-950 sm:text-6xl xl:text-[76px]">
               The smarter way to find your next <span className="text-teal-600">drive.</span>
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-slate-600 sm:text-lg">
@@ -111,6 +111,8 @@ export function CinematicHero() {
           </video>
           <div className="absolute inset-0 bg-gradient-to-r from-[#f8fafc] via-[#f8fafc]/28 to-slate-950/20" />
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950/45 to-transparent" />
+          <div className="fintech-orb pointer-events-none absolute -right-14 top-16 h-36 w-36 opacity-80 sm:h-48 sm:w-48" />
+          <div className="fintech-orb pointer-events-none absolute bottom-28 right-[43%] h-14 w-14 opacity-70" />
           <div className="absolute bottom-7 right-6 left-6 rounded-2xl border border-white/30 bg-white/80 p-4 shadow-xl backdrop-blur-md sm:left-auto sm:w-72">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
               <ShieldCheck className="h-4 w-4 text-teal-600" />

@@ -90,6 +90,8 @@ export function ConnectedJourney() {
             <div className="world-orbit-card absolute inset-0 overflow-hidden rounded-[32px] border border-slate-200 bg-slate-950 shadow-[0_34px_80px_-38px_rgba(15,23,42,.7)] dark:border-slate-700">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(45,212,191,.42),transparent_20rem),linear-gradient(135deg,#101c2e,#0c1220_54%,#183c42)]" />
               <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,.16)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.16)_1px,transparent_1px)] [background-size:42px_42px]" />
+              <div className="fintech-orb pointer-events-none -right-14 top-10 h-40 w-40 opacity-90" />
+              <div className="fintech-orb pointer-events-none bottom-[-1.5rem] left-[40%] h-16 w-16 opacity-70" />
               <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-9">
                 <div className="flex items-center justify-between">
                   <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-extrabold tracking-[.18em] backdrop-blur">AUTOCONNECT FLOW</span>

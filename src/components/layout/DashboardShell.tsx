@@ -29,14 +29,16 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-secondary/30 via-background to-background">
-      <div className="mx-auto flex max-w-[1400px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8 lg:py-10">
+    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-gradient-to-b from-secondary/45 via-background to-background">
+      <div className="world-grid pointer-events-none absolute inset-x-0 top-0 h-80 opacity-40" />
+      <div className="pointer-events-none absolute -right-40 top-12 h-96 w-96 rounded-full bg-teal-200/25 blur-3xl dark:bg-teal-800/10" />
+      <div className="relative mx-auto flex max-w-[1400px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8 lg:py-10">
         {/* Sidebar */}
         <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-6rem)] lg:w-[260px] lg:shrink-0">
-          <div className="rounded-2xl border border-border/70 bg-card/80 p-3 shadow-sm backdrop-blur lg:p-4">
+          <div className="world-panel bg-card/85 p-3 backdrop-blur-xl lg:p-4">
             <div className="mb-3 hidden px-2 lg:block">
               <div className="flex items-center justify-between gap-2">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                <div className="world-kicker">
                   {area}
                 </div>
               </div>
@@ -82,7 +84,7 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
               {sections.map((section, sIdx) => (
                 <div key={sIdx} className={sIdx > 0 ? "mt-5 border-t border-border/60 pt-4" : ""}>
                   {section.label && (
-                    <div className="px-2 pb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground/70">
+                  <div className="px-2 pb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground/70">
                       {section.label}
                     </div>
                   )}

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CinematicHero } from "@/components/home/CinematicHero";
-import { EcosystemLoop } from "@/components/home/EcosystemLoop";
+import { ConnectedJourney } from "@/components/home/ConnectedJourney";
 import { FeaturedShowroom } from "@/components/home/FeaturedShowroom";
 import { TrustPipeline } from "@/components/home/TrustPipeline";
 import { CinematicImport } from "@/components/home/CinematicImport";
@@ -38,7 +38,7 @@ function HomePage() {
       <CinematicHero />
       <FeaturedShowroom />
       <TrustPipeline />
-      <EcosystemLoop />
+      <ConnectedJourney />
       <CinematicImport />
       <SellYourCarCTA />
       <FinalCinematicCTA />

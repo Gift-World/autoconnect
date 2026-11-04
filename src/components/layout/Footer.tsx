@@ -13,7 +13,8 @@ import {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card text-foreground">
+    <footer className="relative overflow-hidden border-t border-border bg-card text-foreground">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/60 to-transparent" />
       <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6">
         <div className="grid gap-10 md:grid-cols-5">
           {/* Brand Col */}
@@ -95,7 +96,7 @@ export function Footer() {
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-500/10 px-3 py-1.5 text-teal-700">
-              <Lock className="h-3 w-3 text-teal-600" /> Protected payment workflow
+              <Lock className="h-3 w-3 text-teal-600" /> Payment milestones shown per transaction
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-muted-foreground">
               <ShieldCheck className="h-3 w-3 text-teal-600" /> Evidence shown per listing

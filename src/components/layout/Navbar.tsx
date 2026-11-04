@@ -68,7 +68,7 @@ export function Navbar() {
           : "border-b border-transparent bg-background/50 backdrop-blur-md"
       }`}
     >
-      <div className="mx-auto flex h-16 sm:h-18 max-w-[1280px] items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 sm:h-18 max-w-[1360px] items-center justify-between px-4 sm:px-6">
         {/* Brand Logo */}
         <Link to="/" className="flex items-center gap-3 group">
           <div className="relative grid h-10 w-10 overflow-hidden rounded-xl bg-white shadow-md border border-border group-hover:border-teal-500/40 transition-colors">
@@ -94,8 +94,8 @@ export function Navbar() {
             <Link
               key={l.label}
               to={l.to as never}
-              className="rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-muted-foreground transition-all duration-150 hover:bg-muted/80 hover:text-foreground"
-              activeProps={{ className: "text-foreground font-bold bg-muted/60" }}
+              className="rounded-full px-3.5 py-2 text-xs sm:text-sm font-semibold text-muted-foreground transition-all duration-150 hover:bg-muted/80 hover:text-foreground"
+              activeProps={{ className: "text-foreground font-bold bg-muted/80 shadow-sm" }}
             >
               {l.label}
             </Link>

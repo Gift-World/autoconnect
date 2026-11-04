@@ -22,8 +22,10 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <header className="relative mb-6 overflow-hidden rounded-[28px] border border-border/80 bg-card px-5 py-5 shadow-card sm:mb-8 sm:px-7 sm:py-6">
-      <div className="pointer-events-none absolute -right-16 -top-20 h-44 w-44 rounded-full bg-teal-400/10 blur-3xl" />
+    <header className="world-panel relative mb-6 px-5 py-5 sm:mb-8 sm:px-7 sm:py-6">
+      <div className="world-grid pointer-events-none absolute inset-0 opacity-35" />
+      <div className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-teal-400/15 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-20 right-1/4 h-40 w-40 rounded-full bg-sky-300/15 blur-3xl" />
       {crumbs && crumbs.length > 0 && (
         <nav aria-label="Breadcrumb" className="relative mb-3">
           <ol className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
@@ -44,8 +46,8 @@ export function PageHeader({
       )}
       <div className="relative flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          {eyebrow && <p className="eyebrow mb-2 text-teal-700 dark:text-teal-300">{eyebrow}</p>}
-          <h1 className="font-display text-2xl font-extrabold text-foreground sm:text-3xl">{title}</h1>
+          {eyebrow && <p className="world-kicker mb-2">{eyebrow}</p>}
+          <h1 className="font-display text-2xl font-extrabold tracking-[-0.04em] text-foreground sm:text-3xl">{title}</h1>
           {description && (
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {description}

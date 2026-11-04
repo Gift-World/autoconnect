@@ -1,12 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CinematicHero } from "@/components/home/CinematicHero";
-import { ConnectedJourney } from "@/components/home/ConnectedJourney";
-import { FeaturedShowroom } from "@/components/home/FeaturedShowroom";
-import { TrustPipeline } from "@/components/home/TrustPipeline";
-import { CinematicImport } from "@/components/home/CinematicImport";
-import { FinalCinematicCTA } from "@/components/home/FinalCinematicCTA";
-
-import { SellYourCarCTA } from "@/components/home/SellYourCarCTA";
+import { AutoConnectHome } from "@/components/home/AutoConnectHome";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,15 +26,5 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  return (
-    <main className="min-h-screen bg-white text-slate-900 selection:bg-slate-200 selection:text-slate-950 dark:bg-slate-950 dark:text-slate-50 dark:selection:bg-slate-800 dark:selection:text-white font-sans">
-      <CinematicHero />
-      <FeaturedShowroom />
-      <TrustPipeline />
-      <ConnectedJourney />
-      <CinematicImport />
-      <SellYourCarCTA />
-      <FinalCinematicCTA />
-    </main>
-  );
+  return <AutoConnectHome />;
 }

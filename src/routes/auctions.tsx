@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { trackProductEvent } from "@/lib/product-analytics";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/auctions")({
   validateSearch: (search: Record<string, unknown>) => ({ auction: typeof search.auction === "string" ? search.auction : undefined }),
@@ -17,7 +18,43 @@ export const Route = createFileRoute("/auctions")({
   component: AuctionsPage,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Auction = any;
+
+/** Ticks once per second so countdowns stay live. */
+function useNow(intervalMs = 1000) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(t);
+  }, [intervalMs]);
+  return now;
+}
+
+function auctionPhase(auction: Auction, now: number): "upcoming" | "live" | "ended" {
+  const starts = new Date(auction.starts_at).getTime();
+  const ends = new Date(auction.ends_at).getTime();
+  if (ends <= now) return "ended";
+  if (starts <= now) return "live";
+  return "upcoming";
+}
+
+function splitDuration(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  return {
+    d: Math.floor(total / 86400),
+    h: Math.floor((total % 86400) / 3600),
+    m: Math.floor((total % 3600) / 60),
+    s: total % 60,
+  };
+}
+
+function shortCountdown(ms: number) {
+  const { d, h, m, s } = splitDuration(ms);
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h}h ${m}m ${String(s).padStart(2, "0")}s`;
+  return `${m}m ${String(s).padStart(2, "0")}s`;
+}
 
 function AuctionsPage() {
   const { auction: selectedId } = Route.useSearch();
@@ -74,28 +111,223 @@ function AuctionsPage() {
     void queryClient.invalidateQueries({ queryKey: ["vehicle-auctions"] });
   };
 
-  return <main className="min-h-screen bg-gradient-to-b from-teal-50/60 via-background to-background pb-16 dark:from-teal-950/20">
-    <section className="border-b border-border bg-white/85 py-10 backdrop-blur dark:bg-background/85 sm:py-14"><div className="mx-auto max-w-[1280px] px-4 sm:px-6"><div className="max-w-3xl"><span className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300"><span className="h-2 w-2 animate-pulse rounded-full bg-rose-500"/>Market live</span><h1 className="mt-4 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl">The fast lane, without the blind spots.</h1><p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">A timed listing always shows its deadline, current price and listing evidence. Bids are binding only after the winner reviews the next reservation and payment steps.</p></div></div></section>
-    <div className="mx-auto grid max-w-[1280px] gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[.9fr_1.35fr]">
-      <aside className="space-y-3"><p className="px-1 text-xs font-bold uppercase tracking-[.13em] text-muted-foreground">Live & upcoming</p>{isLoading ? Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />) : isError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><p className="font-semibold">We could not load auction inventory.</p><p className="mt-1 leading-5 text-amber-900/80">This is a connection problem, not an empty auction result. You can safely try again.</p><div className="mt-4 flex flex-wrap gap-2"><Button type="button" size="sm" className="rounded-xl" onClick={() => void refetch()}>Try again</Button><Button asChild size="sm" variant="outline" className="rounded-xl"><Link to="/cars">Browse cars instead</Link></Button></div></div> : auctions?.length ? auctions.map((auction) => <AuctionRow key={auction.id} auction={auction} selected={selected?.id === auction.id} formatPrice={formatPrice} />) : <div className="rounded-2xl border border-dashed border-border bg-card p-6"><p className="font-semibold">No auction is scheduled yet.</p><p className="mt-1 text-sm text-muted-foreground">Browse verified inventory or check back for seller-run timed offers.</p><Button asChild variant="outline" className="mt-4 rounded-xl"><Link to="/cars">Browse cars</Link></Button></div>}</aside>
-      <section>{selected ? <AuctionDesk auction={selected} bids={bids || []} bidAmount={bidAmount} setBidAmount={setBidAmount} submitBid={submitBid} claimWin={claimWin} claiming={claiming} formatPrice={formatPrice} /> : <div className="rounded-3xl border bg-card p-8"><Gavel className="h-8 w-8 text-teal-600"/><h2 className="mt-4 text-xl font-bold">Select an offer to review it.</h2></div>}</section>
-    </div>
-  </main>;
+  const hasAuctions = !isLoading && !isError && (auctions?.length ?? 0) > 0;
+
+  return (
+    <main className="min-h-screen bg-background pb-20">
+      {/* Header */}
+      <section className="px-3 pt-3 sm:px-5 sm:pt-5">
+        <div className="mx-auto max-w-[1360px] rounded-[28px] bg-ac-ink px-5 py-8 text-white sm:rounded-[36px] sm:px-10 sm:py-12">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em] text-white">
+            <span className="h-2 w-2 animate-pulse rounded-full bg-ac-accent" />Market live
+          </span>
+          <h1 className="font-brand mt-4 max-w-3xl text-3xl sm:text-5xl">The fast lane, <span className="text-ac-accent">without the blind spots.</span></h1>
+          <p className="mt-4 max-w-2xl text-sm leading-6 text-white/70 sm:text-base sm:leading-7">A timed listing always shows its deadline, current price and listing evidence. Bids are binding only after the winner reviews the next reservation and payment steps.</p>
+        </div>
+      </section>
+
+      <div className="mx-auto grid max-w-[1360px] gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.4fr)] lg:gap-8">
+        {/* Selected auction first on mobile */}
+        <section className="order-1 min-w-0 lg:order-2">
+          {isLoading ? (
+            <div className="overflow-hidden rounded-[28px] border border-border bg-card">
+              <Skeleton className="aspect-[16/10] w-full rounded-none" />
+              <div className="space-y-3 p-6">
+                <Skeleton className="h-6 w-2/3" />
+                <Skeleton className="h-4 w-1/3" />
+                <div className="grid grid-cols-2 gap-3 pt-3"><Skeleton className="h-16 rounded-2xl" /><Skeleton className="h-16 rounded-2xl" /></div>
+              </div>
+            </div>
+          ) : selected ? (
+            <AuctionDesk auction={selected} bids={bids || []} bidAmount={bidAmount} setBidAmount={setBidAmount} submitBid={submitBid} claimWin={claimWin} claiming={claiming} formatPrice={formatPrice} />
+          ) : !isError && !hasAuctions ? (
+            <div className="rounded-[28px] border border-border bg-card p-8 sm:p-10">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-ac-cream text-ac-ink"><Gavel className="h-6 w-6" /></span>
+              <h2 className="font-brand mt-5 text-2xl sm:text-3xl">No auction is scheduled yet.</h2>
+              <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">Browse verified inventory or check back for seller-run timed offers.</p>
+              <Button asChild className="mt-6 h-11 rounded-full bg-ac-accent px-6 font-bold text-ac-ink hover:bg-ac-accent/90"><Link to="/cars">Browse cars</Link></Button>
+            </div>
+          ) : (
+            <div className="rounded-[28px] border border-border bg-card p-8"><Gavel className="h-8 w-8 text-foreground" /><h2 className="font-brand mt-4 text-2xl">Select an offer to review it.</h2></div>
+          )}
+        </section>
+
+        <aside className="order-2 min-w-0 space-y-3 lg:order-1">
+          <p className="brand-kicker px-1 text-muted-foreground">Live & upcoming</p>
+          {isLoading ? (
+            Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 rounded-3xl" />)
+          ) : isError ? (
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
+              <p className="font-semibold">We could not load auction inventory.</p>
+              <p className="mt-1 leading-5 opacity-80">This is a connection problem, not an empty auction result. You can safely try again.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button type="button" className="h-11 rounded-full" onClick={() => void refetch()}>Try again</Button>
+                <Button asChild variant="outline" className="h-11 rounded-full"><Link to="/cars">Browse cars instead</Link></Button>
+              </div>
+            </div>
+          ) : auctions?.length ? (
+            auctions.map((auction) => <AuctionRow key={auction.id} auction={auction} selected={selected?.id === auction.id} formatPrice={formatPrice} />)
+          ) : (
+            <div className="rounded-3xl border border-dashed border-border bg-card p-6">
+              <p className="font-semibold">Nothing in the lane right now.</p>
+              <p className="mt-1 text-sm text-muted-foreground">New timed offers appear here as soon as sellers schedule them.</p>
+              <Button asChild variant="outline" className="mt-4 h-11 rounded-full"><Link to="/cars">Browse cars</Link></Button>
+            </div>
+          )}
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+function PhaseBadge({ auction, phase }: { auction: Auction; phase: "upcoming" | "live" | "ended" }) {
+  const isFlash = auction.sale_mode === "flash_sale";
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold", phase === "live" ? "bg-ac-accent text-ac-ink" : phase === "ended" ? "bg-muted text-muted-foreground" : "bg-ac-powder text-ac-ink")}>
+      {isFlash ? <Zap className="h-3.5 w-3.5" /> : <Gavel className="h-3.5 w-3.5" />}
+      {isFlash ? "Flash offer" : phase === "live" ? "Live auction" : phase === "ended" ? "Auction ended" : "Upcoming auction"}
+    </span>
+  );
 }
 
 function AuctionRow({ auction, selected, formatPrice }: { auction: Auction; selected: boolean; formatPrice: (value: number) => string }) {
+  const now = useNow();
   const car = Array.isArray(auction.cars) ? auction.cars[0] : auction.cars;
   const isFlash = auction.sale_mode === "flash_sale";
-  return <Link to="/auctions" search={{ auction: auction.id }} className={`block rounded-2xl border p-4 transition ${selected ? "border-teal-500 bg-teal-50 shadow-sm dark:bg-teal-500/10" : "border-border bg-card hover:border-teal-400/60"}`}><div className="flex gap-3"><div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-muted">{car?.car_images?.[0]?.image_url && <img src={car.car_images[0].image_url} alt="" className="h-full w-full object-cover" />}</div><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><span className="text-[10px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300">{isFlash ? "Flash offer" : "Timed auction"}</span><span className="text-[10px] text-muted-foreground">{auction.bid_count} bids</span></div><p className="mt-1 truncate text-sm font-bold text-foreground">{car?.title || "Vehicle offer"}</p><p className="mt-1 font-mono text-sm font-bold text-foreground">{formatPrice(Number(auction.current_bid || auction.reserve_price || 0))}</p></div></div></Link>;
+  const phase = auctionPhase(auction, now);
+  const target = phase === "upcoming" ? new Date(auction.starts_at).getTime() : new Date(auction.ends_at).getTime();
+  return (
+    <Link to="/auctions" search={{ auction: auction.id }} className={cn("block rounded-3xl border p-3 transition", selected ? "border-foreground bg-card shadow-sm" : "border-border bg-card hover:border-foreground/40")}>
+      <div className="flex gap-3">
+        <div className="aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-2xl bg-muted">
+          {car?.car_images?.[0]?.image_url && <img src={car.car_images[0].image_url} alt="" loading="lazy" className="h-full w-full object-cover" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{isFlash ? "Flash offer" : "Timed auction"}</span>
+            <span className="text-[10px] text-muted-foreground">{auction.bid_count} bids</span>
+          </div>
+          <p className="mt-1 truncate text-sm font-bold text-foreground">{car?.title || "Vehicle offer"}</p>
+          <div className="mt-1 flex items-center justify-between gap-2">
+            <p className="font-mono text-sm font-bold text-foreground">{formatPrice(Number(auction.current_bid || auction.reserve_price || 0))}</p>
+            <span className={cn("inline-flex items-center gap-1 text-[11px] font-semibold tabular-nums", phase === "live" ? "rounded-full bg-ac-accent px-2 py-0.5 text-ac-ink" : "text-muted-foreground")}>
+              <Clock3 className="h-3 w-3" />
+              {phase === "ended" ? "Ended" : `${phase === "upcoming" ? "Starts" : "Ends"} ${shortCountdown(target - now)}`}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function Countdown({ auction }: { auction: Auction }) {
+  const now = useNow();
+  const phase = auctionPhase(auction, now);
+  const target = phase === "upcoming" ? new Date(auction.starts_at).getTime() : new Date(auction.ends_at).getTime();
+  const { d, h, m, s } = splitDuration(target - now);
+  if (phase === "ended") {
+    return (
+      <div className="rounded-2xl bg-muted px-4 py-3">
+        <p className="text-[11px] font-semibold text-muted-foreground">Auction ended</p>
+        <p className="mt-0.5 text-sm font-semibold text-foreground">{new Date(auction.ends_at).toLocaleString()}</p>
+      </div>
+    );
+  }
+  const units = [
+    { v: d, l: "days" },
+    { v: h, l: "hrs" },
+    { v: m, l: "min" },
+    { v: s, l: "sec" },
+  ];
+  return (
+    <div className={cn("rounded-2xl px-4 py-3", phase === "live" ? "bg-ac-ink text-white" : "bg-ac-powder text-ac-ink")} aria-live="off">
+      <p className={cn("text-[11px] font-semibold", phase === "live" ? "text-ac-accent" : "text-ac-ink/70")}>{phase === "live" ? "Ends in" : "Starts in"}</p>
+      <div className="mt-1 flex items-end gap-3">
+        {units.map((u) => (
+          <div key={u.l} className="text-center">
+            <p className="font-brand text-2xl tabular-nums sm:text-3xl">{String(u.v).padStart(2, "0")}</p>
+            <p className="text-[10px] uppercase tracking-wide opacity-70">{u.l}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function AuctionDesk({ auction, bids, bidAmount, setBidAmount, submitBid, claimWin, claiming, formatPrice }: { auction: Auction; bids: { amount: number; created_at: string; bidder_alias: string }[]; bidAmount: string; setBidAmount: (value: string) => void; submitBid: () => void; claimWin: () => void; claiming: boolean; formatPrice: (value: number) => string }) {
+  const now = useNow();
   const car = Array.isArray(auction.cars) ? auction.cars[0] : auction.cars;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const image = car?.car_images?.find((item: any) => item.is_primary)?.image_url || car?.car_images?.[0]?.image_url;
   const min = Number(auction.current_bid || auction.reserve_price || 0) + Number(auction.minimum_increment || 0);
-  const live = new Date(auction.starts_at) <= new Date() && new Date(auction.ends_at) > new Date();
-  const hasEnded = new Date(auction.ends_at) <= new Date();
-  return <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm"><div className="grid lg:grid-cols-[1.1fr_.9fr]"><div className="min-h-[260px] bg-muted">{image ? <img src={image} alt={car?.title || "Vehicle offer"} className="h-full w-full object-cover" /> : <div className="flex h-full min-h-[260px] items-center justify-center bg-gradient-to-br from-teal-100 to-slate-100 text-teal-700 dark:from-teal-950 dark:to-slate-900 dark:text-teal-300"><Gavel className="h-10 w-10" /></div>}</div><div className="p-6 sm:p-8"><div className="flex items-center justify-between gap-3"><span className="inline-flex items-center gap-1.5 rounded-full bg-teal-100 px-3 py-1 text-[11px] font-bold text-teal-800 dark:bg-teal-500/15 dark:text-teal-200">{auction.sale_mode === "flash_sale" ? <Zap className="h-3.5 w-3.5"/> : <Gavel className="h-3.5 w-3.5"/>}{auction.sale_mode === "flash_sale" ? "Flash offer" : live ? "Live auction" : hasEnded ? "Auction ended" : "Upcoming auction"}</span><span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="h-3.5 w-3.5"/>Ends {new Date(auction.ends_at).toLocaleString()}</span></div><h2 className="mt-4 text-2xl font-extrabold tracking-tight text-foreground">{car?.title || "Vehicle offer"}</h2><p className="mt-2 text-sm text-muted-foreground">{car?.location_display || "Location to be confirmed"}{car?.mileage ? ` · ${Number(car.mileage).toLocaleString()} ${car.mileage_unit || "km"}` : ""}</p><div className="mt-7 grid grid-cols-2 gap-3"><Metric label={auction.sale_mode === "flash_sale" ? "Offer price" : "Current bid"} value={formatPrice(Number(auction.current_bid || auction.reserve_price || 0))} /><Metric label="Minimum next bid" value={formatPrice(min)} /></div></div></div><div className="grid gap-6 border-t border-border p-6 sm:grid-cols-[1fr_.9fr] sm:p-8"><div>{hasEnded ? <><h3 className="font-bold">Winning bidder?</h3><p className="mt-1 text-sm leading-5 text-muted-foreground">Claim your 24-hour reservation. The next stage is payment pending; it will not show as paid without verified evidence.</p><Button onClick={claimWin} disabled={claiming} className="mt-5 rounded-xl">{claiming ? "Creating reservation…" : "Claim reservation"}</Button></> : <><h3 className="font-bold">Place your bid</h3><p className="mt-1 text-sm leading-5 text-muted-foreground">Your name stays private. Other people see a consistent masked alias and the amount only.</p><div className="mt-5 flex gap-2"><Input aria-label="Bid amount" type="number" min={min} value={bidAmount} onChange={(event) => setBidAmount(event.target.value)} className="h-11 rounded-xl font-mono"/><Button onClick={submitBid} disabled={!live || Number(bidAmount) < min} className="h-11 rounded-xl px-5 font-bold">Place bid</Button></div><p className="mt-3 flex items-start gap-2 text-xs leading-5 text-muted-foreground"><LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-teal-600"/>Bids are recorded against your account. A winner proceeds to reservation and payment verification; no payment is marked complete on this page.</p></>}</div><div className="rounded-2xl bg-muted/45 p-4"><h3 className="flex items-center gap-2 text-sm font-bold"><UserRound className="h-4 w-4 text-teal-600"/>Recent bid activity</h3><div className="mt-3 space-y-2">{bids.length ? bids.slice(0, 5).map((bid, index) => <div key={`${bid.created_at}-${index}`} className="flex items-center justify-between text-xs"><span className="font-medium text-foreground">{bid.bidder_alias}</span><span className="font-mono font-bold text-foreground">{formatPrice(Number(bid.amount))}</span></div>) : <p className="text-xs text-muted-foreground">No bids yet. The first valid bid must meet the minimum.</p>}</div><p className="mt-4 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-teal-600"/>Evidence is reviewed separately on the vehicle page.</p></div></div></div>;
+  const phase = auctionPhase(auction, now);
+  const live = phase === "live";
+  const hasEnded = phase === "ended";
+  return (
+    <div className="overflow-hidden rounded-[28px] border border-border bg-card">
+      <div className="relative aspect-[16/10] bg-muted">
+        {image ? <img src={image} alt={car?.title || "Vehicle offer"} className="h-full w-full object-cover" /> : <div className="flex h-full items-center justify-center bg-ac-cream text-ac-ink"><Gavel className="h-10 w-10" /></div>}
+        <div className="absolute left-4 top-4"><PhaseBadge auction={auction} phase={phase} /></div>
+      </div>
+      <div className="p-5 sm:p-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h2 className="font-brand text-2xl text-foreground sm:text-3xl">{car?.title || "Vehicle offer"}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{car?.location_display || "Location to be confirmed"}{car?.mileage ? ` · ${Number(car.mileage).toLocaleString()} ${car.mileage_unit || "km"}` : ""}</p>
+            <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 className="h-3.5 w-3.5" />Ends {new Date(auction.ends_at).toLocaleString()}</p>
+            {car?.id && <Link to="/cars/$id" params={{ id: car.id }} className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-foreground underline-offset-4 hover:underline">See vehicle evidence →</Link>}
+          </div>
+          <div className="shrink-0"><Countdown auction={auction} /></div>
+        </div>
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <Metric label={auction.sale_mode === "flash_sale" ? "Offer price" : "Current bid"} value={formatPrice(Number(auction.current_bid || auction.reserve_price || 0))} strong />
+          <Metric label="Minimum next bid" value={formatPrice(min)} />
+        </div>
+      </div>
+      <div className="grid gap-6 border-t border-border p-5 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,.9fr)]">
+        <div>
+          {hasEnded ? (
+            <>
+              <h3 className="font-brand text-xl">Winning bidder?</h3>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Claim your 24-hour reservation. The next stage is payment pending; it will not show as paid without verified evidence.</p>
+              <Button onClick={claimWin} disabled={claiming} className="mt-5 h-12 rounded-full bg-ac-accent px-6 font-extrabold text-ac-ink hover:bg-ac-accent/90">{claiming ? "Creating reservation…" : "Claim reservation"}</Button>
+            </>
+          ) : (
+            <>
+              <h3 className="font-brand text-xl">Place your bid</h3>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">Your name stays private. Other people see a consistent masked alias and the amount only.</p>
+              <div className="mt-5 flex flex-col gap-2 min-[420px]:flex-row">
+                <Input aria-label="Bid amount" type="number" inputMode="decimal" min={min} value={bidAmount} onChange={(event) => setBidAmount(event.target.value)} className="h-12 min-w-0 flex-1 rounded-full px-5 font-mono text-base" />
+                <Button onClick={submitBid} disabled={!live || Number(bidAmount) < min} className="h-12 rounded-full bg-ac-accent px-6 font-extrabold text-ac-ink hover:bg-ac-accent/90">Place bid</Button>
+              </div>
+              {!live && <p className="mt-2 text-xs font-semibold text-muted-foreground">Bidding opens when the auction goes live.</p>}
+              <p className="mt-3 flex items-start gap-2 text-xs leading-5 text-muted-foreground"><LockKeyhole className="mt-0.5 h-3.5 w-3.5 shrink-0 text-foreground" />Bids are recorded against your account. A winner proceeds to reservation and payment verification; no payment is marked complete on this page.</p>
+            </>
+          )}
+        </div>
+        <div className="rounded-3xl bg-muted/50 p-4 sm:p-5">
+          <h3 className="flex items-center gap-2 text-sm font-bold"><UserRound className="h-4 w-4 text-foreground" />Recent bid activity</h3>
+          <div className="mt-3 space-y-2">
+            {bids.length ? bids.slice(0, 5).map((bid, index) => (
+              <div key={`${bid.created_at}-${index}`} className="flex items-center justify-between gap-2 text-xs">
+                <span className="truncate font-medium text-foreground">{bid.bidder_alias}</span>
+                <span className="font-mono font-bold text-foreground">{formatPrice(Number(bid.amount))}</span>
+              </div>
+            )) : <p className="text-xs text-muted-foreground">No bids yet. The first valid bid must meet the minimum.</p>}
+          </div>
+          <p className="mt-4 flex items-center gap-1.5 border-t border-border pt-3 text-[11px] text-muted-foreground"><ShieldCheck className="h-3.5 w-3.5 text-foreground" />Evidence is reviewed separately on the vehicle page.</p>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-function Metric({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl border border-border bg-background p-3"><p className="text-[11px] text-muted-foreground">{label}</p><p className="mt-1 font-mono text-base font-bold text-foreground">{value}</p></div>; }
+function Metric({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className={cn("rounded-2xl border p-3 sm:p-4", strong ? "border-transparent bg-ac-cream text-ac-ink" : "border-border bg-background")}>
+      <p className={cn("text-[11px]", strong ? "text-ac-ink/70" : "text-muted-foreground")}>{label}</p>
+      <p className="mt-1 font-mono text-base font-bold sm:text-lg">{value}</p>
+    </div>
+  );
+}

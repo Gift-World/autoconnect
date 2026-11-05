@@ -1,9 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,12 +16,21 @@ import {
 import { toast } from "sonner";
 import {
   AlertTriangle,
+  ArrowRight,
+  ArrowRightLeft,
+  BadgeCheck,
   Clock3,
   Eye,
+  FileBadge,
+  FileSpreadsheet,
+  Gavel,
+  Inbox,
   Pencil,
   Plus,
+  Store,
   Trash2,
-  FileSpreadsheet,
+  Wallet,
+  Wrench,
   Zap,
   Car as CarIcon,
   CheckCircle2,
@@ -36,6 +43,7 @@ import { StatusPill } from "@/components/StatusPill";
 import { DEMO_MODE } from "@/contexts/AuthContext";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { AnalyticsChart } from "@/components/seller/AnalyticsChart";
+import { EmptyPanel, ListSkeleton, Notice, Panel, StatTile } from "@/components/seller/SellerUI";
 
 export const Route = createFileRoute("/_authenticated/seller/")({
   component: SellerDashboard,
@@ -246,364 +254,510 @@ function SellerDashboard() {
     }
   }
 
+
   const total = rows?.length ?? 0;
   const approved = rows?.filter((r) => r.status === "approved").length ?? 0;
   const pending = rows?.filter((r) => r.status === "pending").length ?? 0;
   const views = rows?.reduce((s, r) => s + (r.views ?? 0), 0) ?? 0;
+  const loading = rows === null;
 
   return (
-    <div className="space-y-6">
-      {seller && !seller.is_approved && !seller.is_suspended && (
-        <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-warning/10 p-4">
-          <Clock3 className="mt-0.5 h-5 w-5 text-warning" />
-          <div className="flex-1 text-sm">
-            <p className="font-semibold text-foreground">Your seller account is under review</p>
-            <p className="mt-0.5 text-muted-foreground">
-              You can prepare listings now — they'll go live once an admin approves your account.
-              We'll notify you as soon as you're approved.
-            </p>
-          </div>
-        </div>
-      )}
-      {seller?.is_suspended && (
-        <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4">
-          <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
-          <div className="flex-1 text-sm">
-            <p className="font-semibold text-foreground">Account suspended</p>
-            <p className="mt-0.5 text-muted-foreground">
-              {seller.rejection_reason ?? "Contact support to resolve this."}
-            </p>
-          </div>
-        </div>
-      )}
-      {seller?.is_approved && (
-        <div className="flex items-start gap-3 rounded-xl border border-success/30 bg-success/10 p-4">
-          <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />
-          <div className="flex-1 text-sm">
-            <p className="font-semibold text-foreground">You're approved to sell</p>
-            <p className="mt-0.5 text-muted-foreground">
-              New listings still pass through a quick quality review before going live.
-            </p>
-          </div>
-        </div>
-      )}
-
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
         eyebrow="Seller workspace"
-        title="Run your showroom"
-        description="Keep listings, buyer conversations, documents and review readiness in one clear operating view."
+        title="Today in your showroom"
+        description="What needs you now, how your cars are doing, and everything else one tap away."
         actions={
-          <div className="flex items-center gap-2">
-            <Button asChild variant="outline">
+          <>
+            <Button asChild variant="outline" className="h-11 rounded-full px-5">
               <Link to="/seller/listings/import">
-                Bulk Import
+                <FileSpreadsheet className="h-4 w-4" /> Bulk import
               </Link>
             </Button>
-            <Button asChild className="bg-primary hover:bg-primary/90 btn-press">
-              <Link to="/seller/listings/new">
-                <Plus className="mr-2 h-4 w-4" /> New listing
+            <Button
+              asChild
+              className="h-11 rounded-full bg-ac-accent px-5 text-ac-ink hover:bg-ac-accent/90"
+            >
+              <Link to="/seller/listings/new" search={{ edit: undefined }}>
+                <Plus className="h-4 w-4" /> New listing
               </Link>
             </Button>
-          </div>
+          </>
         }
       />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat
-          icon={<CarIcon className="h-4 w-4" />}
-          label="Listings"
-          value={total}
-          tone="primary"
-        />
-        <Stat
-          icon={<CheckCircle2 className="h-4 w-4" />}
+      {seller && !seller.is_approved && !seller.is_suspended && (
+        <Notice
+          tone="warning"
+          icon={<Clock3 />}
+          title="Your seller account is under review"
+          action={
+            <Button asChild variant="outline" className="h-11 rounded-full">
+              <Link to="/seller/verify">Check verification</Link>
+            </Button>
+          }
+        >
+          You can prepare listings now — they'll go live once an admin approves your account.
+          We'll notify you as soon as you're approved.
+        </Notice>
+      )}
+      {seller?.is_suspended && (
+        <Notice tone="danger" icon={<AlertTriangle />} title="Account suspended">
+          {seller.rejection_reason ?? "Contact support to resolve this."}
+        </Notice>
+      )}
+      {seller?.is_approved && (
+        <Notice tone="success" icon={<CheckCircle2 />} title="You're approved to sell">
+          New listings still pass through a quick quality review before going live.
+        </Notice>
+      )}
+
+      {/* Stat row — the numbers a seller checks first */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <Link
+          to="/seller/inquiries"
+          className="rounded-3xl transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          <StatTile
+            featured
+            icon={<MessageSquare />}
+            label="Unread inquiries"
+            value={openInquiries}
+            sub={openInquiries > 0 ? "Reply while interest is warm" : "All caught up"}
+            loading={loading}
+          />
+        </Link>
+        <StatTile
+          icon={<CheckCircle2 />}
+          tone="success"
           label="Live"
           value={approved}
-          tone="success"
           sub={`${pending} pending`}
+          loading={loading}
         />
-        <Stat
-          icon={<TrendingUp className="h-4 w-4" />}
+        <StatTile
+          icon={<TrendingUp />}
+          tone="accent"
           label="Total views"
           value={views.toLocaleString()}
-          tone="primary"
+          sub="Across all listings"
+          loading={loading}
         />
-        <Stat
-          icon={<MessageSquare className="h-4 w-4" />}
-          label="Unread inquiries"
-          value={openInquiries}
-          tone="accent"
+        <StatTile
+          icon={<CarIcon />}
+          label="Listings"
+          value={total}
+          sub="In your inventory"
+          loading={loading}
         />
       </div>
 
-      {rows && rows.length > 0 && <AnalyticsChart listings={rows} />}
-
-      {sellerId && <SellerReadiness sellerId={sellerId} />}
-
-      <h2 className="text-xl font-semibold tracking-tight">My listings</h2>
-
-      {rows === null ? (
-        <div className="rounded-lg border bg-card p-12 text-center text-sm text-muted-foreground">
-          Loading…
-        </div>
-      ) : !sellerId ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-sm text-muted-foreground">
-              Your seller profile is being prepared. Please refresh in a moment.
-            </p>
-          </CardContent>
-        </Card>
-      ) : rows.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 p-12 text-center">
-            <CarIcon className="h-10 w-10 text-muted-foreground" />
-            <div>
-              <h3 className="font-semibold">No listings yet</h3>
-              <p className="text-sm text-muted-foreground">
-                Add your first vehicle to start receiving inquiries.
-              </p>
+      {/* Needs your attention */}
+      {(openInquiries > 0 || pending > 0 || sellerId) && (
+        <section className="space-y-3" aria-labelledby="attention-heading">
+          <div>
+            <p className="brand-kicker text-muted-foreground">Needs your attention</p>
+            <h2 id="attention-heading" className="font-brand mt-1 text-2xl sm:text-3xl">
+              Start here
+            </h2>
+          </div>
+          {(openInquiries > 0 || pending > 0) && (
+            <div className="grid gap-3 md:grid-cols-2">
+              {openInquiries > 0 && (
+                <AttentionCard
+                  to="/seller/inquiries"
+                  icon={<MessageSquare />}
+                  title={`${openInquiries} unread ${openInquiries === 1 ? "inquiry" : "inquiries"}`}
+                  body="Buyers are waiting for a reply. Fast answers win more sales."
+                  cta="Open inquiries"
+                />
+              )}
+              {pending > 0 && (
+                <AttentionCard
+                  to="/seller/documents"
+                  icon={<Clock3 />}
+                  title={`${pending} ${pending === 1 ? "listing" : "listings"} waiting for review`}
+                  body="Add documents so the review team can approve faster."
+                  cta="Add documents"
+                />
+              )}
             </div>
-            <Button asChild className="mt-2">
-              <Link to="/seller/listings/new">
-                <Plus className="mr-2 h-4 w-4" /> Create listing
+          )}
+          {sellerId && <SellerReadiness sellerId={sellerId} />}
+        </section>
+      )}
+
+      {/* Listings */}
+      <Panel
+        kicker="Inventory"
+        title="My listings"
+        description={
+          rows && rows.length > 0
+            ? `${total} ${total === 1 ? "car" : "cars"} · ${approved} live · ${pending} pending`
+            : undefined
+        }
+        actions={
+          rows && rows.length > 0 ? (
+            <Button asChild variant="outline" className="h-11 rounded-full">
+              <Link to="/seller/listings/new" search={{ edit: undefined }}>
+                <Plus className="h-4 w-4" /> Add a car
               </Link>
             </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          <div className="hidden sm:block overflow-hidden rounded-lg border bg-card">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="px-4 py-3">Vehicle</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Price</th>
-                  <th className="px-4 py-3">Country</th>
-                  <th className="px-4 py-3">Views</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => {
-                  const country = countryByCode(r.country);
-                  return (
-                    <tr key={r.id} className="border-t">
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="h-12 w-16 shrink-0 overflow-hidden rounded bg-muted">
-                            {r.primary_image ? (
-                              <img
-                                src={r.primary_image}
-                                alt={r.title}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                                No image
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="truncate font-medium">{r.title}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {r.year}
-                              {r.featured && " · Featured"}
-                              {r.featured && " · Premium ⚡"}
-                              {r.available_for_export && " · Export"}
+          ) : undefined
+        }
+      >
+        {rows === null ? (
+          <ListSkeleton rows={3} />
+        ) : !sellerId ? (
+          <EmptyPanel
+            icon={<Store />}
+            title="Your seller profile is being prepared"
+            description="Please refresh in a moment. If this keeps showing, finish your seller verification."
+            action={
+              <Button asChild className="h-11 rounded-full">
+                <Link to="/seller/verify">Go to verification</Link>
+              </Button>
+            }
+          />
+        ) : rows.length === 0 ? (
+          <EmptyPanel
+            icon={<CarIcon />}
+            title="No listings yet"
+            description="Add your first vehicle to start receiving inquiries."
+            action={
+              <>
+                <Button
+                  asChild
+                  className="h-11 rounded-full bg-ac-accent px-5 text-ac-ink hover:bg-ac-accent/90"
+                >
+                  <Link to="/seller/listings/new" search={{ edit: undefined }}>
+                    <Plus className="h-4 w-4" /> Create listing
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="h-11 rounded-full">
+                  <Link to="/seller/listings/import">Bulk import</Link>
+                </Button>
+              </>
+            }
+          />
+        ) : (
+          <>
+            {/* md and up: table that scrolls inside its own container */}
+            <div className="hidden overflow-x-auto rounded-2xl border border-border md:block">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead className="bg-muted/40 text-left text-[11px] uppercase tracking-wider text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Vehicle</th>
+                    <th className="px-4 py-3 font-semibold">Status</th>
+                    <th className="px-4 py-3 font-semibold">Price</th>
+                    <th className="px-4 py-3 font-semibold">Country</th>
+                    <th className="px-4 py-3 font-semibold">Views</th>
+                    <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => {
+                    const country = countryByCode(r.country);
+                    return (
+                      <tr key={r.id} className="border-t border-border transition hover:bg-muted/30">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <ListingThumb row={r} className="aspect-[4/3] w-20" />
+                            <div className="min-w-0">
+                              <div className="max-w-[240px] truncate font-semibold">{r.title}</div>
+                              <ListingFlags row={r} />
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusPill status={r.status} />
-                      </td>
-                      <td className="px-4 py-3 font-medium">
-                        {r.currency}{" "}
-                        {Number(r.price).toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {country ? `${country.flag} ${country.name}` : r.country}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground">{r.views}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button asChild size="icon" variant="ghost" title="View">
-                            <Link to="/cars/$id" params={{ id: r.id }}>
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                          {!r.featured && (
-                            <Button 
-                              size="icon" 
-                              variant="ghost" 
-                              title="Boost Listing ($19.99)" 
-                              className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10"
-                              onClick={() => handleBoostListing(r.id)}
-                            >
-                              <Zap className="h-4 w-4" />
-                            </Button>
-                          )}
-                          <Button asChild size="icon" variant="ghost" title="Edit listing">
-                            <Link to="/seller/listings/new" search={{ edit: r.id }}>
-                              <Pencil className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button size="icon" variant="ghost" title="Delete">
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Delete listing?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This will permanently remove "{r.title}" and its photos. This
-                                  cannot be undone.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteListing(r.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusPill status={r.status} />
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 font-semibold">
+                          {formatPrice(r)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
+                          {country ? `${country.flag} ${country.name}` : r.country}
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">{r.views}</td>
+                        <td className="px-4 py-3">
+                          <ListingActions
+                            row={r}
+                            onBoost={handleBoostListing}
+                            onDelete={deleteListing}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-          <div className="grid gap-3 sm:hidden">
-            {rows.map((r) => {
-              const country = countryByCode(r.country);
-              return (
-                <div key={r.id} className="rounded-lg border bg-card p-4">
-                  <div className="flex gap-3">
-                    <div className="h-20 w-28 shrink-0 overflow-hidden rounded bg-muted">
-                      {r.primary_image ? (
-                        <img
-                          src={r.primary_image}
-                          alt={r.title}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-                          No image
-                        </div>
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1 space-y-1.5">
-                      <h3 className="line-clamp-2 text-sm font-medium">{r.title}</h3>
+            {/* Below md: cards */}
+            <div className="grid gap-3 sm:grid-cols-2 md:hidden">
+              {rows.map((r) => {
+                const country = countryByCode(r.country);
+                return (
+                  <article
+                    key={r.id}
+                    className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card"
+                  >
+                    <ListingThumb row={r} className="aspect-[4/3] w-full rounded-none" />
+                    <div className="flex-1 space-y-2 p-4">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <StatusPill status={r.status} />
-                        <span className="text-xs text-muted-foreground">{r.year}</span>
                       </div>
-                      <div className="font-semibold text-primary">
-                        {r.currency}{" "}
-                        {Number(r.price).toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}
+                      <h3 className="line-clamp-2 font-semibold leading-snug">{r.title}</h3>
+                      <p className="font-brand text-xl">{formatPrice(r)}</p>
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Eye className="h-3.5 w-3.5" /> {r.views} views
+                        </span>
+                        <span aria-hidden>•</span>
+                        <span>{country?.name ?? r.country}</span>
                       </div>
+                      <ListingFlags row={r} />
                     </div>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3.5 w-3.5" /> {r.views}
-                      </span>
-                      <span>•</span>
-                      <span>{country?.name ?? r.country}</span>
+                    <div className="border-t border-border px-2 py-1">
+                      <ListingActions
+                        row={r}
+                        onBoost={handleBoostListing}
+                        onDelete={deleteListing}
+                        className="justify-between"
+                      />
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Button asChild size="icon" variant="ghost" className="h-8 w-8">
-                        <Link to="/cars/$id" params={{ id: r.id }}>
-                          <Eye className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <Button asChild size="icon" variant="ghost" className="h-8 w-8" title="Edit listing">
-                        <Link to="/seller/listings/new" search={{ edit: r.id }}>
-                          <Pencil className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete listing?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This will permanently remove "{r.title}" and its photos. This cannot
-                              be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteListing(r.id)}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </>
+                  </article>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Panel>
+
+      {rows && rows.length > 0 && <AnalyticsChart listings={rows} />}
+
+      {/* Everything else */}
+      <section className="space-y-3" aria-labelledby="everything-else">
+        <p id="everything-else" className="brand-kicker text-muted-foreground">
+          Everything else
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {SHORTCUTS.map((s) => (
+            <Link
+              key={s.to}
+              to={s.to as never}
+              className="group flex min-h-[88px] items-start gap-3 rounded-2xl border border-border bg-card p-4 transition hover:border-foreground/20 hover:bg-muted/40"
+            >
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-muted text-foreground [&_svg]:h-4 [&_svg]:w-4">
+                {s.icon}
+              </span>
+              <span className="min-w-0">
+                <span className="flex items-center gap-1 text-sm font-semibold">
+                  {s.label}
+                  <ArrowRight className="h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" />
+                </span>
+                <span className="mt-0.5 block text-xs leading-5 text-muted-foreground">
+                  {s.body}
+                </span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+const SHORTCUTS: { to: string; label: string; body: string; icon: ReactNode }[] = [
+  {
+    to: "/seller/transactions",
+    label: "Transactions & payouts",
+    body: "Sales, held payments and handover.",
+    icon: <Wallet />,
+  },
+  { to: "/seller/yard", label: "My car yard", body: "Your public storefront.", icon: <Store /> },
+  {
+    to: "/seller/documents",
+    label: "Documents",
+    body: "Paperwork for each listing.",
+    icon: <FileBadge />,
+  },
+  {
+    to: "/seller/inspections",
+    label: "Inspections",
+    body: "Request an independent check.",
+    icon: <Wrench />,
+  },
+  {
+    to: "/seller/auctions",
+    label: "Auctions & flash offers",
+    body: "Schedule a timed sale.",
+    icon: <Gavel />,
+  },
+  {
+    to: "/seller/trade-ins",
+    label: "Trade-in leads",
+    body: "Buyers offering their car in part-exchange.",
+    icon: <ArrowRightLeft />,
+  },
+  {
+    to: "/seller/import-requests",
+    label: "Import requests",
+    body: "Open requests from buyers abroad.",
+    icon: <Inbox />,
+  },
+  {
+    to: "/seller/verify",
+    label: "Verify account",
+    body: "Identity and business documents.",
+    icon: <BadgeCheck />,
+  },
+];
+
+function formatPrice(r: ListingRow) {
+  return `${r.currency} ${Number(r.price).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+
+function AttentionCard({
+  to,
+  icon,
+  title,
+  body,
+  cta,
+}: {
+  to: string;
+  icon: ReactNode;
+  title: string;
+  body: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      to={to as never}
+      className="group flex items-center gap-4 rounded-3xl border border-ac-accent/30 bg-ac-accent/10 p-4 transition hover:border-ac-accent/60 sm:p-5"
+    >
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-ac-accent text-ac-ink [&_svg]:h-5 [&_svg]:w-5">
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-semibold text-foreground">{title}</span>
+        <span className="mt-0.5 block text-sm leading-6 text-muted-foreground">{body}</span>
+      </span>
+      <span className="hidden shrink-0 items-center gap-1 text-sm font-semibold text-foreground sm:inline-flex">
+        {cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+      </span>
+      <ArrowRight className="h-5 w-5 shrink-0 sm:hidden" aria-label={cta} />
+    </Link>
+  );
+}
+
+function ListingThumb({ row, className }: { row: ListingRow; className?: string }) {
+  return (
+    <div className={`shrink-0 overflow-hidden rounded-xl bg-muted ${className ?? ""}`}>
+      {row.primary_image ? (
+        <img
+          src={row.primary_image}
+          alt={row.title}
+          loading="lazy"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground">
+          <CarIcon className="h-5 w-5" />
+          No image
+        </div>
       )}
     </div>
   );
 }
 
-function Stat({
-  icon,
-  label,
-  value,
-  sub,
-  tone = "primary",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: number | string;
-  sub?: string;
-  tone?: "primary" | "success" | "accent";
-}) {
-  const toneClass =
-    tone === "success"
-      ? "bg-success/10 text-success"
-      : tone === "accent"
-        ? "bg-accent/10 text-accent"
-        : "bg-primary/10 text-primary";
+function ListingFlags({ row }: { row: ListingRow }) {
+  const flags: string[] = [];
+  if (row.featured) flags.push("Featured", "Premium ⚡");
+  if (row.available_for_export) flags.push("Export");
   return (
-    <Card className="border-border/60 shadow-none">
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className={`grid h-10 w-10 place-items-center rounded-lg ${toneClass}`}>{icon}</div>
-        <div className="min-w-0">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-          <div className="text-2xl font-semibold tracking-tight">{value}</div>
-          {sub && <div className="text-[11px] text-muted-foreground">{sub}</div>}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+      <span>{row.year}</span>
+      {flags.map((f) => (
+        <span key={f} className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium">
+          {f}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ListingActions({
+  row,
+  onBoost,
+  onDelete,
+  className,
+}: {
+  row: ListingRow;
+  onBoost: (id: string) => void;
+  onDelete: (id: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center justify-end gap-1 ${className ?? ""}`}>
+      <Button asChild size="icon" variant="ghost" className="h-11 w-11 rounded-full" title="View">
+        <Link to="/cars/$id" params={{ id: row.id }} aria-label={`View ${row.title}`}>
+          <Eye className="h-4 w-4" />
+        </Link>
+      </Button>
+      {!row.featured && (
+        <Button
+          size="icon"
+          variant="ghost"
+          title="Boost Listing ($19.99)"
+          aria-label="Boost listing ($19.99)"
+          className="h-11 w-11 rounded-full text-amber-700 hover:bg-amber-50 hover:text-amber-800 dark:text-amber-400 dark:hover:bg-amber-500/10"
+          onClick={() => onBoost(row.id)}
+        >
+          <Zap className="h-4 w-4" />
+        </Button>
+      )}
+      <Button
+        asChild
+        size="icon"
+        variant="ghost"
+        className="h-11 w-11 rounded-full"
+        title="Edit listing"
+      >
+        <Link to="/seller/listings/new" search={{ edit: row.id }} aria-label="Edit listing">
+          <Pencil className="h-4 w-4" />
+        </Link>
+      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-11 w-11 rounded-full text-destructive"
+            title="Delete"
+            aria-label="Delete listing"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete listing?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{row.title}" and its photos. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => onDelete(row.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 }

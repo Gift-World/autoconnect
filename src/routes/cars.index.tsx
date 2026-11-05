@@ -1,26 +1,24 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { useState, useEffect, useMemo } from "react";
 import {
-  Search,
-  MapPin,
-  Gauge,
-  Plane,
-  Filter,
-  X,
-  Navigation,
-  Loader2,
-  Sparkles,
   BookmarkPlus,
+  Layers,
+  Loader2,
+  MapPin,
+  MoreHorizontal,
+  Navigation,
+  Plane,
   PlusCircle,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
+  RefreshCw,
   Scale,
-  Smartphone,
-  Zap,
+  Search,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiSmartSearch } from "@/lib/ai.functions";
@@ -29,7 +27,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -37,22 +34,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { COUNTRIES, countryByCode } from "@/lib/countries";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
-import { FavoriteButton } from "@/components/FavoriteButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { COUNTRIES } from "@/lib/countries";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { CarCard, CarCardSkeleton } from "@/components/CarCard";
 import { VehicleDrawer, type DrawerCar } from "@/components/drawer/VehicleDrawer";
 import { PriceRangeSlider } from "@/components/filter/PriceRangeSlider";
-import { ActiveFilterChips } from "@/components/filter/ActiveFilterChips";
+import {
+  ActiveFilterChips,
+  getActiveFilterChips,
+} from "@/components/filter/ActiveFilterChips";
 import { QuickListingModal } from "@/components/listing/QuickListingModal";
 import {
-  AiCarFinderSearchBar,
+  parseNaturalLanguage,
   type ParsedAiFilters,
 } from "@/components/search/AiCarFinderSearchBar";
+import { SmartSearchBar } from "@/components/search/SmartSearchBar";
 import { TradeInEstimatorModal } from "@/components/estimator/TradeInEstimatorModal";
 import { SwipeBrowseMode } from "@/components/browse/SwipeBrowseMode";
-import { useCurrency } from "@/contexts/CurrencyContext";
-import { useVehicleComparison } from "@/contexts/ComparisonContext";
+import { cn } from "@/lib/utils";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -110,6 +116,7 @@ type CarRow = {
   available_for_export: boolean;
   featured: boolean;
   is_premium?: boolean;
+  is_sample?: boolean;
   created_at: string;
   latitude: number | null;
   longitude: number | null;
@@ -118,23 +125,38 @@ type CarRow = {
 
 type SearchState = z.infer<typeof searchSchema>;
 
-function formatPrice(price: number, currency: string) {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(price);
-  } catch {
-    return `${currency} ${price.toLocaleString()}`;
-  }
-}
-
 function primaryImage(car: CarRow): string | null {
   if (!car.car_images?.length) return null;
   const p = car.car_images.find((i) => i.is_primary);
   const sorted = [...car.car_images].sort((a, b) => a.sort_order - b.sort_order);
   return (p ?? sorted[0])?.image_url ?? null;
+}
+
+/** Plain-language labels for what smart search understood (shown under the search box). */
+function describeFilters(filters: Record<string, unknown>): string[] {
+  const labels: Record<string, string> = {
+    make: "Make",
+    model: "Model",
+    bodyType: "Body",
+    minPrice: "Min price",
+    maxPrice: "Max price",
+    minYear: "From",
+    maxYear: "To",
+    maxMileage: "Max km",
+    transmission: "Gearbox",
+    fuelType: "Fuel",
+    country: "Country",
+    rhd: "Steering",
+    exportOnly: "Export only",
+    condition: "Condition",
+  };
+  return Object.entries(filters)
+    .filter(([k, v]) => k !== "q" && v !== undefined && v !== "" && v !== false)
+    .map(([k, v]) =>
+      k === "exportOnly"
+        ? "Export only"
+        : `${labels[k] ?? k}: ${typeof v === "number" ? v.toLocaleString() : String(v)}`,
+    );
 }
 
 function CarsListPage() {
@@ -147,6 +169,8 @@ function CarsListPage() {
   const [quickListOpen, setQuickListOpen] = useState(false);
   const [tradeInOpen, setTradeInOpen] = useState(false);
   const [swipeModeOpen, setSwipeModeOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [interpreted, setInterpreted] = useState<string[] | null>(null);
 
   const saveSearch = () => {
     const params = new URLSearchParams();
@@ -206,10 +230,29 @@ function CarsListPage() {
     staleTime: 5 * 60_000,
   });
 
+  const handleAiFilters = (filters: ParsedAiFilters) => {
+    updateSearch({
+      q: filters.q !== undefined ? filters.q : undefined,
+      make: filters.make !== undefined ? filters.make : undefined,
+      minPrice: filters.minPrice !== undefined ? filters.minPrice : undefined,
+      maxPrice: filters.maxPrice !== undefined ? filters.maxPrice : undefined,
+      minYear: filters.minYear !== undefined ? filters.minYear : undefined,
+      maxYear: filters.maxYear !== undefined ? filters.maxYear : undefined,
+      exportOnly: filters.exportOnly !== undefined ? filters.exportOnly : undefined,
+      rhd: filters.rhd !== undefined ? filters.rhd : undefined,
+      country: filters.country !== undefined ? filters.country : undefined,
+    });
+  };
+
   const [aiSearching, setAiSearching] = useState(false);
-  const runSmartSearch = async () => {
-    const q = qInput.trim();
+  /**
+   * One smart search: the server AI (aiSmartSearch) turns plain words into filters.
+   * If it is unavailable, the on-device parser keeps search working.
+   */
+  const runSmartSearch = async (text?: string) => {
+    const q = (text ?? qInput).trim();
     if (!q) return;
+    setQInput(q);
     setAiSearching(true);
     try {
       const filters = await aiSmartSearch({ data: { query: q } });
@@ -230,22 +273,33 @@ function CarsListPage() {
         .filter(([, v]) => v !== undefined && v !== "" && v !== false)
         .map(([k, v]) => `${k}: ${v}`)
         .join(" · ");
+      setInterpreted(describeFilters(filters as Record<string, unknown>));
       toast.success("AI applied filters", { description: applied || "Search updated" });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "AI search failed";
-      toast.error(msg);
+      const parsed = parseNaturalLanguage(q);
+      handleAiFilters(parsed);
+      setInterpreted(describeFilters(parsed as Record<string, unknown>));
+      toast.warning("AI search is unavailable, so we matched your words on this device", {
+        description: msg,
+      });
     } finally {
       setAiSearching(false);
     }
   };
 
-  const { data: cars, isLoading } = useQuery({
+  const {
+    data: cars,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ["cars", search],
     queryFn: async () => {
       let query = supabase
         .from("cars")
         .select(
-          "id,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,condition,steering_side,right_hand_drive,available_for_export,featured,created_at,latitude,longitude,car_images(image_url,is_primary,sort_order)",
+          "id,is_sample,title,make_name,model_name,year,price,currency,country,city,location_display,mileage,mileage_unit,transmission,fuel_type,condition,steering_side,right_hand_drive,available_for_export,featured,created_at,latitude,longitude,car_images(image_url,is_primary,sort_order)",
         )
         .eq("status", "approved")
         .order("featured", { ascending: false })
@@ -287,33 +341,30 @@ function CarsListPage() {
     });
   };
 
-  const hasFilters = !!(
-    search.q ||
-    search.country ||
-    search.make ||
-    search.condition ||
-    search.minPrice ||
-    search.maxPrice ||
-    search.minYear ||
-    search.maxYear ||
-    search.exportOnly ||
-    search.rhd ||
-    search.near
-  );
+  const resetAll = () => {
+    setInterpreted(null);
+    navigate({ search: {} as never });
+  };
 
-  const displayedCars = useMemo(() => {
+  const activeCount = getActiveFilterChips(search).length;
+  const hasFilters = activeCount > 0;
+
+  const { displayedCars, distances } = useMemo(() => {
     let list = cars ? [...cars] : [];
     try {
       const custom = JSON.parse(localStorage.getItem("autoconnect_custom_listings") || "[]");
       if (Array.isArray(custom) && custom.length > 0) {
         list = [...custom, ...list];
       }
-    } catch (_) {}
+    } catch {
+      // Ignore malformed local listings.
+    }
 
-    if (!search.near || !userCoords) return list;
+    const dist = new Map<string, number>();
+    if (!search.near || !userCoords) return { displayedCars: list, distances: dist };
     const R = 6371; // km
     const toRad = (n: number) => (n * Math.PI) / 180;
-    return list
+    const sorted = list
       .map((c) => {
         if (c.latitude == null || c.longitude == null) return { c, d: Infinity };
         const dLat = toRad(c.latitude - userCoords.lat);
@@ -325,272 +376,295 @@ function CarsListPage() {
         return { c, d };
       })
       .filter((x) => x.d <= search.near)
-      .sort((a, b) => a.d - b.d)
-      .map((x) => x.c);
+      .sort((a, b) => a.d - b.d);
+    sorted.forEach((x) => dist.set(x.c.id, x.d));
+    return { displayedCars: sorted.map((x) => x.c), distances: dist };
   }, [cars, search.near, userCoords]);
 
-  const handleAiFilters = (filters: ParsedAiFilters) => {
-    updateSearch({
-      q: filters.q !== undefined ? filters.q : undefined,
-      make: filters.make !== undefined ? filters.make : undefined,
-      minPrice: filters.minPrice !== undefined ? filters.minPrice : undefined,
-      maxPrice: filters.maxPrice !== undefined ? filters.maxPrice : undefined,
-      minYear: filters.minYear !== undefined ? filters.minYear : undefined,
-      maxYear: filters.maxYear !== undefined ? filters.maxYear : undefined,
-      exportOnly: filters.exportOnly !== undefined ? filters.exportOnly : undefined,
-      rhd: filters.rhd !== undefined ? filters.rhd : undefined,
-      country: filters.country !== undefined ? filters.country : undefined,
-    });
+  const nearActive = !!search.near && !!userCoords;
+  const count = displayedCars?.length ?? 0;
+
+  const clearNear = () => {
+    setUserCoords(null);
+    updateSearch({ near: 0 });
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-8 sm:px-6">
-      <section className="relative overflow-hidden rounded-[30px] border border-border/80 bg-card px-5 py-7 shadow-card sm:px-8 sm:py-9">
-        <div className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full bg-teal-400/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-28 left-1/3 h-56 w-56 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-5">
-          <div className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-teal-700">
-              GLOBAL VEHICLE MARKETPLACE
-            </p>
-            <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Find the right car, with the facts in view.
-            </h1>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-              Search live marketplace listings, compare the information supplied, then decide your
-              next step at your pace.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
-                Search by make, budget or use
-              </span>
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
-                Compare before you contact
-              </span>
-              <span className="rounded-full border border-border bg-background/80 px-3 py-1.5">
-                Evidence shown per listing
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setTradeInOpen(true)}
-              className="gap-1.5 text-xs font-semibold rounded-xl border-border bg-background text-foreground hover:bg-muted"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>What's Your Car Worth?</span>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setSwipeModeOpen(true)}
-              className="gap-1.5 text-xs font-semibold rounded-xl md:hidden border-border bg-background text-foreground hover:bg-muted"
-            >
-              <Smartphone className="w-3.5 h-3.5 text-teal-400" />
-              <span>Swipe Mode</span>
-            </Button>
-            <Button
-              onClick={() => setQuickListOpen(true)}
-              className="gap-2 self-start sm:self-auto font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md shadow-primary/10 rounded-xl text-xs"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>List a Vehicle</span>
-            </Button>
-          </div>
+    <div className="mx-auto w-full max-w-[1360px] px-4 pb-20 pt-4 sm:px-6 sm:pt-8">
+      {/* Title row */}
+      <div className="flex items-end justify-between gap-3">
+        <div className="min-w-0">
+          <p className="brand-kicker hidden text-muted-foreground sm:block">
+            Global vehicle marketplace
+          </p>
+          <h1 className="font-brand text-3xl text-foreground sm:mt-2 sm:text-5xl">
+            Find your next car.
+          </h1>
+          <p className="mt-2 hidden max-w-xl text-base leading-7 text-muted-foreground md:block">
+            Search live marketplace listings, compare the information supplied, then decide your
+            next step at your pace.
+          </p>
         </div>
-      </section>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:border-foreground/40"
+              aria-label="More actions"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+              <span className="hidden sm:inline">More</span>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60 rounded-2xl p-1.5">
+            <DropdownMenuItem className="min-h-11 rounded-xl" onSelect={() => setTradeInOpen(true)}>
+              <Sparkles className="mr-2 h-4 w-4 text-foreground" /> What's your car worth?
+            </DropdownMenuItem>
+            <DropdownMenuItem className="min-h-11 rounded-xl" onSelect={() => setSwipeModeOpen(true)}>
+              <Layers className="mr-2 h-4 w-4" /> Swipe mode
+            </DropdownMenuItem>
+            <DropdownMenuItem className="min-h-11 rounded-xl" onSelect={saveSearch}>
+              <BookmarkPlus className="mr-2 h-4 w-4" /> Save this search
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="min-h-11 rounded-xl" onSelect={() => setQuickListOpen(true)}>
+              <PlusCircle className="mr-2 h-4 w-4" /> List a vehicle
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
-      {/* Prominent Smart AI Car Finder Bar */}
-      <AiCarFinderSearchBar
-        onApplyFilters={handleAiFilters}
-        currentSearchQuery={search.q}
-        className="mb-6"
+      {/* One smart search */}
+      <SmartSearchBar
+        className="mt-4 sm:mt-6"
+        value={qInput}
+        onValueChange={setQInput}
+        onSearch={(text) => void runSmartSearch(text)}
+        onClear={() => {
+          setInterpreted(null);
+          updateSearch({ q: "" });
+        }}
+        searching={aiSearching}
+        interpreted={interpreted}
       />
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          updateSearch({ q: qInput.trim() });
-        }}
-        className="app-surface -mt-2 flex w-full min-w-0 max-w-full flex-col gap-2 p-3 shadow-lg shadow-primary/5 sm:flex-row"
-      >
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={qInput}
-            onChange={(e) => setQInput(e.target.value)}
-            placeholder='Try: "Cheap fuel-efficient Toyota under $8k from Japan, RHD" or just "BMW X5"'
-            className="h-11 pl-9"
-          />
-        </div>
-        <Button
+      {/* Compact chip row */}
+      <div className="no-scrollbar -mx-4 mt-3 flex items-center gap-2 overflow-x-auto px-4 py-1 sm:-mx-6 sm:px-6">
+        <button
           type="button"
-          variant="outline"
-          className="h-11"
-          onClick={() => runSmartSearch()}
-          disabled={aiSearching || !qInput.trim()}
-          title="AI smart search"
+          onClick={() => setFiltersOpen(true)}
+          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:border-foreground/40"
         >
-          {aiSearching ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Sparkles className="mr-2 h-4 w-4 text-accent" />
-          )}
-          Ask AI
-        </Button>
-        <Button type="submit" className="h-11">
-          <Search className="mr-2 h-4 w-4" /> Search
-        </Button>
-        <Button type="button" variant="outline" className="h-11" onClick={saveSearch}>
-          <BookmarkPlus className="mr-2 h-4 w-4" /> Save search
-        </Button>
-      </form>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside className="hidden space-y-5 rounded-2xl border border-border/70 bg-card p-5 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start">
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <Filter className="h-4 w-4" /> Filters
-            </h2>
-            {hasFilters && (
-              <button
-                type="button"
-                onClick={() => navigate({ search: {} as never })}
-                className="text-xs text-muted-foreground hover:text-foreground"
-              >
-                Reset
-              </button>
-            )}
-          </div>
-          <NearMeControl
-            radius={search.near}
-            userCoords={userCoords}
-            loading={geoLoading}
-            onLocate={requestNearMe}
-            onRadius={(n) => updateSearch({ near: n })}
-            onClear={() => {
-              setUserCoords(null);
-              updateSearch({ near: 0 });
-            }}
-          />
-          <FilterFields search={search} updateSearch={updateSearch} makes={makes ?? []} />
-        </aside>
-
-        <section>
-          {/* Active Filter Chips Bar */}
-          <ActiveFilterChips
-            search={search}
-            onRemove={(key) => updateSearch({ [key]: undefined })}
-            onResetAll={() => navigate({ search: {} as never })}
-          />
-
-          <div className="mb-3 flex items-center justify-between gap-2 text-sm text-muted-foreground">
-            <span className="truncate">
-              {isLoading
-                ? "Loading…"
-                : `${displayedCars?.length ?? 0} listing${(displayedCars?.length ?? 0) === 1 ? "" : "s"}${search.near && userCoords ? ` within ${search.near} km` : ""}`}
+          <SlidersHorizontal className="h-4 w-4" /> Filters
+          {activeCount > 0 && (
+            <span className="grid h-5 min-w-5 place-items-center rounded-full bg-ac-accent px-1 text-[11px] font-extrabold text-ac-ink">
+              {activeCount}
             </span>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="lg:hidden">
-                  <Filter className="mr-2 h-4 w-4" /> Filters
-                  {hasFilters && <span className="ml-1.5 h-2 w-2 rounded-full bg-primary" />}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
-                <SheetHeader className="text-left">
-                  <SheetTitle className="flex items-center justify-between">
-                    <span>Filters</span>
-                    {hasFilters && (
-                      <button
-                        type="button"
-                        onClick={() => navigate({ search: {} as never })}
-                        className="text-xs font-normal text-muted-foreground hover:text-foreground"
-                      >
-                        Reset all
-                      </button>
-                    )}
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="mt-4 space-y-5 pb-4">
-                  <NearMeControl
-                    radius={search.near}
-                    userCoords={userCoords}
-                    loading={geoLoading}
-                    onLocate={requestNearMe}
-                    onRadius={(n) => updateSearch({ near: n })}
-                    onClear={() => {
-                      setUserCoords(null);
-                      updateSearch({ near: 0 });
-                    }}
-                  />
-                  <FilterFields search={search} updateSearch={updateSearch} makes={makes ?? []} />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => setSwipeModeOpen(true)}
+          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full bg-ac-ink px-4 text-sm font-semibold text-white transition hover:opacity-90"
+        >
+          <Layers className="h-4 w-4 text-ac-accent" /> Swipe
+        </button>
+        {!nearActive && (
+          <QuickChip onClick={requestNearMe} disabled={geoLoading}>
+            {geoLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Navigation className="h-4 w-4" />
+            )}
+            Near me
+          </QuickChip>
+        )}
+        {!search.exportOnly && (
+          <QuickChip onClick={() => updateSearch({ exportOnly: true })}>
+            <Plane className="h-4 w-4" /> Export ready
+          </QuickChip>
+        )}
+        {!search.rhd && (
+          <QuickChip onClick={() => updateSearch({ rhd: "right" })}>Right-hand drive</QuickChip>
+        )}
+        <span className="mx-1 h-6 w-px shrink-0 bg-border" aria-hidden />
+        <ActiveFilterChips
+          variant="inline"
+          search={search}
+          onRemove={(key) => {
+            if (key === "near") {
+              clearNear();
+              return;
+            }
+            if (key === "q") setInterpreted(null);
+            updateSearch(
+              key === "minYear" ? { minYear: undefined, maxYear: undefined } : { [key]: undefined },
+            );
+          }}
+          onResetAll={resetAll}
+        />
+      </div>
 
-          {isLoading ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="overflow-hidden rounded-xl border border-border bg-card">
-                  <Skeleton className="aspect-[4/3] w-full rounded-none" />
-                  <div className="space-y-2 p-4">
-                    <Skeleton className="h-3 w-1/3" />
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-5 w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : !displayedCars || displayedCars.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center max-w-2xl mx-auto">
-              <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
-                <Search className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <h3 className="text-lg font-bold">No cars match your exact filters</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                We couldn't find any current listings that match. Try widening your search criteria.
-              </p>
+      {/* Result summary */}
+      <div className="mt-3 flex min-h-11 items-center justify-between gap-2">
+        <p className="truncate text-sm font-semibold text-foreground" aria-live="polite">
+          {isLoading
+            ? "Finding cars…"
+            : isError
+              ? "Listings unavailable"
+              : `${count} car${count === 1 ? "" : "s"}${nearActive ? ` within ${search.near} km` : ""}`}
+        </p>
+        <button
+          type="button"
+          onClick={saveSearch}
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full px-3 text-sm font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+        >
+          <BookmarkPlus className="h-4 w-4" /> Save search
+        </button>
+      </div>
 
+      {/* Results */}
+      {isLoading ? (
+        <div className="mt-2 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <CarCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : isError && count === 0 ? (
+        <div className="mx-auto mt-6 max-w-2xl rounded-[28px] border border-border bg-card p-8 text-center sm:p-12">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-ac-apricot text-ac-ink">
+            <RefreshCw className="h-6 w-6" />
+          </span>
+          <h2 className="font-brand mt-5 text-2xl sm:text-3xl">We couldn't load listings.</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            This is a connection problem, not an empty search. Try again in a moment.
+          </p>
+          <Button
+            type="button"
+            onClick={() => void refetch()}
+            className="mt-6 h-11 rounded-full bg-ac-accent px-6 font-bold text-ac-ink hover:bg-ac-accent/90"
+          >
+            Try again
+          </Button>
+        </div>
+      ) : count === 0 ? (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <div className="rounded-[28px] border border-border bg-card p-8 sm:p-10">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-ac-cream text-ac-ink">
+              <Search className="h-5 w-5" />
+            </span>
+            <h2 className="font-brand mt-5 text-2xl sm:text-3xl">
+              {hasFilters ? "No cars match your exact filters." : "No cars are listed yet."}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {hasFilters
+                ? "We couldn't find any current listings that match. Try widening your search criteria."
+                : "New listings appear here as soon as they are approved. Describe what you want and we'll filter for it."}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
               {hasFilters && (
                 <Button
                   variant="outline"
-                  className="mt-6"
-                  onClick={() => navigate({ search: {} as never })}
+                  className="h-11 rounded-full px-5"
+                  onClick={resetAll}
                 >
                   <X className="mr-2 h-4 w-4" /> Reset all filters
                 </Button>
               )}
+              <Button
+                variant="outline"
+                className="h-11 rounded-full px-5"
+                onClick={() => setFiltersOpen(true)}
+              >
+                <SlidersHorizontal className="mr-2 h-4 w-4" /> Adjust filters
+              </Button>
+            </div>
+          </div>
+          <div className="rounded-[28px] bg-ac-ink p-8 text-white sm:p-10">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-ac-accent">
+              <Plane className="h-5 w-5" />
+            </span>
+            <p className="brand-kicker mt-5 text-ac-accent">Can't find it locally?</p>
+            <h3 className="font-brand mt-2 text-2xl sm:text-3xl">Import exactly what you want.</h3>
+            <p className="mt-2 text-sm leading-6 text-white/70">
+              AutoConnect's global sourcing team can find and import exactly what you're looking
+              for. We handle the purchase, shipping, duties, and delivery.
+            </p>
+            <Button
+              className="mt-6 h-11 rounded-full bg-ac-accent px-6 font-bold text-ac-ink hover:bg-ac-accent/90"
+              onClick={() => document.getElementById("ai-search-input")?.focus()}
+            >
+              <Sparkles className="mr-2 h-4 w-4" /> Tell AI what you want to import
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-2 grid grid-cols-1 gap-x-5 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {displayedCars.map((car, i) => (
+            <CarCard
+              key={car.id}
+              car={car}
+              priority={i < 4}
+              distanceKm={distances.get(car.id)}
+              onQuickView={(c) => setDrawerCar(c as unknown as DrawerCar)}
+            />
+          ))}
+        </div>
+      )}
 
-              <div className="mt-10 pt-8 border-t border-border">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-accent/10 text-accent mb-4">
-                  <Plane className="h-6 w-6" />
-                </div>
-                <h4 className="text-base font-semibold">Can't find it locally?</h4>
-                <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-                  AutoConnect's global sourcing team can find and import exactly what you're looking
-                  for. We handle the purchase, shipping, duties, and delivery.
-                </p>
-                <Button
-                  className="mt-6 bg-accent hover:bg-accent/90 text-accent-foreground"
-                  onClick={() => document.getElementById("ai-search-input")?.focus()}
-                >
-                  Tell AI what you want to import
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {displayedCars.map((car) => (
-                <CarCard key={car.id} car={car} onQuickView={(c) => setDrawerCar(c as any)} />
-              ))}
-            </div>
-          )}
-        </section>
+      {/* How browsing works */}
+      <div className="mt-14 grid gap-3 sm:grid-cols-3">
+        {[
+          { icon: Search, title: "Search by make, budget or use", tone: "bg-ac-cream" },
+          { icon: Scale, title: "Compare before you contact", tone: "bg-ac-powder" },
+          { icon: ShieldCheck, title: "Evidence shown per listing", tone: "bg-ac-stone" },
+        ].map(({ icon: Icon, title, tone }) => (
+          <div key={title} className={cn("flex items-center gap-3 rounded-3xl p-5 text-ac-ink", tone)}>
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-white/70">
+              <Icon className="h-4 w-4" />
+            </span>
+            <p className="text-sm font-bold">{title}</p>
+          </div>
+        ))}
       </div>
+
+      {/* Filters sheet */}
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+          <SheetHeader className="border-b border-border px-5 py-4 text-left">
+            <SheetTitle className="font-brand text-2xl">Filters</SheetTitle>
+            <SheetDescription>Narrow the list. Changes apply straight away.</SheetDescription>
+          </SheetHeader>
+          <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5">
+            <NearMeControl
+              radius={search.near}
+              userCoords={userCoords}
+              loading={geoLoading}
+              onLocate={requestNearMe}
+              onRadius={(n) => updateSearch({ near: n })}
+              onClear={clearNear}
+            />
+            <FilterFields search={search} updateSearch={updateSearch} makes={makes ?? []} />
+          </div>
+          <div className="flex items-center gap-3 border-t border-border px-5 py-4">
+            <button
+              type="button"
+              onClick={resetAll}
+              disabled={!hasFilters}
+              className="h-11 rounded-full px-3 text-sm font-semibold text-foreground underline-offset-4 hover:underline disabled:opacity-40"
+            >
+              Reset all
+            </button>
+            <Button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className="h-12 flex-1 rounded-full bg-ac-accent font-extrabold text-ac-ink hover:bg-ac-accent/90"
+            >
+              {isLoading ? "Show cars" : `Show ${count} car${count === 1 ? "" : "s"}`}
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Interactive Detail Drawer */}
       <VehicleDrawer car={drawerCar} isOpen={!!drawerCar} onClose={() => setDrawerCar(null)} />
@@ -601,7 +675,7 @@ function CarsListPage() {
       {/* Trade-In Estimator Modal */}
       <TradeInEstimatorModal open={tradeInOpen} onOpenChange={setTradeInOpen} />
 
-      {/* Mobile Swipe-to-Browse Experience */}
+      {/* Swipe-to-Browse Experience */}
       {swipeModeOpen && (
         <SwipeBrowseMode
           cars={(cars || []).map((c) => ({
@@ -617,11 +691,33 @@ function CarsListPage() {
             transmission: c.transmission,
             fuel_type: c.fuel_type,
             image_url: primaryImage(c) ?? undefined,
+            is_sample: (c as { is_sample?: boolean }).is_sample === true,
           }))}
           onExit={() => setSwipeModeOpen(false)}
         />
       )}
     </div>
+  );
+}
+
+function QuickChip({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex h-11 shrink-0 items-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground transition hover:border-foreground/40 disabled:opacity-60"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -642,7 +738,7 @@ function FilterFields({
           value={search.country || "all"}
           onValueChange={(v) => updateSearch({ country: v === "all" ? "" : v })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11 rounded-xl">
             <SelectValue placeholder="All countries" />
           </SelectTrigger>
           <SelectContent>
@@ -661,7 +757,7 @@ function FilterFields({
           value={search.make || "all"}
           onValueChange={(v) => updateSearch({ make: v === "all" ? "" : v })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11 rounded-xl">
             <SelectValue placeholder="All makes" />
           </SelectTrigger>
           <SelectContent>
@@ -680,7 +776,7 @@ function FilterFields({
           value={search.condition || "all"}
           onValueChange={(v) => updateSearch({ condition: v === "all" ? "" : v })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11 rounded-xl">
             <SelectValue placeholder="Any condition" />
           </SelectTrigger>
           <SelectContent>
@@ -705,6 +801,7 @@ function FilterFields({
             type="number"
             inputMode="numeric"
             placeholder="1990"
+            className="h-11 rounded-xl"
             value={search.minYear ?? ""}
             onChange={(e) =>
               updateSearch({
@@ -719,6 +816,7 @@ function FilterFields({
             type="number"
             inputMode="numeric"
             placeholder="2026"
+            className="h-11 rounded-xl"
             value={search.maxYear ?? ""}
             onChange={(e) =>
               updateSearch({
@@ -734,7 +832,7 @@ function FilterFields({
           value={search.rhd || "all"}
           onValueChange={(v) => updateSearch({ rhd: v === "all" ? "" : v })}
         >
-          <SelectTrigger>
+          <SelectTrigger className="h-11 rounded-xl">
             <SelectValue placeholder="LHD or RHD" />
           </SelectTrigger>
           <SelectContent>
@@ -744,9 +842,9 @@ function FilterFields({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 px-3 py-2.5">
+      <div className="flex min-h-12 items-center justify-between rounded-2xl border border-border bg-muted/40 px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <Plane className="h-4 w-4 text-accent" />
+          <Plane className="h-4 w-4 text-foreground" />
           <Label htmlFor="exportOnly" className="cursor-pointer text-sm">
             Available for export
           </Label>
@@ -758,179 +856,6 @@ function FilterFields({
         />
       </div>
     </>
-  );
-}
-
-function CarCard({ car, onQuickView }: { car: CarRow; onQuickView?: (car: CarRow) => void }) {
-  const { formatPrice } = useCurrency();
-  const { toggleCompare, isInComparison } = useVehicleComparison();
-
-  const sorted = [...(car.car_images ?? [])].sort(
-    (a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0),
-  );
-  const [imgIdx, setImgIdx] = useState(0);
-  const images = sorted.length > 0 ? sorted.map((i) => i.image_url) : [];
-  const img = images[imgIdx] ?? primaryImage(car);
-  const country = countryByCode(car.country);
-
-  const numericPrice = Number(car.price) || 0;
-  const isCompared = isInComparison(car.id);
-
-  const handlePrev = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setImgIdx((prev) => (prev - 1 + images.length) % images.length);
-  };
-
-  const handleNext = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setImgIdx((prev) => (prev + 1) % images.length);
-  };
-
-  const handleCompareClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    toggleCompare({
-      id: car.id,
-      make: car.make_name || car.title.split(" ")[0] || "Vehicle",
-      model: car.model_name || car.title.split(" ").slice(1).join(" ") || "",
-      year: car.year,
-      price: numericPrice,
-      mileage: car.mileage,
-      fuel_type: car.fuel_type,
-      transmission: car.transmission,
-      body_type: car.body_type,
-      country: car.country,
-      image_url: img,
-      verified: car.featured,
-    });
-  };
-
-  return (
-    <div className="group relative block overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <Link to="/cars/$id" params={{ id: car.id }} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-          {img ? (
-            <img
-              src={img}
-              alt={car.title}
-              loading="lazy"
-              className="h-full w-full object-cover transition group-hover:scale-[1.03]"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">
-              No photo
-            </div>
-          )}
-
-          <div className="absolute left-2 top-2 flex flex-wrap gap-1.5 z-10">
-            {car.featured && (
-              <Badge className="bg-accent text-accent-foreground hover:bg-accent">Featured</Badge>
-            )}
-            {car.available_for_export && (
-              <Badge variant="secondary" className="bg-white/95 text-foreground">
-                <Plane className="mr-1 h-3 w-3" /> Exportable
-              </Badge>
-            )}
-          </div>
-          <div className="absolute right-2 top-2 flex items-center gap-1.5 z-10">
-            <button
-              type="button"
-              onClick={handleCompareClick}
-              className={`p-1.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
-                isCompared
-                  ? "bg-accent text-accent-foreground font-bold ring-2 ring-accent"
-                  : "bg-black/60 hover:bg-black text-white/90 border border-white/20"
-              }`}
-              title={isCompared ? "Remove from comparison" : "Add to comparison"}
-            >
-              <Scale className="h-3.5 w-3.5" />
-            </button>
-            <Badge
-              variant="outline"
-              className="border-white/40 bg-black/50 text-white backdrop-blur text-[11px]"
-            >
-              {car.right_hand_drive ? "RHD" : "LHD"}
-            </Badge>
-          </div>
-          <FavoriteButton carId={car.id} className="absolute bottom-2 right-2 z-10" />
-
-          {/* Multi-Photo Carousel Controls */}
-          {images.length > 1 && (
-            <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="p-1 rounded-full bg-black/75 text-white hover:bg-black border border-white/20 transition-transform active:scale-90"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="p-1 rounded-full bg-black/75 text-white hover:bg-black border border-white/20 transition-transform active:scale-90"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Dots Indicator */}
-          {images.length > 1 && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
-              {images.slice(0, 5).map((_, idx) => (
-                <span
-                  key={idx}
-                  className={`h-1 rounded-full transition-all ${
-                    idx === imgIdx ? "w-3 bg-teal-400" : "w-1 bg-white/60"
-                  }`}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {car.year} · {car.condition ?? "—"}
-          </p>
-          <h3 className="mt-1 line-clamp-1 text-base font-semibold">{car.title}</h3>
-          <p className="mt-2 text-lg font-bold text-accent font-mono">
-            {formatPrice(numericPrice)}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {country?.flag} {car.location_display ?? country?.name ?? car.country}
-            </span>
-            {car.mileage != null && (
-              <span className="inline-flex items-center gap-1">
-                <Gauge className="h-3 w-3" />
-                {car.mileage.toLocaleString()} {car.mileage_unit}
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-
-      {/* Quick View Button */}
-      {onQuickView && (
-        <div className="px-4 pb-3">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onQuickView(car);
-            }}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-secondary/80 hover:bg-teal-500 hover:text-slate-950 text-xs font-semibold text-muted-foreground transition-all duration-200 border border-border"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Quick Specs & Inquiry</span>
-          </button>
-        </div>
-      )}
-    </div>
   );
 }
 
@@ -951,16 +876,16 @@ function NearMeControl({
 }) {
   const active = radius > 0 && !!userCoords;
   return (
-    <div className="space-y-2 rounded-lg border border-border bg-secondary/40 p-3">
+    <div className="space-y-2 rounded-2xl bg-ac-cream p-4 text-ac-ink">
       <div className="flex items-center justify-between">
-        <Label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-foreground">
-          <Navigation className="h-3.5 w-3.5 text-accent" /> Near me
+        <Label className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-ac-ink">
+          <Navigation className="h-3.5 w-3.5 text-ac-ink" /> Near me
         </Label>
         {active && (
           <button
             type="button"
             onClick={onClear}
-            className="text-[11px] text-muted-foreground hover:text-foreground"
+            className="min-h-11 px-2 text-xs font-semibold text-ac-ink/70 hover:text-ac-ink"
           >
             Clear
           </button>
@@ -970,21 +895,20 @@ function NearMeControl({
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="w-full"
+          className="h-11 w-full rounded-full border-ac-ink/20 bg-white text-ac-ink hover:bg-white/80"
           onClick={onLocate}
           disabled={loading}
         >
           {loading ? (
-            <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
           ) : (
-            <MapPin className="mr-1.5 h-3.5 w-3.5" />
+            <MapPin className="mr-1.5 h-4 w-4" />
           )}
           Use my location
         </Button>
       ) : (
         <Select value={String(radius || 50)} onValueChange={(v) => onRadius(Number(v))}>
-          <SelectTrigger className="h-9">
+          <SelectTrigger className="h-11 rounded-xl bg-white text-ac-ink">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -996,7 +920,7 @@ function NearMeControl({
           </SelectContent>
         </Select>
       )}
-      <p className="text-[10px] leading-relaxed text-muted-foreground">
+      <p className="text-[11px] leading-relaxed text-ac-ink/70">
         Filters listings with known coordinates. Some listings show city only.
       </p>
     </div>

@@ -13,6 +13,9 @@ import {
   Wrench,
   Store,
   Gavel,
+  FileText,
+  FileCheck2,
+  BadgeCheck,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -72,19 +75,28 @@ function AdminLayout() {
           items: [{ to: "/admin", icon: <LayoutDashboard />, label: "Overview", exact: true }],
         },
         {
-          label: "Moderation",
+          label: "Marketplace",
           items: [
-            { to: "/admin/sellers", icon: <Users />, label: "Sellers" },
-            { to: "/admin/verification", icon: <ShieldCheck />, label: "Verification queue" },
             { to: "/admin/listings", icon: <Car />, label: "Listings" },
+            { to: "/admin/sellers", icon: <Users />, label: "Sellers" },
             { to: "/admin/yards", icon: <Store />, label: "Car yards" },
-            { to: "/admin/documents", icon: <ShieldCheck />, label: "Documents" },
-            { to: "/admin/evidence", icon: <ShieldCheck />, label: "Vehicle evidence" },
-            { to: "/admin/inspections", icon: <Wrench />, label: "Inspections" },
-            { to: "/admin/provider-claims", icon: <Wrench />, label: "Provider claims" },
-            { to: "/admin/import-requests", icon: <Inbox />, label: "Import requests" },
             { to: "/admin/auctions", icon: <Gavel />, label: "Auction review" },
+            { to: "/admin/import-requests", icon: <Inbox />, label: "Import requests" },
           ],
+        },
+        {
+          label: "Trust & identity",
+          items: [
+            { to: "/admin/verification", icon: <ShieldCheck />, label: "Verification queue" },
+            { to: "/admin/documents", icon: <FileText />, label: "Documents" },
+            { to: "/admin/evidence", icon: <FileCheck2 />, label: "Vehicle evidence" },
+            { to: "/admin/inspections", icon: <Wrench />, label: "Inspections" },
+            { to: "/admin/provider-claims", icon: <BadgeCheck />, label: "Provider claims" },
+          ],
+        },
+        {
+          label: "Finance",
+          items: [{ to: "/admin/transactions", icon: <Wallet />, label: "Transactions & escrow" }],
         },
         {
           label: "Catalog & comms",
@@ -92,10 +104,6 @@ function AdminLayout() {
             { to: "/admin/makes", icon: <Tags />, label: "Makes & models" },
             { to: "/admin/broadcast", icon: <Megaphone />, label: "Broadcast" },
           ],
-        },
-        {
-          label: "Finance",
-          items: [{ to: "/admin/transactions", icon: <Wallet />, label: "Transactions & escrow" }],
         },
       ]}
     >

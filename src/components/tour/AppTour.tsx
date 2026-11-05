@@ -51,13 +51,13 @@ export function AppTour() {
       return;
     }
     setIndex(0);
-    try { setOpen(!sessionStorage.getItem(tourKey)); } catch { setOpen(false); }
+    try { setOpen(!localStorage.getItem(tourKey)); } catch { setOpen(false); }
   }, [tourKey, steps]);
 
   if (!steps) return null;
 
   const close = () => {
-    try { sessionStorage.setItem(tourKey, "1"); } catch { /* no storage available */ }
+    try { localStorage.setItem(tourKey, "1"); } catch { /* no storage available */ }
     setOpen(false);
   };
   const step = steps[index];
@@ -65,12 +65,12 @@ export function AppTour() {
   const go = () => { if (step.to) void navigate({ to: step.to as never }); next(); };
 
   return <>
-    <Button type="button" onClick={() => { setIndex(0); setOpen(true); }} className="fixed bottom-5 left-4 z-[70] h-11 rounded-full border border-teal-300 bg-white px-4 text-slate-900 shadow-lg shadow-teal-950/15 hover:bg-teal-50 dark:bg-card dark:text-foreground sm:left-6" variant="outline">
-      <Compass className="mr-2 h-4 w-4 text-teal-600" /> Guide me
+    <Button type="button" onClick={() => { setIndex(0); setOpen(true); }} aria-label="Replay the guided tour" title="Guide me" className="fixed bottom-4 left-4 z-[45] h-12 w-12 rounded-full border border-border bg-card p-0 text-foreground shadow-lg hover:bg-muted sm:bottom-6 sm:left-6" variant="outline">
+      <Compass className="h-5 w-5" />
     </Button>
     {open && <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/30 p-4 backdrop-blur-[2px] sm:items-center" role="dialog" aria-modal="true" aria-label="AutoConnect guided tour">
       <section className="w-full max-w-md overflow-hidden rounded-3xl border border-teal-100 bg-card shadow-2xl dark:border-teal-500/25">
-        <div className="bg-gradient-to-br from-teal-600 via-teal-500 to-cyan-500 p-6 text-slate-950"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-extrabold tracking-[.18em]">{step.kicker}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight">{step.title}</h2></div><Button type="button" size="icon" variant="ghost" className="-mr-2 -mt-2 rounded-xl text-slate-950 hover:bg-white/20" onClick={close} aria-label="Skip tour"><X className="h-5 w-5" /></Button></div><div className="mt-5 flex gap-1.5">{steps.map((_, item) => <span key={item} className={`h-1.5 flex-1 rounded-full ${item <= index ? "bg-slate-950" : "bg-white/45"}`} />)}</div></div>
+        <div className="bg-ac-accent p-6 text-slate-950"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-extrabold tracking-[.18em]">{step.kicker}</p><h2 className="mt-2 text-2xl font-extrabold tracking-tight">{step.title}</h2></div><Button type="button" size="icon" variant="ghost" className="-mr-2 -mt-2 rounded-xl text-slate-950 hover:bg-white/20" onClick={close} aria-label="Skip tour"><X className="h-5 w-5" /></Button></div><div className="mt-5 flex gap-1.5">{steps.map((_, item) => <span key={item} className={`h-1.5 flex-1 rounded-full ${item <= index ? "bg-slate-950" : "bg-white/45"}`} />)}</div></div>
         <div className="p-6"><p className="leading-7 text-muted-foreground">{step.body}</p>{step.to && <Button type="button" variant="outline" onClick={go} className="mt-5 w-full rounded-xl"><Sparkles className="mr-2 h-4 w-4 text-teal-600" />{step.action}</Button>}<div className="mt-6 flex items-center justify-between gap-3"><Button type="button" variant="ghost" onClick={index ? () => setIndex((value) => value - 1) : close} className="rounded-xl">{index ? <><ArrowLeft className="mr-2 h-4 w-4"/>Back</> : "Skip tour"}</Button><Button type="button" onClick={next} className="rounded-xl">{index === steps.length - 1 ? "Finish" : <>Next<ArrowRight className="ml-2 h-4 w-4"/></>}</Button></div></div>
       </section>
     </div>}

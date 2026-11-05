@@ -1,21 +1,17 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
-  Heart,
-  X,
-  ChevronUp,
-  RotateCcw,
-  Sparkles,
-  MapPin,
-  Calendar,
-  Gauge,
-  Layers,
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  animate,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useTransform,
+  type PanInfo,
+} from "motion/react";
+import { ChevronUp, Gauge, Heart, MapPin, SearchX, X } from "lucide-react";
 import { toast } from "sonner";
+import { VehicleImage } from "@/components/VehicleImage";
+import { useSaveFavorite } from "@/components/FavoriteButton";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface SwipeCar {
@@ -31,6 +27,7 @@ interface SwipeCar {
   transmission?: string | null;
   fuel_type?: string | null;
   image_url?: string;
+  is_sample?: boolean;
 }
 
 interface SwipeBrowseModeProps {
@@ -38,215 +35,373 @@ interface SwipeBrowseModeProps {
   onExit: () => void;
 }
 
+const SWIPE_DISTANCE = 110;
+const SWIPE_VELOCITY = 600;
+const UP_DISTANCE = 120;
+
+/**
+ * Tinder-style browsing: drag the top card right to save it to favourites, left to pass,
+ * up for full details. Buttons and arrow keys do the same (← pass, → save, ↑/Enter details,
+ * Esc exits).
+ */
 export function SwipeBrowseMode({ cars, onExit }: SwipeBrowseModeProps) {
   const navigate = useNavigate();
   const { formatPrice } = useCurrency();
+  const { save, goToLogin } = useSaveFavorite();
+  const reduceMotion = useReducedMotion();
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [swipeFeedback, setSwipeFeedback] = useState<"like" | "skip" | "details" | null>(null);
-  const [showInstructions, setShowInstructions] = useState(true);
+  // `step` only ever grows so every decision mounts a fresh top card, even with one car.
+  const [step, setStep] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [showHint, setShowHint] = useState(true);
 
-  // Touch coordinates
-  const touchStartX = useRef(0);
-  const touchStartY = useRef(0);
-  const touchEndX = useRef(0);
-  const touchEndY = useRef(0);
+  const total = cars.length;
+  const index = total ? step % total : 0;
+  const current = total ? cars[index] : undefined;
+  const behind = [1, 2]
+    .filter((offset) => total > offset)
+    .map((offset) => ({ offset, car: cars[(index + offset) % total] }));
 
-  const currentCar = cars[currentIndex] || cars[0];
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const rotate = useTransform(x, [-320, 0, 320], [-18, 0, 18]);
+  const saveOpacity = useTransform(x, [20, SWIPE_DISTANCE], [0, 1]);
+  const passOpacity = useTransform(x, [-SWIPE_DISTANCE, -20], [1, 0]);
+  const detailsOpacity = useTransform(y, [-UP_DISTANCE, -30], [1, 0]);
+  const nextScale = useTransform(x, [-220, 0, 220], [1, 0.95, 1]);
+  const nextLift = useTransform(x, [-220, 0, 220], [0, 14, 0]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.targetTouches[0].clientX;
-    touchStartY.current = e.targetTouches[0].clientY;
-  };
+  // Reset the drag position before paint whenever a new card reaches the top.
+  useLayoutEffect(() => {
+    x.set(0);
+    y.set(0);
+  }, [step, x, y]);
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.targetTouches[0].clientX;
-    touchEndY.current = e.targetTouches[0].clientY;
-  };
+  // Lock page scroll while the full-screen deck is open.
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
 
-  const handleTouchEnd = () => {
-    const deltaX = touchEndX.current - touchStartX.current;
-    const deltaY = touchEndY.current - touchStartY.current;
-
-    // Horizontal threshold (swipe left or right)
-    if (Math.abs(deltaX) > 60 && Math.abs(deltaX) > Math.abs(deltaY)) {
-      if (deltaX > 0) {
-        // Swipe Right -> Like / Save Favorite
-        triggerLike();
-      } else {
-        // Swipe Left -> Skip
-        triggerSkip();
+  const saveCar = useCallback(
+    async (car: SwipeCar) => {
+      try {
+        const result = await save(car.id);
+        if (result === "auth") {
+          toast("Sign in to save cars", {
+            description: "Cars you like are kept in your favourites once you sign in.",
+            action: { label: "Sign in", onClick: () => void goToLogin() },
+          });
+        } else if (result === "already") {
+          toast.success("Already in your favourites", { description: car.title });
+        } else {
+          toast.success("Saved to favourites", {
+            description: `${car.title} added to your saved cars.`,
+          });
+        }
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Could not save this car");
       }
-    } else if (deltaY < -70 && Math.abs(deltaY) > Math.abs(deltaX)) {
-      // Swipe Up -> View Details
-      triggerDetails();
-    }
-  };
+    },
+    [save, goToLogin],
+  );
 
-  const triggerLike = () => {
-    setSwipeFeedback("like");
-    toast.success("Saved to Favorites ❤️", {
-      description: `${currentCar?.title} added to your wishlist.`,
-    });
-    setTimeout(() => {
-      setSwipeFeedback(null);
-      advanceNext();
-    }, 300);
-  };
-
-  const triggerSkip = () => {
-    setSwipeFeedback("skip");
-    setTimeout(() => {
-      setSwipeFeedback(null);
-      advanceNext();
-    }, 300);
-  };
-
-  const triggerDetails = () => {
-    setSwipeFeedback("details");
-    setTimeout(() => {
-      void navigate({ to: `/cars/${currentCar?.id}` as never });
-    }, 200);
-  };
-
-  const advanceNext = () => {
-    if (currentIndex < cars.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
+  const advance = useCallback(() => {
+    if (total && (step + 1) % total === 0) {
       toast.info("You've viewed all vehicles in this stack!", {
         description: "Looping back to the beginning.",
       });
-      setCurrentIndex(0);
+    }
+    setStep((s) => s + 1);
+  }, [step, total]);
+
+  const decide = useCallback(
+    async (direction: "save" | "pass") => {
+      if (!current || busy) return;
+      setBusy(true);
+      setShowHint(false);
+      if (direction === "save") void saveCar(current);
+      const width = typeof window !== "undefined" ? window.innerWidth : 800;
+      await animate(
+        x,
+        (direction === "save" ? 1 : -1) * (width + 320),
+        reduceMotion ? { duration: 0 } : { type: "tween", duration: 0.32, ease: "easeOut" },
+      );
+      advance();
+      setBusy(false);
+    },
+    [current, busy, saveCar, x, reduceMotion, advance],
+  );
+
+  const openDetails = useCallback(async () => {
+    if (!current || busy) return;
+    setBusy(true);
+    const height = typeof window !== "undefined" ? window.innerHeight : 800;
+    await animate(
+      y,
+      -height,
+      reduceMotion ? { duration: 0 } : { type: "tween", duration: 0.25, ease: "easeIn" },
+    );
+    void navigate({ to: "/cars/$id", params: { id: current.id } });
+  }, [current, busy, y, reduceMotion, navigate]);
+
+  const handleDragEnd = (_: unknown, info: PanInfo) => {
+    const { offset, velocity } = info;
+    if (offset.y < -UP_DISTANCE && Math.abs(offset.y) > Math.abs(offset.x)) {
+      void openDetails();
+    } else if (offset.x > SWIPE_DISTANCE || velocity.x > SWIPE_VELOCITY) {
+      void decide("save");
+    } else if (offset.x < -SWIPE_DISTANCE || velocity.x < -SWIPE_VELOCITY) {
+      void decide("pass");
+    } else {
+      const spring = { type: "spring", stiffness: 520, damping: 32 } as const;
+      void animate(x, 0, spring);
+      void animate(y, 0, spring);
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-4 text-white select-none">
-      {/* Top Header Bar */}
-      <div className="flex items-center justify-between gap-2 pt-2">
-        <div className="flex items-center gap-2">
-          <Badge className="bg-teal-500/20 text-teal-300 border-teal-500/30 text-xs font-mono">
-            {currentIndex + 1} of {cars.length} Cars
-          </Badge>
-          <span className="text-xs font-bold text-slate-300">Swipe Mode</span>
-        </div>
+  // Keyboard: ← pass, → save, ↑ / Enter details, Esc exit.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        void decide("pass");
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        void decide("save");
+      } else if (e.key === "ArrowUp" || (e.key === "Enter" && target?.tagName !== "BUTTON")) {
+        e.preventDefault();
+        void openDetails();
+      } else if (e.key === "Escape") {
+        onExit();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [decide, openDetails, onExit]);
 
-        <Button
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Swipe mode"
+      className="fixed inset-0 z-50 flex select-none flex-col bg-ac-ink text-white"
+    >
+      {/* Header */}
+      <div className="mx-auto flex w-full max-w-md items-center justify-between gap-3 px-4 pt-[max(env(safe-area-inset-top),12px)]">
+        <div className="min-w-0">
+          <p className="brand-kicker text-ac-accent">Swipe mode</p>
+          <p className="mt-0.5 text-sm font-semibold text-white/80" aria-live="polite">
+            {total ? `${index + 1} of ${total} cars` : "No cars yet"}
+          </p>
+        </div>
+        <button
           type="button"
-          variant="outline"
-          size="sm"
           onClick={onExit}
-          className="h-8 rounded-full border-slate-700 bg-slate-900 text-xs font-bold text-white hover:bg-slate-800"
+          className="inline-flex h-11 items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-4 text-sm font-bold text-white transition hover:bg-white/20"
         >
-          <X className="h-3.5 w-3.5 mr-1" /> Exit
-        </Button>
+          <X className="h-4 w-4" /> Exit
+        </button>
       </div>
 
-      {/* Main Swipeable Card Container */}
-      <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="relative flex-1 my-3 max-w-sm mx-auto w-full rounded-3xl overflow-hidden border border-white/10 bg-slate-900 shadow-2xl flex flex-col justify-end transition-transform"
-      >
-        {/* Car Image */}
-        <div className="absolute inset-0">
-          <img
-            src={
-              currentCar?.image_url ||
-              "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=800&q=80"
-            }
-            alt={currentCar?.title}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-        </div>
-
-        {/* Swipe Visual Feedback Badges */}
-        {swipeFeedback === "like" && (
-          <div className="absolute inset-0 bg-emerald-950/60 backdrop-blur-xs flex items-center justify-center animate-in zoom-in-50 duration-200">
-            <div className="p-4 rounded-full bg-emerald-500 text-slate-950 shadow-2xl animate-bounce">
-              <Heart className="h-16 w-16 fill-current" />
-            </div>
-          </div>
-        )}
-
-        {swipeFeedback === "skip" && (
-          <div className="absolute inset-0 bg-rose-950/60 backdrop-blur-xs flex items-center justify-center animate-in zoom-in-50 duration-200">
-            <div className="p-4 rounded-full bg-rose-500 text-white shadow-2xl">
-              <X className="h-16 w-16 stroke-[3]" />
-            </div>
-          </div>
-        )}
-
-        {/* Card Overlay Content */}
-        <div className="relative z-10 p-5 space-y-2.5 text-white">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-teal-500 text-slate-950 font-bold text-xs font-mono">
-              {currentCar?.year}
-            </Badge>
-            <span className="text-xs text-slate-300 flex items-center gap-1 font-medium">
-              <MapPin className="h-3 w-3 text-teal-400" />{" "}
-              {currentCar?.location_display || currentCar?.country || "Kenya"}
-            </span>
-          </div>
-
-          <h3 className="text-xl font-black text-white leading-snug">{currentCar?.title}</h3>
-
-          <p className="text-2xl font-black text-teal-400 font-mono">
-            {formatPrice(currentCar?.price || 0)}
+      {!current ? (
+        <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 text-center">
+          <span className="grid h-16 w-16 place-items-center rounded-3xl bg-white/10 text-ac-accent">
+            <SearchX className="h-7 w-7" />
+          </span>
+          <h2 className="font-brand mt-5 text-3xl">Nothing to swipe yet.</h2>
+          <p className="mt-3 text-sm leading-6 text-white/70">
+            There are no listings in this search right now. Widen your filters or try another
+            search, then come back to swipe.
           </p>
-
-          <div className="flex items-center gap-3 text-xs text-slate-300 pt-1">
-            {currentCar?.mileage && (
-              <span className="flex items-center gap-1">
-                <Gauge className="h-3.5 w-3.5 text-teal-400" />
-                {(currentCar.mileage / 1000).toFixed(0)}k {currentCar.mileage_unit || "km"}
-              </span>
-            )}
-            {currentCar?.transmission && <span>· {currentCar.transmission}</span>}
-            {currentCar?.fuel_type && <span>· {currentCar.fuel_type}</span>}
-          </div>
-
           <button
             type="button"
-            onClick={triggerDetails}
-            className="w-full mt-2 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white flex items-center justify-center gap-1.5 transition-all"
+            onClick={onExit}
+            className="mt-6 inline-flex h-12 items-center rounded-full bg-ac-accent px-6 text-sm font-extrabold text-ac-ink"
           >
-            <ChevronUp className="h-4 w-4 text-teal-400" /> Swipe Up for Full Specs
+            Back to listings
           </button>
         </div>
-      </div>
+      ) : (
+        <>
+          {/* Deck */}
+          <div className="relative mx-auto my-4 w-full max-w-md flex-1 px-4">
+            <div className="relative h-full min-h-[320px] w-full">
+              {/* Cards behind (furthest first) */}
+              {[...behind].reverse().map(({ offset, car }) => (
+                <motion.div
+                  key={`behind-${step + offset}`}
+                  aria-hidden
+                  className="absolute inset-0 overflow-hidden rounded-[28px] border border-white/10 bg-ac-ink-soft shadow-2xl"
+                  style={
+                    offset === 1
+                      ? { scale: nextScale, y: nextLift }
+                      : { scale: 0.9, y: 28, opacity: 0.6 }
+                  }
+                >
+                  <VehicleImage src={car.image_url} alt="" make={car.title} year={car.year} />
+                  <div className="absolute inset-0 bg-ac-ink/30" />
+                </motion.div>
+              ))}
 
-      {/* Bottom Action Controls */}
-      <div className="flex items-center justify-center gap-5 pb-2">
-        <button
-          type="button"
-          onClick={triggerSkip}
-          className="grid h-14 w-14 place-items-center rounded-full bg-slate-900 border-2 border-slate-700 text-rose-400 shadow-xl hover:scale-110 active:scale-95 transition-transform"
-          title="Skip car"
-        >
-          <X className="h-7 w-7" />
-        </button>
+              {/* Top card */}
+              <motion.div
+                key={`top-${step}`}
+                drag={!busy}
+                dragMomentum={false}
+                onDragStart={() => setShowHint(false)}
+                onDragEnd={handleDragEnd}
+                style={{ x, y, rotate, touchAction: "none" }}
+                initial={reduceMotion ? false : { scale: 0.96, opacity: 0.6 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                whileDrag={{ cursor: "grabbing" }}
+                className="absolute inset-0 cursor-grab overflow-hidden rounded-[28px] border border-white/10 bg-ac-ink-soft shadow-2xl"
+              >
+                <div className="pointer-events-none absolute inset-0">
+                  <VehicleImage
+                    src={current.image_url}
+                    alt={current.title}
+                    make={current.title}
+                    year={current.year}
+                    loading="eager"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ac-ink via-ac-ink/25 to-transparent" />
+                </div>
 
-        <button
-          type="button"
-          onClick={triggerDetails}
-          className="grid h-12 w-12 place-items-center rounded-full bg-slate-900 border border-slate-700 text-slate-300 shadow-xl hover:scale-105 active:scale-95 transition-transform"
-          title="View full specs"
-        >
-          <ChevronUp className="h-6 w-6" />
-        </button>
+                {/* Stamps */}
+                <motion.div
+                  style={{ opacity: saveOpacity }}
+                  className="pointer-events-none absolute left-5 top-6 -rotate-12 rounded-xl border-4 border-emerald-400 px-3 py-1 text-3xl font-black tracking-wider text-emerald-400"
+                >
+                  SAVE
+                </motion.div>
+                <motion.div
+                  style={{ opacity: passOpacity }}
+                  className="pointer-events-none absolute right-5 top-6 rotate-12 rounded-xl border-4 border-rose-400 px-3 py-1 text-3xl font-black tracking-wider text-rose-400"
+                >
+                  PASS
+                </motion.div>
+                <motion.div
+                  style={{ opacity: detailsOpacity }}
+                  className="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 rounded-xl border-4 border-ac-accent px-3 py-1 text-2xl font-black tracking-wider text-ac-accent"
+                >
+                  DETAILS
+                </motion.div>
 
-        <button
-          type="button"
-          onClick={triggerLike}
-          className="grid h-14 w-14 place-items-center rounded-full bg-slate-900 border-2 border-slate-700 text-emerald-400 shadow-xl hover:scale-110 active:scale-95 transition-transform"
-          title="Save to favorites"
-        >
-          <Heart className="h-7 w-7 fill-emerald-500/20" />
-        </button>
-      </div>
+                {/* Info */}
+                <div className="absolute inset-x-0 bottom-0 space-y-2 p-5">
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-white/80">
+                    <span className="rounded-full bg-ac-accent px-2.5 py-0.5 font-bold text-ac-ink">
+                      {current.year}
+                    </span>
+                    {current.is_sample && (
+                      <span className="rounded-full border border-white/30 bg-white/15 px-2.5 py-0.5 font-bold text-white backdrop-blur">
+                        Sample listing
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-ac-accent" />
+                      {current.location_display || current.country || "Location on request"}
+                    </span>
+                  </div>
+                  <h3 className="font-brand text-2xl leading-tight text-white">{current.title}</h3>
+                  <p className="text-2xl font-extrabold tabular-nums text-white">
+                    {formatPrice(current.price || 0)}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs capitalize text-white/75">
+                    {current.mileage ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Gauge className="h-3.5 w-3.5 text-ac-accent" />
+                        {(current.mileage / 1000).toFixed(0)}k {current.mileage_unit || "km"}
+                      </span>
+                    ) : null}
+                    {current.transmission && <span>{current.transmission}</span>}
+                    {current.fuel_type && <span>{current.fuel_type}</span>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void openDetails()}
+                    className="mt-1 inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-full border border-white/20 bg-white/10 text-xs font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  >
+                    <ChevronUp className="h-4 w-4 text-ac-accent" /> Swipe up for full specs
+                  </button>
+                </div>
+              </motion.div>
+
+              {showHint && (
+                <div className="pointer-events-none absolute inset-x-6 top-1/2 z-10 -translate-y-1/2 rounded-2xl bg-ac-ink/80 p-4 text-center text-xs leading-5 text-white/85 backdrop-blur">
+                  Drag right to <b className="text-emerald-300">save</b>, left to{" "}
+                  <b className="text-rose-300">pass</b>, up for details.
+                  <span className="hidden sm:inline"> Arrow keys work too.</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="mx-auto flex w-full max-w-md items-start justify-center gap-6 px-4 pb-[max(env(safe-area-inset-bottom),16px)]">
+            <ControlButton
+              label="Pass"
+              onClick={() => void decide("pass")}
+              disabled={busy}
+              className="h-16 w-16 text-rose-400"
+            >
+              <X className="h-7 w-7" />
+            </ControlButton>
+            <ControlButton
+              label="Details"
+              onClick={() => void openDetails()}
+              disabled={busy}
+              className="mt-2 h-12 w-12 text-white/80"
+            >
+              <ChevronUp className="h-6 w-6" />
+            </ControlButton>
+            <ControlButton
+              label="Save"
+              onClick={() => void decide("save")}
+              disabled={busy}
+              className="h-16 w-16 text-emerald-400"
+            >
+              <Heart className="h-7 w-7" />
+            </ControlButton>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ControlButton({
+  label,
+  onClick,
+  disabled,
+  className,
+  children,
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className={`grid place-items-center rounded-full border-2 border-white/15 bg-white/5 shadow-xl transition hover:scale-105 active:scale-95 disabled:opacity-60 ${className ?? ""}`}
+      >
+        {children}
+      </button>
+      <span className="text-[11px] font-semibold text-white/60">{label}</span>
     </div>
   );
 }

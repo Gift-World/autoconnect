@@ -193,13 +193,13 @@ export function InquiryThread({
   return (
     <div className="flex h-full flex-col bg-card/40 rounded-2xl border border-border/70 overflow-hidden">
       {/* Thread Header */}
-      <div className="flex items-center justify-between border-b border-border/60 bg-muted/30 px-4 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-2">
-          <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-ac-ink text-ac-accent">
             <Radio className="h-3.5 w-3.5" />
           </span>
           <div>
-            <h4 className="text-xs font-bold text-foreground">Live Negotiation & Inquiries</h4>
+            <h4 className="text-sm font-bold text-foreground">Live Negotiation & Inquiries</h4>
             <p className="text-[10px] text-muted-foreground">Direct buyer-seller instant channel</p>
           </div>
         </div>
@@ -284,7 +284,7 @@ export function InquiryThread({
       {/* Quick Prompts */}
       <div className="border-t border-border/50 bg-background/50 px-3 py-2">
         <div className="flex items-center gap-1 text-[10px] text-muted-foreground mb-1.5">
-          <Sparkles className="h-3 w-3 text-primary" />
+          <Sparkles className="h-3 w-3 text-ac-accent" />
           <span>Quick response suggestions:</span>
         </div>
         <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
@@ -294,7 +294,7 @@ export function InquiryThread({
               type="button"
               onClick={() => void send(prompt)}
               disabled={sending}
-              className="shrink-0 rounded-full border border-border/70 bg-card px-2.5 py-1 text-[11px] text-foreground hover:border-primary/50 hover:bg-primary/5 transition whitespace-nowrap"
+              className="inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full border border-border bg-card px-3.5 text-xs font-medium text-foreground transition hover:border-ac-accent/60 hover:bg-ac-accent/5 disabled:opacity-60"
             >
               {prompt}
             </button>
@@ -310,7 +310,7 @@ export function InquiryThread({
             onChange={(e) => setBody(e.target.value)}
             placeholder="Type your message or negotiate terms..."
             rows={2}
-            className="min-h-[44px] resize-none bg-background text-xs"
+            className="min-h-[44px] resize-none rounded-2xl bg-background text-base sm:text-sm"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -322,7 +322,7 @@ export function InquiryThread({
             onClick={() => void send()}
             disabled={sending || !body.trim()}
             size="icon"
-            className="h-11 w-11 shrink-0 bg-primary text-primary-foreground"
+            className="h-11 w-11 shrink-0 rounded-full bg-ac-accent text-ac-ink hover:bg-ac-accent hover:brightness-110"
           >
             {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           </Button>
@@ -357,14 +357,14 @@ function Bubble({
         className={cn(
           "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs sm:text-sm shadow-xs",
           mine
-            ? "rounded-br-xs bg-primary text-primary-foreground"
+            ? "rounded-br-xs bg-ac-ink text-white dark:bg-white dark:text-ac-ink"
             : isInitial
-              ? "rounded-bl-xs border border-primary/20 bg-primary/5 text-foreground"
+              ? "rounded-bl-xs border border-ac-accent/30 bg-ac-accent/5 text-foreground"
               : "rounded-bl-xs border border-border/70 bg-card text-foreground",
         )}
       >
         {isInitial && (
-          <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold text-primary uppercase tracking-wider">
+          <div className="mb-1 flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-ac-accent">
             <Sparkles className="h-3 w-3" /> Initial Vehicle Inquiry
           </div>
         )}
@@ -374,7 +374,7 @@ function Bubble({
         <span className="font-medium capitalize">{label.replace("_", " ")}</span>
         <span>·</span>
         <span>{new Date(time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-        {mine && <CheckCheck className="h-3 w-3 text-primary" />}
+        {mine && <CheckCheck className="h-3 w-3 text-ac-accent" />}
       </div>
     </div>
   );

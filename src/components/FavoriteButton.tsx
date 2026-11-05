@@ -7,6 +7,49 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/**
+ * Save-only favourites helper (same `favorites` table and query keys as FavoriteButton).
+ * Used by flows that "save" rather than toggle, such as swipe mode.
+ * Resolves to "saved" | "already" | "auth" (not signed in).
+ */
+export function useSaveFavorite() {
+  const { user } = useAuth();
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: async (carId: string): Promise<"saved" | "already"> => {
+      if (!user) throw new Error("auth");
+      const { data: existing, error: readError } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("car_id", carId)
+        .eq("buyer_id", user.id)
+        .maybeSingle();
+      if (readError) throw readError;
+      if (existing) return "already";
+      const { error } = await supabase.from("favorites").insert({ car_id: carId, buyer_id: user.id });
+      if (error) throw error;
+      return "saved";
+    },
+    onSuccess: (_result, carId) => {
+      qc.invalidateQueries({ queryKey: ["favorite", carId] });
+      qc.invalidateQueries({ queryKey: ["favorites"] });
+    },
+  });
+
+  const save = async (carId: string): Promise<"saved" | "already" | "auth"> => {
+    if (!user) return "auth";
+    return mutation.mutateAsync(carId);
+  };
+
+  return {
+    save,
+    isSignedIn: !!user,
+    goToLogin: () => navigate({ to: "/login" }),
+  };
+}
+
 export function FavoriteButton({
   carId,
   variant = "icon",
@@ -80,7 +123,7 @@ export function FavoriteButton({
         type="button"
         variant="outline"
         onClick={handle}
-        className={cn("w-full justify-center", className)}
+        className={cn("h-11 w-full justify-center rounded-full", className)}
       >
         <Heart className={cn("mr-2 h-4 w-4", isFav && "fill-destructive text-destructive")} />
         {isFav ? "Saved" : "Save to favorites"}
@@ -92,13 +135,15 @@ export function FavoriteButton({
     <button
       type="button"
       aria-label={isFav ? "Remove favorite" : "Add favorite"}
+      aria-pressed={!!isFav}
       onClick={handle}
       className={cn(
-        "grid h-9 w-9 place-items-center rounded-full bg-white/95 text-foreground shadow-sm transition hover:scale-105",
+        "grid h-11 w-11 place-items-center rounded-full bg-white/95 text-ac-ink shadow-sm transition hover:scale-105 active:scale-95",
         className,
+        isFav && "border-transparent bg-ac-accent text-ac-ink",
       )}
     >
-      <Heart className={cn("h-4 w-4", isFav && "fill-destructive text-destructive")} />
+      <Heart className={cn("h-[18px] w-[18px]", isFav && "fill-current")} />
     </button>
   );
 }

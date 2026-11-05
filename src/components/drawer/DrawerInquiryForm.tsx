@@ -56,7 +56,7 @@ export function DrawerInquiryForm({
               href={`tel:${sellerPhone}`}
               className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-colors"
             >
-              <Phone className="w-3.5 h-3.5 text-teal-500" />
+              <Phone className="w-3.5 h-3.5 text-foreground" />
               <span>Call</span>
             </a>
           )}
@@ -74,8 +74,8 @@ export function DrawerInquiryForm({
 
       {submitted ? (
         <div className="rounded-xl border border-teal-500/30 bg-teal-500/10 p-5 text-center space-y-2 animate-fade-in">
-          <CheckCircle2 className="w-8 h-8 text-teal-400 mx-auto" />
-          <h5 className="text-sm font-bold text-teal-300">Message Delivered to {sellerName}</h5>
+          <CheckCircle2 className="w-8 h-8 text-success mx-auto" />
+          <h5 className="text-sm font-bold text-foreground">Message Delivered to {sellerName}</h5>
           <p className="text-xs text-muted-foreground">
             The seller has received your contact request and will get back to you shortly.
           </p>
@@ -83,7 +83,7 @@ export function DrawerInquiryForm({
             variant="ghost"
             size="sm"
             onClick={() => setSubmitted(false)}
-            className="text-xs text-teal-400 hover:text-teal-300 mt-2"
+            className="text-xs text-foreground underline-offset-4 hover:underline mt-2"
           >
             Send another inquiry
           </Button>
@@ -91,7 +91,7 @@ export function DrawerInquiryForm({
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            <MessageSquare className="w-3.5 h-3.5 text-teal-500" />
+            <MessageSquare className="w-3.5 h-3.5 text-foreground" />
             <span>Send Direct Private Inquiry</span>
           </div>
 
@@ -105,7 +105,7 @@ export function DrawerInquiryForm({
                   onClick={() => setFormData({ ...formData, inquiryType: type })}
                   className={`py-1.5 px-2 rounded-lg text-[11px] font-medium border text-left transition-all truncate ${
                     formData.inquiryType === type
-                      ? "border-teal-500 bg-teal-500/15 text-teal-600 dark:text-teal-300 font-bold"
+                      ? "border-teal-500 bg-teal-500/15 text-foreground font-bold"
                       : "border-border bg-background text-muted-foreground hover:text-foreground"
                   }`}
                 >

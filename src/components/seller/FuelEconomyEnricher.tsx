@@ -78,7 +78,7 @@ export function FuelEconomyEnricher({ make, model, year, onAccept }: FuelEconomy
   if (!make || !model || !year) return null;
   if (loading) {
     return (
-      <div className="flex items-center text-xs text-muted-foreground p-3 border border-border rounded-xl">
+      <div className="flex items-center rounded-2xl border border-border p-4 text-xs text-muted-foreground">
         <Loader2 className="h-3 w-3 animate-spin mr-2" />
         Searching US EPA database for specs...
       </div>
@@ -88,11 +88,11 @@ export function FuelEconomyEnricher({ make, model, year, onAccept }: FuelEconomy
   if (noData || !vehicleData) return null;
 
   return (
-    <div className="p-4 rounded-xl border border-green-500/20 bg-green-500/5 space-y-3 animate-in fade-in slide-in-from-top-2 mt-4">
+    <div className="space-y-3 rounded-3xl border border-green-500/25 bg-green-500/5 p-4 sm:p-5">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-green-600 flex items-center gap-2">
+        <h4 className="flex items-center gap-2 text-sm font-semibold text-green-700 dark:text-green-400">
           <Leaf className="h-4 w-4" />
-          EPA Specs Found
+          EPA specs found — fuel economy helper
         </h4>
         <Badge variant="outline" className="text-[10px] border-green-500/30 text-green-600">
           FuelEconomy.gov
@@ -127,7 +127,7 @@ export function FuelEconomyEnricher({ make, model, year, onAccept }: FuelEconomy
         </div>
       </div>
 
-      <Button type="button" size="sm" onClick={handleAccept} className="w-full mt-2 bg-green-600 hover:bg-green-700 text-white">
+      <Button type="button" onClick={handleAccept} className="mt-2 h-11 w-full rounded-full bg-green-700 text-white hover:bg-green-800">
         Apply Suggested Specs
       </Button>
     </div>

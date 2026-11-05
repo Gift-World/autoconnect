@@ -29,27 +29,23 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
     exact ? pathname === to : pathname === to || pathname.startsWith(to + "/");
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] overflow-hidden bg-gradient-to-b from-secondary/45 via-background to-background">
-      <div className="world-grid pointer-events-none absolute inset-x-0 top-0 h-80 opacity-40" />
-      <div className="pointer-events-none absolute -right-40 top-12 h-96 w-96 rounded-full bg-teal-200/25 blur-3xl dark:bg-teal-800/10" />
-      <div className="relative mx-auto flex max-w-[1400px] flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:gap-8 lg:py-10">
+    <div className="relative min-h-[calc(100vh-4rem)] bg-background">
+      <div className="relative mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-5 sm:px-6 lg:flex-row lg:gap-8 lg:py-8">
         {/* Sidebar */}
-        <aside className="lg:sticky lg:top-20 lg:h-[calc(100vh-6rem)] lg:w-[260px] lg:shrink-0">
-          <div className="world-panel bg-card/85 p-3 backdrop-blur-xl lg:p-4">
+        <aside className="lg:sticky lg:top-[5.5rem] lg:h-[calc(100vh-7rem)] lg:w-[264px] lg:shrink-0">
+          <div className="rounded-3xl border border-border bg-card p-2 lg:h-full lg:overflow-y-auto lg:border-0 lg:bg-ac-ink lg:p-4 lg:text-white">
             <div className="mb-3 hidden px-2 lg:block">
               <div className="flex items-center justify-between gap-2">
-                <div className="world-kicker">
-                  {area}
-                </div>
+                <div className="brand-kicker text-ac-accent">{area}</div>
               </div>
               {areaSubtitle && (
-                <p className="mt-0.5 text-[11px] text-muted-foreground/80">{areaSubtitle}</p>
+                <p className="mt-1 text-xs text-white/60">{areaSubtitle}</p>
               )}
-              <div className="mt-2.5 pt-2 border-t border-border/60 flex flex-col gap-1.5">
+              <div className="mt-3 flex flex-col gap-1.5 border-t border-white/10 pt-3 text-foreground">
                 <RoleSwitcher className="w-full justify-between" />
                 <Link
                   to="/dashboard"
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 transition"
+                  className="flex min-h-10 items-center justify-center gap-1.5 rounded-full border border-white/15 px-3 text-xs font-semibold text-white transition hover:border-ac-accent hover:text-ac-accent"
                 >
                   <span>All-in-One Portal</span>
                 </Link>
@@ -57,7 +53,7 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
             </div>
 
             {/* Mobile: horizontal scroll */}
-            <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:hidden">
+            <nav aria-label={`${area} sections`} className="flex gap-1.5 overflow-x-auto p-1 lg:hidden">
               {sections
                 .flatMap((s) => s.items)
                 .map((it) => {
@@ -66,10 +62,10 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
                     <Link
                       key={it.to}
                       to={it.to as never}
-                      className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      className={`flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-sm font-semibold transition ${
                         active
-                          ? "border-primary/30 bg-primary text-primary-foreground shadow-sm"
-                          : "border-border/60 bg-background text-muted-foreground hover:text-foreground"
+                          ? "bg-ac-ink text-white dark:bg-ac-accent dark:text-ac-ink"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <span className="[&_svg]:h-3.5 [&_svg]:w-3.5">{it.icon}</span>
@@ -82,9 +78,9 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
             {/* Desktop: vertical, grouped */}
             <div className="hidden lg:block">
               {sections.map((section, sIdx) => (
-                <div key={sIdx} className={sIdx > 0 ? "mt-5 border-t border-border/60 pt-4" : ""}>
+                <div key={sIdx} className={sIdx > 0 ? "mt-5 border-t border-white/10 pt-4" : ""}>
                   {section.label && (
-                  <div className="px-2 pb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-muted-foreground/70">
+                  <div className="px-2 pb-2 text-[10px] font-extrabold uppercase tracking-[0.16em] text-white/45">
                       {section.label}
                     </div>
                   )}
@@ -95,20 +91,20 @@ export function DashboardShell({ area, areaSubtitle, sections, children }: Dashb
                         <li key={it.to}>
                           <Link
                             to={it.to as never}
-                            className={`group relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
+                            className={`group relative flex min-h-11 items-center gap-3 rounded-2xl px-3 text-sm transition ${
                               active
-                                ? "bg-primary/10 text-primary"
-                                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                                ? "bg-white/10 text-white"
+                                : "text-white/65 hover:bg-white/5 hover:text-white"
                             }`}
                           >
                             {active && (
-                              <span className="absolute inset-y-1.5 left-0 w-0.5 rounded-full bg-primary" />
+                              <span className="absolute inset-y-2 left-0 w-1 rounded-full bg-ac-accent" />
                             )}
                             <span
                               className={`grid h-7 w-7 place-items-center rounded-lg transition ${
                                 active
-                                  ? "bg-primary/15 text-primary"
-                                  : "bg-muted/60 text-muted-foreground group-hover:text-foreground"
+                                  ? "bg-ac-accent text-ac-ink"
+                                  : "bg-white/5 text-white/70 group-hover:text-white"
                               } [&_svg]:h-4 [&_svg]:w-4`}
                             >
                               {it.icon}

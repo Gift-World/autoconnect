@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Car as CarIcon, ShieldCheck, Sparkles, Fuel, Gauge } from "lucide-react";
+import { sizedImage } from "@/lib/image-url";
+import { Car as CarIcon, ShieldCheck } from "lucide-react";
 
 interface VehicleImageProps {
   src?: string | null;
+  /** Rough display width in CSS pixels × 2; used to request a right-sized copy. */
+  width?: number;
   alt: string;
   make?: string | null;
   model?: string | null;
@@ -29,33 +32,33 @@ export function VehiclePlaceholder({
 }) {
   return (
     <div
-      className={`relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-white to-teal-50 p-6 text-center text-slate-900 ${className}`}
+      className={`relative flex h-full w-full flex-col items-center justify-center overflow-hidden bg-ac-cream p-6 text-center text-ac-ink ${className}`}
     >
-      {/* Background architectural grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f766e10_1px,transparent_1px),linear-gradient(to_bottom,#0f766e10_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-
-      {/* Ambient glow */}
-      <div className="absolute h-32 w-32 rounded-full bg-teal-300/30 blur-2xl pointer-events-none" />
+      {/* Soft grid pattern */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(11,19,36,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(11,19,36,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
+      <div className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-ac-apricot/70 blur-2xl" />
 
       <div className="relative z-10 flex flex-col items-center">
-        <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl border border-teal-200 bg-white text-teal-600 shadow-sm">
+        <div className="mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-ac-ink text-ac-accent shadow-sm">
           <CarIcon className="h-7 w-7" />
         </div>
 
-        <div className="space-y-1 max-w-[240px]">
+        <div className="max-w-[240px] space-y-1">
           {year && (
-            <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-teal-700">
-              {year} · {bodyType || "Verified Vehicle"}
+            <span className="brand-kicker inline-block text-ac-ink/60">
+              {year} · {bodyType || "Vehicle"}
             </span>
           )}
-          <h4 className="text-sm font-bold text-slate-900 line-clamp-1">
-            {make ? `${make} ${model || ""}` : "Verified Vehicle"}
+          <h4 className="line-clamp-1 text-sm font-bold text-ac-ink">
+            {make ? `${make} ${model || ""}` : "Photo coming soon"}
           </h4>
-          <p className="text-[11px] text-slate-500">Review listing details and attached evidence</p>
+          <p className="text-[11px] text-ac-ink/60">
+            Photos not supplied yet. Review the listing details.
+          </p>
         </div>
 
-        <div className="mt-3 flex items-center gap-1 rounded-full border border-teal-200 bg-white/85 px-2.5 py-1 text-[10px] font-semibold text-slate-600 backdrop-blur-sm">
-          <ShieldCheck className="h-3 w-3 text-teal-600" />
+        <div className="mt-3 flex items-center gap-1 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-semibold text-ac-ink/70">
+          <ShieldCheck className="h-3 w-3 text-ac-ink" />
           <span>Evidence may be available</span>
         </div>
       </div>
@@ -73,6 +76,7 @@ export function VehicleImage({
   className = "",
   loading = "lazy",
   badge,
+  width = 960,
 }: VehicleImageProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -90,12 +94,13 @@ export function VehicleImage({
   }
 
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-slate-100 ${className}`}>
-      {!isLoaded && <div className="absolute inset-0 animate-pulse bg-slate-200" />}
+    <div className={`relative h-full w-full overflow-hidden bg-muted ${className}`}>
+      {!isLoaded && <div className="absolute inset-0 animate-pulse bg-muted" />}
       <img
-        src={src}
+        src={sizedImage(src, width)}
         alt={alt}
         loading={loading}
+        draggable={false}
         onLoad={() => setIsLoaded(true)}
         onError={() => setHasError(true)}
         className={`h-full w-full object-cover transition-opacity duration-300 ${
@@ -103,7 +108,7 @@ export function VehicleImage({
         }`}
       />
       {badge && (
-        <div className="absolute top-3 left-3 z-10">
+        <div className="absolute left-3 top-3 z-10">
           <span className="rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-md">
             {badge}
           </span>

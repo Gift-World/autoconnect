@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyPanel } from "@/components/seller/SellerUI";
 
 export const Route = createFileRoute("/_authenticated/seller/verify")({
   head: () => ({ meta: [{ title: "Verify seller — AutoConnect" }] }),
@@ -139,32 +141,50 @@ function SellerVerifyPage() {
 
   if (authLoading || !user || sellerQ.isLoading || profileQ.isLoading) {
     return (
-      <div className="mx-auto max-w-md rounded-lg border bg-card p-8 text-center">
-        <Loader2 className="mx-auto h-5 w-5 animate-spin text-muted-foreground" />
-        <p className="mt-3 text-sm text-muted-foreground">Loading your seller profile…</p>
+      <div className="mx-auto max-w-[1180px] space-y-4 sm:space-y-6" aria-busy="true">
+        <Skeleton className="h-32 w-full rounded-3xl" />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_290px]">
+          <Skeleton className="h-96 w-full rounded-3xl" />
+          <Skeleton className="hidden h-64 w-full rounded-3xl lg:block" />
+        </div>
+        <p className="sr-only">Loading your seller profile…</p>
       </div>
     );
   }
 
   if (!sellerQ.data) {
     return (
-      <div className="mx-auto max-w-md rounded-lg border bg-card p-8 text-center space-y-3">
-        <h2 className="text-lg font-semibold">Create your seller profile</h2>
-        <p className="text-sm text-muted-foreground">
-          {profileQ.data?.country && profileQ.data?.city
-            ? "We have your basic details — set up your seller profile in one click."
-            : "Finish the quick setup (name, phone, country) to unlock seller verification and listings."}
-        </p>
-        {profileQ.data?.country && profileQ.data?.city ? (
-          <Button onClick={createSellerProfile} disabled={creating}>
-            {creating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Create seller profile
-          </Button>
-        ) : (
-          <Button asChild>
-            <Link to="/complete-profile">Complete profile</Link>
-          </Button>
-        )}
+      <div className="mx-auto max-w-[1180px] space-y-4 sm:space-y-6">
+        <PageHeader
+          eyebrow="SELLER TRUST CENTRE"
+          title="Verify your selling profile"
+          description="Give buyers confidence in who they are dealing with."
+        />
+        <EmptyPanel
+          icon={<UserRound />}
+          title="Create your seller profile"
+          description={
+            profileQ.data?.country && profileQ.data?.city
+              ? "We have your basic details — set up your seller profile in one click."
+              : "Finish the quick setup (name, phone, country) to unlock seller verification and listings."
+          }
+          action={
+            profileQ.data?.country && profileQ.data?.city ? (
+              <Button
+                onClick={createSellerProfile}
+                disabled={creating}
+                className="h-11 rounded-full bg-ac-accent px-6 text-ac-ink hover:bg-ac-accent/90"
+              >
+                {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Create seller profile
+              </Button>
+            ) : (
+              <Button asChild className="h-11 rounded-full">
+                <Link to="/complete-profile">Complete profile</Link>
+              </Button>
+            )
+          }
+        />
       </div>
     );
   }
@@ -231,7 +251,7 @@ function SellerVerifyPage() {
           <Tabs
             value={accountType}
             onValueChange={(v) => !readOnly && setAccountType(v as "private" | "dealer")}
-            className="app-surface p-4 sm:p-6"
+            className="rounded-3xl border border-border bg-card p-4 sm:p-6"
           >
             <div className="mb-5 flex flex-col gap-3 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -240,7 +260,7 @@ function SellerVerifyPage() {
                   We only ask for the documents needed to review this profile.
                 </p>
               </div>
-              <TabsList>
+              <TabsList className="h-auto w-full sm:w-auto [&>button]:min-h-10 [&>button]:flex-1">
                 <TabsTrigger
                   value="private"
                   disabled={readOnly && accountType !== "private"}
@@ -401,7 +421,7 @@ function SellerVerifyPage() {
                   By submitting, you confirm these documents are accurate and belong to you or your
                   business.
                 </p>
-                <Button size="lg" onClick={submit} disabled={saving} className="shrink-0">
+                <Button size="lg" onClick={submit} disabled={saving} className="h-12 shrink-0 rounded-full bg-ac-accent px-6 text-ac-ink hover:bg-ac-accent/90">
                   {saving
                     ? "Submitting…"
                     : status === "rejected" || status === "more_info_needed"
@@ -414,11 +434,11 @@ function SellerVerifyPage() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-          <div className="app-surface overflow-hidden bg-gradient-to-br from-teal-50 to-white p-5">
-            <p className="text-[10px] font-bold tracking-[0.18em] text-teal-700">
+          <div className="overflow-hidden rounded-3xl bg-ac-ink p-5 text-white sm:p-6">
+            <p className="brand-kicker text-ac-accent">
               WHAT HAPPENS NEXT
             </p>
-            <h2 className="mt-2 text-lg font-bold tracking-tight">
+            <h2 className="font-brand mt-2 text-2xl leading-tight">
               A clear path to a trusted profile.
             </h2>
             <ol className="mt-5 space-y-4 text-sm">
@@ -432,12 +452,12 @@ function SellerVerifyPage() {
                 ["3", "Badge on listings", "Once verified, buyers can see your verified status."],
               ].map(([number, title, copy]) => (
                 <li key={number} className="flex gap-3">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-ac-accent text-xs font-bold text-ac-ink">
                     {number}
                   </span>
                   <span>
-                    <strong className="block font-semibold text-foreground">{title}</strong>
-                    <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                    <strong className="block font-semibold text-white">{title}</strong>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-white/70">
                       {copy}
                     </span>
                   </span>
@@ -445,9 +465,9 @@ function SellerVerifyPage() {
               ))}
             </ol>
           </div>
-          <div className="app-surface p-5">
+          <div className="rounded-3xl border border-border bg-card p-5">
             <div className="flex gap-3">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ac-accent text-ac-ink">
                 <LockKeyhole className="h-4 w-4" />
               </div>
               <div>
@@ -467,7 +487,7 @@ function SellerVerifyPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border/70 bg-muted/20 p-4 shadow-none sm:p-5">
+    <section className="rounded-3xl border border-border/70 bg-muted/20 p-4 shadow-none sm:p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
           <FileCheck2 className="h-3.5 w-3.5" />
@@ -542,7 +562,7 @@ function FileField({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          className="h-11 rounded-full"
           onClick={() => ref.current?.click()}
           disabled={disabled || busy}
         >

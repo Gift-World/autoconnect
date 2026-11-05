@@ -1,106 +1,101 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Car,
-  Globe,
-  ShieldCheck,
-  Lock,
-  Twitter,
-  Instagram,
-  Linkedin,
-  Facebook,
-  Sparkles,
-} from "lucide-react";
+import { ArrowUpRight, Facebook, Instagram, Linkedin, Lock, ShieldCheck, Twitter } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-card text-foreground">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-teal-400/60 to-transparent" />
-      <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6">
-        <div className="grid gap-10 md:grid-cols-5">
-          {/* Brand Col */}
-          <div className="md:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="relative grid h-10 w-10 overflow-hidden rounded-xl bg-white shadow-md shadow-teal-500/20 border border-border">
-                <img 
-                  src="/logo-mark.jpg" 
-                  alt="AutoConnect Logo Mark" 
-                  className="h-full w-full object-cover" 
-                />
+    <footer className="px-3 pb-3 sm:px-5 sm:pb-5">
+      <div className="overflow-hidden rounded-[28px] bg-ac-ink text-white sm:rounded-[36px]">
+        <div className="mx-auto max-w-[1360px] px-6 pb-10 pt-14 sm:px-10 sm:pt-20">
+          <div className="grid gap-10 lg:grid-cols-[1.1fr_1.9fr]">
+            <div>
+              <Link to="/" className="inline-flex items-center gap-3">
+                <span className="grid h-11 w-11 overflow-hidden rounded-xl bg-white">
+                  <img src="/logo-mark.jpg" alt="" className="h-full w-full object-cover" />
+                </span>
+                <span className="font-brand text-2xl">
+                  Auto<span className="text-ac-accent">Connect</span>
+                </span>
+              </Link>
+              <p className="font-brand mt-8 max-w-sm text-3xl sm:text-4xl">Find it. Prove it. Drive it. Keep its story.</p>
+              <div className="mt-8 flex gap-2.5">
+                {[
+                  { Icon: Twitter, label: "AutoConnect on X" },
+                  { Icon: Instagram, label: "AutoConnect on Instagram" },
+                  { Icon: Linkedin, label: "AutoConnect on LinkedIn" },
+                  { Icon: Facebook, label: "AutoConnect on Facebook" },
+                ].map(({ Icon, label }) => (
+                  <a
+                    key={label}
+                    href="#"
+                    aria-label={label}
+                    className="grid h-11 w-11 place-items-center rounded-full border border-white/15 text-white/70 transition hover:border-ac-accent hover:text-ac-accent"
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
               </div>
-              <span className="font-display text-xl font-bold tracking-tight text-foreground leading-none">
-                Auto<span className="text-teal-500">Connect</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+              <FooterCol
+                title="Marketplace"
+                links={[
+                  { to: "/cars", label: "Browse all cars" },
+                  { to: "/auctions", label: "Auctions" },
+                  { to: "/yards", label: "Dealerships" },
+                  { to: "/compare", label: "Compare cars" },
+                  { to: "/pricing", label: "Seller plans & pricing" },
+                ]}
+              />
+              <FooterCol
+                title="Import"
+                links={[
+                  { to: "/import", label: "Japan → Kenya" },
+                  { to: "/import", label: "UK sourcing" },
+                  { to: "/import", label: "UAE / Dubai direct" },
+                  { to: "/import#calculator", label: "Duty & tax calculator" },
+                  { to: "/import-tracker", label: "Track an import" },
+                ]}
+              />
+              <FooterCol
+                title="Own & connect"
+                links={[
+                  { to: "/garage", label: "My Garage" },
+                  { to: "/services", label: "Car care" },
+                  { to: "/parts", label: "Parts" },
+                  { to: "/community", label: "Community" },
+                ]}
+              />
+              <FooterCol
+                title="Trust"
+                links={[
+                  { to: "/trust", label: "Verification" },
+                  { to: "/how-payments-work", label: "Payment & handover" },
+                  { to: "/disputes", label: "Buyer disputes" },
+                  { to: "/support", label: "Support & contact" },
+                ]}
+              />
+            </div>
+          </div>
+
+          <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-8 text-xs text-white/55 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
+              <Link to="/privacy" className="hover:text-white">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:text-white">
+                Terms
+              </Link>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5">
+                <Lock className="h-3 w-3 text-ac-accent" /> Payment milestones shown per transaction
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5">
+                <ShieldCheck className="h-3 w-3 text-ac-accent" /> Evidence shown per listing
               </span>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Find a car, understand its evidence, and look after it — all connected to your vehicle.
-            </p>
-            <div className="flex gap-2.5 pt-2">
-              {[Twitter, Instagram, Linkedin, Facebook].map((I, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  aria-label="social link"
-                  className="grid h-9 w-9 place-items-center rounded-xl bg-secondary border border-border text-muted-foreground transition hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700"
-                >
-                  <I className="h-4 w-4" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Marketplace Links */}
-          <FooterCol
-            title="Marketplace"
-            links={[
-              { to: "/cars", label: "Browse All Cars" },
-              { to: "/yards", label: "Accredited Dealerships" },
-              { to: "/import", label: "Global Import Corridors" },
-              { to: "/pricing", label: "Seller Plans & Pricing" },
-              { to: "/how-payments-work", label: "How payments work" },
-              { to: "/trust", label: "Trust Center" },
-            ]}
-          />
-
-          {/* Sourcing Hubs */}
-          <FooterCol
-            title="Import Hubs"
-            links={[
-              { to: "/import", label: "Japan ➔ Kenya Corridor" },
-              { to: "/import", label: "UK Luxury Sourcing" },
-              { to: "/import", label: "UAE / Dubai Direct" },
-              { to: "/import#calculator", label: "Duty & Tax Calculator" },
-            ]}
-          />
-
-          {/* Trust & Safety */}
-          <FooterCol
-            title="Trust & Security"
-            links={[
-              { to: "/trust", label: "Seller & Vehicle Verification" },
-              { to: "/how-payments-work", label: "Payment & Handover" },
-              { to: "/disputes", label: "Buyer Dispute Process" },
-              { to: "/support", label: "Support & Contact" },
-            ]}
-          />
-        </div>
-
-        <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-border pt-8 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <p>© {new Date().getFullYear()} AutoConnect Technologies Inc. All rights reserved.</p>
-            <Link to="/privacy" className="hover:text-teal-700">
-              Privacy
-            </Link>
-            <Link to="/terms" className="hover:text-teal-700">
-              Terms
-            </Link>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-200 bg-teal-500/10 px-3 py-1.5 text-teal-700">
-              <Lock className="h-3 w-3 text-teal-600" /> Payment milestones shown per transaction
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary px-3 py-1.5 text-muted-foreground">
-              <ShieldCheck className="h-3 w-3 text-teal-600" /> Evidence shown per listing
-            </span>
           </div>
         </div>
       </div>
@@ -111,15 +106,16 @@ export function Footer() {
 function FooterCol({ title, links }: { title: string; links: { to: string; label: string }[] }) {
   return (
     <div>
-      <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">{title}</h4>
-      <ul className="mt-4 space-y-2.5">
+      <h4 className="brand-kicker text-white/45">{title}</h4>
+      <ul className="mt-4 space-y-1">
         {links.map((l, i) => (
           <li key={`${l.to}-${i}`}>
             <Link
               to={l.to as never}
-              className="text-xs font-medium text-muted-foreground transition hover:text-teal-700"
+              className="group inline-flex min-h-9 items-center gap-1 text-sm font-medium text-white/80 transition hover:text-ac-accent"
             >
               {l.label}
+              <ArrowUpRight className="h-3 w-3 opacity-0 transition group-hover:opacity-100" />
             </Link>
           </li>
         ))}

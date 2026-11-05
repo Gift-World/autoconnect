@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Mail, Phone, MapPin, Calendar, Wallet, Inbox, AlertCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Calendar, Wallet, Inbox, AlertCircle, Search } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyPanel, ListSkeleton } from "@/components/seller/SellerUI";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
@@ -68,22 +70,46 @@ function ImportRequestsPage() {
     enabled: !!sellerQuery.data?.is_approved && !!sellerQuery.data?.offers_international_shipping,
   });
 
+  const header = (
+    <PageHeader
+      eyebrow="Leads"
+      title="Buyer import requests"
+      description="Open requests from verified buyers worldwide. Contact directly to send a quote."
+    />
+  );
+
   if (sellerQuery.isLoading) {
-    return <div className="text-muted-foreground">Loading…</div>;
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        {header}
+        <ListSkeleton rows={3} />
+      </div>
+    );
   }
 
   const seller = sellerQuery.data;
   if (!seller?.is_approved || !seller?.offers_international_shipping) {
     return (
-      <div className="rounded-lg border bg-card p-8 text-center">
-        <AlertCircle className="mx-auto h-10 w-10 text-warning" />
-        <h2 className="mt-3 text-xl font-semibold">Exporter access required</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Only approved sellers who offer international shipping can view buyer import requests.{" "}
-          {seller && !seller.is_approved
-            ? "Your seller account is pending approval."
-            : "Enable international shipping in your seller profile to request access."}
-        </p>
+      <div className="space-y-4 sm:space-y-6">
+        {header}
+        <EmptyPanel
+          icon={<AlertCircle />}
+          title="Exporter access required"
+          description={
+            <>
+              Only approved sellers who offer international shipping can view buyer import
+              requests.{" "}
+              {seller && !seller.is_approved
+                ? "Your seller account is pending approval."
+                : "Enable international shipping in your seller profile to request access."}
+            </>
+          }
+          action={
+            <Button asChild className="h-11 rounded-full">
+              <Link to="/seller/verify">Open seller verification</Link>
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -100,32 +126,49 @@ function ImportRequestsPage() {
     : all;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Buyer import requests</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Open requests from verified buyers worldwide. Contact directly to send a quote.
-        </p>
-      </header>
+    <div className="space-y-4 sm:space-y-6">
+      {header}
 
-      <Input
-        placeholder="Search by make, model, or country…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        className="max-w-md"
-      />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-md">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by make, model, or country…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="h-12 rounded-full pl-11"
+            aria-label="Search import requests"
+          />
+        </div>
+        {!requestsQuery.isLoading && (
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{filtered.length}</span> of{" "}
+            {all.length} open {all.length === 1 ? "request" : "requests"}
+          </p>
+        )}
+      </div>
 
       {requestsQuery.isLoading ? (
-        <div className="text-muted-foreground">Loading requests…</div>
+        <ListSkeleton rows={3} />
       ) : filtered.length === 0 ? (
-        <div className="rounded-lg border bg-card p-10 text-center">
-          <Inbox className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="mt-3 text-sm text-muted-foreground">
-            {all.length === 0 ? "No open import requests yet." : "No requests match your search."}
-          </p>
-        </div>
+        <EmptyPanel
+          icon={<Inbox />}
+          title={all.length === 0 ? "No open import requests yet." : "No requests match your search."}
+          description={
+            all.length === 0
+              ? "New requests appear here as buyers post them. Check back soon."
+              : "Try a different make, model or country."
+          }
+          action={
+            all.length > 0 ? (
+              <Button variant="outline" className="h-11 rounded-full" onClick={() => setQ("")}>
+                Clear search
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
-        <div className="space-y-4">
+        <div className="grid gap-4 xl:grid-cols-2">
           {filtered.map((r) => (
             <RequestCard key={r.id} r={r} />
           ))}
@@ -146,13 +189,13 @@ function RequestCard({ r }: { r: ImportRequest }) {
     r.year_from || r.year_to ? `${r.year_from ?? "any"}–${r.year_to ?? "any"}` : "Any year";
 
   return (
-    <div className="rounded-lg border bg-card p-5 shadow-sm">
+    <article className="flex flex-col rounded-3xl border border-border bg-card p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-lg font-semibold">
+        <div className="min-w-0">
+          <h3 className="font-brand text-2xl leading-tight">
             {r.make_name} {r.model_name ?? ""}
           </h3>
-          <div className="mt-1 flex flex-wrap gap-2 text-xs">
+          <div className="mt-2 flex flex-wrap gap-2 text-xs">
             {r.preferred_condition && r.preferred_condition !== "any" && (
               <Badge variant="secondary">{r.preferred_condition}</Badge>
             )}
@@ -165,7 +208,7 @@ function RequestCard({ r }: { r: ImportRequest }) {
         <Badge className="bg-success text-success-foreground">Open</Badge>
       </div>
 
-      <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+      <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
         <Row icon={<Calendar className="h-4 w-4" />} label="Years" value={years} />
         <Row icon={<Wallet className="h-4 w-4" />} label="Budget" value={budget} />
         <Row
@@ -183,44 +226,48 @@ function RequestCard({ r }: { r: ImportRequest }) {
       </div>
 
       {r.additional_notes && (
-        <p className="mt-4 rounded-md bg-muted/50 p-3 text-sm text-muted-foreground">
+        <p className="mt-4 rounded-2xl bg-muted/50 p-3 text-sm leading-6 text-muted-foreground">
           {r.additional_notes}
         </p>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-        <div className="text-sm">
-          <div className="font-medium">{r.buyer_name}</div>
-          <div className="mt-1 flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <a
-              href={`mailto:${r.buyer_email}`}
-              className="flex items-center gap-1 hover:text-primary"
-            >
-              <Mail className="h-3 w-3" /> {r.buyer_email}
-            </a>
-            {r.buyer_phone && (
+      <div className="mt-auto pt-4">
+        <div className="flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 text-sm">
+            <div className="font-semibold">{r.buyer_name}</div>
+            <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
               <a
-                href={`tel:${r.buyer_phone}`}
-                className="flex items-center gap-1 hover:text-primary"
+                href={`mailto:${r.buyer_email}`}
+                className="inline-flex min-h-11 items-center gap-1 break-all hover:text-primary sm:min-h-0"
               >
-                <Phone className="h-3 w-3" /> {r.buyer_phone}
+                <Mail className="h-3 w-3 shrink-0" /> {r.buyer_email}
               </a>
-            )}
+              {r.buyer_phone && (
+                <a
+                  href={`tel:${r.buyer_phone}`}
+                  className="inline-flex min-h-11 items-center gap-1 hover:text-primary sm:min-h-0"
+                >
+                  <Phone className="h-3 w-3" /> {r.buyer_phone}
+                </a>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <a
-            href={`mailto:${r.buyer_email}?subject=Quote for ${encodeURIComponent(`${r.make_name} ${r.model_name ?? ""}`)}`}
+          <Button
+            asChild
+            className="h-11 shrink-0 rounded-full bg-ac-accent px-5 text-ac-ink hover:bg-ac-accent/90"
           >
-            <Button size="sm">Send quote</Button>
-          </a>
+            <a
+              href={`mailto:${r.buyer_email}?subject=Quote for ${encodeURIComponent(`${r.make_name} ${r.model_name ?? ""}`)}`}
+            >
+              Send quote
+            </a>
+          </Button>
+        </div>
+        <div className="mt-2 text-right text-xs text-muted-foreground">
+          Posted {new Date(r.created_at).toLocaleDateString()}
         </div>
       </div>
-
-      <div className="mt-2 text-right text-xs text-muted-foreground">
-        Posted {new Date(r.created_at).toLocaleDateString()}
-      </div>
-    </div>
+    </article>
   );
 }
 

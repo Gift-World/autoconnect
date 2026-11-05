@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
-const ROTATING_EXAMPLES = [
+export const ROTATING_EXAMPLES = [
   "SUV under 4M low mileage",
   "Toyota sedan automatic 2018+",
   "Hybrid SUV in Nairobi under 3.5M",
@@ -32,7 +32,7 @@ const ROTATING_EXAMPLES = [
   "Low mileage pickup truck for export",
 ];
 
-const SUGGESTION_CHIPS = [
+export const SUGGESTION_CHIPS = [
   { label: "🚙 SUVs Under 4M", query: "SUV under 4M low mileage" },
   { label: "⚡ Hybrid & Economical", query: "Toyota Hybrid automatic under 3.5M" },
   { label: "🏎️ German Sedans 2019+", query: "Mercedes or BMW sedan 2019+" },
@@ -55,6 +55,205 @@ export interface ParsedAiFilters {
   country?: string;
   rhd?: string;
   exportOnly?: boolean;
+}
+
+/**
+ * Natural Language Parsing Logic
+ * Parses make, model, body type, prices (4M, 4000000, 30k), years (2018+, 2020),
+ * transmission (automatic/manual), fuel (diesel/petrol/hybrid/electric), RHD, and export.
+ */
+export function parseNaturalLanguage(text: string): ParsedAiFilters {
+  const raw = text.toLowerCase();
+  const parsed: ParsedAiFilters = {};
+
+  // 1. Makes
+  const makesList = [
+    "toyota",
+    "mercedes-benz",
+    "mercedes",
+    "bmw",
+    "mazda",
+    "subaru",
+    "nissan",
+    "land rover",
+    "ford",
+    "volkswagen",
+    "audi",
+    "honda",
+    "hyundai",
+    "kia",
+    "lexus",
+    "mitsubishi",
+    "peugeot",
+    "volvo",
+    "porsche",
+    "isuzu",
+    "suzuki",
+  ];
+
+  for (const m of makesList) {
+    if (raw.includes(m)) {
+      if (m === "mercedes") {
+        parsed.make = "Mercedes-Benz";
+      } else {
+        parsed.make = m.charAt(0).toUpperCase() + m.slice(1);
+      }
+      break;
+    }
+  }
+
+  // 2. Models
+  const modelsList = [
+    "prado",
+    "land cruiser",
+    "harrier",
+    "rav4",
+    "vitz",
+    "axio",
+    "fielder",
+    "hilux",
+    "outback",
+    "forester",
+    "cx-5",
+    "cx-3",
+    "demio",
+    "c200",
+    "c-class",
+    "e300",
+    "e-class",
+    "530i",
+    "5 series",
+    "3 series",
+    "x5",
+    "ranger",
+    "golf",
+    "passat",
+    "tiguan",
+    "cr-v",
+    "civic",
+    "fit",
+    "xtrail",
+    "x-trail",
+  ];
+
+  for (const model of modelsList) {
+    if (raw.includes(model)) {
+      parsed.model = model.charAt(0).toUpperCase() + model.slice(1);
+      break;
+    }
+  }
+
+  // 3. Body Types
+  if (raw.includes("suv") || raw.includes("4x4") || raw.includes("crossover")) {
+    parsed.bodyType = "suv";
+  } else if (raw.includes("sedan") || raw.includes("saloon")) {
+    parsed.bodyType = "sedan";
+  } else if (raw.includes("pickup") || raw.includes("truck") || raw.includes("double cab")) {
+    parsed.bodyType = "pickup";
+  } else if (raw.includes("hatchback") || raw.includes("hatch")) {
+    parsed.bodyType = "hatchback";
+  } else if (raw.includes("wagon") || raw.includes("estate")) {
+    parsed.bodyType = "wagon";
+  } else if (raw.includes("van") || raw.includes("minivan")) {
+    parsed.bodyType = "van";
+  }
+
+  // 4. Fuel Types
+  if (raw.includes("hybrid")) {
+    parsed.fuelType = "hybrid";
+  } else if (raw.includes("diesel")) {
+    parsed.fuelType = "diesel";
+  } else if (raw.includes("petrol") || raw.includes("gasoline")) {
+    parsed.fuelType = "petrol";
+  } else if (raw.includes("electric") || raw.includes("ev")) {
+    parsed.fuelType = "electric";
+  }
+
+  // 5. Transmission
+  if (raw.includes("automatic") || raw.includes("auto") || raw.includes("cvt")) {
+    parsed.transmission = "automatic";
+  } else if (raw.includes("manual") || raw.includes("stick")) {
+    parsed.transmission = "manual";
+  }
+
+  // 6. Price Extraction: "under 4M", "below 3.5m", "under 50k", "< 4000000"
+  const priceUnderMatch = raw.match(
+    /(?:under|below|less than|max|up to|<)\s*(\d+(?:\.\d+)?)\s*(m|million|k|thousand|kes|usd)?/i,
+  );
+  if (priceUnderMatch) {
+    const num = parseFloat(priceUnderMatch[1]);
+    const unit = (priceUnderMatch[2] || "").toLowerCase();
+    if (unit.startsWith("m") || num < 20) {
+      parsed.maxPrice = num * 1_000_000;
+    } else if (unit.startsWith("k") || num < 200) {
+      parsed.maxPrice = num * 1_000;
+    } else {
+      parsed.maxPrice = num;
+    }
+  }
+
+  // Between price range e.g. "between 2m and 4m"
+  const priceRangeMatch = raw.match(
+    /between\s*(\d+(?:\.\d+)?)\s*m?\s*(?:and|to|-)\s*(\d+(?:\.\d+)?)\s*m/i,
+  );
+  if (priceRangeMatch) {
+    parsed.minPrice = parseFloat(priceRangeMatch[1]) * 1_000_000;
+    parsed.maxPrice = parseFloat(priceRangeMatch[2]) * 1_000_000;
+  }
+
+  // 7. Year Extraction: "2018+", "after 2019", "from 2020", "2015 to 2022"
+  const yearPlusMatch = raw.match(/(?:from|after|min|since|newer than)?\s*(201\d|202\d)\s*\+/i);
+  if (yearPlusMatch) {
+    parsed.minYear = parseInt(yearPlusMatch[1], 10);
+  } else {
+    const yearAfterMatch = raw.match(/(?:after|from|newer than)\s*(201\d|202\d)/i);
+    if (yearAfterMatch) {
+      parsed.minYear = parseInt(yearAfterMatch[1], 10);
+    }
+  }
+
+  const yearRangeMatch = raw.match(/(201\d|202\d)\s*(?:to|-)\s*(201\d|202\d)/i);
+  if (yearRangeMatch) {
+    parsed.minYear = parseInt(yearRangeMatch[1], 10);
+    parsed.maxYear = parseInt(yearRangeMatch[2], 10);
+  }
+
+  // 8. Mileage: "low mileage", "under 50k km"
+  if (raw.includes("low mileage") || raw.includes("low km")) {
+    parsed.maxMileage = 50000;
+  } else {
+    const mileageMatch = raw.match(
+      /(?:under|below|max)\s*(\d+)\s*(?:k|km|000)\s*(?:km|mileage|miles)?/i,
+    );
+    if (mileageMatch) {
+      const num = parseInt(mileageMatch[1], 10);
+      parsed.maxMileage = num < 500 ? num * 1000 : num;
+    }
+  }
+
+  // 9. Right Hand Drive / Steering
+  if (raw.includes("rhd") || raw.includes("right hand drive") || raw.includes("right-hand")) {
+    parsed.rhd = "yes";
+  }
+
+  // 10. Export
+  if (raw.includes("export") || raw.includes("shipping") || raw.includes("transit")) {
+    parsed.exportOnly = true;
+  }
+
+  // 11. Location / Country
+  if (raw.includes("nairobi") || raw.includes("mombasa") || raw.includes("kenya")) {
+    parsed.country = "KE";
+  } else if (raw.includes("japan") || raw.includes("yokohama") || raw.includes("tokyo")) {
+    parsed.country = "JP";
+  } else if (raw.includes("uk") || raw.includes("london") || raw.includes("britain")) {
+    parsed.country = "GB";
+  }
+
+  // General search keywords fallback
+  parsed.q = text.trim();
+
+  return parsed;
 }
 
 interface AiCarFinderSearchBarProps {
@@ -149,204 +348,6 @@ export function AiCarFinderSearchBar({
     }
   };
 
-  /**
-   * Natural Language Parsing Logic
-   * Parses make, model, body type, prices (4M, 4000000, 30k), years (2018+, 2020),
-   * transmission (automatic/manual), fuel (diesel/petrol/hybrid/electric), RHD, and export.
-   */
-  const parseNaturalLanguage = (text: string): ParsedAiFilters => {
-    const raw = text.toLowerCase();
-    const parsed: ParsedAiFilters = {};
-
-    // 1. Makes
-    const makesList = [
-      "toyota",
-      "mercedes-benz",
-      "mercedes",
-      "bmw",
-      "mazda",
-      "subaru",
-      "nissan",
-      "land rover",
-      "ford",
-      "volkswagen",
-      "audi",
-      "honda",
-      "hyundai",
-      "kia",
-      "lexus",
-      "mitsubishi",
-      "peugeot",
-      "volvo",
-      "porsche",
-      "isuzu",
-      "suzuki",
-    ];
-
-    for (const m of makesList) {
-      if (raw.includes(m)) {
-        if (m === "mercedes") {
-          parsed.make = "Mercedes-Benz";
-        } else {
-          parsed.make = m.charAt(0).toUpperCase() + m.slice(1);
-        }
-        break;
-      }
-    }
-
-    // 2. Models
-    const modelsList = [
-      "prado",
-      "land cruiser",
-      "harrier",
-      "rav4",
-      "vitz",
-      "axio",
-      "fielder",
-      "hilux",
-      "outback",
-      "forester",
-      "cx-5",
-      "cx-3",
-      "demio",
-      "c200",
-      "c-class",
-      "e300",
-      "e-class",
-      "530i",
-      "5 series",
-      "3 series",
-      "x5",
-      "ranger",
-      "golf",
-      "passat",
-      "tiguan",
-      "cr-v",
-      "civic",
-      "fit",
-      "xtrail",
-      "x-trail",
-    ];
-
-    for (const model of modelsList) {
-      if (raw.includes(model)) {
-        parsed.model = model.charAt(0).toUpperCase() + model.slice(1);
-        break;
-      }
-    }
-
-    // 3. Body Types
-    if (raw.includes("suv") || raw.includes("4x4") || raw.includes("crossover")) {
-      parsed.bodyType = "suv";
-    } else if (raw.includes("sedan") || raw.includes("saloon")) {
-      parsed.bodyType = "sedan";
-    } else if (raw.includes("pickup") || raw.includes("truck") || raw.includes("double cab")) {
-      parsed.bodyType = "pickup";
-    } else if (raw.includes("hatchback") || raw.includes("hatch")) {
-      parsed.bodyType = "hatchback";
-    } else if (raw.includes("wagon") || raw.includes("estate")) {
-      parsed.bodyType = "wagon";
-    } else if (raw.includes("van") || raw.includes("minivan")) {
-      parsed.bodyType = "van";
-    }
-
-    // 4. Fuel Types
-    if (raw.includes("hybrid")) {
-      parsed.fuelType = "hybrid";
-    } else if (raw.includes("diesel")) {
-      parsed.fuelType = "diesel";
-    } else if (raw.includes("petrol") || raw.includes("gasoline")) {
-      parsed.fuelType = "petrol";
-    } else if (raw.includes("electric") || raw.includes("ev")) {
-      parsed.fuelType = "electric";
-    }
-
-    // 5. Transmission
-    if (raw.includes("automatic") || raw.includes("auto") || raw.includes("cvt")) {
-      parsed.transmission = "automatic";
-    } else if (raw.includes("manual") || raw.includes("stick")) {
-      parsed.transmission = "manual";
-    }
-
-    // 6. Price Extraction: "under 4M", "below 3.5m", "under 50k", "< 4000000"
-    const priceUnderMatch = raw.match(
-      /(?:under|below|less than|max|up to|<)\s*(\d+(?:\.\d+)?)\s*(m|million|k|thousand|kes|usd)?/i,
-    );
-    if (priceUnderMatch) {
-      const num = parseFloat(priceUnderMatch[1]);
-      const unit = (priceUnderMatch[2] || "").toLowerCase();
-      if (unit.startsWith("m") || num < 20) {
-        parsed.maxPrice = num * 1_000_000;
-      } else if (unit.startsWith("k") || num < 200) {
-        parsed.maxPrice = num * 1_000;
-      } else {
-        parsed.maxPrice = num;
-      }
-    }
-
-    // Between price range e.g. "between 2m and 4m"
-    const priceRangeMatch = raw.match(
-      /between\s*(\d+(?:\.\d+)?)\s*m?\s*(?:and|to|-)\s*(\d+(?:\.\d+)?)\s*m/i,
-    );
-    if (priceRangeMatch) {
-      parsed.minPrice = parseFloat(priceRangeMatch[1]) * 1_000_000;
-      parsed.maxPrice = parseFloat(priceRangeMatch[2]) * 1_000_000;
-    }
-
-    // 7. Year Extraction: "2018+", "after 2019", "from 2020", "2015 to 2022"
-    const yearPlusMatch = raw.match(/(?:from|after|min|since|newer than)?\s*(201\d|202\d)\s*\+/i);
-    if (yearPlusMatch) {
-      parsed.minYear = parseInt(yearPlusMatch[1], 10);
-    } else {
-      const yearAfterMatch = raw.match(/(?:after|from|newer than)\s*(201\d|202\d)/i);
-      if (yearAfterMatch) {
-        parsed.minYear = parseInt(yearAfterMatch[1], 10);
-      }
-    }
-
-    const yearRangeMatch = raw.match(/(201\d|202\d)\s*(?:to|-)\s*(201\d|202\d)/i);
-    if (yearRangeMatch) {
-      parsed.minYear = parseInt(yearRangeMatch[1], 10);
-      parsed.maxYear = parseInt(yearRangeMatch[2], 10);
-    }
-
-    // 8. Mileage: "low mileage", "under 50k km"
-    if (raw.includes("low mileage") || raw.includes("low km")) {
-      parsed.maxMileage = 50000;
-    } else {
-      const mileageMatch = raw.match(
-        /(?:under|below|max)\s*(\d+)\s*(?:k|km|000)\s*(?:km|mileage|miles)?/i,
-      );
-      if (mileageMatch) {
-        const num = parseInt(mileageMatch[1], 10);
-        parsed.maxMileage = num < 500 ? num * 1000 : num;
-      }
-    }
-
-    // 9. Right Hand Drive / Steering
-    if (raw.includes("rhd") || raw.includes("right hand drive") || raw.includes("right-hand")) {
-      parsed.rhd = "yes";
-    }
-
-    // 10. Export
-    if (raw.includes("export") || raw.includes("shipping") || raw.includes("transit")) {
-      parsed.exportOnly = true;
-    }
-
-    // 11. Location / Country
-    if (raw.includes("nairobi") || raw.includes("mombasa") || raw.includes("kenya")) {
-      parsed.country = "KE";
-    } else if (raw.includes("japan") || raw.includes("yokohama") || raw.includes("tokyo")) {
-      parsed.country = "JP";
-    } else if (raw.includes("uk") || raw.includes("london") || raw.includes("britain")) {
-      parsed.country = "GB";
-    }
-
-    // General search keywords fallback
-    parsed.q = text.trim();
-
-    return parsed;
-  };
 
   const parseAndApplyQuery = (searchString: string) => {
     const text = searchString.trim();

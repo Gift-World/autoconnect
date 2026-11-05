@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { X, Scale, ArrowRight, Trash2 } from "lucide-react";
@@ -10,19 +10,22 @@ export function CompareFloatingBar() {
   const { comparedVehicles, removeFromCompare, clearComparison, maxVehicles } =
     useVehicleComparison();
   const { formatPrice } = useCurrency();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  // Car detail pages have their own sticky action bar on mobile; sit above it.
+  const onCarDetail = pathname.startsWith("/cars/") && pathname.length > "/cars/".length;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || comparedVehicles.length === 0) return null;
+  if (!mounted || comparedVehicles.length === 0 || pathname === "/compare") return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-3xl animate-in slide-in-from-bottom-6 duration-300">
-      <div className="bg-card/95 backdrop-blur-xl border border-accent/30 rounded-2xl shadow-2xl p-3 sm:p-4 text-foreground flex flex-col sm:flex-row items-center justify-between gap-3 ring-1 ring-black/5 dark:ring-white/10">
+    <div className={`fixed left-1/2 z-40 w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 animate-in slide-in-from-bottom-6 duration-300 ${onCarDetail ? "bottom-24 lg:bottom-6" : "bottom-4 sm:bottom-6"}`}>
+      <div className="bg-card/95 backdrop-blur-xl border border-border rounded-3xl shadow-2xl p-3 sm:p-4 text-foreground flex flex-col sm:flex-row items-center justify-between gap-3 ring-1 ring-black/5 dark:ring-white/10">
         {/* Left info & items */}
         <div className="flex items-center gap-3 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-accent/15 text-accent text-xs font-semibold shrink-0">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-ac-accent text-ac-ink text-xs font-semibold shrink-0">
             <Scale className="h-3.5 w-3.5" />
             <span>
               {comparedVehicles.length} / {maxVehicles}
@@ -81,7 +84,7 @@ export function CompareFloatingBar() {
           <Link to="/compare">
             <Button
               size="sm"
-              className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold h-9 px-4 rounded-xl gap-1.5 shadow-lg shadow-accent/20 text-xs"
+              className="h-11 gap-1.5 rounded-full bg-ac-accent px-5 text-xs font-bold text-ac-ink shadow-lg hover:bg-ac-accent/90"
             >
               <span>Compare Specs ({comparedVehicles.length})</span>
               <ArrowRight className="h-3.5 w-3.5" />

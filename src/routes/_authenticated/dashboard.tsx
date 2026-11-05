@@ -1,29 +1,23 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useAuth, type AppRole } from "@/contexts/AuthContext";
 import {
   User as UserIcon,
   Car,
   Store,
   ShieldCheck,
-  Heart,
   MessageSquare,
   Sparkles,
   PlusCircle,
-  QrCode,
   ArrowRight,
-  TrendingUp,
-  Receipt,
   FileCheck2,
   Lock,
-  Layers,
   ChevronRight,
   CheckCircle2,
-  Building2,
-  Clock,
+  Gauge,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { EscrowMilestoneTracker } from "@/components/payments/EscrowMilestoneTracker";
 import { YardInventoryManager } from "@/components/yard/YardInventoryManager";
 import {
@@ -37,6 +31,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { VehicleImage } from "@/components/VehicleImage";
+import {
+  NextStepCard,
+  SectionHeading,
+  ShortcutLink,
+  StatRow,
+} from "@/components/account/DashboardKit";
+import { primaryButton, secondaryButton } from "@/components/account/dashboard-utils";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: ConsolidatedDashboard,
@@ -151,126 +155,100 @@ function ConsolidatedDashboard() {
     }
   };
 
+  const tabs: { role: AppRole; label: string; badge: string; icon: ReactNode }[] = [
+    { role: "buyer", label: "Buyer Hub", badge: "Active", icon: <UserIcon className="h-4 w-4" /> },
+    { role: "seller", label: "Seller Portal", badge: "Inventory", icon: <Car className="h-4 w-4" /> },
+    {
+      role: "yard_manager",
+      label: "Car Yard Operations",
+      badge: "24 Bays",
+      icon: <Store className="h-4 w-4" />,
+    },
+    {
+      role: "admin",
+      label: "Super Admin Console",
+      badge: "Escrow",
+      icon: <ShieldCheck className="h-4 w-4" />,
+    },
+  ];
+
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-b from-secondary/30 via-background to-background py-6 sm:py-8">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* Top Header */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Layers className="h-4 w-4" />
-              </span>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
-                Consolidated All-in-One Portal
-              </h1>
-            </div>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Unified workspace for buyers, verified sellers, yard managers, and escrow
-              administrators.
-            </p>
+    <div className="min-h-[calc(100vh-4rem)] bg-background py-6 sm:py-8">
+      <div className="mx-auto max-w-[1360px] space-y-6 px-4 sm:px-6">
+        <PageHeader
+          eyebrow="Your workspace"
+          title="Consolidated All-in-One Portal"
+          description="Unified workspace for buyers, verified sellers, yard managers, and escrow administrators."
+          actions={
+            <>
+              {/* Quick Upgrade / Onboarding CTAs */}
+              <button
+                type="button"
+                onClick={() => {
+                  setBusinessName("");
+                  setShowUpgradeModal("seller");
+                }}
+                className={secondaryButton}
+              >
+                <Car className="h-4 w-4" /> Become a Seller
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBusinessName("");
+                  setShowUpgradeModal("yard");
+                }}
+                className={secondaryButton}
+              >
+                <Store className="h-4 w-4" /> Register Car Yard
+              </button>
+            </>
+          }
+        />
+
+        {/* Adaptive Consolidated Role Tabs — scroll inside their own track on small screens */}
+        <div className="-mx-4 overflow-x-auto px-4 no-scrollbar sm:mx-0 sm:px-0">
+          <div
+            role="tablist"
+            aria-label="Workspace"
+            className="inline-flex min-w-max gap-1 rounded-full border border-border bg-card p-1"
+          >
+            {tabs.map((t) => {
+              const selected = currentTab === t.role;
+              return (
+                <button
+                  key={t.role}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => handleTabChange(t.role)}
+                  className={cn(
+                    "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-bold transition",
+                    selected
+                      ? "bg-ac-ink text-white dark:bg-white dark:text-ac-ink"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <span className={selected ? "text-ac-accent" : ""}>{t.icon}</span>
+                  {t.label}
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                      selected ? "bg-ac-accent text-ac-ink" : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {t.badge}
+                  </span>
+                </button>
+              );
+            })}
           </div>
-
-          {/* Quick Upgrade / Onboarding CTAs */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setBusinessName("");
-                setShowUpgradeModal("seller");
-              }}
-              className="h-8 gap-1 text-xs border-primary/30 text-primary hover:bg-primary/5"
-            >
-              <Car className="h-3.5 w-3.5" /> Become a Seller
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => {
-                setBusinessName("");
-                setShowUpgradeModal("yard");
-              }}
-              className="h-8 gap-1 text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/5"
-            >
-              <Store className="h-3.5 w-3.5" /> Register Car Yard
-            </Button>
-          </div>
-        </div>
-
-        {/* Adaptive Consolidated Role Tabs */}
-        <div className="flex items-center gap-2 border-b border-border/80 pb-3 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => handleTabChange("buyer")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-              currentTab === "buyer"
-                ? "bg-purple-500/15 text-purple-700 dark:text-purple-300 border border-purple-500/30 shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            }`}
-          >
-            <UserIcon className="h-4 w-4 text-purple-500" />
-            Buyer Hub
-            <Badge
-              variant="secondary"
-              className="text-[10px] ml-1 bg-purple-500/10 text-purple-600"
-            >
-              Active
-            </Badge>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("seller")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-              currentTab === "seller"
-                ? "bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/30 shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            }`}
-          >
-            <Car className="h-4 w-4 text-blue-500" />
-            Seller Portal
-            <Badge variant="secondary" className="text-[10px] ml-1 bg-blue-500/10 text-blue-600">
-              Inventory
-            </Badge>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("yard_manager")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-              currentTab === "yard_manager"
-                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            }`}
-          >
-            <Store className="h-4 w-4 text-emerald-500" />
-            Car Yard Operations
-            <Badge
-              variant="secondary"
-              className="text-[10px] ml-1 bg-emerald-500/10 text-emerald-600"
-            >
-              24 Bays
-            </Badge>
-          </button>
-
-          <button
-            onClick={() => handleTabChange("admin")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shrink-0 ${
-              currentTab === "admin"
-                ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-            }`}
-          >
-            <ShieldCheck className="h-4 w-4 text-amber-500" />
-            Super Admin Console
-            <Badge variant="secondary" className="text-[10px] ml-1 bg-amber-500/10 text-amber-600">
-              Escrow
-            </Badge>
-          </button>
         </div>
 
         {/* Tab 1: Buyer & Owner Hub */}
         {currentTab === "buyer" && (
           <div className="space-y-6">
-            {/* Live Escrow Order Card (Active Journey) */}
+            {/* Live Escrow Order Card (Active Journey) — what matters now */}
             <EscrowMilestoneTracker
               isSimulated
               currentStatus="deposit_paid"
@@ -278,58 +256,57 @@ function ConsolidatedDashboard() {
               totalAmount="KES 6,250,000"
             />
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-[1.3fr_1fr]">
               {/* My Garage Context */}
-              <div className="rounded-2xl border border-border/80 bg-card p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                    <Car className="h-4 w-4 text-primary" />
-                    My Garage
-                  </h3>
-                  <Badge variant="outline" className="text-[10px]">1 Vehicle</Badge>
-                </div>
-                
-                <div className="rounded-xl border border-border/50 bg-muted/20 p-4 mb-4">
-                  <p className="font-semibold text-sm text-foreground">Subaru Outback 2019</p>
-                  <p className="text-xs text-muted-foreground mt-1">VIN: SBARU938XNK · 45,000 km</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant="secondary" className="text-[10px] bg-emerald-500/10 text-emerald-600">Insurance Active</Badge>
-                    <Badge variant="secondary" className="text-[10px] bg-blue-500/10 text-blue-600">Service Due in 2k km</Badge>
+              <div className="overflow-hidden rounded-[28px] border border-border bg-card">
+                <div className="grid sm:grid-cols-[1fr_1.1fr]">
+                  <div className="aspect-[16/10] bg-muted sm:aspect-auto sm:h-full">
+                    <VehicleImage src={null} alt="Subaru Outback 2019" make="Subaru" model="Outback" year={2019} />
                   </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button asChild size="sm" className="w-full bg-primary text-primary-foreground">
-                    <Link to="/garage">
-                      Open Garage <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                  <div className="flex flex-col p-5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="brand-kicker text-muted-foreground">My Garage</p>
+                      <span className="rounded-full border border-border px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                        1 Vehicle
+                      </span>
+                    </div>
+                    <p className="font-brand mt-3 text-2xl">Subaru Outback 2019</p>
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Gauge className="h-3.5 w-3.5" /> VIN: SBARU938XNK · 45,000 km
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
+                        <ShieldCheck className="h-3 w-3" /> Insurance Active
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-ac-accent/15 px-2.5 py-1 text-[11px] font-bold text-foreground">
+                        <Wrench className="h-3 w-3 text-ac-accent" /> Service Due in 2k km
+                      </span>
+                    </div>
+                    <Link to="/garage" className={cn(primaryButton, "mt-5 w-full sm:mt-auto")}>
+                      Open Garage <ArrowRight className="h-4 w-4" />
                     </Link>
-                  </Button>
+                  </div>
                 </div>
               </div>
 
               {/* Active Journeys / Discovery */}
-              <div className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2 mb-4">
-                    <Sparkles className="h-4 w-4 text-purple-500" />
-                    Explore & Import
-                  </h3>
-                  <div className="space-y-3">
-                    <Link to="/cars" className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-background hover:border-primary/50 transition">
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">Verified Local Inventory</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">Find 42-point inspected vehicles.</p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                    <Link to="/import" className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-background hover:border-primary/50 transition">
-                      <div>
-                        <p className="text-xs font-semibold text-foreground">Import from Japan</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">Let us handle logistics and duty.</p>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </Link>
-                  </div>
+              <div className="rounded-[28px] border border-border bg-card p-5">
+                <p className="brand-kicker flex items-center gap-2 text-muted-foreground">
+                  <Sparkles className="h-3.5 w-3.5 text-ac-accent" /> Explore & Import
+                </p>
+                <div className="mt-4 space-y-2">
+                  <ShortcutLink
+                    to="/cars"
+                    icon={<Car />}
+                    title="Verified Local Inventory"
+                    description="Find 42-point inspected vehicles."
+                  />
+                  <ShortcutLink
+                    to="/import"
+                    icon={<Sparkles />}
+                    title="Import from Japan"
+                    description="Let us handle logistics and duty."
+                  />
                 </div>
               </div>
             </div>
@@ -340,119 +317,77 @@ function ConsolidatedDashboard() {
         {currentTab === "seller" && (
           <div className="space-y-6">
             {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Active Listings</span>
-                  <Car className="h-4 w-4 text-blue-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">15 Cars</p>
-                <span className="text-[11px] text-emerald-600 font-medium">All published</span>
-              </div>
-
-              <Link
+            <StatRow>
+              <MetricCard
+                label="Active Listings"
+                icon={<Car />}
+                value="15 Cars"
+                hint="All published"
+                tone="ink"
+              />
+              <MetricCard
                 to="/seller/inquiries"
-                className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Buyer Inquiries</span>
-                  <MessageSquare className="h-4 w-4 text-primary" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">3 Pending</p>
-                <span className="text-[11px] text-primary font-medium">Instant reply ready</span>
-              </Link>
-
-              <Link
+                label="Buyer Inquiries"
+                icon={<MessageSquare />}
+                value="3 Pending"
+                hint="Instant reply ready"
+              />
+              <MetricCard
                 to="/seller/transactions"
-                className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Orders in Escrow</span>
-                  <Lock className="h-4 w-4 text-amber-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">KES 6.25M</p>
-                <span className="text-[11px] text-amber-600 font-medium">Locked in vault</span>
-              </Link>
-
-              <Link
+                label="Orders in Escrow"
+                icon={<Lock />}
+                value="KES 6.25M"
+                hint="Locked in vault"
+              />
+              <MetricCard
                 to="/seller/verify"
-                className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Dealer Badge</span>
-                  <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-emerald-600">Gold Verified</p>
-                <span className="text-[11px] text-muted-foreground">Yokohama Exporter</span>
-              </Link>
-            </div>
+                label="Dealer Badge"
+                icon={<ShieldCheck />}
+                value="Gold Verified"
+                hint="Yokohama Exporter"
+              />
+            </StatRow>
 
             {/* Quick Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card p-5">
-              <div>
-                <h3 className="text-base font-bold text-foreground">List a New Vehicle</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Publish Japanese auction cars or local showroom stock with instant Vehicle
-                  Passport verification.
-                </p>
-              </div>
-              <Button asChild className="bg-primary text-primary-foreground">
-                <Link to="/seller/listings/new">
-                  <PlusCircle className="mr-1.5 h-4 w-4" /> Create Car Listing
+            <NextStepCard
+              icon={<PlusCircle />}
+              title="List a New Vehicle"
+              body="Publish Japanese auction cars or local showroom stock with instant Vehicle Passport verification."
+              action={
+                <Link
+                  to="/seller/listings/new"
+                  search={{ edit: undefined }}
+                  className={primaryButton}
+                >
+                  <PlusCircle className="h-4 w-4" /> Create Car Listing
                 </Link>
-              </Button>
-            </div>
+              }
+            />
 
             {/* Seller Links */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <Link
-                to="/seller"
-                className="flex items-center justify-between rounded-xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center gap-3">
-                  <Car className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <h4 className="text-xs font-bold text-foreground">Manage All Listings</h4>
-                    <p className="text-[10px] text-muted-foreground">
-                      Edit pricing, photos, and specs
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-
-              <Link
-                to="/seller/inspections"
-                className="flex items-center justify-between rounded-xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center gap-3">
-                  <FileCheck2 className="h-5 w-5 text-emerald-500" />
-                  <div>
-                    <h4 className="text-xs font-bold text-foreground">Request Inspections</h4>
-                    <p className="text-[10px] text-muted-foreground">
-                      Get independent 42-point certification
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-
-              <Link
-                to="/seller/yard"
-                className="flex items-center justify-between rounded-xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center gap-3">
-                  <Store className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <h4 className="text-xs font-bold text-foreground">Storefront & Yard Setup</h4>
-                    <p className="text-[10px] text-muted-foreground">
-                      Configure branding and address
-                    </p>
-                  </div>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            </div>
+            <section>
+              <SectionHeading kicker="Manage" title="Seller tools" />
+              <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                <ShortcutLink
+                  to="/seller"
+                  icon={<Car />}
+                  title="Manage All Listings"
+                  description="Edit pricing, photos, and specs"
+                />
+                <ShortcutLink
+                  to="/seller/inspections"
+                  icon={<FileCheck2 />}
+                  title="Request Inspections"
+                  description="Get independent 42-point certification"
+                />
+                <ShortcutLink
+                  to="/seller/yard"
+                  icon={<Store />}
+                  title="Storefront & Yard Setup"
+                  description="Configure branding and address"
+                />
+              </div>
+            </section>
           </div>
         )}
 
@@ -467,104 +402,86 @@ function ConsolidatedDashboard() {
         {currentTab === "admin" && (
           <div className="space-y-6">
             {/* Admin Metrics */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Link
+            <StatRow>
+              <MetricCard
                 to="/admin/verification"
-                className="rounded-2xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Car Verifications</span>
-                  <FileCheck2 className="h-4 w-4 text-amber-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">3 Pending</p>
-                <span className="text-[11px] text-amber-600 font-medium">Logbooks & NTSA</span>
-              </Link>
-
-              <Link
+                label="Car Verifications"
+                icon={<FileCheck2 />}
+                value="3 Pending"
+                hint="Logbooks & NTSA"
+                tone="ink"
+              />
+              <MetricCard
                 to="/admin/sellers"
-                className="rounded-2xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Seller Audits</span>
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">2 KYC Checks</p>
-                <span className="text-[11px] text-muted-foreground">Dealer registrations</span>
-              </Link>
-
-              <Link
+                label="Seller Audits"
+                icon={<ShieldCheck />}
+                value="2 KYC Checks"
+                hint="Dealer registrations"
+              />
+              <MetricCard
                 to="/admin/transactions"
-                className="rounded-2xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Escrow Settlements</span>
-                  <Lock className="h-4 w-4 text-emerald-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">KES 14.8M</p>
-                <span className="text-[11px] text-emerald-600 font-medium">
-                  Release console ready
-                </span>
-              </Link>
-
-              <Link
+                label="Escrow Settlements"
+                icon={<Lock />}
+                value="KES 14.8M"
+                hint="Release console ready"
+              />
+              <MetricCard
                 to="/admin/inspections"
-                className="rounded-2xl border border-border/80 bg-card p-4 hover:border-primary/40 transition"
-              >
-                <div className="flex items-center justify-between text-muted-foreground">
-                  <span className="text-xs font-medium">Inspection Reports</span>
-                  <CheckCircle2 className="h-4 w-4 text-blue-500" />
-                </div>
-                <p className="mt-2 text-2xl font-bold text-foreground">5 Reviewed</p>
-                <span className="text-[11px] text-muted-foreground">42-point checklists</span>
-              </Link>
-            </div>
+                label="Inspection Reports"
+                icon={<CheckCircle2 />}
+                value="5 Reviewed"
+                hint="42-point checklists"
+              />
+            </StatRow>
 
             {/* Admin Action Panels */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border/80 bg-card p-5">
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-primary" />
-                  Vehicle Passport & Document Verifications
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Audit logbooks, Japanese auction sheets, import duty receipts, and NTSA
-                  registration records.
-                </p>
-                <Button asChild size="sm" className="mt-4">
-                  <Link to="/admin/verification">Open Verification Queue</Link>
-                </Button>
-              </div>
+            <NextStepCard
+              icon={<ShieldCheck />}
+              kicker="Needs review"
+              title="Vehicle Passport & Document Verifications"
+              body="Audit logbooks, Japanese auction sheets, import duty receipts, and NTSA registration records."
+              action={
+                <Link to="/admin/verification" className={primaryButton}>
+                  Open Verification Queue <ArrowRight className="h-4 w-4" />
+                </Link>
+              }
+            />
 
-              <div className="rounded-2xl border border-border/80 bg-card p-5">
-                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <Lock className="h-4 w-4 text-emerald-500" />
-                  Escrow Payout Release & Dispute Arbitration
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Review verified handovers and release escrow funds to sellers with automated audit
-                  logging.
-                </p>
-                <Button asChild size="sm" variant="outline" className="mt-4">
-                  <Link to="/admin/transactions">Manage Escrow Orders</Link>
-                </Button>
+            <div className="flex flex-col gap-4 rounded-[28px] border border-border bg-card p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+              <div className="flex gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-muted text-ac-accent">
+                  <Lock className="h-5 w-5" />
+                </span>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    Escrow Payout Release & Dispute Arbitration
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Review verified handovers and release escrow funds to sellers with automated
+                    audit logging.
+                  </p>
+                </div>
               </div>
+              <Link to="/admin/transactions" className={cn(secondaryButton, "shrink-0")}>
+                Manage Escrow Orders
+              </Link>
             </div>
           </div>
         )}
 
         {/* Upgrade Modals */}
         <Dialog open={!!showUpgradeModal} onOpenChange={() => setShowUpgradeModal(null)}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="rounded-3xl sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {showUpgradeModal === "seller" ? (
                   <>
-                    <Car className="h-5 w-5 text-blue-500" />
+                    <Car className="h-5 w-5 text-ac-accent" />
                     Become an AutoConnect Seller / Dealer
                   </>
                 ) : (
                   <>
-                    <Store className="h-5 w-5 text-emerald-500" />
+                    <Store className="h-5 w-5 text-ac-accent" />
                     Register a Physical Car Yard Storefront
                   </>
                 )}
@@ -580,7 +497,7 @@ function ConsolidatedDashboard() {
               <div>
                 <Label className="text-xs">Business or Storefront Name</Label>
                 <Input
-                  className="mt-1 text-xs"
+                  className="mt-1 h-11"
                   placeholder={
                     showUpgradeModal === "seller"
                       ? "e.g. Prestige Motors Kenya"
@@ -594,30 +511,82 @@ function ConsolidatedDashboard() {
               <div>
                 <Label className="text-xs">Country of Operation</Label>
                 <Input
-                  className="mt-1 text-xs"
+                  className="mt-1 h-11"
                   placeholder="Kenya, Japan, United Kingdom, etc."
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
                 />
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" size="sm" onClick={() => setShowUpgradeModal(null)}>
+              <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+                <Button
+                  variant="outline"
+                  className="min-h-11 rounded-full"
+                  onClick={() => setShowUpgradeModal(null)}
+                >
                   Cancel
                 </Button>
-                <Button
-                  size="sm"
+                <button
+                  type="button"
                   disabled={isUpgrading}
                   onClick={showUpgradeModal === "seller" ? handleBecomeSeller : handleRegisterYard}
-                  className="bg-primary text-primary-foreground"
+                  className={primaryButton}
                 >
                   {isUpgrading ? "Activating..." : "Activate Now"}
-                </Button>
+                </button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
       </div>
     </div>
+  );
+}
+
+function MetricCard({
+  to,
+  label,
+  icon,
+  value,
+  hint,
+  tone = "default",
+}: {
+  to?: string;
+  label: string;
+  icon: ReactNode;
+  value: string;
+  hint: string;
+  tone?: "default" | "ink";
+}) {
+  const ink = tone === "ink";
+  const body = (
+    <>
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2",
+          ink ? "text-white/65" : "text-muted-foreground",
+        )}
+      >
+        <span className="truncate text-xs font-bold">{label}</span>
+        <span className="shrink-0 text-ac-accent [&_svg]:h-4 [&_svg]:w-4">{icon}</span>
+      </div>
+      <p className="font-brand mt-3 truncate text-2xl sm:text-3xl">{value}</p>
+      <p className={cn("mt-1.5 flex items-center gap-1 text-xs", ink ? "text-white/65" : "text-muted-foreground")}>
+        {hint}
+        {to && <ChevronRight className="h-3 w-3" />}
+      </p>
+    </>
+  );
+  const cls = cn(
+    "min-w-0 rounded-3xl border p-4 sm:p-5",
+    ink ? "border-transparent bg-ac-ink text-white" : "border-border bg-card text-foreground",
+    to && "transition hover:border-ac-accent/60",
+  );
+  return to ? (
+    <Link to={to as never} className={cls}>
+      {body}
+    </Link>
+  ) : (
+    <div className={cls}>{body}</div>
   );
 }

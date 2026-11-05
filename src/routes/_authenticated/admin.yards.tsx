@@ -16,6 +16,17 @@ import {
 import { toast } from "sonner";
 import { countryByCode } from "@/lib/countries";
 import { QueueToolbar } from "@/components/admin/QueueToolbar";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  AdminPage,
+  AdminPanel,
+  QueueEmpty,
+  QueueError,
+  QueueSkeleton,
+  TAP,
+  ageOf,
+  oldestFirst,
+} from "@/components/admin/AdminUI";
 
 export const Route = createFileRoute("/_authenticated/admin/yards")({
   head: () => ({ meta: [{ title: "Car yards — Admin — AutoConnect" }] }),
@@ -59,7 +70,7 @@ function AdminYardsPage() {
     },
   });
 
-  const all = yardsQuery.data ?? [];
+  const all = useMemo(() => yardsQuery.data ?? [], [yardsQuery.data]);
   const counts = useMemo(
     () => [
       {
@@ -104,9 +115,13 @@ function AdminYardsPage() {
     await qc.invalidateQueries({ queryKey: ["admin-yards"] });
   }
 
+  // Waiting yards read oldest-first.
+  const ordered = tab === "pending" ? oldestFirst(rows, (y) => y.created_at) : rows;
+
   return (
-    <div className="space-y-5">
+    <AdminPage>
       <QueueToolbar
+        eyebrow="Moderation"
         title="Car yards"
         description="Approve dealership storefronts, feature the best ones, suspend bad actors."
         counts={counts}
@@ -117,56 +132,88 @@ function AdminYardsPage() {
         searchPlaceholder="Search yards…"
       />
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      {yardsQuery.isError && (
+        <QueueError>
+          Car yards could not load. This is not an empty result — refresh to retry.
+        </QueueError>
+      )}
+
+      <AdminPanel>
         {yardsQuery.isLoading ? (
-          <p className="p-6 text-sm text-muted-foreground">Loading…</p>
-        ) : rows.length === 0 ? (
-          <p className="p-6 text-sm text-muted-foreground">Nothing here.</p>
+          <QueueSkeleton rows={4} />
+        ) : ordered.length === 0 ? (
+          <QueueEmpty
+            icon={<Store />}
+            title="Nothing here"
+            description={
+              tab === "pending"
+                ? "No dealership storefronts are waiting for review."
+                : "No yards in this group. Try another filter or clear the search."
+            }
+          />
         ) : (
-          <div className="divide-y divide-border">
-            {rows.map((y) => {
+          <ul className="divide-y divide-border">
+            {ordered.map((y) => {
               const c = countryByCode(y.country);
               return (
-                <div key={y.id} className="flex flex-wrap items-center gap-4 p-4">
-                  <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-xl border border-border bg-background">
-                    {y.logo_url ? (
-                      <img src={y.logo_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <Store className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="truncate font-medium">{y.name}</p>
-                      {y.is_featured && (
-                        <Badge className="bg-accent text-accent-foreground hover:bg-accent">
-                          Featured
-                        </Badge>
+                <li
+                  key={y.id}
+                  className="flex flex-col gap-3 p-4 transition hover:bg-muted/30 sm:px-6 lg:flex-row lg:items-center"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-4">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-2xl border border-border bg-background">
+                      {y.logo_url ? (
+                        <img
+                          src={y.logo_url}
+                          alt={`${y.name} logo`}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Store className="h-5 w-5 text-muted-foreground" />
                       )}
-                      {y.is_suspended && <Badge variant="destructive">Suspended</Badge>}
-                    </div>
-                    <p className="truncate text-xs text-muted-foreground">
-                      {c?.flag} {y.city ? `${y.city}, ` : ""}
-                      {c?.name ?? y.country}
-                      {y.phone ? ` · ${y.phone}` : ""}
-                    </p>
-                    {y.rejection_reason && !y.is_approved && (
-                      <p className="mt-1 text-xs text-destructive">
-                        Changes requested: {y.rejection_reason}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="truncate font-semibold">{y.name}</p>
+                        {y.is_suspended ? (
+                          <StatusPill status="suspended" />
+                        ) : y.is_approved ? (
+                          <StatusPill status="approved" />
+                        ) : (
+                          <StatusPill status="pending" />
+                        )}
+                        {y.is_featured && (
+                          <Badge className="bg-accent text-accent-foreground hover:bg-accent">
+                            Featured
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {c?.flag} {y.city ? `${y.city}, ` : ""}
+                        {c?.name ?? y.country}
+                        {y.phone ? ` · ${y.phone}` : ""}
+                        {!y.is_approved && !y.is_suspended && ` · waiting ${ageOf(y.created_at)}`}
                       </p>
-                    )}
+                      {y.rejection_reason && !y.is_approved && (
+                        <p className="mt-1 text-xs text-destructive">
+                          Changes requested: {y.rejection_reason}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 lg:justify-end">
                     {y.is_approved && (
-                      <Button asChild variant="ghost" size="sm">
+                      <Button asChild variant="ghost" size="sm" className={TAP}>
                         <Link to="/yards/$slug" params={{ slug: y.slug }}>
-                          <ExternalLink className="mr-1.5 h-4 w-4" /> View
+                          <ExternalLink className="h-4 w-4" /> View
                         </Link>
                       </Button>
                     )}
                     {!y.is_approved && (
                       <Button
                         size="sm"
+                        className={TAP}
                         onClick={() =>
                           void patch(
                             y.id,
@@ -175,24 +222,26 @@ function AdminYardsPage() {
                           )
                         }
                       >
-                        <CheckCircle2 className="mr-1.5 h-4 w-4" /> Approve
+                        <CheckCircle2 className="h-4 w-4" /> Approve
                       </Button>
                     )}
                     {!y.is_approved && (
                       <Button
                         size="sm"
                         variant="outline"
+                        className={TAP}
                         onClick={() => {
                           setRejecting(y);
                           setReason("");
                         }}
                       >
-                        <XCircle className="mr-1.5 h-4 w-4" /> Request changes
+                        <XCircle className="h-4 w-4" /> Request changes
                       </Button>
                     )}
                     <Button
                       size="sm"
                       variant="outline"
+                      className={TAP}
                       onClick={() =>
                         void patch(
                           y.id,
@@ -201,12 +250,19 @@ function AdminYardsPage() {
                         )
                       }
                     >
-                      <Star className="mr-1.5 h-4 w-4" />
+                      <Star
+                        className={`h-4 w-4 ${y.is_featured ? "fill-accent text-accent" : ""}`}
+                      />
                       {y.is_featured ? "Unfeature" : "Feature"}
                     </Button>
                     <Button
                       size="sm"
-                      variant={y.is_suspended ? "outline" : "destructive"}
+                      variant="outline"
+                      className={
+                        y.is_suspended
+                          ? TAP
+                          : `${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`
+                      }
                       onClick={() =>
                         void patch(
                           y.id,
@@ -215,16 +271,16 @@ function AdminYardsPage() {
                         )
                       }
                     >
-                      <Ban className="mr-1.5 h-4 w-4" />
+                      <Ban className="h-4 w-4" />
                       {y.is_suspended ? "Restore" : "Suspend"}
                     </Button>
                   </div>
-                </div>
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
-      </div>
+      </AdminPanel>
 
       <Dialog open={Boolean(rejecting)} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>
@@ -237,11 +293,12 @@ function AdminYardsPage() {
             onChange={(e) => setReason(e.target.value)}
             placeholder="Tell the yard owner what needs fixing (photos, address, contact details)…"
           />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejecting(null)}>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className={TAP} onClick={() => setRejecting(null)}>
               Cancel
             </Button>
             <Button
+              className={TAP}
               onClick={async () => {
                 if (!rejecting) return;
                 await patch(
@@ -260,6 +317,6 @@ function AdminYardsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }

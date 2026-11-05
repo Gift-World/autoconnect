@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 interface ListingRow {
@@ -36,44 +35,56 @@ export function AnalyticsChart({ listings }: { listings: ListingRow[] }) {
   }, [listings]);
 
   return (
-    <Card className="col-span-full border-border/60 shadow-sm mt-6">
-      <CardHeader>
-        <CardTitle>Performance Analytics</CardTitle>
-        <CardDescription>
-          View traffic and inquiry trends across your listings over the last 30 days.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px] w-full mt-4">
+    <section className="col-span-full rounded-3xl border border-border bg-card p-4 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="brand-kicker text-muted-foreground">Performance</p>
+          <h2 className="font-brand mt-1.5 text-xl sm:text-2xl">Views &amp; inquiries</h2>
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-muted-foreground">
+            View traffic and inquiry trends across your listings over the last 30 days. The daily
+            split is an estimate based on your total views.
+          </p>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-ac-accent" /> Listing views
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Inquiries
+          </span>
+        </div>
+      </div>
+      <div>
+        <div className="mt-4 h-[240px] w-full sm:h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--color-ac-accent)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-ac-accent)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="colorInquiries" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0} />
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
               <XAxis 
                 dataKey="name" 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
                 dy={10}
               />
               <YAxis 
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               />
               <Tooltip
                 contentStyle={{ 
-                  backgroundColor: "hsl(var(--card))", 
-                  borderColor: "hsl(var(--border))",
+                  backgroundColor: "var(--card)", 
+                  borderColor: "var(--border)",
                   borderRadius: "0.5rem",
                   fontSize: "12px",
                   boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
@@ -83,7 +94,7 @@ export function AnalyticsChart({ listings }: { listings: ListingRow[] }) {
                 type="monotone" 
                 dataKey="views" 
                 name="Listing Views"
-                stroke="hsl(var(--primary))" 
+                stroke="var(--color-ac-accent)" 
                 strokeWidth={2}
                 fillOpacity={1} 
                 fill="url(#colorViews)" 
@@ -92,7 +103,7 @@ export function AnalyticsChart({ listings }: { listings: ListingRow[] }) {
                 type="monotone" 
                 dataKey="inquiries" 
                 name="Inquiries"
-                stroke="hsl(var(--accent))" 
+                stroke="var(--primary)" 
                 strokeWidth={2}
                 fillOpacity={1} 
                 fill="url(#colorInquiries)" 
@@ -100,7 +111,7 @@ export function AnalyticsChart({ listings }: { listings: ListingRow[] }) {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

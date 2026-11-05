@@ -101,7 +101,7 @@ export function GuidedPhotoUploader({ userId, value, onChange }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-border bg-muted/30 px-4 py-3 text-sm">
         <span className="font-medium">
           Required photos: {requiredDone} / {REQUIRED_PHOTO_KINDS.length}
         </span>
@@ -135,7 +135,7 @@ export function GuidedPhotoUploader({ userId, value, onChange }: Props) {
           <p className="text-sm font-medium">Extra photos (optional)</p>
           <Button
             type="button"
-            size="sm"
+            className="h-11 rounded-full"
             variant="outline"
             disabled={busyKind === "extra"}
             onClick={() => extraRef.current?.click()}
@@ -162,7 +162,7 @@ export function GuidedPhotoUploader({ userId, value, onChange }: Props) {
             .map((p) => (
               <div
                 key={p.path}
-                className="group relative aspect-square overflow-hidden rounded-lg border bg-muted"
+                className="group relative aspect-square overflow-hidden rounded-2xl border border-border bg-muted"
               >
                 <img src={p.url} alt="" className="h-full w-full object-cover" />
                 {p.isPrimary && (
@@ -170,7 +170,7 @@ export function GuidedPhotoUploader({ userId, value, onChange }: Props) {
                     PRIMARY
                   </span>
                 )}
-                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/40 opacity-0 transition group-hover:opacity-100">
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 bg-black/40 p-2 transition sm:inset-0 sm:p-0 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
                   {!p.isPrimary && (
                     <Button
                       size="icon"
@@ -227,10 +227,10 @@ function PhotoSlot({
         type="button"
         onClick={() => ref.current?.click()}
         disabled={busy}
-        className={`group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-lg border-2 border-dashed transition ${
+        className={`group relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed transition ${
           photo
             ? "border-transparent bg-muted"
-            : "border-border bg-muted/30 hover:border-primary hover:text-primary"
+            : "border-border bg-muted/30 hover:border-foreground/50 hover:bg-muted/60"
         } disabled:opacity-50`}
       >
         {photo ? (
@@ -252,19 +252,19 @@ function PhotoSlot({
         )}
       </button>
       {photo && (
-        <div className="flex items-center justify-between gap-1 text-[11px]">
+        <div className="flex items-center justify-between gap-1 text-xs">
           {!photo.isPrimary ? (
             <button
               type="button"
               onClick={onMakePrimary}
-              className="text-muted-foreground hover:text-foreground"
+              className="min-h-11 text-muted-foreground hover:text-foreground"
             >
               Make primary
             </button>
           ) : (
             <span className="text-muted-foreground">Cover photo</span>
           )}
-          <button type="button" onClick={onRemove} className="text-destructive hover:underline">
+          <button type="button" onClick={onRemove} className="min-h-11 text-destructive hover:underline">
             Remove
           </button>
         </div>

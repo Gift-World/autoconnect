@@ -74,7 +74,7 @@ export function KraCrspCalculator({
   const fmtKes = (amount: number) => `KES ${amount.toLocaleString()}`;
 
   return (
-    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm">
       {/* Header */}
       <div className="border-b bg-gradient-to-r from-emerald-950/40 via-background to-background p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">

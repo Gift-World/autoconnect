@@ -34,7 +34,7 @@ export function FeaturedShowroom() {
       const { data, error } = await supabase
         .from("cars")
         .select(
-          "id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,body_type,car_images(image_url,is_primary,sort_order)",
+          "id,is_sample,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,body_type,car_images(image_url,is_primary,sort_order)",
         )
         .eq("status", "approved")
         .order("created_at", { ascending: false })
@@ -162,10 +162,16 @@ export function FeaturedShowroom() {
                         <span>{car.location_display || country?.name || "Nairobi"}</span>
                       </span>
 
-                      {car.featured && (
-                        <Badge className="border-0 bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
-                          <Star className="mr-1 h-3 w-3 fill-current" /> Featured
+                      {(car as { is_sample?: boolean }).is_sample ? (
+                        <Badge className="border-0 bg-white px-2 py-0.5 text-[10px] font-bold text-slate-950 shadow-sm">
+                          Sample listing
                         </Badge>
+                      ) : (
+                        car.featured && (
+                          <Badge className="border-0 bg-amber-500 px-2 py-0.5 text-[10px] font-bold text-white shadow-sm">
+                            <Star className="mr-1 h-3 w-3 fill-current" /> Featured
+                          </Badge>
+                        )
                       )}
                     </div>
 

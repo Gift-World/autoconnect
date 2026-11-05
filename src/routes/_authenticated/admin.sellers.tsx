@@ -1,12 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { CheckCircle2, XCircle, ShieldCheck, Ban, Building2 } from "lucide-react";
+import { CheckCircle2, XCircle, ShieldCheck, Ban, Building2, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +16,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { countryByCode } from "@/lib/countries";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  AdminPage,
+  AdminPanel,
+  AdminToolbar,
+  FilterChips,
+  QueueEmpty,
+  QueueError,
+  QueueSkeleton,
+  TAP,
+} from "@/components/admin/AdminUI";
 
 export const Route = createFileRoute("/_authenticated/admin/sellers")({
   head: () => ({ meta: [{ title: "Sellers — Admin — AutoConnect" }] }),
@@ -114,55 +124,53 @@ function AdminSellersPage() {
   const pending = filter(all.filter((s) => !s.is_approved && !s.is_suspended));
   const approved = filter(all.filter((s) => s.is_approved && !s.is_suspended));
   const suspended = filter(all.filter((s) => s.is_suspended));
+  const rows = tab === "approved" ? approved : tab === "suspended" ? suspended : pending;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold">Sellers</h1>
-        <p className="text-sm text-muted-foreground">Review, verify, and manage seller accounts.</p>
-      </header>
-
-      <Input
-        placeholder="Search by business, name, or country…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        className="max-w-md"
+    <AdminPage>
+      <PageHeader
+        eyebrow="Moderation"
+        title="Sellers"
+        description="Review, verify, and manage seller accounts."
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="pending">Pending ({pending.length})</TabsTrigger>
-          <TabsTrigger value="approved">Approved ({approved.length})</TabsTrigger>
-          <TabsTrigger value="suspended">Suspended ({suspended.length})</TabsTrigger>
-        </TabsList>
-        <TabsContent value="pending" className="mt-4">
+      <AdminToolbar
+        filters={
+          <FilterChips
+            label="Seller status"
+            active={tab}
+            onSelect={setTab}
+            options={[
+              { key: "pending", label: "Pending", count: pending.length },
+              { key: "approved", label: "Approved", count: approved.length },
+              { key: "suspended", label: "Suspended", count: suspended.length },
+            ]}
+          />
+        }
+        search={q}
+        onSearch={setQ}
+        searchPlaceholder="Search by business, name, or country…"
+      />
+
+      {sellersQuery.isError && (
+        <QueueError>
+          Sellers could not load. This is not an empty result — refresh to retry.
+        </QueueError>
+      )}
+
+      <AdminPanel>
+        {sellersQuery.isLoading ? (
+          <QueueSkeleton rows={5} />
+        ) : (
           <SellersList
-            rows={pending}
+            rows={rows}
             onApprove={approve}
             onVerify={verify}
             onSuspend={suspend}
             onReject={(s) => setRejecting(s)}
           />
-        </TabsContent>
-        <TabsContent value="approved" className="mt-4">
-          <SellersList
-            rows={approved}
-            onApprove={approve}
-            onVerify={verify}
-            onSuspend={suspend}
-            onReject={(s) => setRejecting(s)}
-          />
-        </TabsContent>
-        <TabsContent value="suspended" className="mt-4">
-          <SellersList
-            rows={suspended}
-            onApprove={approve}
-            onVerify={verify}
-            onSuspend={suspend}
-            onReject={(s) => setRejecting(s)}
-          />
-        </TabsContent>
-      </Tabs>
+        )}
+      </AdminPanel>
 
       <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>
@@ -179,17 +187,17 @@ function AdminSellersPage() {
               placeholder="Why is this seller being rejected?"
             />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejecting(null)}>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className={TAP} onClick={() => setRejecting(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={submitReject}>
+            <Button variant="destructive" className={TAP} onClick={submitReject}>
               Reject
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
   );
 }
 
@@ -208,27 +216,39 @@ function SellersList({
 }) {
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
-        No sellers in this group.
-      </div>
+      <QueueEmpty
+        icon={<Users />}
+        title="No sellers in this group"
+        description="New seller applications land in Pending. Try another group or clear the search."
+      />
     );
   }
   return (
-    <div className="space-y-3">
+    <ul className="divide-y divide-border">
       {rows.map((s) => {
         const c = countryByCode(s.country);
         return (
-          <div key={s.id} className="rounded-lg border bg-card p-4 shadow-sm">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+          <li
+            key={s.id}
+            className="flex flex-col gap-3 p-4 transition hover:bg-muted/30 sm:px-6 lg:flex-row lg:items-center lg:justify-between"
+          >
+            <div className="flex min-w-0 items-start gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ac-cream text-ac-ink">
+                <Building2 className="h-5 w-5" />
+              </span>
               <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <h3 className="font-semibold">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="truncate font-semibold">
                     {s.business_name || s.profiles?.full_name || "Unnamed seller"}
                   </h3>
-                  {s.is_verified && (
-                    <Badge className="bg-success text-success-foreground">Verified</Badge>
+                  {s.is_suspended ? (
+                    <StatusPill status="suspended" />
+                  ) : s.is_approved ? (
+                    <StatusPill status="approved" label="Approved" />
+                  ) : (
+                    <StatusPill status="pending" />
                   )}
+                  {s.is_verified && <StatusPill status="verified" label="Verified" />}
                   {s.offers_international_shipping && <Badge variant="secondary">Exporter</Badge>}
                 </div>
                 <div className="mt-1 text-xs text-muted-foreground">
@@ -237,41 +257,46 @@ function SellersList({
                   {s.city ? `, ${s.city}` : ""}
                 </div>
                 {s.rejection_reason && (
-                  <div className="mt-2 rounded-md bg-destructive/10 px-2 py-1 text-xs text-destructive">
+                  <div className="mt-2 rounded-xl bg-destructive/10 px-2 py-1 text-xs text-destructive">
                     Rejected: {s.rejection_reason}
                   </div>
                 )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {!s.is_approved && (
-                  <Button size="sm" onClick={() => onApprove(s)}>
-                    <CheckCircle2 className="mr-1 h-4 w-4" /> Approve
-                  </Button>
-                )}
-                {s.is_approved && !s.is_verified && (
-                  <Button size="sm" variant="outline" onClick={() => onVerify(s)}>
-                    <ShieldCheck className="mr-1 h-4 w-4" /> Verify
-                  </Button>
-                )}
-                {!s.is_suspended ? (
-                  <Button size="sm" variant="outline" onClick={() => onSuspend(s)}>
-                    <Ban className="mr-1 h-4 w-4" /> Suspend
-                  </Button>
-                ) : (
-                  <Button size="sm" onClick={() => onApprove(s)}>
-                    <CheckCircle2 className="mr-1 h-4 w-4" /> Reinstate
-                  </Button>
-                )}
-                {!s.is_approved && (
-                  <Button size="sm" variant="destructive" onClick={() => onReject(s)}>
-                    <XCircle className="mr-1 h-4 w-4" /> Reject
-                  </Button>
-                )}
-              </div>
             </div>
-          </div>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              {!s.is_approved && (
+                <Button size="sm" className={TAP} onClick={() => onApprove(s)}>
+                  <CheckCircle2 className="h-4 w-4" /> Approve
+                </Button>
+              )}
+              {s.is_approved && !s.is_verified && (
+                <Button size="sm" variant="outline" className={TAP} onClick={() => onVerify(s)}>
+                  <ShieldCheck className="h-4 w-4" /> Verify
+                </Button>
+              )}
+              {!s.is_suspended ? (
+                <Button size="sm" variant="outline" className={TAP} onClick={() => onSuspend(s)}>
+                  <Ban className="h-4 w-4" /> Suspend
+                </Button>
+              ) : (
+                <Button size="sm" className={TAP} onClick={() => onApprove(s)}>
+                  <CheckCircle2 className="h-4 w-4" /> Reinstate
+                </Button>
+              )}
+              {!s.is_approved && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+                  onClick={() => onReject(s)}
+                >
+                  <XCircle className="h-4 w-4" /> Reject
+                </Button>
+              )}
+            </div>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 }

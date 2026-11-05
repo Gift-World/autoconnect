@@ -84,7 +84,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -162,7 +162,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap",
       },
     ],
     scripts: [
@@ -196,6 +196,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { ComparisonProvider } from "@/contexts/ComparisonContext";
 import { CompareFloatingBar } from "@/components/compare/CompareFloatingBar";
 import { WhatsAppConcierge } from "@/components/concierge/WhatsAppConcierge";
+import { CarCompanion } from "@/components/companion/CarCompanion";
 import { AppTour } from "@/components/tour/AppTour";
 
 function RootComponent() {
@@ -206,7 +207,7 @@ function RootComponent() {
       <AuthProvider>
         <CurrencyProvider>
           <ComparisonProvider>
-            <div className="relative flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
+            <div className="relative flex min-h-screen w-full flex-col overflow-x-clip bg-background">
               <Navbar />
               <main className="relative flex-1">
                 {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
@@ -216,6 +217,7 @@ function RootComponent() {
             </div>
             <CompareFloatingBar />
             <WhatsAppConcierge />
+            <CarCompanion />
             <AppTour />
             <Toaster richColors position="top-right" />
           </ComparisonProvider>

@@ -190,14 +190,14 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
   return (
     <div className="space-y-5">
       {canEdit && (
-        <div className="rounded-xl border border-dashed border-border bg-secondary/30 p-4">
-          <div className="grid gap-3 sm:grid-cols-[180px_1fr_auto]">
+        <div className="rounded-3xl border border-dashed border-border bg-muted/30 p-4 sm:p-5">
+          <div className="grid gap-3 md:grid-cols-[200px_1fr_auto]">
             <div className="space-y-1.5">
               <Label className="text-xs uppercase tracking-wide text-muted-foreground">
                 Document type
               </Label>
               <Select value={kind} onValueChange={(v) => setKind(v as DocKind)}>
-                <SelectTrigger>
+                <SelectTrigger className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,6 +214,7 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
                 Label (optional)
               </Label>
               <Input
+                className="h-11"
                 placeholder="e.g. Original title scan, page 2"
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
@@ -234,7 +235,7 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
                 />
                 <span
                   className={cn(
-                    "inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition hover:bg-primary/90",
+                    "inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-110 focus-within:ring-2 focus-within:ring-ac-accent/50",
                     uploading && "pointer-events-none opacity-70",
                   )}
                 >
@@ -260,17 +261,23 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading documents…
         </div>
       ) : docs.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
-          No documents uploaded yet.
+        <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">
+          <FileText className="mx-auto mb-3 h-6 w-6 text-muted-foreground" />
+          <p className="font-semibold text-foreground">No documents uploaded yet.</p>
+          {canEdit && (
+            <p className="mt-1 text-xs">
+              Choose a document type above and upload a PDF or photo to start verification.
+            </p>
+          )}
         </div>
       ) : (
         <ul className="space-y-2">
           {docs.map((d) => (
             <li
               key={d.id}
-              className="flex items-start gap-3 rounded-xl border border-border bg-card p-3"
+              className="flex items-start gap-3 rounded-2xl border border-border bg-card p-3 sm:p-4"
             >
-              <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-secondary text-muted-foreground">
+              <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-ac-accent">
                 <FileText className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
@@ -293,7 +300,7 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-1">
-                <Button size="icon" variant="ghost" onClick={() => void openDoc(d)} title="Open">
+                <Button size="icon" variant="ghost" className="h-11 w-11 rounded-full" onClick={() => void openDoc(d)} title="Open" aria-label="Open document">
                   <Download className="h-4 w-4" />
                 </Button>
                 {canEdit && (
@@ -302,6 +309,8 @@ export function DocumentManager({ carId, sellerId }: { carId: string; sellerId: 
                     variant="ghost"
                     onClick={() => void removeDoc(d)}
                     title="Delete"
+                    aria-label="Delete document"
+                    className="h-11 w-11 rounded-full"
                   >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>

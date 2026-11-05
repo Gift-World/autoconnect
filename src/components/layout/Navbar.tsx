@@ -1,16 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  Globe,
-  Menu,
-  LogOut,
-  User as UserIcon,
-  ShieldCheck,
-  Heart,
-  Car,
-  Store,
-  Scale,
-  Settings,
-} from "lucide-react";
+import { ArrowUpRight, Car, Heart, LogOut, Menu, Scale, Settings, User as UserIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,24 +12,64 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DEMO_MODE, useAuth, roleHomePath } from "@/contexts/AuthContext";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 
-const navLinks = [
+/** The four doors shown in the bar on large screens. */
+const primaryLinks = [
   { to: "/cars", label: "Buy" },
-  { to: "/auctions", label: "Auctions" },
   { to: "/import", label: "Import" },
-  { to: "/yards", label: "Dealerships" },
   { to: "/services", label: "Care" },
-  { to: "/seller", label: "Sell" },
+  { to: "/community", label: "Community" },
 ] as const;
 
+/** Everything, grouped, in the menu. */
+const menuGroups = [
+  {
+    title: "Buy",
+    links: [
+      { to: "/cars", label: "Browse cars" },
+      { to: "/auctions", label: "Auctions" },
+      { to: "/yards", label: "Dealerships" },
+      { to: "/compare", label: "Compare" },
+      { to: "/import", label: "Import a car" },
+      { to: "/import-tracker", label: "Track an import" },
+    ],
+  },
+  {
+    title: "Own",
+    links: [
+      { to: "/garage", label: "My Garage" },
+      { to: "/services", label: "Car care" },
+      { to: "/parts", label: "Parts" },
+      { to: "/community", label: "Community" },
+    ],
+  },
+  {
+    title: "Sell & trust",
+    links: [
+      { to: "/seller", label: "Sell your car" },
+      { to: "/pricing", label: "Seller pricing" },
+      { to: "/trust", label: "Trust centre" },
+      { to: "/how-payments-work", label: "How payments work" },
+      { to: "/support", label: "Support" },
+    ],
+  },
+] as const;
+
+const ROLE_LABEL: Record<string, string> = {
+  buyer: "Buyer view",
+  seller: "Seller / dealer view",
+  yard_manager: "Yard admin view",
+  admin: "Super admin view",
+};
+
 export function Navbar() {
-  const { user, profile, signOut, loading, activeRole, setActiveRole } = useAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, profile, signOut, loading, activeRole } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -60,217 +89,172 @@ export function Navbar() {
     user?.email?.slice(0, 2).toUpperCase() ||
     "U";
 
+  const close = () => setMenuOpen(false);
+
   return (
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        scrolled
-          ? "border-b border-border/80 bg-background/85 backdrop-blur-2xl shadow-sm"
-          : "border-b border-transparent bg-background/50 backdrop-blur-md"
+        scrolled ? "border-b border-border/80 bg-background/85 shadow-sm backdrop-blur-2xl" : "border-b border-transparent bg-background/60 backdrop-blur-md"
       }`}
     >
-      <div className="mx-auto flex h-16 sm:h-18 max-w-[1360px] items-center justify-between px-4 sm:px-6">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="relative grid h-10 w-10 overflow-hidden rounded-xl bg-white shadow-md border border-border group-hover:border-teal-500/40 transition-colors">
-            <img 
-              src="/logo-mark.jpg" 
-              alt="AutoConnect Logo Mark" 
-              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500" 
-            />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display text-lg sm:text-xl text-foreground font-extrabold tracking-tight">
-              Auto<span className="text-teal-500">Connect</span>
-            </span>
-            <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground font-semibold -mt-1 hidden sm:block">
-              Global Verified
-            </span>
-          </div>
+      <div className="mx-auto flex h-16 max-w-[1360px] items-center justify-between gap-3 px-4 sm:h-18 sm:px-6">
+        <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="AutoConnect home">
+          <span className="grid h-10 w-10 overflow-hidden rounded-xl border border-border bg-white">
+            <img src="/logo-mark.jpg" alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          </span>
+          <span className="font-brand hidden text-xl min-[380px]:inline">
+            Auto<span className="ml-0.5 rounded-md bg-ac-accent px-1 text-ac-ink">Connect</span>
+          </span>
         </Link>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden items-center gap-1 lg:gap-1.5 md:flex">
-          {navLinks.map((l) => (
+        <nav aria-label="Main" className="hidden items-center gap-1 lg:flex">
+          {primaryLinks.map((l) => (
             <Link
-              key={l.label}
-              to={l.to as never}
-              className="rounded-full px-3.5 py-2 text-xs sm:text-sm font-semibold text-muted-foreground transition-all duration-150 hover:bg-muted/80 hover:text-foreground"
-              activeProps={{ className: "text-foreground font-bold bg-muted/80 shadow-sm" }}
+              key={l.to}
+              to={l.to}
+              className="rounded-full px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground"
+              activeProps={{ className: "bg-muted text-foreground" }}
             >
               {l.label}
             </Link>
           ))}
         </nav>
 
-        {/* Right Action Area */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Universal Role Perspective Switcher */}
-          <RoleSwitcher className="hidden sm:flex" />
-
+        <div className="flex items-center gap-2">
           {loading ? (
-            <div className="h-9 w-20 animate-pulse rounded-xl bg-muted" />
+            <div className="h-10 w-24 animate-pulse rounded-full bg-muted" />
           ) : user ? (
             <>
-              <div className="hidden sm:flex items-center gap-2 sm:gap-3">
-                <CurrencySwitcher />
-                <ThemeToggle />
-              </div>
               <NotificationBell />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="gap-2 px-2 h-9 rounded-full hover:bg-muted">
-                    <Avatar className="h-7 w-7 ring-2 ring-teal-500/30">
-                      <AvatarFallback className="bg-slate-900 text-xs font-bold text-teal-400">
-                        {initials}
-                      </AvatarFallback>
+                  <Button variant="ghost" className="h-10 gap-2 rounded-full px-1.5 hover:bg-muted sm:pr-3">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-ac-ink text-xs font-bold text-ac-accent">{initials}</AvatarFallback>
                     </Avatar>
-                    <span className="hidden text-xs font-semibold sm:inline max-w-[140px] truncate">
-                      {DEMO_MODE
-                        ? `Preview · ${profile?.full_name || "Workspace"}`
-                        : profile?.full_name || user.email}
+                    <span className="hidden max-w-[140px] truncate text-xs font-semibold md:inline">
+                      {DEMO_MODE ? `Preview · ${profile?.full_name || "Workspace"}` : profile?.full_name || user.email}
                     </span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="w-56 rounded-2xl p-1.5 shadow-2xl border-border"
-                >
+                <DropdownMenuContent align="end" className="w-60 rounded-2xl border-border p-1.5 shadow-2xl">
                   <DropdownMenuLabel className="flex flex-col px-3 py-2">
-                    <span className="text-sm font-bold truncate">
-                      {profile?.full_name || user.email}
-                    </span>
-                    <span className="text-[11px] font-semibold text-teal-400">
-                      {activeRole === "buyer"
-                        ? "Buyer View"
-                        : activeRole === "seller"
-                          ? "Seller / Dealer View"
-                          : activeRole === "yard_manager"
-                            ? "Yard Admin View"
-                            : activeRole === "admin"
-                              ? "Super Admin View"
-                              : "Member View"}
-                    </span>
+                    <span className="truncate text-sm font-bold">{profile?.full_name || user.email}</span>
+                    <span className="text-[11px] font-semibold text-muted-foreground">{ROLE_LABEL[activeRole] ?? "Member view"}</span>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl">
                     <Link to={roleHomePath(activeRole) as never}>
-                      <UserIcon className="mr-2 h-4 w-4 text-teal-500" /> Active Dashboard
+                      <UserIcon className="mr-2 h-4 w-4" /> Active dashboard
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl">
                     <Link to="/account/favorites">
-                      <Heart className="mr-2 h-4 w-4 text-rose-500" /> Saved Favorites
+                      <Heart className="mr-2 h-4 w-4" /> Saved favourites
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl">
                     <Link to="/garage">
-                      <Car className="mr-2 h-4 w-4 text-teal-500" /> My Garage
+                      <Car className="mr-2 h-4 w-4" /> My Garage
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl">
                     <Link to="/compare">
-                      <Scale className="mr-2 h-4 w-4 text-accent" /> Vehicle Comparison
+                      <Scale className="mr-2 h-4 w-4" /> Vehicle comparison
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild className="rounded-xl cursor-pointer">
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl">
                     <Link to="/account">
-                      <Settings className="mr-2 h-4 w-4 text-primary" /> Account Settings
+                      <Settings className="mr-2 h-4 w-4" /> Account settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onSelect={() => void signOut()}
-                    className="text-destructive rounded-xl cursor-pointer"
-                  >
+                  <DropdownMenuItem onSelect={() => void signOut()} className="cursor-pointer rounded-xl text-destructive">
                     <LogOut className="mr-2 h-4 w-4" /> Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
-            <div className="hidden items-center gap-2 md:flex">
-              <CurrencySwitcher />
-              <ThemeToggle />
-              <Button
-                asChild
-                variant="ghost"
-                size="sm"
-                className="rounded-xl font-semibold text-xs h-9 px-4"
-              >
-                <Link to="/login">Login</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="rounded-xl font-semibold text-xs h-9 px-4"
-              >
-                <Link to="/register">Register</Link>
-              </Button>
-              <Button
-                asChild
-                size="sm"
-                className="h-9 rounded-xl bg-teal-500 font-bold text-slate-950 hover:bg-teal-400 text-xs px-4 shadow-sm"
-              >
-                <Link to="/seller">List Your Car</Link>
-              </Button>
-            </div>
+            <Link to="/login" className="hidden min-h-10 items-center rounded-full px-4 text-sm font-semibold hover:bg-muted sm:inline-flex">
+              Sign in
+            </Link>
           )}
 
-          {/* Mobile hamburger menu */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <Link
+            to="/seller"
+            className="hidden min-h-10 items-center rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-105 md:inline-flex"
+          >
+            List your car
+          </Link>
+
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden rounded-xl">
-                <Menu className="h-5 w-5" />
-              </Button>
+              <button
+                type="button"
+                aria-label="Open menu"
+                className="grid h-10 w-10 place-items-center rounded-full bg-ac-ink text-white transition hover:bg-ac-ink/85 dark:bg-white dark:text-ac-ink"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 p-6">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2 mb-6">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-slate-900 text-teal-400">
-                    <Car className="h-4 w-4" />
-                  </span>
-                  <span className="font-display font-extrabold text-lg flex-1">AutoConnect</span>
-                  <CurrencySwitcher />
-                  <ThemeToggle />
-                </div>
+            <SheetContent side="right" className="flex w-full flex-col overflow-y-auto p-0 sm:max-w-md">
+              <SheetHeader className="border-b border-border px-6 py-5 text-left">
+                <SheetTitle className="font-brand text-2xl">Menu</SheetTitle>
+              </SheetHeader>
 
-                <div className="mb-4 pb-4 border-b border-border">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                    Active View Perspective
-                  </span>
-                  <RoleSwitcher className="w-full justify-between rounded-xl" />
-                </div>
-
-                {navLinks.map((l) => (
-                  <Link
-                    key={l.label}
-                    to={l.to as never}
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
-                  >
-                    {l.label}
-                  </Link>
-                ))}
-
+              <div className="flex-1 space-y-8 px-6 py-6">
                 {!user && (
-                  <div className="mt-6 flex flex-col gap-2 pt-4 border-t border-border">
-                    <Link
-                      to="/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="rounded-xl border border-input px-4 py-2.5 text-center text-sm font-semibold"
-                    >
-                      Login
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link to="/login" onClick={close} className="flex min-h-12 items-center justify-center rounded-full border border-border text-sm font-bold">
+                      Sign in
                     </Link>
-                    <Link
-                      to="/register"
-                      onClick={() => setMobileOpen(false)}
-                      className="rounded-xl bg-teal-500 px-4 py-2.5 text-center text-sm font-bold text-slate-950 hover:bg-teal-400"
-                    >
-                      Register
+                    <Link to="/register" onClick={close} className="flex min-h-12 items-center justify-center rounded-full bg-ac-ink text-sm font-bold text-white dark:bg-white dark:text-ac-ink">
+                      Sign up
                     </Link>
                   </div>
                 )}
+
+                {menuGroups.map((group) => (
+                  <nav key={group.title} aria-label={group.title}>
+                    <p className="brand-kicker mb-2 text-muted-foreground">{group.title}</p>
+                    <ul>
+                      {group.links.map((l) => (
+                        <li key={`${group.title}-${l.label}`}>
+                          <Link
+                            to={l.to}
+                            onClick={close}
+                            className="group flex min-h-12 items-center justify-between rounded-2xl px-3 text-base font-semibold transition hover:bg-muted"
+                          >
+                            {l.label}
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground transition group-hover:text-foreground" />
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                ))}
+
+                <div>
+                  <p className="brand-kicker mb-3 text-muted-foreground">Preferences</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <CurrencySwitcher />
+                    <ThemeToggle />
+                  </div>
+                  <div className="mt-4">
+                    <RoleSwitcher className="w-full justify-between rounded-2xl" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-border p-6">
+                <Link
+                  to="/seller"
+                  onClick={close}
+                  className="flex min-h-12 items-center justify-center rounded-full bg-ac-accent text-sm font-extrabold text-ac-ink"
+                >
+                  List your car
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

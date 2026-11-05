@@ -1,6 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   MapPin,
   Store,
@@ -25,7 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { EmptyState } from "@/components/EmptyState";
+import { StoryEmpty, QuietLink } from "@/components/yard/StoryEmpty";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CarCard, type CarCardData } from "@/components/CarCard";
 import { countryByCode } from "@/lib/countries";
 import { toast } from "sonner";
@@ -117,14 +118,14 @@ export const Route = createFileRoute("/yards/$slug")({
 function YardNotFound() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-muted/60 text-muted-foreground">
+      <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-ac-accent/15 text-ac-accent">
         <Store className="h-8 w-8" />
       </div>
-      <h1 className="mt-4 font-display text-2xl font-bold">Car yard not found</h1>
+      <h1 className="font-brand mt-5 text-3xl sm:text-5xl">Car yard not found</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         This yard may have been moved or is currently undergoing accreditation.
       </p>
-      <Button asChild className="mt-6">
+      <Button asChild className="mt-6 min-h-11 rounded-full">
         <Link to="/yards">
           <ArrowLeft className="mr-2 h-4 w-4" /> Browse all verified yards
         </Link>
@@ -155,7 +156,7 @@ function YardPage() {
       const { data, error } = await supabase
         .from("cars")
         .select(
-          "id,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,make_name,model_name,car_images(image_url,is_primary,sort_order)",
+          "id,is_sample,title,year,price,currency,country,location_display,available_for_export,right_hand_drive,featured,mileage,mileage_unit,transmission,fuel_type,make_name,model_name,car_images(image_url,is_primary,sort_order)",
         )
         .eq("yard_id", yard.id)
         .eq("status", "approved")
@@ -215,396 +216,402 @@ function YardPage() {
     }
   };
 
+  const whatsappHref = yard.whatsapp
+    ? `https://wa.me/${yard.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hello ${yard.name}, I am inquiring about vehicles listed on AutoConnect.`)}`
+    : null;
+  const phoneHref = yard.phone ? `tel:${yard.phone}` : null;
+  const emailHref = yard.email
+    ? `mailto:${yard.email}?subject=${encodeURIComponent(`AutoConnect Inquiry — ${yard.name}`)}`
+    : null;
+  const stockCount = carsQuery.data?.length ?? 0;
+
   return (
-    <div className="min-h-screen bg-background pb-20">
-      {/* Top Hero Banner with High Quality Visuals */}
-      <div className="relative h-64 w-full overflow-hidden bg-slate-900 sm:h-80 lg:h-96">
-        <img
-          src={defaultCover}
-          alt={`${yard.name} showroom and facility`}
-          className="h-full w-full object-cover object-center brightness-90 transition-transform duration-700"
-          onError={(e) => {
-            // Safe fallback if the specific image URL fails
-            (e.target as HTMLImageElement).src = FALLBACK_COVERS[0];
-          }}
-        />
-        {/* Multi-stop gradient overlay for typography clarity */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-black/60" />
-
-        {/* Top Floating Controls */}
-        <div className="absolute left-0 right-0 top-0 z-10 mx-auto max-w-[1280px] px-4 pt-6 sm:px-6">
-          <div className="flex items-center justify-between">
-            <Link
-              to="/yards"
-              className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-4 py-2 text-xs font-medium text-white shadow-lg backdrop-blur-md transition-all hover:bg-black/60 sm:text-sm"
-            >
-              <ArrowLeft className="h-4 w-4" /> Back to Car Yards
-            </Link>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShare}
-                className="rounded-full border-white/20 bg-black/40 text-xs font-medium text-white backdrop-blur-md hover:bg-black/60"
-              >
-                <Share2 className="mr-1.5 h-3.5 w-3.5" /> Share Yard
-              </Button>
-            </div>
-          </div>
+    <main className="min-h-screen bg-background pb-20 text-foreground">
+      <div className="mx-auto max-w-[1360px] px-4 pt-4 sm:px-6 sm:pt-6">
+        {/* Top controls */}
+        <div className="flex items-center justify-between gap-3">
+          <Link
+            to="/yards"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full px-2 text-sm font-semibold text-muted-foreground transition hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to Car Yards
+          </Link>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted"
+          >
+            <Share2 className="h-4 w-4" /> Share Yard
+          </button>
         </div>
 
-        {/* Badge in banner */}
-        <div className="absolute bottom-6 left-0 right-0 mx-auto max-w-[1280px] px-4 sm:px-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/80 px-3 py-1 text-xs font-semibold text-emerald-300 backdrop-blur-md">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
+        {/* Cover photo — photo first */}
+        <div className="relative mt-3 aspect-[16/10] overflow-hidden rounded-[28px] bg-muted sm:aspect-[21/9] sm:rounded-[36px]">
+          <img
+            src={defaultCover}
+            alt={`${yard.name} showroom and facility`}
+            className="h-full w-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = FALLBACK_COVERS[0];
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-ac-ink backdrop-blur-md sm:bottom-6 sm:left-6">
+            <ShieldCheck className="h-3.5 w-3.5 text-success" />
             Verified AutoConnect Dealership Hub
           </div>
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6">
-        {/* Dealership Identity & Action Header */}
-        <div className="relative z-10 -mt-16 rounded-3xl border border-border bg-card p-6 shadow-xl sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            {/* Logo and Name */}
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-              <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-2xl border-2 border-border bg-background p-1.5 shadow-md sm:h-28 sm:w-28">
+        {/* Host-style identity */}
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="min-w-0">
+            <div className="flex items-start gap-4 sm:gap-5">
+              <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-3xl border border-border bg-card shadow-sm sm:h-24 sm:w-24">
                 {yard.logo_url ? (
                   <img
                     src={yard.logo_url}
                     alt={yard.name}
-                    className="h-full w-full rounded-xl object-cover"
+                    className="h-full w-full object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
                 ) : (
-                  <div className="grid h-full w-full place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Store className="h-10 w-10" />
-                  </div>
+                  <Store className="h-9 w-9 text-ac-accent" />
                 )}
               </div>
-
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl lg:text-4xl">
-                    {yard.name}
-                  </h1>
+                <div className="flex flex-wrap gap-2">
                   {yard.sellers?.verification_badge === true && (
-                    <Badge className="border-0 bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm hover:bg-emerald-600">
+                    <Badge className="border-0 bg-success px-2.5 py-1 text-xs font-semibold text-white hover:bg-success">
                       <ShieldCheck className="mr-1 h-3.5 w-3.5" /> Verified Yard
                     </Badge>
                   )}
                   {yard.is_featured && (
-                    <Badge
-                      variant="outline"
-                      className="border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                    >
+                    <Badge className="border-0 bg-ac-accent px-2.5 py-1 text-xs font-bold text-ac-ink hover:bg-ac-accent">
                       Featured Hub
                     </Badge>
                   )}
                 </div>
-
+                <h1 className="font-brand mt-2 text-3xl sm:text-5xl">{yard.name}</h1>
                 {yard.tagline && (
-                  <p className="mt-1.5 text-sm font-medium text-muted-foreground sm:text-base">
-                    {yard.tagline}
-                  </p>
+                  <p className="mt-2 text-base leading-7 text-muted-foreground">{yard.tagline}</p>
                 )}
-
-                <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground sm:text-sm">
-                  <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
-                    <MapPin className="h-4 w-4 text-primary shrink-0" />
+                <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-foreground">
+                  <MapPin className="h-4 w-4 shrink-0 text-ac-accent" />
+                  <span>
                     {country?.flag} {yard.address ? `${yard.address}, ` : ""}
                     {yard.city ? `${yard.city}, ` : ""}
                     {country?.name ?? yard.country}
                   </span>
                   {yard.city && (
-                    <span className="hidden items-center gap-1 sm:inline-flex text-muted-foreground">
+                    <span className="hidden text-muted-foreground sm:inline">
                       • {yard.city} Auto District
                     </span>
                   )}
-                </div>
+                </p>
               </div>
             </div>
 
-            {/* Direct Contact CTA Buttons */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2 sm:pt-0">
-              {yard.whatsapp && (
-                <Button
-                  asChild
-                  className="rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700"
-                >
-                  <a
-                    href={`https://wa.me/${yard.whatsapp.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(`Hello ${yard.name}, I am inquiring about vehicles listed on AutoConnect.`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <MessageCircle className="mr-2 h-4 w-4" /> WhatsApp Yard
-                  </a>
-                </Button>
-              )}
-
-              {yard.phone && (
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold"
-                >
-                  <a href={`tel:${yard.phone}`}>
-                    <Phone className="mr-2 h-4 w-4 text-primary" /> Call Dealership
-                  </a>
-                </Button>
-              )}
-
-              {yard.email && (
-                <Button
-                  asChild
-                  variant="outline"
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold"
-                >
-                  <a
-                    href={`mailto:${yard.email}?subject=${encodeURIComponent(`AutoConnect Inquiry — ${yard.name}`)}`}
-                  >
-                    <Mail className="mr-2 h-4 w-4 text-muted-foreground" /> Email
-                  </a>
-                </Button>
-              )}
-            </div>
+            {/* Trust signals */}
+            <dl className="mt-8 grid grid-cols-2 gap-3 border-y border-border py-6 lg:grid-cols-4">
+              <Signal
+                icon={<CarIcon />}
+                label="Cars In Stock"
+                value={carsQuery.isLoading ? "Loading…" : `${stockCount} Verified Vehicles`}
+              />
+              <Signal
+                icon={<Clock />}
+                label="Opening Hours"
+                value={yard.opening_hours ?? "Mon–Sat: 8:00 AM – 6:30 PM"}
+              />
+              <Signal icon={<Shield />} label="Escrow Guarantee" value="Protected Payments" />
+              <Signal icon={<Wrench />} label="Viewing & Inspection" value="Physical Bay Ready" />
+            </dl>
           </div>
 
-          {/* Quick Yard Metrics Grid */}
-          <div className="mt-8 grid grid-cols-1 gap-4 border-t border-border pt-6 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex items-center gap-3.5 rounded-2xl bg-muted/40 p-3.5">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <CarIcon className="h-5 w-5" />
+          {/* Contact card — the one primary action */}
+          <aside className="h-fit rounded-3xl border border-border bg-card p-6 shadow-sm lg:sticky lg:top-24">
+            <p className="brand-kicker text-muted-foreground">Talk to the yard</p>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Ask about a car, book a viewing or arrange an inspection.
+            </p>
+            {whatsappHref ? (
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-110"
+              >
+                <MessageCircle className="h-4 w-4" /> WhatsApp Yard
+              </a>
+            ) : phoneHref ? (
+              <a
+                href={phoneHref}
+                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-110"
+              >
+                <Phone className="h-4 w-4" /> Call Dealership
+              </a>
+            ) : emailHref ? (
+              <a
+                href={emailHref}
+                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-110"
+              >
+                <Mail className="h-4 w-4" /> Email
+              </a>
+            ) : (
+              <a
+                href="#inventory"
+                className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink transition hover:brightness-110"
+              >
+                <CarIcon className="h-4 w-4" /> See the inventory
+              </a>
+            )}
+            {(whatsappHref && (phoneHref || emailHref)) || (phoneHref && emailHref) ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {whatsappHref && phoneHref && (
+                  <a
+                    href={phoneHref}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-border px-4 text-sm font-semibold transition hover:bg-muted"
+                  >
+                    <Phone className="h-4 w-4" /> Call
+                  </a>
+                )}
+                {(whatsappHref || phoneHref) && emailHref && (
+                  <a
+                    href={emailHref}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border border-border px-4 text-sm font-semibold transition hover:bg-muted"
+                  >
+                    <Mail className="h-4 w-4" /> Email
+                  </a>
+                )}
               </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Cars In Stock
-                </p>
-                <p className="text-base font-bold text-foreground">
-                  {carsQuery.data?.length ?? 0} Verified Vehicles
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3.5 rounded-2xl bg-muted/40 p-3.5">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                <Clock className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Opening Hours
-                </p>
-                <p className="truncate text-sm font-bold text-foreground">
-                  {yard.opening_hours ?? "Mon–Sat: 8:00 AM – 6:30 PM"}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3.5 rounded-2xl bg-muted/40 p-3.5">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <Shield className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Escrow Guarantee
-                </p>
-                <p className="text-sm font-bold text-foreground">Protected Payments</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3.5 rounded-2xl bg-muted/40 p-3.5">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                <Wrench className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Viewing & Inspection
-                </p>
-                <p className="text-sm font-bold text-foreground">Physical Bay Ready</p>
-              </div>
-            </div>
-          </div>
+            ) : null}
+            <p className="mt-5 flex items-start gap-2 border-t border-border pt-4 text-xs leading-5 text-muted-foreground">
+              <Navigation className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              Inspect the vehicle in person at the yard before you authorize any release of funds.
+            </p>
+          </aside>
         </div>
 
-        {/* Dealership Description & Capabilities */}
-        {yard.description && (
-          <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
-            <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
-              About {yard.name}
-            </h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {yard.description}
-            </p>
+        {/* Regrouped content */}
+        <Tabs defaultValue="inventory" className="mt-10" id="inventory">
+          <TabsList className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-full p-1 sm:w-auto">
+            <TabsTrigger value="inventory" className="min-h-11 rounded-full px-4">
+              Inventory ({stockCount})
+            </TabsTrigger>
+            <TabsTrigger value="about" className="min-h-11 rounded-full px-4">
+              About
+            </TabsTrigger>
+            <TabsTrigger value="buying" className="min-h-11 rounded-full px-4">
+              How buying works
+            </TabsTrigger>
+          </TabsList>
 
-            <div className="mt-6 flex flex-wrap items-center gap-2 pt-4 border-t border-border/60">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mr-2">
-                Services Available:
-              </span>
-              <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Physical Vehicle Viewing
-              </Badge>
-              <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Pre-Purchase Multi-Point
-                Diagnostics
-              </Badge>
-              <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Escrow Handover
-                Verification
-              </Badge>
-              <Badge variant="secondary" className="gap-1.5 rounded-lg py-1 px-3">
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> NTSA Logbook Transfer
-                Assistance
-              </Badge>
-            </div>
-          </div>
-        )}
-
-        {/* Live Inventory Section */}
-        <section className="mt-10">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-                  Yard Inventory
-                </h2>
-                <Badge
-                  variant="outline"
-                  className="rounded-full px-2.5 py-0.5 font-semibold text-xs"
-                >
-                  {filteredCars.length} {filteredCars.length === 1 ? "Car" : "Cars"}
-                </Badge>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                Explore all verified and ready-for-inspection vehicles currently in {yard.name}.
-              </p>
-            </div>
-
-            {/* Sort & Search Controls */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <div className="relative min-w-[200px] flex-1 sm:w-64 sm:flex-none">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  value={q}
-                  onChange={(e) => setQ(e.target.value)}
-                  placeholder="Search make, model, year…"
-                  className="h-10 rounded-xl pl-9 text-sm"
-                />
-              </div>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                aria-label="Sort inventory"
-                className="h-10 rounded-xl border border-input bg-background px-3 py-1 text-xs font-medium text-foreground shadow-sm focus:outline-none focus:ring-1 focus:ring-ring sm:text-sm"
-              >
-                <option value="featured">Featured First</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="newest">Year: Newest</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Make Filter Chips */}
-          {availableMakes.length > 1 && (
-            <div className="mt-4 flex flex-wrap items-center gap-2 overflow-x-auto pb-1">
-              <Button
-                variant={selectedMake === "all" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedMake("all")}
-                className="rounded-full text-xs font-semibold"
-              >
-                All Makes ({carsQuery.data?.length ?? 0})
-              </Button>
-              {availableMakes.map((make) => {
-                const count = (carsQuery.data ?? []).filter((c) => c.make_name === make).length;
-                return (
-                  <Button
-                    key={make}
-                    variant={selectedMake === make ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setSelectedMake(make)}
-                    className="rounded-full text-xs font-semibold"
-                  >
-                    {make} ({count})
-                  </Button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Grid of Cars */}
-          <div className="mt-6">
-            {carsQuery.isLoading ? (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-80 rounded-3xl" />
-                ))}
-              </div>
-            ) : filteredCars.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center">
-                <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-muted text-muted-foreground">
-                  <CarIcon className="h-6 w-6" />
+          <TabsContent value="inventory" className="mt-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <h2 className="font-brand text-2xl sm:text-3xl">Yard Inventory</h2>
+                  <Badge variant="outline" className="rounded-full px-2.5 py-0.5 text-xs font-semibold">
+                    {filteredCars.length} {filteredCars.length === 1 ? "Car" : "Cars"}
+                  </Badge>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-bold">
-                  No vehicles match your search
-                </h3>
-                <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                  Try adjusting your search terms or filters to find what you're looking for.
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Explore all verified and ready-for-inspection vehicles currently in {yard.name}.
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <label className="relative min-w-0 sm:w-64">
+                  <span className="sr-only">Search inventory</span>
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search make, model, year…"
+                    className="h-11 rounded-full pl-9 text-sm"
+                  />
+                </label>
+                <label className="relative">
+                  <span className="sr-only">Sort inventory</span>
+                  <SlidersHorizontal className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                    aria-label="Sort inventory"
+                    className="h-11 w-full rounded-full border border-input bg-background pl-9 pr-4 text-sm font-medium text-foreground shadow-sm focus:outline-none focus:ring-1 focus:ring-ring sm:w-auto"
+                  >
+                    <option value="featured">Featured First</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="newest">Year: Newest</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            {availableMakes.length > 1 && (
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                <button
+                  type="button"
+                  onClick={() => setSelectedMake("all")}
+                  className={makeChip(selectedMake === "all")}
+                >
+                  All Makes ({carsQuery.data?.length ?? 0})
+                </button>
+                {availableMakes.map((make) => {
+                  const count = (carsQuery.data ?? []).filter((c) => c.make_name === make).length;
+                  return (
+                    <button
+                      key={make}
+                      type="button"
+                      onClick={() => setSelectedMake(make)}
+                      className={makeChip(selectedMake === make)}
+                    >
+                      {make} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="mt-6">
+              {carsQuery.isLoading ? (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                      <Skeleton className="aspect-[4/3] w-full rounded-3xl" />
+                      <Skeleton className="h-5 w-2/3 rounded-full" />
+                      <Skeleton className="h-4 w-1/3 rounded-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : carsQuery.isError ? (
+                <StoryEmpty
+                  tone="warning"
+                  icon={<CarIcon />}
+                  kicker="Connection issue"
+                  title="Inventory could not load"
+                  description="This is a connection problem, not an empty yard. Browse the whole marketplace meanwhile."
+                  actionLabel="Browse all cars"
+                  actionTo="/cars"
+                />
+              ) : (carsQuery.data ?? []).length === 0 ? (
+                <StoryEmpty
+                  icon={<CarIcon />}
+                  kicker="Restocking"
+                  title={`${yard.name} has no live cars right now`}
+                  description="New stock appears here once it passes review. Ask the yard what is arriving, or browse every approved car."
+                  actionLabel="Browse all cars"
+                  actionTo="/cars"
+                  secondary={<QuietLink to="/yards">See other yards</QuietLink>}
+                />
+              ) : filteredCars.length === 0 ? (
+                <StoryEmpty
+                  icon={<Search />}
+                  title="No vehicles match your search"
+                  description="Try adjusting your search terms or filters to find what you're looking for."
+                  actionLabel="Clear Filters"
+                  onAction={() => {
                     setQ("");
                     setSelectedMake("all");
                   }}
-                  className="mt-4 rounded-xl"
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredCars.map((car) => (
-                  <CarCard key={car.id} car={car} />
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
+                />
+              ) : (
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredCars.map((car) => (
+                    <CarCard key={car.id} car={car} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
 
-        {/* Trust & Safe Purchase Information at This Yard */}
-        <section className="mt-14 rounded-3xl border border-emerald-500/20 bg-emerald-950/10 p-6 sm:p-8 dark:bg-emerald-950/20">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-emerald-600 text-white shadow-md">
-                <ShieldCheck className="h-6 w-6" />
+          <TabsContent value="about" className="mt-6">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+                <h2 className="font-brand text-2xl">About {yard.name}</h2>
+                <p className="mt-3 whitespace-pre-line text-base leading-7 text-muted-foreground">
+                  {yard.description ||
+                    yard.tagline ||
+                    "This yard has not added a description yet. Contact them for details about stock, viewing and inspection."}
+                </p>
               </div>
-              <div>
-                <h3 className="font-display text-lg font-bold text-foreground sm:text-xl">
-                  AutoConnect transaction workflow at {yard.name}
-                </h3>
-                <p className="mt-1 max-w-2xl text-xs text-muted-foreground sm:text-sm leading-relaxed">
-                  Each transaction at this yard follows a recorded purchase workflow. Payment is not
-                  shown as confirmed until verified evidence is recorded; inspect the vehicle in person at
-                  the yard and authorize release with your 6-digit cryptographic PIN code.
+              <div className="rounded-3xl bg-ac-cream p-6 text-ac-ink sm:p-8">
+                <p className="brand-kicker text-ac-ink/60">Services Available</p>
+                <ul className="mt-4 space-y-3 text-sm font-medium">
+                  {[
+                    "Physical Vehicle Viewing",
+                    "Pre-Purchase Multi-Point Diagnostics",
+                    "Escrow Handover Verification",
+                    "NTSA Logbook Transfer Assistance",
+                  ].map((service) => (
+                    <li key={service} className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" /> {service}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-5 flex items-start gap-2 border-t border-ac-ink/10 pt-4 text-xs leading-5 text-ac-ink/70">
+                  <Compass className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                  {yard.address ? `${yard.address}, ` : ""}
+                  {yard.city ? `${yard.city}, ` : ""}
+                  {country?.name ?? yard.country}
                 </p>
               </div>
             </div>
-            <Button
-              asChild
-              variant="outline"
-              className="rounded-xl shrink-0 border-emerald-600/30 font-semibold"
-            >
-              <Link to="/how-payments-work">Learn How Escrow Works</Link>
-            </Button>
-          </div>
-        </section>
+          </TabsContent>
+
+          <TabsContent value="buying" className="mt-6">
+            <div className="flex flex-col gap-6 rounded-[28px] bg-ac-ink p-6 text-white sm:flex-row sm:items-center sm:justify-between sm:rounded-[36px] sm:p-10">
+              <div className="flex items-start gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-ac-accent text-ac-ink">
+                  <ShieldCheck className="h-6 w-6" />
+                </span>
+                <div>
+                  <h2 className="font-brand text-2xl sm:text-3xl">
+                    AutoConnect transaction workflow at {yard.name}
+                  </h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
+                    Each transaction at this yard follows a recorded purchase workflow. Payment is
+                    not shown as confirmed until verified evidence is recorded; inspect the vehicle
+                    in person at the yard and authorize release with your 6-digit cryptographic PIN
+                    code.
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/how-payments-work"
+                className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-bold transition hover:border-white"
+              >
+                Learn How Escrow Works
+              </Link>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </main>
+  );
+}
+
+function makeChip(active: boolean) {
+  return `inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold transition ${
+    active
+      ? "border-foreground bg-foreground text-background"
+      : "border-border bg-background text-foreground hover:border-foreground/40"
+  }`;
+}
+
+function Signal({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex min-w-0 items-start gap-3">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted text-ac-accent [&_svg]:h-5 [&_svg]:w-5">
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          {label}
+        </dt>
+        <dd className="mt-0.5 text-sm font-bold text-foreground">{value}</dd>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ export function PriceRangeSlider({
         <Label className="text-xs uppercase tracking-wide text-muted-foreground">
           Max Price Filter
         </Label>
-        <span className="text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
+        <span className="text-xs font-bold text-foreground bg-teal-500/10 px-2 py-0.5 rounded border border-teal-500/20">
           {maxPrice == null ? "Any Price" : `Up to $${maxPrice.toLocaleString()}`}
         </span>
       </div>
@@ -77,7 +77,7 @@ export function PriceRangeSlider({
               onClick={() => onChange(preset.val)}
               className={`text-[11px] py-1.5 px-2 rounded-lg border transition-all truncate ${
                 isActive
-                  ? "bg-teal-500/15 border-teal-500 text-teal-600 dark:text-teal-300 font-bold"
+                  ? "bg-teal-500/15 border-teal-500 text-foreground font-bold"
                   : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-secondary"
               }`}
             >

@@ -1,8 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -14,7 +13,23 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { releaseFunds, refundPayment, confirmManualPayment } from "@/lib/payments.functions";
 import { Input } from "@/components/ui/input";
-import { Wallet, Banknote, ShieldAlert, Coins } from "lucide-react";
+import { Wallet, Banknote, ShieldAlert, Coins, ReceiptText, ChevronRight, Car } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  AdminPage,
+  AdminPanel,
+  AdminToolbar,
+  FilterChips,
+  KV,
+  QueueEmpty,
+  QueueSkeleton,
+  StatTile,
+  TAP,
+  ageOf,
+  oldestFirst,
+} from "@/components/admin/AdminUI";
+import { DetailSheet } from "@/components/admin/DetailSheet";
 
 export const Route = createFileRoute("/_authenticated/admin/transactions")({
   component: AdminTransactions,
@@ -60,6 +75,12 @@ function fmt(a: number, c: string) {
   }
 }
 
+const HELD = ["payment_received", "admin_reviewing"];
+const REFUNDABLE = ["awaiting_manual_payment", "payment_received", "admin_reviewing", "disputed"];
+const NEEDS_ACTION = ["awaiting_manual_payment", "payment_received", "admin_reviewing", "disputed"];
+
+type FilterKey = "action" | "manual" | "held" | "disputed" | "done" | "all";
+
 function AdminTransactions() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [refundOpen, setRefundOpen] = useState<string | null>(null);
@@ -67,6 +88,9 @@ function AdminTransactions() {
   const [confirmOpen, setConfirmOpen] = useState<Row | null>(null);
   const [confirmRef, setConfirmRef] = useState("");
   const [confirmNote, setConfirmNote] = useState("");
+  const [filter, setFilter] = useState<FilterKey>("action");
+  const [search, setSearch] = useState("");
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   async function load() {
     const { data, error } = await supabase
@@ -80,13 +104,16 @@ function AdminTransactions() {
       return;
     }
     // fetch buyer profiles
-    const buyerIds = [...new Set((data ?? []).map((r: any) => r.buyer_id))];
+    const buyerIds = [...new Set((data ?? []).map((r) => (r as { buyer_id: string }).buyer_id))];
     const { data: bp } = await supabase
       .from("profiles")
       .select("id, full_name, country")
       .in("id", buyerIds);
     const byId = new Map((bp ?? []).map((p) => [p.id, p]));
-    const merged = (data ?? []).map((r: any) => ({ ...r, buyer: byId.get(r.buyer_id) ?? null }));
+    const merged = (data ?? []).map((r) => ({
+      ...(r as Record<string, unknown>),
+      buyer: byId.get((r as { buyer_id: string }).buyer_id) ?? null,
+    }));
     setRows(merged as unknown as Row[]);
   }
 
@@ -155,157 +182,406 @@ function AdminTransactions() {
   const allCompleted = (rows ?? []).filter((r) =>
     ["funds_released", "completed"].includes(r.status),
   );
-  const inEscrow = (rows ?? []).filter((r) =>
-    ["payment_received", "admin_reviewing"].includes(r.status),
-  );
+  const inEscrow = (rows ?? []).filter((r) => HELD.includes(r.status));
   const disputed = (rows ?? []).filter((r) => r.status === "disputed");
   const awaitingManual = (rows ?? []).filter((r) => r.status === "awaiting_manual_payment");
   const totalFees = allCompleted.reduce((s, r) => s + Number(r.display_service_fee), 0);
   const totalReleased = allCompleted.reduce((s, r) => s + Number(r.display_car_price), 0);
   const totalEscrow = inEscrow.reduce((s, r) => s + Number(r.display_total), 0);
+  const needsAction = (rows ?? []).filter((r) => NEEDS_ACTION.includes(r.status));
+
+  const visible = useMemo(() => {
+    const all = rows ?? [];
+    const inFilter = all.filter((r) => {
+      switch (filter) {
+        case "action":
+          return NEEDS_ACTION.includes(r.status);
+        case "manual":
+          return r.status === "awaiting_manual_payment";
+        case "held":
+          return HELD.includes(r.status);
+        case "disputed":
+          return r.status === "disputed";
+        case "done":
+          return ["funds_released", "completed", "refunded", "cancelled"].includes(r.status);
+        default:
+          return true;
+      }
+    });
+    const term = search.trim().toLowerCase();
+    const searched = term
+      ? inFilter.filter((r) =>
+          [
+            r.cars?.title,
+            r.buyer?.full_name,
+            r.sellers?.business_name,
+            r.manual_reference,
+            r.manual_payer_name,
+            r.id,
+          ]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(term)),
+        )
+      : inFilter;
+    // Queues that need a human read oldest-first; history reads newest-first.
+    return filter === "action" || filter === "manual" || filter === "held" || filter === "disputed"
+      ? oldestFirst(searched, (r) => r.initiated_at)
+      : searched;
+  }, [rows, filter, search]);
+
+  const detail = (rows ?? []).find((r) => r.id === detailId) ?? null;
+
+  const actionsFor = (r: Row, opts: { full?: boolean } = {}) => (
+    <>
+      <Button size="sm" variant="secondary" asChild className={TAP}>
+        <Link to="/transactions/$id/invoice" params={{ id: r.id }}>
+          <ReceiptText /> Invoice
+        </Link>
+      </Button>
+      {r.status === "awaiting_manual_payment" && (
+        <Button
+          size="sm"
+          className={TAP}
+          onClick={() => {
+            setDetailId(null);
+            setConfirmOpen(r);
+          }}
+        >
+          Confirm payment
+        </Button>
+      )}
+      {HELD.includes(r.status) && (
+        <Button size="sm" className={TAP} onClick={() => onRelease(r.id)}>
+          Release{opts.full ? " funds" : ""}
+        </Button>
+      )}
+      {REFUNDABLE.includes(r.status) && (
+        <Button
+          size="sm"
+          variant="outline"
+          className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+          onClick={() => {
+            setDetailId(null);
+            setRefundOpen(r.id);
+          }}
+        >
+          Refund
+        </Button>
+      )}
+    </>
+  );
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight">Transactions</h1>
-        <p className="text-sm text-muted-foreground">
-          Confirm manual payments, track handover, release funds after verification, and handle
-          disputes.
-        </p>
-      </header>
+    <AdminPage>
+      <PageHeader
+        eyebrow="Finance"
+        title="Transactions"
+        description="Confirm manual payments, track handover, release funds after verification, and handle disputes."
+      />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Stat icon={<Coins />} label="Fees collected" value={fmt(totalFees, "USD")} />
-        <Stat icon={<Wallet />} label="Held by AutoConnect" value={fmt(totalEscrow, "USD")} />
-        <Stat icon={<Banknote />} label="Released" value={fmt(totalReleased, "USD")} />
-        <Stat
+        <StatTile
+          icon={<Coins />}
+          label="Fees collected"
+          value={fmt(totalFees, "USD")}
+          loading={rows === null}
+        />
+        <StatTile
+          icon={<Wallet />}
+          label="Held by AutoConnect"
+          value={fmt(totalEscrow, "USD")}
+          loading={rows === null}
+        />
+        <StatTile
+          icon={<Banknote />}
+          label="Released"
+          value={fmt(totalReleased, "USD")}
+          loading={rows === null}
+        />
+        <StatTile
           icon={<ShieldAlert />}
-          label={`Disputes · ${awaitingManual.length} manual`}
+          label="Disputes"
           value={String(disputed.length)}
+          sub={`${awaitingManual.length} manual payment${awaitingManual.length === 1 ? "" : "s"} to confirm`}
+          tone={disputed.length > 0 ? "danger" : "default"}
+          loading={rows === null}
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="px-3 py-3 text-left">Car</th>
-              <th className="px-3 py-3 text-left">Buyer</th>
-              <th className="px-3 py-3 text-left">Seller</th>
-              <th className="px-3 py-3 text-left">Method</th>
-              <th className="px-3 py-3 text-left">Total</th>
-              <th className="px-3 py-3 text-left">Fee</th>
-              <th className="px-3 py-3 text-left">Status</th>
-              <th className="px-3 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows === null ? (
-              <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
-                  Loading…
-                </td>
-              </tr>
-            ) : rows.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="p-8 text-center text-muted-foreground">
-                  No transactions yet.
-                </td>
-              </tr>
-            ) : (
-              rows.map((r) => (
-                <tr key={r.id} className="border-t align-top">
-                  <td className="px-3 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="h-10 w-14 overflow-hidden rounded bg-muted">
-                        {r.cars?.car_images[0]?.image_url && (
-                          <img
-                            src={r.cars.car_images[0].image_url}
-                            className="h-full w-full object-cover"
-                            alt=""
-                          />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">{r.cars?.title}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(r.initiated_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-3 py-3">
-                    {r.buyer?.full_name ?? "—"}
-                    <div className="text-xs text-muted-foreground">{r.buyer?.country ?? ""}</div>
-                  </td>
-                  <td className="px-3 py-3">
-                    {r.sellers?.business_name ?? "—"}
-                    <div className="text-xs text-muted-foreground">{r.sellers?.country}</div>
-                  </td>
-                  <td className="px-3 py-3 text-xs">
-                    {r.payment_method === "manual" ? (
-                      <>
-                        <span className="font-medium">
-                          {r.manual_channel === "mpesa" ? "M-Pesa" : "Bank transfer"}
-                        </span>
-                        <div className="text-muted-foreground">{r.manual_payer_name ?? "—"}</div>
-                        {r.manual_reference && (
-                          <div className="font-mono text-[10px] text-muted-foreground">
-                            {r.manual_reference}
+      <AdminToolbar
+        filters={
+          <FilterChips
+            label="Transaction filters"
+            active={filter}
+            onSelect={(k) => setFilter(k as FilterKey)}
+            options={[
+              { key: "action", label: "Needs action", count: needsAction.length },
+              { key: "manual", label: "Manual payment", count: awaitingManual.length },
+              { key: "held", label: "Held", count: inEscrow.length },
+              { key: "disputed", label: "Disputed", count: disputed.length },
+              { key: "done", label: "Closed" },
+              { key: "all", label: "All", count: rows?.length ?? 0 },
+            ]}
+          />
+        }
+        search={search}
+        onSearch={setSearch}
+        searchPlaceholder="Search car, buyer, seller, reference…"
+      />
+
+      <AdminPanel>
+        {rows === null ? (
+          <QueueSkeleton rows={5} media />
+        ) : rows.length === 0 ? (
+          <QueueEmpty
+            icon={<Wallet />}
+            title="No transactions yet"
+            description="When a buyer pays for a car, the payment appears here for confirmation, handover and release."
+          />
+        ) : visible.length === 0 ? (
+          <QueueEmpty
+            icon={<Wallet />}
+            title="Nothing in this view"
+            description="No transactions match this filter or search."
+            action={
+              <Button
+                variant="outline"
+                className={TAP}
+                onClick={() => {
+                  setFilter("all");
+                  setSearch("");
+                }}
+              >
+                Show all transactions
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            {/* Desktop: dense table that scrolls inside its own card */}
+            <div className="hidden overflow-x-auto md:block">
+              <table className="w-full min-w-[920px] text-sm">
+                <thead className="border-b border-border bg-muted/40 text-left text-xs font-semibold text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3">Car</th>
+                    <th className="px-3 py-3">Buyer</th>
+                    <th className="px-3 py-3">Seller</th>
+                    <th className="px-3 py-3">Method</th>
+                    <th className="px-3 py-3 text-right">Total</th>
+                    <th className="px-3 py-3 text-right">Fee</th>
+                    <th className="px-3 py-3">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {visible.map((r) => (
+                    <tr key={r.id} className="align-top transition hover:bg-muted/30">
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setDetailId(r.id)}
+                          className="flex max-w-[240px] items-center gap-3 text-left"
+                        >
+                          <CarThumb r={r} />
+                          <div className="min-w-0">
+                            <p className="truncate font-semibold hover:underline">
+                              {r.cars?.title}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(r.initiated_at).toLocaleDateString()} ·{" "}
+                              {ageOf(r.initiated_at)} ago
+                            </p>
                           </div>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground">Card (Stripe)</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-3 font-semibold">
-                    {fmt(Number(r.display_total), r.display_currency)}
-                  </td>
-                  <td className="px-3 py-3 text-muted-foreground">
-                    {fmt(Number(r.display_service_fee), r.display_currency)}
-                  </td>
-                  <td className="px-3 py-3">
-                    <StatusBadge status={r.status} />
-                    {r.status === "payment_received" && (
-                      <div className="mt-1 text-[10px] text-muted-foreground">
-                        {r.handover_ready_at ? "Handover ready" : "Seller preparing handover"}
+                        </button>
+                      </td>
+                      <td className="px-3 py-3">
+                        {r.buyer?.full_name ?? "—"}
+                        <div className="text-xs text-muted-foreground">
+                          {r.buyer?.country ?? ""}
+                        </div>
+                      </td>
+                      <td className="px-3 py-3">
+                        {r.sellers?.business_name ?? "—"}
+                        <div className="text-xs text-muted-foreground">{r.sellers?.country}</div>
+                      </td>
+                      <td className="px-3 py-3 text-xs">
+                        <MethodCell r={r} />
+                      </td>
+                      <td className="px-3 py-3 text-right font-semibold tabular-nums">
+                        {fmt(Number(r.display_total), r.display_currency)}
+                      </td>
+                      <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                        {fmt(Number(r.display_service_fee), r.display_currency)}
+                      </td>
+                      <td className="px-3 py-3">
+                        <TxStatus r={r} />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap justify-end gap-1.5">{actionsFor(r)}</div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile: cards */}
+            <ul className="divide-y divide-border md:hidden">
+              {visible.map((r) => (
+                <li key={r.id} className="p-4">
+                  <button
+                    type="button"
+                    onClick={() => setDetailId(r.id)}
+                    className="flex w-full items-start gap-3 text-left"
+                  >
+                    <CarThumb r={r} />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold">{r.cars?.title}</p>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                        {r.buyer?.full_name ?? "—"} → {r.sellers?.business_name ?? "—"}
+                      </p>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="font-semibold tabular-nums">
+                          {fmt(Number(r.display_total), r.display_currency)}
+                        </span>
+                        <TxStatus r={r} />
                       </div>
-                    )}
-                  </td>
-                  <td className="px-3 py-3 text-right">
-                    <div className="flex flex-wrap justify-end gap-1">
-                      <Button size="sm" variant="secondary" asChild>
-                        <Link to="/transactions/$id/invoice" params={{ id: r.id }}>Invoice</Link>
-                      </Button>
-                      {r.status === "awaiting_manual_payment" && (
-                        <Button size="sm" onClick={() => setConfirmOpen(r)}>
-                          Confirm payment
-                        </Button>
-                      )}
-                      {["payment_received", "admin_reviewing"].includes(r.status) && (
-                        <Button size="sm" onClick={() => onRelease(r.id)}>
-                          Release
-                        </Button>
-                      )}
-                      {[
-                        "awaiting_manual_payment",
-                        "payment_received",
-                        "admin_reviewing",
-                        "disputed",
-                      ].includes(r.status) && (
-                        <Button size="sm" variant="outline" onClick={() => setRefundOpen(r.id)}>
-                          Refund
-                        </Button>
-                      )}
                     </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
+                  <div className="mt-3 flex flex-wrap gap-2">{actionsFor(r)}</div>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </AdminPanel>
+
+      {/* Detail sheet */}
+      <DetailSheet
+        open={!!detail}
+        onOpenChange={(o) => {
+          if (!o) setDetailId(null);
+        }}
+        kicker="Transaction"
+        title={detail?.cars?.title ?? "Transaction"}
+        footer={detail ? actionsFor(detail, { full: true }) : undefined}
+      >
+        {detail && (
+          <div className="space-y-5">
+            <TxStatus r={detail} />
+            <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
+              {detail.cars?.car_images[0]?.image_url ? (
+                <img
+                  src={detail.cars.car_images[0].image_url}
+                  className="h-full w-full object-cover"
+                  alt={detail.cars?.title ?? "Car"}
+                />
+              ) : (
+                <div className="grid h-full place-items-center text-muted-foreground">
+                  <Car className="h-8 w-8" />
+                </div>
+              )}
+            </div>
+            <section>
+              <p className="brand-kicker mb-1 text-muted-foreground">Money</p>
+              <dl>
+                <KV
+                  label="Total"
+                  value={fmt(Number(detail.display_total), detail.display_currency)}
+                />
+                <KV
+                  label="Car price"
+                  value={fmt(Number(detail.display_car_price), detail.display_currency)}
+                />
+                <KV
+                  label="Service fee"
+                  value={fmt(Number(detail.display_service_fee), detail.display_currency)}
+                />
+              </dl>
+            </section>
+            <section>
+              <p className="brand-kicker mb-1 text-muted-foreground">People</p>
+              <dl>
+                <KV
+                  label="Buyer"
+                  value={[detail.buyer?.full_name, detail.buyer?.country]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+                <KV
+                  label="Seller"
+                  value={[detail.sellers?.business_name, detail.sellers?.country]
+                    .filter(Boolean)
+                    .join(" · ")}
+                />
+                <KV
+                  label="Seller payouts"
+                  value={
+                    detail.sellers?.stripe_payouts_enabled ? "Stripe payouts on" : "Not set up"
+                  }
+                />
+              </dl>
+            </section>
+            <section>
+              <p className="brand-kicker mb-1 text-muted-foreground">Payment</p>
+              <dl>
+                <KV
+                  label="Method"
+                  value={
+                    detail.payment_method === "manual"
+                      ? detail.manual_channel === "mpesa"
+                        ? "M-Pesa"
+                        : "Bank transfer"
+                      : "Card (Stripe)"
+                  }
+                />
+                {detail.payment_method === "manual" && (
+                  <>
+                    <KV label="Payer" value={detail.manual_payer_name} />
+                    <KV label="Phone" value={detail.manual_phone} />
+                    <KV
+                      label="Reference"
+                      value={
+                        detail.manual_reference ? (
+                          <span className="font-mono text-xs">{detail.manual_reference}</span>
+                        ) : null
+                      }
+                    />
+                    <KV label="Note" value={detail.manual_note} />
+                  </>
+                )}
+              </dl>
+            </section>
+            <section>
+              <p className="brand-kicker mb-1 text-muted-foreground">Timeline</p>
+              <dl>
+                <KV label="Started" value={new Date(detail.initiated_at).toLocaleString()} />
+                <KV
+                  label="Paid"
+                  value={detail.paid_at ? new Date(detail.paid_at).toLocaleString() : null}
+                />
+                <KV
+                  label="Handover ready"
+                  value={
+                    detail.handover_ready_at
+                      ? new Date(detail.handover_ready_at).toLocaleString()
+                      : null
+                  }
+                />
+                <KV
+                  label="Released"
+                  value={detail.released_at ? new Date(detail.released_at).toLocaleString() : null}
+                />
+                <KV
+                  label="Reference ID"
+                  value={<span className="font-mono text-xs">{detail.id}</span>}
+                />
+              </dl>
+            </section>
+          </div>
+        )}
+      </DetailSheet>
 
       <Dialog
         open={!!refundOpen}
@@ -327,14 +603,14 @@ function AdminTransactions() {
             onChange={(e) => setRefundReason(e.target.value)}
             placeholder="Reason for refund (sent to both parties)"
           />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setRefundOpen(null)}>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="outline" className={TAP} onClick={() => setRefundOpen(null)}>
               Cancel
             </Button>
             <Button
               disabled={refundReason.trim().length < 3}
               onClick={onRefund}
-              className="bg-destructive hover:bg-destructive/90"
+              className={`${TAP} bg-destructive hover:bg-destructive/90`}
             >
               Issue refund
             </Button>
@@ -357,7 +633,7 @@ function AdminTransactions() {
             </DialogDescription>
           </DialogHeader>
           {confirmOpen && (
-            <div className="space-y-1 rounded-lg border bg-muted/30 p-3 text-xs">
+            <div className="space-y-1 rounded-2xl border bg-muted/30 p-3 text-xs">
               <p>
                 <span className="text-muted-foreground">Channel:</span>{" "}
                 {confirmOpen.manual_channel === "mpesa" ? "M-Pesa" : "Bank transfer"}
@@ -392,44 +668,73 @@ function AdminTransactions() {
             onChange={(e) => setConfirmNote(e.target.value)}
             placeholder="Internal note (optional)"
           />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setConfirmOpen(null)}>
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <Button variant="outline" className={TAP} onClick={() => setConfirmOpen(null)}>
               Cancel
             </Button>
-            <Button onClick={onConfirmManual}>Confirm payment received</Button>
+            <Button className={TAP} onClick={onConfirmManual}>
+              Confirm payment received
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
+    </AdminPage>
+  );
+}
+
+function CarThumb({ r }: { r: Row }) {
+  return (
+    <div className="aspect-[4/3] w-16 shrink-0 overflow-hidden rounded-xl bg-muted">
+      {r.cars?.car_images[0]?.image_url ? (
+        <img
+          src={r.cars.car_images[0].image_url}
+          className="h-full w-full object-cover"
+          alt=""
+          loading="lazy"
+        />
+      ) : (
+        <div className="grid h-full place-items-center text-muted-foreground">
+          <Car className="h-4 w-4" />
+        </div>
+      )}
     </div>
   );
 }
 
-function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function MethodCell({ r }: { r: Row }) {
+  if (r.payment_method !== "manual") {
+    return <span className="text-muted-foreground">Card (Stripe)</span>;
+  }
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-        {icon} {label}
-      </div>
-      <div className="mt-1 text-2xl font-semibold">{value}</div>
-    </div>
+    <>
+      <span className="font-medium">
+        {r.manual_channel === "mpesa" ? "M-Pesa" : "Bank transfer"}
+      </span>
+      <div className="text-muted-foreground">{r.manual_payer_name ?? "—"}</div>
+      {r.manual_reference && (
+        <div className="font-mono text-[10px] text-muted-foreground">{r.manual_reference}</div>
+      )}
+    </>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    pending: "bg-muted text-muted-foreground",
-    awaiting_manual_payment: "bg-warning/15 text-warning border-warning/30",
-    payment_received: "bg-warning/15 text-warning border-warning/30",
-    admin_reviewing: "bg-primary/15 text-primary border-primary/30",
-    funds_released: "bg-success/15 text-success border-success/30",
-    completed: "bg-success/15 text-success border-success/30",
-    disputed: "bg-destructive/15 text-destructive border-destructive/30",
-    refunded: "bg-muted text-muted-foreground",
-    cancelled: "bg-muted text-muted-foreground",
-  };
+/** Transaction status using the shared StatusPill (aliases keep tones consistent). */
+const TX_ALIAS: Record<string, { status: string; label?: string }> = {
+  pending: { status: "draft", label: "Pending" },
+  admin_reviewing: { status: "under_review", label: "Admin reviewing" },
+  funds_released: { status: "released" },
+};
+
+function TxStatus({ r }: { r: Row }) {
+  const alias = TX_ALIAS[r.status];
   return (
-    <Badge variant="outline" className={map[status] ?? "bg-muted"}>
-      {status.replaceAll("_", " ")}
-    </Badge>
+    <div className="inline-flex flex-col items-start gap-1">
+      <StatusPill status={alias?.status ?? r.status} label={alias?.label} />
+      {r.status === "payment_received" && (
+        <span className="text-[11px] text-muted-foreground">
+          {r.handover_ready_at ? "Handover ready" : "Seller preparing handover"}
+        </span>
+      )}
+    </div>
   );
 }

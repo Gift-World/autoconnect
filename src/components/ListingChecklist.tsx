@@ -51,7 +51,7 @@ export function ListingChecklist({ carId, variant = "seller" }: Props) {
   const complete = photosMissing.length === 0 && docsMissing.length === 0;
 
   return (
-    <div className="space-y-3 rounded-lg border bg-card p-4">
+    <div className="space-y-3 rounded-2xl border border-border bg-card p-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold">
           {variant === "admin" ? "Submission checklist" : "What's missing"}

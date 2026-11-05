@@ -127,7 +127,7 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
                 {car.location_display || country?.name || car.country}
               </span>
               <span>•</span>
-              <span className="text-teal-600 dark:text-teal-400 font-bold">{car.year}</span>
+              <span className="text-foreground font-bold">{car.year}</span>
             </div>
             <h3 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate mt-0.5">
               {car.title}
@@ -229,7 +229,7 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
             </div>
 
             <div className="flex flex-col items-end gap-1.5">
-              <Badge className="bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30 font-bold text-xs">
+              <Badge className="bg-teal-500/15 text-foreground border border-teal-500/30 font-bold text-xs">
                 <ShieldCheck className="w-3.5 h-3.5 mr-1" />
                 Escrow Protected
               </Badge>
@@ -253,7 +253,7 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
           {/* 3. Comprehensive Specifications Grid */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Settings2 className="w-3.5 h-3.5 text-teal-500" />
+              <Settings2 className="w-3.5 h-3.5 text-foreground" />
               <span>Vehicle Specifications</span>
             </h4>
 
@@ -319,7 +319,7 @@ export function VehicleDrawer({ car, isOpen, onClose }: VehicleDrawerProps) {
           {/* 4. Verification Check Badges */}
           <div className="p-4 rounded-xl border border-border/80 bg-card space-y-2">
             <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <FileCheck className="w-3.5 h-3.5 text-teal-500" />
+              <FileCheck className="w-3.5 h-3.5 text-foreground" />
               <span>Inspection & Title Guarantee</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-xs text-muted-foreground">

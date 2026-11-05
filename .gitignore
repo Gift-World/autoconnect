@@ -33,3 +33,8 @@ dist-ssr
 *.sw?
 package-lock.json
 
+
+# Local environment
+.env
+.env.local
+.env.*.local

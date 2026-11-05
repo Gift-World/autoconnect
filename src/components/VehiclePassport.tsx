@@ -129,23 +129,34 @@ export function VehiclePassport({ carId }: { carId: string }) {
 
   if (isLoading) {
     return (
-      <div className="mt-8 rounded-3xl border bg-card p-8 text-center shadow-sm">
-        <Loader2 className="mx-auto h-4 w-4 animate-spin text-muted-foreground" />
+      <div
+        className="mt-8 overflow-hidden rounded-[28px] border border-border bg-card shadow-sm sm:rounded-[36px]"
+        aria-busy="true"
+      >
+        <div className="flex items-center gap-3 bg-ac-ink p-5 text-white sm:p-8">
+          <Loader2 className="h-4 w-4 animate-spin text-ac-accent" />
+          <span className="text-sm text-white/70">Loading the evidence for this vehicle…</span>
+        </div>
+        <div className="grid gap-3 p-5 sm:grid-cols-2 sm:p-6">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-24 animate-pulse rounded-3xl bg-muted" />
+          ))}
+        </div>
       </div>
     );
   }
   if (!data) return null;
 
   const unverifiedBanner = data.isManualGarageVehicle ? (
-    <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-amber-500/25 bg-amber-500/5 p-5 animate-in fade-in sm:flex-row sm:items-center sm:p-6">
+    <div className="mb-6 flex flex-col gap-4 rounded-[28px] border border-amber-500/25 bg-amber-500/5 p-5 animate-in fade-in sm:flex-row sm:items-center sm:p-6">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10">
         <AlertCircle className="h-5 w-5 text-amber-600" />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-bold uppercase tracking-[.14em] text-amber-700">
+        <p className="brand-kicker text-amber-700 dark:text-amber-400">
           Ownership record
         </p>
-        <h3 className="mt-1 text-base font-bold text-foreground">
+        <h3 className="font-brand mt-1 text-xl text-foreground">
           This vehicle has not been verified yet
         </h3>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -153,9 +164,8 @@ export function VehiclePassport({ carId }: { carId: string }) {
           remain unconfirmed until supporting evidence is reviewed.
         </p>
       </div>
-      <Button 
-        className="bg-amber-600 text-white hover:bg-amber-700" 
-        size="sm"
+      <Button
+        className="min-h-11 rounded-full bg-ac-accent px-5 font-extrabold text-ac-ink hover:bg-ac-accent/90"
         onClick={() => setShowDocs(true)}
       >
         Start ownership review
@@ -244,19 +254,19 @@ export function VehiclePassport({ carId }: { carId: string }) {
     <div className="mt-8 space-y-6">
       {unverifiedBanner}
 
-      <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+      <section className="overflow-hidden rounded-[28px] border border-border bg-card shadow-sm sm:rounded-[36px]">
         {/* Header */}
-        <div className="border-b bg-gradient-to-br from-slate-950 to-slate-900 p-5 text-white sm:p-6">
+        <div className="bg-ac-ink p-5 text-white sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-items-center rounded-xl bg-teal-400/15 text-teal-300">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-ac-accent text-ac-ink">
                 <ShieldCheck className="h-5 w-5" />
               </span>
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.14em] text-teal-300">
+                <p className="brand-kicker text-ac-accent">
                   Evidence overview
                 </p>
-                <h2 className="mt-0.5 text-lg font-bold">What we can confirm today</h2>
+                <h2 className="font-brand mt-1 text-2xl sm:text-3xl">What we can confirm today</h2>
               </div>
             </div>
             <Badge className="border border-white/15 bg-white/10 text-[11px] text-white hover:bg-white/10">
@@ -264,7 +274,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
             </Badge>
           </div>
           <Progress value={(complete / 4) * 100} className="mt-5 h-2 bg-white/10" />
-          <p className="mt-2 text-sm text-slate-300">
+          <p className="mt-2 text-sm text-white/70">
             {complete} of 4 evidence checks are complete.
           </p>
         </div>
@@ -272,7 +282,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
         {/* Checks */}
         <ul className="grid grid-cols-1 gap-3 p-5 sm:grid-cols-2 sm:p-6">
           {checks.map((c) => (
-            <li key={c.key} className={`rounded-2xl border p-4 ${STATE_STYLE[c.state]}`}>
+            <li key={c.key} className={`rounded-3xl border p-4 sm:p-5 ${STATE_STYLE[c.state]}`}>
               <div className="flex items-start gap-2.5">
                 <div className="mt-0.5 shrink-0 text-foreground">{c.icon}</div>
                 <div className="min-w-0 flex-1">
@@ -577,7 +587,7 @@ export function VehiclePassport({ carId }: { carId: string }) {
         </p>
       </section>
       {data.vehicle.make && data.vehicle.model && data.vehicle.year && (
-        <section className="rounded-3xl border bg-card p-5 shadow-sm sm:p-6">
+        <section className="rounded-[28px] border border-border bg-card p-5 shadow-sm sm:p-8">
           <div className="flex items-start gap-2">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
             <div>

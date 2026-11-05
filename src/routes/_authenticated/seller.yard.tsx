@@ -1,13 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Store, Loader2, ExternalLink, ImagePlus, Check } from "lucide-react";
+import {
+  Store,
+  Loader2,
+  ExternalLink,
+  ImagePlus,
+  Check,
+  AlertTriangle,
+  Car as CarIcon,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { COUNTRIES } from "@/lib/countries";
 import {
@@ -17,6 +26,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  EmptyPanel,
+  ListSkeleton,
+  Notice,
+  Panel,
+  StatTile,
+} from "@/components/seller/SellerUI";
 
 import { YardInventoryManager } from "@/components/yard/YardInventoryManager";
 
@@ -266,140 +284,147 @@ function SellerYardPage() {
     await qc.invalidateQueries({ queryKey: ["seller-yard-listings", seller?.id] });
   }
 
-  if (ctx.isLoading) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
-  }
 
-  if (!seller) {
+  if (ctx.isLoading) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-card p-10 text-center">
-        <p className="font-semibold">Seller profile required</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Complete seller verification before opening a car yard.
-        </p>
-        <Button asChild className="mt-5">
-          <Link to="/seller/verify">Verify account</Link>
-        </Button>
+      <div className="space-y-4 sm:space-y-6" aria-busy="true">
+        <Skeleton className="h-32 w-full rounded-3xl" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-28 rounded-3xl" />
+          ))}
+        </div>
+        <Skeleton className="h-96 w-full rounded-3xl" />
       </div>
     );
   }
 
+  if (!seller) {
+    return (
+      <div className="space-y-4 sm:space-y-6">
+        <PageHeader eyebrow="Seller workspace" title="My car yard" />
+        <EmptyPanel
+          icon={<Store />}
+          title="Seller profile required"
+          description="Complete seller verification before opening a car yard."
+          action={
+            <Button asChild className="h-11 rounded-full">
+              <Link to="/seller/verify">Verify account</Link>
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  const allListings = listings.data ?? [];
+  const inYard = yard ? allListings.filter((c) => c.yard_id === yard.id).length : 0;
+
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
-            <Store className="h-5 w-5" /> My car yard
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            A public storefront buyers can browse — your branding, location and full inventory in
-            one place.
-          </p>
-        </div>
-        {yard && (
-          <div className="flex items-center gap-2">
-            {yard.is_suspended ? (
-              <Badge variant="destructive">Suspended</Badge>
-            ) : yard.is_approved ? (
-              <Badge className="bg-success text-white hover:bg-success">Live</Badge>
-            ) : (
-              <Badge variant="secondary">Waiting for review</Badge>
-            )}
-            {yard.is_approved && (
-              <Button asChild variant="outline" size="sm">
-                <Link to="/yards/$slug" params={{ slug: yard.slug }}>
-                  <ExternalLink className="mr-1.5 h-4 w-4" /> View public page
-                </Link>
-              </Button>
-            )}
-          </div>
-        )}
-      </header>
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeader
+        eyebrow="Seller workspace"
+        title="My car yard"
+        description="A public storefront buyers can browse — your branding, location and full inventory in one place."
+        actions={
+          yard ? (
+            <>
+              {yard.is_suspended ? (
+                <Badge variant="destructive">Suspended</Badge>
+              ) : yard.is_approved ? (
+                <Badge className="bg-success text-white hover:bg-success">Live</Badge>
+              ) : (
+                <Badge variant="secondary">Waiting for review</Badge>
+              )}
+              {yard.is_approved && (
+                <Button asChild variant="outline" className="h-11 rounded-full">
+                  <Link to="/yards/$slug" params={{ slug: yard.slug }}>
+                    <ExternalLink className="h-4 w-4" /> View public page
+                  </Link>
+                </Button>
+              )}
+            </>
+          ) : undefined
+        }
+      />
 
       {yard?.rejection_reason && !yard.is_approved && (
-        <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
-          <span className="font-medium">Changes requested: </span>
+        <Notice tone="danger" icon={<AlertTriangle />} title="Changes requested">
           {yard.rejection_reason}
+        </Notice>
+      )}
+
+      {yard && (
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+          <StatTile
+            featured
+            icon={<Store />}
+            label="Cars in your yard"
+            value={inYard}
+            sub={`of ${allListings.length} listings`}
+            loading={listings.isLoading}
+          />
+          <StatTile
+            icon={<Check />}
+            tone={yard.is_approved && !yard.is_suspended ? "success" : "warning"}
+            label="Storefront"
+            value={yard.is_suspended ? "Paused" : yard.is_approved ? "Live" : "In review"}
+            sub={yard.is_featured ? "Featured yard" : "Standard listing"}
+          />
+          <div className="col-span-2 lg:col-span-1">
+            <StatTile
+              icon={<ImagePlus />}
+              label="Branding"
+              value={`${[form.logo_url, form.cover_url].filter(Boolean).length}/2`}
+              sub="Logo and cover photo"
+            />
+          </div>
         </div>
       )}
 
-      <section className="rounded-xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold">Yard profile</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <Field label="Yard name">
-            <Input
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              placeholder="Gift Car Yard"
-            />
-          </Field>
-          <Field label="Tagline">
-            <Input
-              value={form.tagline}
-              onChange={(e) => setForm({ ...form, tagline: e.target.value })}
-              placeholder="Quality foreign-used cars since 2014"
-            />
-          </Field>
-          <Field label="Country">
-            <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                {COUNTRIES.map((c) => (
-                  <SelectItem key={c.code} value={c.code}>
-                    {c.flag} {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="City">
-            <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-          </Field>
-          <Field label="Physical address">
-            <Input
-              value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
-              placeholder="Ngong Road, opposite Prestige Plaza"
-            />
-          </Field>
-          <Field label="Opening hours">
-            <Input
-              value={form.opening_hours}
-              onChange={(e) => setForm({ ...form, opening_hours: e.target.value })}
-              placeholder="Mon–Sat 8:00–18:00"
-            />
-          </Field>
-          <Field label="Phone">
-            <Input
-              value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            />
-          </Field>
-          <Field label="WhatsApp">
-            <Input
-              value={form.whatsapp}
-              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-            />
-          </Field>
-          <Field label="Email">
-            <Input
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </Field>
-        </div>
+      {!yard && (
+        <Notice tone="warning" icon={<Store />} title="Open your storefront">
+          Fill in the profile below and press Create yard. Our team reviews it before it goes
+          public.
+        </Notice>
+      )}
 
-        <div className="mt-4">
-          <Label className="text-sm">About the yard</Label>
-          <Textarea
-            className="mt-1.5"
-            rows={5}
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            placeholder="Tell buyers who you are, what you specialise in, and how handover works."
-          />
+      {/* Storefront preview + branding */}
+      <Panel
+        kicker="Yard profile"
+        title="How buyers see you"
+        description="Name, tagline, cover photo and logo appear at the top of your public page."
+      >
+        <div className="overflow-hidden rounded-3xl border border-border">
+          <div className="relative aspect-[16/10] bg-muted sm:aspect-[16/6]">
+            {form.cover_url ? (
+              <img src={form.cover_url} alt="Yard cover" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-muted-foreground">
+                <ImagePlus className="h-8 w-8" />
+                <span className="text-xs">Add a cover photo of your yard</span>
+              </div>
+            )}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ac-ink/85 to-transparent p-4 text-white sm:p-6">
+              <div className="flex items-end gap-3">
+                <span className="grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-2xl border-2 border-white/80 bg-white/10">
+                  {form.logo_url ? (
+                    <img src={form.logo_url} alt="Yard logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <Store className="h-6 w-6" />
+                  )}
+                </span>
+                <div className="min-w-0">
+                  <p className="font-brand truncate text-2xl leading-tight sm:text-3xl">
+                    {form.name || "Your yard name"}
+                  </p>
+                  {form.tagline && (
+                    <p className="truncate text-sm text-white/80">{form.tagline}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -417,71 +442,177 @@ function SellerYardPage() {
           />
         </div>
 
-        <Button className="mt-6" onClick={() => void save()} disabled={saving}>
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {yard ? "Save changes" : "Create yard"}
-        </Button>
-      </section>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <Field label="Yard name">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              placeholder="Gift Car Yard"
+            />
+          </Field>
+          <Field label="Tagline">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.tagline}
+              onChange={(e) => setForm({ ...form, tagline: e.target.value })}
+              placeholder="Quality foreign-used cars since 2014"
+            />
+          </Field>
+        </div>
+
+        <div className="mt-4">
+          <Label className="text-sm font-semibold">About the yard</Label>
+          <Textarea
+            className="mt-1.5 rounded-2xl"
+            rows={5}
+            value={form.description}
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            placeholder="Tell buyers who you are, what you specialise in, and how handover works."
+          />
+        </div>
+
+        <h3 className="font-brand mt-8 text-lg">Location &amp; contact</h3>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2">
+          <Field label="Country">
+            <Select value={form.country} onValueChange={(v) => setForm({ ...form, country: v })}>
+              <SelectTrigger className="h-11 rounded-xl">
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                {COUNTRIES.map((c) => (
+                  <SelectItem key={c.code} value={c.code}>
+                    {c.flag} {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="City">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.city}
+              onChange={(e) => setForm({ ...form, city: e.target.value })}
+            />
+          </Field>
+          <Field label="Physical address">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              placeholder="Ngong Road, opposite Prestige Plaza"
+            />
+          </Field>
+          <Field label="Opening hours">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.opening_hours}
+              onChange={(e) => setForm({ ...form, opening_hours: e.target.value })}
+              placeholder="Mon–Sat 8:00–18:00"
+            />
+          </Field>
+          <Field label="Phone">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </Field>
+          <Field label="WhatsApp">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.whatsapp}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+            />
+          </Field>
+          <Field label="Email">
+            <Input
+              className="h-11 rounded-xl"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+          </Field>
+        </div>
+
+        <div className="mt-6 flex justify-end border-t border-border pt-5">
+          <Button
+            className="h-11 rounded-full bg-ac-accent px-6 text-ac-ink hover:bg-ac-accent/90"
+            onClick={() => void save()}
+            disabled={saving}
+          >
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            {yard ? "Save changes" : "Create yard"}
+          </Button>
+        </div>
+      </Panel>
 
       {yard && (
         <>
-          <section className="rounded-xl border border-border bg-card p-6">
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold">Live Bay Allocation & Inventory Operations</h2>
-              <p className="text-sm text-muted-foreground">
-                Assign vehicles to physical yard bays, update inspection certifications, and issue
-                digital gate passes.
-              </p>
-            </div>
-            <YardInventoryManager yardName={yard.name} />
-          </section>
-
-          <section className="rounded-xl border border-border bg-card p-6">
-            <h2 className="text-lg font-semibold">Listing Storefront Sync</h2>
-            <p className="text-sm text-muted-foreground">
-              Choose which of your listings appear on the yard public page.
-            </p>
-            <div className="mt-4 divide-y divide-border">
-              {(listings.data ?? []).length === 0 && (
-                <p className="py-4 text-sm text-muted-foreground">
-                  No listings yet.{" "}
-                  <Link to="/seller/listings/new" className="underline">
-                    Create one
-                  </Link>
-                  .
-                </p>
-              )}
-              {(listings.data ?? []).map((c) => {
-                const attached = c.yard_id === yard.id;
-                return (
-                  <div
-                    key={c.id}
-                    className="flex flex-wrap items-center justify-between gap-3 py-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
-                        {c.year} {c.title}
-                      </p>
-                      <p className="text-xs capitalize text-muted-foreground">{c.status}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant={attached ? "secondary" : "outline"}
-                      onClick={() => void toggleListing(c.id, !attached)}
+          <Panel
+            kicker="Storefront"
+            title="Listing storefront sync"
+            description="Choose which of your listings appear on the yard public page."
+          >
+            {listings.isLoading ? (
+              <ListSkeleton rows={3} />
+            ) : allListings.length === 0 ? (
+              <EmptyPanel
+                icon={<CarIcon />}
+                title="No listings yet"
+                description="Create a listing, then add it to your yard here."
+                action={
+                  <Button asChild className="h-11 rounded-full">
+                    <Link to="/seller/listings/new" search={{ edit: undefined }}>
+                      Create one
+                    </Link>
+                  </Button>
+                }
+              />
+            ) : (
+              <ul className="divide-y divide-border rounded-2xl border border-border">
+                {allListings.map((c) => {
+                  const attached = c.yard_id === yard.id;
+                  return (
+                    <li
+                      key={c.id}
+                      className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                     >
-                      {attached ? (
-                        <>
-                          <Check className="mr-1.5 h-4 w-4" /> In yard
-                        </>
-                      ) : (
-                        "Add to yard"
-                      )}
-                    </Button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold">
+                          {c.year} {c.title}
+                        </p>
+                        <div className="mt-1">
+                          <StatusPill status={c.status} />
+                        </div>
+                      </div>
+                      <Button
+                        variant={attached ? "secondary" : "outline"}
+                        className="h-11 rounded-full"
+                        onClick={() => void toggleListing(c.id, !attached)}
+                      >
+                        {attached ? (
+                          <>
+                            <Check className="h-4 w-4" /> In yard
+                          </>
+                        ) : (
+                          "Add to yard"
+                        )}
+                      </Button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel
+            kicker="Operations"
+            title="Live bay allocation & inventory"
+            description="Assign vehicles to physical yard bays, update inspection certifications, and issue digital gate passes."
+            bodyClassName="overflow-x-auto"
+          >
+            <YardInventoryManager yardName={yard.name} />
+          </Panel>
         </>
       )}
     </div>
@@ -491,7 +622,7 @@ function SellerYardPage() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <Label className="text-sm">{label}</Label>
+      <Label className="text-sm font-semibold">{label}</Label>
       <div className="mt-1.5">{children}</div>
     </div>
   );
@@ -509,30 +640,39 @@ function ImageField({
   onFile: (f: File) => void;
 }) {
   return (
-    <div>
-      <Label className="text-sm">{label}</Label>
-      <div className="mt-1.5 flex items-center gap-3">
-        <span className="grid h-16 w-24 place-items-center overflow-hidden rounded-lg border border-border bg-muted">
-          {url ? (
-            <img src={url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <ImagePlus className="h-5 w-5 text-muted-foreground" />
-          )}
-        </span>
-        <label className="cursor-pointer rounded-md border border-input px-3 py-2 text-sm hover:bg-muted">
-          {busy ? "Uploading…" : "Upload"}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onFile(f);
-              e.target.value = "";
-            }}
-          />
-        </label>
+    <div className="flex items-center gap-3 rounded-2xl border border-border p-3">
+      <span className="grid aspect-[4/3] w-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
+        {url ? (
+          <img src={url} alt={label} className="h-full w-full object-cover" />
+        ) : (
+          <ImagePlus className="h-5 w-5 text-muted-foreground" />
+        )}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold">{label}</p>
+        <p className="text-xs text-muted-foreground">{url ? "Uploaded" : "Not added yet"}</p>
       </div>
+      <label className="inline-flex min-h-11 cursor-pointer items-center rounded-full border border-input px-4 text-sm font-semibold transition hover:bg-muted focus-within:ring-2 focus-within:ring-ring">
+        {busy ? (
+          <>
+            <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Uploading…
+          </>
+        ) : url ? (
+          "Replace"
+        ) : (
+          "Upload"
+        )}
+        <input
+          type="file"
+          accept="image/*"
+          className="sr-only"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f);
+            e.target.value = "";
+          }}
+        />
+      </label>
     </div>
   );
 }

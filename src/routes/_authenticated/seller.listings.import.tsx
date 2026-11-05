@@ -1,10 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ArrowLeft, Upload, FileSpreadsheet, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/seller/listings/import")({
   component: BulkImportListings,
@@ -122,77 +122,98 @@ function BulkImportListings() {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon">
-          <Link to="/seller">
-            <ArrowLeft className="h-4 w-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Bulk Import</h1>
-          <p className="text-sm text-muted-foreground">
-            Upload multiple vehicles at once using a CSV file.
-          </p>
-        </div>
-      </header>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>1. Download Template</CardTitle>
-          <CardDescription>Start with our standard format to ensure your data imports correctly.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button variant="outline" onClick={handleDownloadTemplate}>
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> Download CSV Template
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeader
+        eyebrow="Inventory"
+        title="Bulk Import"
+        description="Upload multiple vehicles at once using a CSV file."
+        crumbs={[{ label: "Seller", to: "/seller" }, { label: "Bulk import" }]}
+        actions={
+          <Button asChild variant="outline" className="h-11 rounded-full">
+            <Link to="/seller">
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Link>
           </Button>
-        </CardContent>
-      </Card>
+        }
+      />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>2. Upload Inventory</CardTitle>
-          <CardDescription>Drag and drop your completed CSV file here.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div
-            className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-              dragActive ? "border-primary bg-primary/5" : "border-border hover:border-primary/50 hover:bg-muted/50"
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+        <section className="rounded-3xl border border-border bg-card p-5 sm:p-8">
+          <p className="brand-kicker text-muted-foreground">Step 1</p>
+          <h2 className="font-brand mt-2 text-2xl sm:text-3xl">Download Template</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Start with our standard format to ensure your data imports correctly.
+          </p>
+          <Button
+            variant="outline"
+            onClick={handleDownloadTemplate}
+            className="mt-5 h-11 rounded-full"
+          >
+            <FileSpreadsheet className="h-4 w-4" /> Download CSV Template
+          </Button>
+          <p className="mt-5 text-xs leading-5 text-muted-foreground">
+            Columns: make_name, model_name, year, price, currency, country, mileage, condition,
+            transmission, fuel_type, vin. Make, model, year and price are required on every row.
+          </p>
+        </section>
+
+        <section className="rounded-3xl border border-border bg-card p-5 sm:p-8">
+          <p className="brand-kicker text-muted-foreground">Step 2</p>
+          <h2 className="font-brand mt-2 text-2xl sm:text-3xl">Upload Inventory</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            Drag and drop your completed CSV file here.
+          </p>
+          <label
+            className={`mt-5 flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition-colors focus-within:ring-2 focus-within:ring-ring ${
+              dragActive
+                ? "border-ac-accent bg-ac-accent/10"
+                : "border-border hover:border-ac-accent/60 hover:bg-muted/50"
             }`}
-            onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
           >
             {isUploading ? (
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p>Importing inventory...</p>
-              </div>
+              <span className="flex flex-col items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-8 w-8 animate-spin text-foreground" />
+                <span>Importing inventory...</span>
+              </span>
             ) : (
-              <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                <Upload className="h-8 w-8 mb-2" />
-                <p className="text-sm font-medium">Drag & drop your CSV file here</p>
-                <p className="text-xs">or click to browse files</p>
-                <input
-                  type="file"
-                  accept=".csv"
-                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  style={{ position: 'relative', marginTop: '-100px', height: '100px' }}
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      processFile(e.target.files[0]);
-                    }
-                  }}
-                />
-              </div>
+              <span className="flex flex-col items-center gap-2 text-muted-foreground">
+                <span className="mb-2 grid h-14 w-14 place-items-center rounded-full bg-ac-accent text-ac-ink">
+                  <Upload className="h-6 w-6" />
+                </span>
+                <span className="text-sm font-semibold text-foreground">
+                  Drag & drop your CSV file here
+                </span>
+                <span className="text-xs">or click to browse files</span>
+              </span>
             )}
+            <input
+              type="file"
+              accept=".csv"
+              className="sr-only"
+              disabled={isUploading}
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  processFile(e.target.files[0]);
+                }
+                e.target.value = "";
+              }}
+            />
+          </label>
+          <div className="mt-4 flex items-start gap-2 rounded-2xl bg-muted/50 p-3 text-xs leading-5 text-muted-foreground">
+            <AlertCircle className="h-4 w-4 shrink-0 text-foreground" />
+            <p>
+              Imported vehicles will be saved as "Pending" and will require review before going
+              live. Photos must be added manually after import.
+            </p>
           </div>
-          <div className="flex items-start gap-2 mt-4 text-xs text-muted-foreground">
-            <AlertCircle className="h-4 w-4 text-primary shrink-0" />
-            <p>Imported vehicles will be saved as "Pending" and will require review before going live. Photos must be added manually after import.</p>
-          </div>
-        </CardContent>
-      </Card>
+        </section>
+      </div>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
   Receipt,
   ShieldCheck,
   Car,
+  Wrench,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -19,7 +20,7 @@ function AccountLayout() {
   return (
     <DashboardShell
       area="My account"
-      areaSubtitle="Saved cars, inquiries & profile"
+      areaSubtitle="Garage, purchases, inquiries & profile"
       sections={[
         {
           label: "Account",
@@ -37,6 +38,7 @@ function AccountLayout() {
             { to: "/account/inquiries", icon: <MessageSquare />, label: "My inquiries" },
             { to: "/account/purchases", icon: <Receipt />, label: "My purchases" },
             { to: "/account/import-requests", icon: <Plane />, label: "Import requests" },
+            { to: "/service-bookings", icon: <Wrench />, label: "Service bookings" },
           ],
         },
       ]}

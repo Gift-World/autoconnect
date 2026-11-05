@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { Car, ClipboardCheck, FileText, Gauge, Plus, ShieldCheck, Wrench } from "lucide-react";
+import { AlertTriangle, Car, ChevronRight, Plus, ShieldCheck, Wrench } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -17,30 +17,44 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/EmptyState";
-import { Skeleton } from "@/components/ui/skeleton";
+import { GarageVehicleCard } from "@/components/garage/GarageVehicleCard";
+import {
+  daysUntil,
+  dueLabel,
+  dueTone,
+  vehicleLabel,
+  type GarageVehicle,
+} from "@/components/garage/garage-utils";
+import {
+  ErrorNotice,
+  ListSkeleton,
+  SectionHeading,
+  StatRow,
+  StatTile,
+} from "@/components/account/DashboardKit";
+import { onDarkButton, primaryButton } from "@/components/account/dashboard-utils";
 
 export const Route = createFileRoute("/_authenticated/garage")({
   head: () => ({ meta: [{ title: "My Garage — AutoConnect" }] }),
   component: GaragePage,
 });
 
-type GarageVehicle = {
-  id: string;
-  nickname: string | null;
-  make_name: string;
-  model_name: string | null;
-  year: number | null;
-  vin: string | null;
-  mileage: number | null;
-  mileage_unit: "km" | "miles";
-  next_service_at: string | null;
-  next_service_mileage: number | null;
-  insurance_renews_at: string | null;
-  notes: string | null;
-};
-
 // This owner is a database-only preview record. It is deliberately read-only
 // and is never used for a real signed-in customer's garage.
+type OwnershipRow = {
+  id: string;
+  cars: {
+    id: string;
+    title: string | null;
+    make_name: string | null;
+    model_name: string | null;
+    year: number | null;
+    mileage: number | null;
+    mileage_unit: "km" | "miles" | null;
+    vin: string | null;
+  } | null;
+};
+
 const PREVIEW_GARAGE_OWNER_ID = "f98e074f-e3ad-42e6-9a20-80f55e323045";
 
 function GaragePage() {
@@ -85,12 +99,12 @@ function GaragePage() {
         } else if (data) {
           manualVehicles = data as GarageVehicle[];
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Exception fetching garage_vehicles:", err);
       }
 
       // Fetch real ownership records, but gracefully handle missing table during development
-      let ownData: any[] | null = null;
+      let ownData: OwnershipRow[] | null = null;
       try {
         const result = await supabase
           .from("ownerships")
@@ -101,15 +115,15 @@ function GaragePage() {
         if (result.error) {
           console.error("Error fetching ownerships:", result.error);
         } else {
-          ownData = result.data;
+          ownData = result.data as unknown as OwnershipRow[];
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error("Exception fetching ownerships:", err);
       }
 
       const purchasedVehicles: GarageVehicle[] = [];
       if (ownData && ownData.length > 0) {
-        ownData.forEach((own: any) => {
+        ownData.forEach((own) => {
           if (own.cars) {
             purchasedVehicles.push({
               id: own.cars.id,
@@ -139,7 +153,8 @@ function GaragePage() {
 
   const addVehicle = useMutation({
     mutationFn: async () => {
-      if (isPreview) throw new Error("Preview vehicles cannot be modified. Please sign in to add your own.");
+      if (isPreview)
+        throw new Error("Preview vehicles cannot be modified. Please sign in to add your own.");
       if (!ownerId) throw new Error("Owner ID is missing");
       if (!form.make.trim()) throw new Error("Enter the vehicle make");
       const { error } = await supabase.from("garage_vehicles").insert({
@@ -162,88 +177,181 @@ function GaragePage() {
     onError: (error: Error) => toast.error(error.message),
   });
 
+  const list = vehicles.data ?? [];
+  const reminders = list
+    .flatMap((v) => [
+      { v, kind: "Service" as const, days: daysUntil(v.next_service_at) },
+      { v, kind: "Insurance renewal" as const, days: daysUntil(v.insurance_renews_at) },
+    ])
+    .filter((r) => r.days !== null && r.days <= 30)
+    .sort((a, b) => (a.days ?? 0) - (b.days ?? 0));
+  const serviceSoon = reminders.filter((r) => r.kind === "Service").length;
+  const insuranceSoon = reminders.filter((r) => r.kind === "Insurance renewal").length;
+  const missingDates = list.filter((v) => !v.next_service_at || !v.insurance_renews_at).length;
+
   return (
-    <div className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-teal-50 via-card to-white p-6 shadow-card sm:p-9">
-        <div className="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
-        <div className="relative max-w-2xl">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">My Garage</p>
-          <h1 className="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Your car life, in one calm place.
-          </h1>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Keep your vehicles, evidence, service milestones and ownership decisions together.
-            AutoConnect only uses data you add or verify.
-          </p>
-          {isPreview && (
-            <p className="mt-4 inline-flex rounded-full border border-teal-300/25 bg-teal-300/10 px-3 py-1.5 text-xs font-semibold text-teal-100">
-              Preview data · safe, read-only Supabase records
+    <div className="mx-auto max-w-[1360px] space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
+      {/* Owner hero */}
+      <section className="relative overflow-hidden rounded-[28px] bg-ac-ink p-6 text-white sm:rounded-[36px] sm:p-10">
+        <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full bg-ac-accent/20 blur-3xl" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="brand-kicker text-ac-accent">My Garage</p>
+            <h1 className="font-brand mt-4 text-4xl sm:text-5xl">
+              Your car life, in one calm place.
+            </h1>
+            <p className="mt-4 text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
+              Keep your vehicles, evidence, service milestones and ownership decisions together.
+              AutoConnect only uses data you add or verify.
             </p>
-          )}
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Button
-              onClick={() => setOpen(true)}
-              className="rounded-full bg-teal-500 font-bold hover:bg-teal-600"
-            >
-              <Plus className="mr-2 h-4 w-4" /> Add vehicle
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              className="border-border bg-background text-foreground hover:bg-muted"
-            >
-              <Link to="/parts">Find compatible parts</Link>
-            </Button>
+            {isPreview && (
+              <p className="mt-4 inline-flex rounded-full border border-ac-accent/40 bg-ac-accent/15 px-3 py-1.5 text-xs font-semibold text-white">
+                Preview data · safe, read-only Supabase records
+              </p>
+            )}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => setOpen(true)} className={primaryButton}>
+              <Plus className="h-4 w-4" /> Add vehicle
+            </button>
+            <Link to="/parts" className={onDarkButton}>
+              Find compatible parts
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="mt-8">
-        <div className="mb-4 flex items-end justify-between gap-3">
-          <div>
-            <h2 className="text-xl font-bold">Your vehicles</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {isPreview
-                ? "Preview records are supplied from Supabase for UI and flow testing."
-                : "Ownership data stays private to your account."}
-            </p>
-          </div>
-          <span className="rounded-full border bg-muted/40 px-3 py-1 text-xs font-semibold text-muted-foreground">
-            {vehicles.data?.length ?? 0} vehicle{(vehicles.data?.length ?? 0) === 1 ? "" : "s"}
-          </span>
-        </div>
+      <StatRow>
+        <StatTile label="Vehicles" value={list.length} icon={<Car />} loading={vehicles.isLoading} />
+        <StatTile
+          label="Service due"
+          hint="Within 30 days or overdue"
+          value={serviceSoon}
+          icon={<Wrench />}
+          tone={serviceSoon ? "accent" : "default"}
+          loading={vehicles.isLoading}
+        />
+        <StatTile
+          label="Insurance renewals"
+          hint="Within 30 days or overdue"
+          value={insuranceSoon}
+          icon={<ShieldCheck />}
+          tone={insuranceSoon ? "accent" : "default"}
+          loading={vehicles.isLoading}
+        />
+        <StatTile
+          label="Missing dates"
+          value={missingDates}
+          hint="Service or insurance not set"
+          icon={<AlertTriangle />}
+          loading={vehicles.isLoading}
+        />
+      </StatRow>
+
+      {/* What needs action now */}
+      {reminders.length > 0 && (
+        <section>
+          <SectionHeading kicker="Coming up" title="Needs attention" />
+          <ul className="overflow-hidden rounded-3xl border border-border bg-card">
+            {reminders.map((r) => {
+              const tone = dueTone(r.days);
+              const rowCls =
+                "flex min-h-16 items-center gap-3 px-4 py-3 transition hover:bg-muted/60 sm:px-5";
+              const content = (
+                <>
+                    <span
+                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
+                        tone === "overdue"
+                          ? "bg-destructive text-white"
+                          : "bg-ac-accent/15 text-ac-accent"
+                      }`}
+                    >
+                      {r.kind === "Service" ? (
+                        <Wrench className="h-4 w-4" />
+                      ) : (
+                        <ShieldCheck className="h-4 w-4" />
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-bold">
+                        {r.kind} · {r.v.nickname || vehicleLabel(r.v)}
+                      </span>
+                      <span
+                        className={`block text-xs font-semibold ${
+                          tone === "overdue"
+                            ? "text-destructive"
+                            : "text-amber-700 dark:text-amber-400"
+                        }`}
+                      >
+                        {dueLabel(r.days)}
+                      </span>
+                    </span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </>
+              );
+              return (
+                <li key={`${r.v.id}-${r.kind}`} className="border-b border-border last:border-b-0">
+                  {r.kind === "Service" ? (
+                    <Link to="/services" className={rowCls}>
+                      {content}
+                    </Link>
+                  ) : (
+                    <Link to="/passport/$carId" params={{ carId: r.v.id }} className={rowCls}>
+                      {content}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <section>
+        <SectionHeading
+          kicker="Your vehicles"
+          title={`${list.length} vehicle${list.length === 1 ? "" : "s"}`}
+          description={
+            isPreview
+              ? "Preview records are supplied from Supabase for UI and flow testing."
+              : "Ownership data stays private to your account."
+          }
+        />
 
         {vehicles.isLoading ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3].map((item) => (
-              <Skeleton key={item} className="h-56 rounded-2xl" />
-            ))}
-          </div>
+          <ListSkeleton rows={3} className="h-[420px] rounded-[28px]" grid="grid gap-4 md:grid-cols-2 xl:grid-cols-3" />
         ) : vehicles.isError ? (
-          <EmptyState
-            icon={<ShieldCheck className="h-5 w-5" />}
+          <ErrorNotice
             title="We couldn't load your garage"
-            description="Refresh once, then try again. Your existing marketplace data is unaffected."
+            message="Refresh once, then try again. Your existing marketplace data is unaffected."
+            onRetry={() => void vehicles.refetch()}
           />
-        ) : vehicles.data?.length ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {vehicles.data.map((vehicle) => (
-              <GarageCard key={vehicle.id} vehicle={vehicle} />
+        ) : list.length ? (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {list.map((vehicle) => (
+              <GarageVehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
         ) : (
-          <EmptyState
-            icon={<Car className="h-5 w-5" />}
-            title="Add your first vehicle"
-            description="Start with a make, model and year. You can add service, documents and ownership details over time."
-          />
+          <div className="space-y-3">
+            <EmptyState
+              icon={<Car className="h-5 w-5" />}
+              title="Add your first vehicle"
+              description="Start with a make, model and year. You can add service, documents and ownership details over time."
+            />
+            <div className="flex justify-center">
+              <Button variant="outline" className="min-h-11 rounded-full" onClick={() => setOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" /> Add a vehicle
+              </Button>
+            </div>
+          </div>
         )}
       </section>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-lg rounded-2xl">
+        <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-3xl">
           <DialogHeader>
-            <DialogTitle>Add to My Garage</DialogTitle>
+            <DialogTitle className="font-brand text-2xl">Add to My Garage</DialogTitle>
             <DialogDescription>
               Keep it simple now. You can add service and document evidence later.
             </DialogDescription>
@@ -251,6 +359,7 @@ function GaragePage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Make *">
               <Input
+                className="h-11"
                 value={form.make}
                 onChange={(event) => setForm({ ...form, make: event.target.value })}
                 placeholder="Toyota"
@@ -258,6 +367,7 @@ function GaragePage() {
             </Field>
             <Field label="Model">
               <Input
+                className="h-11"
                 value={form.model}
                 onChange={(event) => setForm({ ...form, model: event.target.value })}
                 placeholder="Land Cruiser Prado"
@@ -265,6 +375,7 @@ function GaragePage() {
             </Field>
             <Field label="Year">
               <Input
+                className="h-11"
                 type="number"
                 min="1900"
                 max="2100"
@@ -275,6 +386,7 @@ function GaragePage() {
             </Field>
             <Field label="Nickname">
               <Input
+                className="h-11"
                 value={form.nickname}
                 onChange={(event) => setForm({ ...form, nickname: event.target.value })}
                 placeholder="Family car"
@@ -282,6 +394,7 @@ function GaragePage() {
             </Field>
             <Field label="Mileage">
               <Input
+                className="h-11"
                 type="number"
                 min="0"
                 value={form.mileage}
@@ -291,19 +404,21 @@ function GaragePage() {
             </Field>
             <Field label="VIN (optional)">
               <Input
+                className="h-11"
                 value={form.vin}
                 onChange={(event) => setForm({ ...form, vin: event.target.value })}
                 placeholder="17 characters"
               />
             </Field>
           </div>
-          <Button
+          <button
+            type="button"
             disabled={addVehicle.isPending}
             onClick={() => addVehicle.mutate()}
-            className="w-full"
+            className={`${primaryButton} w-full`}
           >
             {addVehicle.isPending ? "Saving…" : "Add vehicle securely"}
-          </Button>
+          </button>
         </DialogContent>
       </Dialog>
     </div>
@@ -316,69 +431,5 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
       <Label>{label}</Label>
       {children}
     </label>
-  );
-}
-
-function GarageCard({ vehicle }: { vehicle: GarageVehicle }) {
-  const label =
-    `${vehicle.year ? `${vehicle.year} ` : ""}${vehicle.make_name} ${vehicle.model_name ?? ""}`.trim();
-  const serviceDue = vehicle.next_service_at
-    ? new Date(vehicle.next_service_at).toLocaleDateString()
-    : null;
-  return (
-    <article className="rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
-        <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Car className="h-5 w-5" />
-        </span>
-        {vehicle.nickname && (
-          <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground">
-            {vehicle.nickname}
-          </span>
-        )}
-      </div>
-      <h3 className="mt-4 text-lg font-bold">{label}</h3>
-      <div className="mt-4 space-y-2 border-t pt-4 text-xs text-muted-foreground">
-        <p className="flex items-center gap-2">
-          <Gauge className="h-3.5 w-3.5 text-primary" />{" "}
-          {vehicle.mileage != null
-            ? `${vehicle.mileage.toLocaleString()} ${vehicle.mileage_unit}`
-            : "Mileage not recorded"}
-        </p>
-        <p className="flex items-center gap-2">
-          <Wrench className="h-3.5 w-3.5 text-primary" />{" "}
-          {serviceDue ? `Service due ${serviceDue}` : "Set your next service"}
-        </p>
-        <p className="flex items-center gap-2">
-          <FileText className="h-3.5 w-3.5 text-primary" />{" "}
-          {vehicle.vin ? "VIN stored privately" : "Add VIN when ready"}
-        </p>
-      </div>
-      <div className="mt-4 flex gap-2">
-        <Button
-          asChild
-          size="sm"
-          variant="default"
-          className="flex-1 bg-teal-500 hover:bg-teal-600 text-white"
-        >
-          <Link to="/passport/$carId" params={{ carId: vehicle.id }}>
-            Passport
-          </Link>
-        </Button>
-        <Button asChild size="sm" variant="outline" className="flex-1">
-          <Link to="/parts" search={{ q: `${vehicle.make_name} ${vehicle.model_name}` }}>
-            Parts
-          </Link>
-        </Button>
-      </div>
-      <Button
-        asChild
-        size="sm"
-        variant="ghost"
-        className="mt-2 w-full text-primary hover:bg-primary/5"
-      >
-        <Link to="/services">Book service for this vehicle</Link>
-      </Button>
-    </article>
   );
 }

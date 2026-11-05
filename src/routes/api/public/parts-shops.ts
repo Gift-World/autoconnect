@@ -3,8 +3,8 @@ export const Route = createFileRoute("/api/public/parts-shops")({
   server: {
     handlers: {
       GET: async () => {
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data, error } = await supabaseAdmin
+        const { supabasePublicServer } = await import("@/integrations/supabase/client.server");
+        const { data, error } = await supabasePublicServer
           .from("parts_shops")
           .select(
             "id,slug,name,description,country,city,shipping_regions,return_policy,is_verified,is_sample",

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -6,8 +6,9 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
+  Inbox,
   Receipt,
-  ShieldCheck,
+  Search,
   Star,
   Wrench,
 } from "lucide-react";
@@ -17,8 +18,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { EmptyState } from "@/components/EmptyState";
 import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  ErrorNotice,
+  ListSkeleton,
+  NextStepCard,
+  SectionHeading,
+  StatRow,
+  StatTile,
+} from "@/components/account/DashboardKit";
+import { primaryButton } from "@/components/account/dashboard-utils";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/service-bookings")({
   component: ServiceBookingsPage,
@@ -205,19 +223,19 @@ function ServiceBookingsPage() {
     inbox ? (
       quoteFor === booking.id ? (
         <div className="grid gap-2 sm:grid-cols-[1fr_1.4fr_auto]">
-          <Input
+          <Input className="h-11"
             type="number"
             min="0"
             placeholder="Quote amount"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
-          <Input
+          <Input className="h-11"
             placeholder="Scope / quote note"
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
-          <Button
+          <Button className="min-h-11 rounded-full px-5"
             disabled={update.isPending}
             onClick={() => update.mutate({ id: booking.id, status: "quoted", quoted: true })}
           >
@@ -225,26 +243,26 @@ function ServiceBookingsPage() {
           </Button>
         </div>
       ) : booking.status === "requested" ? (
-        <Button size="sm" onClick={() => setQuoteFor(booking.id)}>
+        <Button size="sm" className="min-h-11 rounded-full px-5" onClick={() => setQuoteFor(booking.id)}>
           Prepare quote
         </Button>
       ) : booking.status === "approved" ? (
-        <Button size="sm" onClick={() => update.mutate({ id: booking.id, status: "confirmed" })}>
+        <Button size="sm" className="min-h-11 rounded-full px-5" onClick={() => update.mutate({ id: booking.id, status: "confirmed" })}>
           Confirm appointment
         </Button>
       ) : booking.status === "confirmed" ? (
-        <Button size="sm" onClick={() => update.mutate({ id: booking.id, status: "in_progress" })}>
+        <Button size="sm" className="min-h-11 rounded-full px-5" onClick={() => update.mutate({ id: booking.id, status: "in_progress" })}>
           Start work
         </Button>
       ) : booking.status === "in_progress" ? (
         <div className="flex flex-wrap gap-2">
           <Input
-            className="max-w-sm"
+            className="h-11 max-w-sm"
             placeholder="Work completed / parts fitted"
             value={completionNote}
             onChange={(e) => setCompletionNote(e.target.value)}
           />
-          <Button
+          <Button className="min-h-11 rounded-full px-5"
             size="sm"
             onClick={() => update.mutate({ id: booking.id, status: "completed", completed: true })}
           >
@@ -254,103 +272,162 @@ function ServiceBookingsPage() {
         </div>
       ) : null
     ) : booking.status === "quoted" ? (
-      <Button size="sm" onClick={() => update.mutate({ id: booking.id, status: "approved" })}>
+      <Button size="sm" className="min-h-11 rounded-full px-5" onClick={() => update.mutate({ id: booking.id, status: "approved" })}>
         Approve quote
       </Button>
     ) : booking.status === "completed" && !reviews.data?.has(booking.id) ? (
-      <Button size="sm" variant="outline" onClick={() => setReviewFor(booking.id)}>
+      <Button size="sm" className="min-h-11 rounded-full px-5" variant="outline" onClick={() => setReviewFor(booking.id)}>
         <Star className="mr-2 h-4 w-4" />
         Leave a review
       </Button>
     ) : null;
+  const mine = customer.data ?? [];
+  const needsMe = mine.filter(
+    (b) => b.status === "quoted" || (b.status === "completed" && !reviews.data?.has(b.id)),
+  );
+  const finished = mine.filter((b) => !needsMe.includes(b) && b.status === "completed");
+  const ongoing = mine.filter((b) => !needsMe.includes(b) && b.status !== "completed");
+  const quoteReady = mine.some((x) => x.status === "quoted");
+  const inbox = provider.data ?? [];
+
   return (
-    <main className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
+    <main className="mx-auto max-w-[1360px] space-y-6 px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
       <PageHeader
         eyebrow="Connected aftercare"
         title="Service requests & work records"
         description="Request care for a vehicle, approve a clear quote, and keep completed work attached to its history."
+        actions={
+          <Link to="/services" className={primaryButton}>
+            <Search className="h-4 w-4" /> Find a provider
+          </Link>
+        }
       />
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <Metric
+
+      <StatRow className={inbox.length ? "" : "lg:grid-cols-3"}>
+        <StatTile
           icon={<ClipboardList />}
           label="Requests"
-          value={customer.data?.length ?? 0}
-          detail="Your care journey"
+          value={mine.length}
+          hint="Your care journey"
+          loading={customer.isLoading}
         />
-        <Metric
+        <StatTile
           icon={<CalendarDays />}
           label="Next step"
-          value={customer.data?.some((x) => x.status === "quoted") ? "Quote ready" : "All clear"}
-          detail="Only you approve a quote"
+          value={quoteReady ? "Quote ready" : "All clear"}
+          hint="Only you approve a quote"
+          tone={quoteReady ? "ink" : "default"}
+          loading={customer.isLoading}
         />
-        <Metric
+        <StatTile
           icon={<Receipt />}
           label="Work records"
-          value={customer.data?.filter((x) => x.receipt_number).length ?? 0}
-          detail="Receipts linked to vehicles"
+          value={mine.filter((x) => x.receipt_number).length}
+          hint="Receipts linked to vehicles"
+          loading={customer.isLoading}
         />
-      </section>
-      <section className="mt-10">
-        <Title
-          eyebrow="Customer workspace"
+        {inbox.length > 0 && (
+          <StatTile
+            icon={<Inbox />}
+            label="Provider inbox"
+            value={inbox.filter((b) => b.status !== "completed").length}
+            hint="Open jobs for your business"
+          />
+        )}
+      </StatRow>
+
+      {quoteReady && (
+        <NextStepCard
+          icon={<Receipt />}
+          title="A quote is waiting for you"
+          body="Check the price and scope below. Work only starts after you approve it."
+        />
+      )}
+
+      <section>
+        <SectionHeading
+          kicker="Customer workspace"
           title="My service requests"
           description="Every request stays tied to the vehicle you selected from My Garage."
         />
-        {customer.isError ? (
-          <Error />
-        ) : customer.data?.length ? (
-          <div className="mt-5 grid gap-4">
-            {customer.data.map((b) => (
-              <BookingCard key={b.id} booking={b} footer={action(b)} />
-            ))}
+        {customer.isLoading ? (
+          <ListSkeleton rows={2} className="h-44" />
+        ) : customer.isError ? (
+          <ErrorNotice
+            title="We could not load your service requests"
+            message="Refresh to retry."
+            onRetry={() => void customer.refetch()}
+          />
+        ) : mine.length ? (
+          <div className="space-y-6">
+            {needsMe.length > 0 && (
+              <Group label="Needs your action" count={needsMe.length}>
+                {needsMe.map((b) => (
+                  <BookingCard key={b.id} booking={b} footer={action(b)} highlight />
+                ))}
+              </Group>
+            )}
+            {ongoing.length > 0 && (
+              <Group label="In progress" count={ongoing.length}>
+                {ongoing.map((b) => (
+                  <BookingCard key={b.id} booking={b} footer={action(b)} />
+                ))}
+              </Group>
+            )}
+            {finished.length > 0 && (
+              <Group label="Completed" count={finished.length}>
+                {finished.map((b) => (
+                  <BookingCard key={b.id} booking={b} footer={action(b)} />
+                ))}
+              </Group>
+            )}
           </div>
         ) : (
-          <div className="mt-5">
-            <EmptyState
-              icon={<ClipboardList />}
-              title="No service requests yet"
-              description="Choose a garage, mechanic or inspector and attach a vehicle to begin."
-              actionLabel="Find a provider"
-              actionTo="/services"
-            />
-          </div>
+          <EmptyState
+            icon={<ClipboardList />}
+            title="No service requests yet"
+            description="Choose a garage, mechanic or inspector and attach a vehicle to begin."
+            actionLabel="Find a provider"
+            actionTo="/services"
+          />
         )}
       </section>
-      {provider.data?.length ? (
-        <section className="mt-12">
-          <Title
-            eyebrow="Provider workspace"
+
+      {inbox.length ? (
+        <section className="pt-4">
+          <SectionHeading
+            kicker="Provider workspace"
             title="Booking inbox"
             description="Move work forward in a clear sequence: quote, customer approval, appointment and receipt."
           />
-          <div className="mt-5 grid gap-4">
-            {provider.data.map((b) => (
+          <div className="grid gap-3">
+            {inbox.map((b) => (
               <BookingCard key={b.id} booking={b} footer={action(b, true)} />
             ))}
           </div>
         </section>
       ) : null}
-      <section className="app-surface mt-12 p-5 sm:p-6">
+
+      <section className="rounded-3xl border border-border bg-card p-5 sm:p-6">
         <div className="flex gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-muted text-ac-accent">
             <Building2 className="h-5 w-5" />
           </span>
           <div>
-            <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-              Provider activation
-            </p>
-            <h2 className="mt-1 font-display text-lg font-bold">Represent a listed business</h2>
+            <p className="brand-kicker text-muted-foreground">Provider activation</p>
+            <h2 className="mt-1 text-lg font-bold">Represent a listed business</h2>
             <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               An administrator must approve the request before the account can access its booking
               inbox.
             </p>
           </div>
         </div>
-        <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_1.5fr_auto]">
+        <div className="mt-5 grid gap-3 md:grid-cols-[1fr_1.5fr_auto]">
           <select
-            className="h-11 rounded-xl border bg-background px-3 text-sm"
+            className="h-11 min-w-0 rounded-xl border border-input bg-background px-3 text-sm"
             value={claimProviderId}
             onChange={(e) => setClaimProviderId(e.target.value)}
+            aria-label="Choose business"
           >
             <option value="">Choose business</option>
             {available.data?.map((x) => (
@@ -360,12 +437,14 @@ function ServiceBookingsPage() {
             ))}
           </select>
           <Input
+            className="h-11"
             value={claimNote}
             onChange={(e) => setClaimNote(e.target.value)}
             placeholder="Your role and contact detail for verification"
           />
           <Button
-            className="h-11"
+            variant="outline"
+            className="h-11 rounded-full px-5"
             disabled={claim.isPending || !claimProviderId}
             onClick={() => claim.mutate()}
           >
@@ -373,119 +452,156 @@ function ServiceBookingsPage() {
           </Button>
         </div>
       </section>
-      {review && (
-        <section className="app-surface mt-6 p-5">
-          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-            Completed work
-          </p>
-          <h2 className="mt-1 font-display text-lg font-bold">
-            Review {review.service_providers?.name ?? "provider"}
-          </h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {[1, 2, 3, 4, 5].map((v) => (
-              <Button
-                key={v}
-                size="sm"
-                variant={rating === v ? "default" : "outline"}
-                onClick={() => setRating(v)}
-              >
-                <Star className="mr-1 h-3.5 w-3.5" />
-                {v}
-              </Button>
-            ))}
-          </div>
-          <Textarea
-            className="mt-3"
-            value={reviewComment}
-            onChange={(e) => setReviewComment(e.target.value)}
-            placeholder="What was useful? Keep it factual."
-          />
-          <div className="mt-3 flex gap-2">
-            <Button variant="outline" onClick={() => setReviewFor(null)}>
-              Cancel
-            </Button>
-            <Button disabled={submit.isPending} onClick={() => submit.mutate(review)}>
-              Submit review
-            </Button>
-          </div>
-        </section>
-      )}
+
+      <Dialog open={!!review} onOpenChange={(o) => !o && setReviewFor(null)}>
+        <DialogContent className="rounded-3xl sm:max-w-lg">
+          {review && (
+            <>
+              <DialogHeader>
+                <p className="brand-kicker text-muted-foreground">Completed work</p>
+                <DialogTitle className="font-brand text-2xl">
+                  Review {review.service_providers?.name ?? "provider"}
+                </DialogTitle>
+                <DialogDescription>{review.service_type}</DialogDescription>
+              </DialogHeader>
+              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Rating">
+                {[1, 2, 3, 4, 5].map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    role="radio"
+                    aria-checked={rating === v}
+                    onClick={() => setRating(v)}
+                    className={cn(
+                      "inline-flex h-11 min-w-11 items-center justify-center gap-1 rounded-full border px-3 text-sm font-bold transition",
+                      rating === v
+                        ? "border-transparent bg-ac-accent text-ac-ink"
+                        : "border-border bg-card hover:bg-muted",
+                    )}
+                  >
+                    <Star className="h-3.5 w-3.5" />
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <Textarea
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="What was useful? Keep it factual."
+              />
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <Button
+                  variant="outline"
+                  className="min-h-11 rounded-full"
+                  onClick={() => setReviewFor(null)}
+                >
+                  Cancel
+                </Button>
+                <button
+                  type="button"
+                  className={primaryButton}
+                  disabled={submit.isPending}
+                  onClick={() => submit.mutate(review)}
+                >
+                  Submit review
+                </button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }
-function Metric({
-  icon,
+
+function Group({
   label,
-  value,
-  detail,
+  count,
+  children,
 }: {
-  icon: React.ReactNode;
   label: string;
-  value: string | number;
-  detail: string;
-}) {
-  return (
-    <article className="app-surface p-4">
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary [&_svg]:h-5 [&_svg]:w-5">
-        {icon}
-      </span>
-      <p className="mt-4 text-xs font-bold uppercase tracking-[.14em] text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 font-display text-xl font-bold">{value}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{detail}</p>
-    </article>
-  );
-}
-function Title({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
+  count: number;
+  children: React.ReactNode;
 }) {
   return (
     <div>
-      <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">{eyebrow}</p>
-      <h2 className="mt-1 font-display text-2xl font-bold">{title}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      <p className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground">
+        {label}
+        <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+          {count}
+        </span>
+      </p>
+      <div className="grid gap-3">{children}</div>
     </div>
   );
 }
-function Error() {
-  return (
-    <p className="mt-5 rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-      We could not load your service requests. Refresh to retry.
-    </p>
-  );
-}
-function BookingCard({ booking, footer }: { booking: Booking; footer: React.ReactNode }) {
+
+const BOOKING_STEPS = ["requested", "quoted", "approved", "confirmed", "in_progress", "completed"];
+const BOOKING_STEP_LABEL: Record<string, string> = {
+  requested: "Requested",
+  quoted: "Quoted",
+  approved: "Approved",
+  confirmed: "Booked",
+  in_progress: "In work",
+  completed: "Done",
+};
+
+function BookingCard({
+  booking,
+  footer,
+  highlight,
+}: {
+  booking: Booking;
+  footer: React.ReactNode;
+  highlight?: boolean;
+}) {
   const car = booking.garage_vehicles;
   const carLabel = car
     ? `${car.year ?? ""} ${car.make_name} ${car.model_name ?? ""}`.trim()
     : "Vehicle not available";
+  const stepIdx = BOOKING_STEPS.indexOf(booking.status);
   return (
-    <article className="app-surface p-5 sm:p-6">
+    <article
+      className={cn(
+        "rounded-3xl border bg-card p-5 sm:p-6",
+        highlight ? "border-ac-accent/60" : "border-border",
+      )}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[.14em] text-primary">
-            {booking.status.replaceAll("_", " ")}
-          </p>
-          <h3 className="mt-1 font-display text-xl font-bold">{booking.service_type}</h3>
+        <div className="min-w-0">
+          <p className="brand-kicker text-ac-accent">{booking.status.replaceAll("_", " ")}</p>
+          <h3 className="font-brand mt-1.5 text-2xl">{booking.service_type}</h3>
           <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-            <Wrench className="h-4 w-4 text-primary" />
-            {booking.service_providers?.name ?? "Service provider"} · {carLabel}
+            <Wrench className="h-4 w-4 shrink-0 text-ac-accent" />
+            <span className="min-w-0">
+              {booking.service_providers?.name ?? "Service provider"} · {carLabel}
+            </span>
           </p>
         </div>
         {booking.quoted_amount != null && (
-          <strong className="rounded-xl bg-primary/10 px-3 py-2 text-sm text-primary">
+          <strong className="font-brand shrink-0 self-start rounded-2xl bg-ac-cream px-3 py-2 text-lg text-ac-ink">
             {booking.currency} {Number(booking.quoted_amount).toLocaleString()}
           </strong>
         )}
       </div>
-      <div className="mt-5 grid gap-3 border-t pt-4 text-sm text-muted-foreground sm:grid-cols-2">
+      {stepIdx >= 0 && (
+        <ol className="mt-4 grid grid-cols-6 gap-1" aria-label="Booking progress">
+          {BOOKING_STEPS.map((s, i) => (
+            <li key={s} className="min-w-0">
+              <div className={cn("h-1.5 rounded-full", i <= stepIdx ? "bg-ac-accent" : "bg-muted")} />
+              <p
+                className={cn(
+                  "mt-1 hidden truncate text-[10px] font-semibold sm:block",
+                  i <= stepIdx ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {BOOKING_STEP_LABEL[s]}
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
+      <div className="mt-5 grid gap-3 border-t border-border pt-4 text-sm text-muted-foreground sm:grid-cols-2">
         {booking.requested_for && (
           <p>
             <b className="text-foreground">Requested:</b>{" "}
@@ -493,8 +609,8 @@ function BookingCard({ booking, footer }: { booking: Booking; footer: React.Reac
           </p>
         )}
         {booking.receipt_number && (
-          <p className="inline-flex items-center gap-2 font-semibold text-primary">
-            <Receipt className="h-4 w-4" />
+          <p className="inline-flex items-center gap-2 font-semibold text-foreground">
+            <Receipt className="h-4 w-4 text-ac-accent" />
             Receipt {booking.receipt_number}
           </p>
         )}
@@ -509,8 +625,11 @@ function BookingCard({ booking, footer }: { booking: Booking; footer: React.Reac
           </p>
         )}
         {booking.completed_notes && (
-          <p>
-            <b className="text-foreground">Completion:</b> {booking.completed_notes}
+          <p className="inline-flex items-start gap-1.5">
+            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            <span>
+              <b className="text-foreground">Completion:</b> {booking.completed_notes}
+            </span>
           </p>
         )}
       </div>

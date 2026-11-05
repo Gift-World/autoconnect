@@ -14,6 +14,7 @@ import {
   Sparkles,
   Gavel,
   ArrowRightLeft,
+  BadgeCheck,
 } from "lucide-react";
 import { DashboardShell } from "@/components/layout/DashboardShell";
 
@@ -74,34 +75,39 @@ function SellerLayout() {
   return (
     <DashboardShell
       area="Seller workspace"
-      areaSubtitle="Inventory, inquiries & exports"
+      areaSubtitle="Listings, buyers and payouts"
       sections={[
         {
-          label: "Overview",
+          label: "Today",
           items: [
-            { to: "/seller", icon: <LayoutDashboard />, label: "Dashboard", exact: true },
-            { to: "/seller/trade-ins", icon: <ArrowRightLeft />, label: "Trade-In Leads" },
-            { to: "/seller/verify", icon: <ShieldCheck />, label: "Verify account" },
+            { to: "/seller", icon: <LayoutDashboard />, label: "Today", exact: true },
             { to: "/seller/inquiries", icon: <MessageSquare />, label: "Inquiries" },
+            { to: "/seller/transactions", icon: <Wallet />, label: "Transactions & payouts" },
           ],
         },
         {
-          label: "Inventory",
+          label: "Listings",
           items: [
             { to: "/seller/listings/new", icon: <Plus />, label: "New listing" },
-            { to: "/seller/auctions", icon: <Gavel />, label: "Auctions & flash offers" },
             { to: "/seller/yard", icon: <Store />, label: "My car yard" },
+            { to: "/seller/auctions", icon: <Gavel />, label: "Auctions & flash offers" },
             { to: "/seller/documents", icon: <FileBadge />, label: "Documents" },
             { to: "/seller/evidence", icon: <ShieldCheck />, label: "Vehicle evidence" },
             { to: "/seller/inspections", icon: <Wrench />, label: "Inspections" },
+          ],
+        },
+        {
+          label: "Leads",
+          items: [
+            { to: "/seller/trade-ins", icon: <ArrowRightLeft />, label: "Trade-in leads" },
             { to: "/seller/import-requests", icon: <Inbox />, label: "Import requests" },
           ],
         },
         {
-          label: "Finance & Growth",
+          label: "Account",
           items: [
-            { to: "/seller/transactions", icon: <Wallet />, label: "Transactions & payouts" },
-            { to: "/pricing", icon: <Sparkles />, label: "Seller Plans & Pricing" },
+            { to: "/seller/verify", icon: <BadgeCheck />, label: "Verify account" },
+            { to: "/pricing", icon: <Sparkles />, label: "Seller plans & pricing" },
           ],
         },
       ]}

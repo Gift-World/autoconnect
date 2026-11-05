@@ -1,8 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 import { DEMO_MODE, useAuth, type AppRole } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { User, Store, Warehouse, ShieldAlert, ArrowRight, Sparkles } from "lucide-react";
 
@@ -23,7 +20,7 @@ const PERSONAS: PersonaOption[] = [
     badge: "Buyer / Importer",
     desc: "Saved cars, vehicle inquiries & escrow milestones",
     icon: <User className="h-4 w-4" />,
-    color: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    color: "bg-ac-powder text-ac-ink",
     targetPath: "/account",
   },
   {
@@ -32,7 +29,7 @@ const PERSONAS: PersonaOption[] = [
     badge: "Verified Dealer",
     desc: "15 listings, export compliance, price management & chats",
     icon: <Store className="h-4 w-4" />,
-    color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+    color: "bg-ac-apricot text-ac-ink",
     targetPath: "/seller",
   },
   {
@@ -41,7 +38,7 @@ const PERSONAS: PersonaOption[] = [
     badge: "Yard Admin",
     desc: "42 bays, gate passes, QR scanning & physical intake",
     icon: <Warehouse className="h-4 w-4" />,
-    color: "bg-amber-500/10 text-amber-600 border-amber-500/20",
+    color: "bg-ac-stone text-ac-ink",
     targetPath: "/seller/yard",
   },
   {
@@ -50,7 +47,7 @@ const PERSONAS: PersonaOption[] = [
     badge: "Super Admin",
     desc: "Escrow approvals, dealer KYC verification & dispute console",
     icon: <ShieldAlert className="h-4 w-4" />,
-    color: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    color: "bg-ac-ink text-white",
     targetPath: "/admin",
   },
 ];
@@ -78,49 +75,44 @@ export function QuickDemoLogin({
   };
 
   return (
-    <Card className="border-primary/20 bg-gradient-to-b from-primary/5 via-card to-card shadow-sm">
-      <CardContent className="p-5">
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-sm">{title}</h3>
-        </div>
-        <p className="text-xs text-muted-foreground mb-4">{subtitle}</p>
+    <section
+      aria-label={title}
+      className="rounded-3xl border border-dashed border-border bg-muted/40 p-4 sm:p-5"
+    >
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-4 w-4 text-ac-accent" />
+        <h3 className="text-sm font-bold text-foreground">{title}</h3>
+      </div>
+      <p className="mt-1 text-xs leading-5 text-muted-foreground">{subtitle}</p>
 
-        <div className="grid gap-2.5 sm:grid-cols-2">
-          {PERSONAS.map((p) => {
-            const isSelected = activeRole === p.role;
-            return (
-              <button
-                key={p.role}
-                type="button"
-                onClick={() => handleSelect(p)}
-                className={`flex flex-col text-left p-3 rounded-lg border transition-all hover:border-primary/50 hover:bg-muted/60 ${
-                  isSelected
-                    ? "border-primary bg-primary/5 ring-1 ring-primary/30"
-                    : "border-border/70 bg-card"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-md border ${p.color}`}>{p.icon}</div>
-                    <span className="font-medium text-xs text-foreground">{p.name}</span>
-                  </div>
-                  <Badge variant="outline" className="text-[10px] py-0 px-1.5 font-normal">
-                    {p.badge}
-                  </Badge>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
-                  {p.desc}
-                </p>
-                <div className="mt-2 flex items-center justify-end text-[11px] font-medium text-primary">
-                  <span>Enter as {p.badge}</span>
-                  <ArrowRight className="h-3 w-3 ml-1" />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        {PERSONAS.map((p) => {
+          const isSelected = activeRole === p.role;
+          return (
+            <button
+              key={p.role}
+              type="button"
+              onClick={() => handleSelect(p)}
+              aria-pressed={isSelected}
+              className={`flex min-h-14 items-start gap-3 rounded-2xl border p-2.5 text-left transition hover:border-foreground/40 ${
+                isSelected ? "border-foreground bg-card ring-1 ring-foreground" : "border-border bg-card"
+              }`}
+            >
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${p.color}`}>
+                {p.icon}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-xs font-bold text-foreground">{p.name}</span>
+                <span className="block text-[11px] font-semibold text-foreground/70">
+                  Enter as {p.badge}
+                </span>
+                <span className="block text-[11px] leading-4 text-muted-foreground">{p.desc}</span>
+              </span>
+              <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 }

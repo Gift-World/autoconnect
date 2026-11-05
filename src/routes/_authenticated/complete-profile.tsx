@@ -3,11 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ShoppingCart, Store, Check, Loader2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -18,6 +16,7 @@ import {
 import { COUNTRIES } from "@/lib/countries";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { primaryButton } from "@/components/account/dashboard-utils";
 
 export const Route = createFileRoute("/_authenticated/complete-profile")({
   head: () => ({ meta: [{ title: "Complete your profile — AutoConnect" }] }),
@@ -117,30 +116,49 @@ function CompleteProfilePage() {
 
   if (authLoading || !user) {
     return (
-      <div className="mx-auto flex w-full max-w-[420px] items-center px-4 py-12">
-        <Card className="w-full shadow-lg">
-          <CardContent className="flex items-center justify-center gap-3 p-8 text-sm text-muted-foreground">
+      <div className="mx-auto flex w-full max-w-[520px] items-center px-4 py-12">
+        <div className="w-full rounded-[28px] border border-border bg-card">
+          <div className="flex items-center justify-center gap-3 p-8 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
             Loading your profile…
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
+  const steps = [
+    fullName.trim().length >= 2,
+    /^\+[1-9]\d{6,14}$/.test(phone),
+    !!country && city.trim().length >= 2,
+    role !== null,
+  ];
+  const doneSteps = steps.filter(Boolean).length;
+
   return (
-    <div className="mx-auto flex w-full max-w-[420px] items-center px-4 py-12">
-      <Card className="w-full shadow-lg">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl">Complete your profile</CardTitle>
-          <p className="text-sm text-muted-foreground">Tell us a bit about you to get started.</p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
+    <div className="mx-auto w-full max-w-[520px] px-4 py-8 sm:py-12">
+      <div className="overflow-hidden rounded-[28px] border border-border bg-card sm:rounded-[36px]">
+        <div className="relative overflow-hidden bg-ac-ink p-6 text-white sm:p-8">
+          <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-ac-accent/25 blur-3xl" />
+          <p className="brand-kicker relative text-ac-accent">Welcome to AutoConnect</p>
+          <h1 className="font-brand relative mt-3 text-3xl sm:text-4xl">Complete your profile</h1>
+          <p className="relative mt-2 text-sm text-white/70">Tell us a bit about you to get started.</p>
+          <div className="relative mt-5 grid grid-cols-4 gap-1.5" aria-label={`${doneSteps} of 4 done`}>
+            {steps.map((done, i) => (
+              <span
+                key={i}
+                className={`h-1.5 rounded-full transition-colors ${done ? "bg-ac-accent" : "bg-white/15"}`}
+              />
+            ))}
+          </div>
+        </div>
+        <div className="p-5 sm:p-8">
+          <form onSubmit={onSubmit} className="space-y-5">
             <div className="space-y-1.5">
               <Label htmlFor="fullName">Full name</Label>
               <Input
                 id="fullName"
+                className="h-11"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
@@ -151,6 +169,7 @@ function CompleteProfilePage() {
               <Label htmlFor="phone">Phone (international)</Label>
               <Input
                 id="phone"
+                className="h-11"
                 placeholder="+254712345678"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -162,12 +181,13 @@ function CompleteProfilePage() {
               <Label htmlFor="whatsapp">WhatsApp (optional)</Label>
               <Input
                 id="whatsapp"
+                className="h-11"
                 placeholder="+254712345678"
                 value={whatsappSame ? phone : whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 disabled={whatsappSame}
               />
-              <label className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+              <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-muted-foreground">
                 <Checkbox
                   checked={whatsappSame}
                   onCheckedChange={(v) => setWhatsappSame(Boolean(v))}
@@ -180,7 +200,7 @@ function CompleteProfilePage() {
               <div className="space-y-1.5">
                 <Label htmlFor="country">Country</Label>
                 <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger id="country">
+                  <SelectTrigger id="country" className="h-11">
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent>
@@ -194,13 +214,19 @@ function CompleteProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="city">City</Label>
-                <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
+                <Input
+                  id="city"
+                  className="h-11"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  required
+                />
               </div>
             </div>
 
             <div>
               <Label className="mb-2 block">I want to…</Label>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3">
                 <RoleCard
                   active={role === "buyer"}
                   onClick={() => setRole("buyer")}
@@ -217,10 +243,11 @@ function CompleteProfilePage() {
             </div>
 
             {role === "seller" && (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 rounded-2xl bg-muted/50 p-4">
                 <Label htmlFor="biz">Business / Dealership name (optional)</Label>
                 <Input
                   id="biz"
+                  className="h-11 bg-background"
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                 />
@@ -230,13 +257,17 @@ function CompleteProfilePage() {
               </div>
             )}
 
-            <Button type="submit" disabled={submitting || !canSubmit} className="w-full">
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <button
+              type="submit"
+              disabled={submitting || !canSubmit}
+              className={`${primaryButton} h-12 w-full`}
+            >
+              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
               {profile?.full_name ? "Save Profile" : "Complete Setup"}
-            </Button>
+            </button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
@@ -256,25 +287,26 @@ function RoleCard({
     <button
       type="button"
       onClick={onClick}
-      className={`relative rounded-lg border p-4 text-left transition-all ${
+      aria-pressed={active}
+      className={`relative min-h-[96px] rounded-2xl border p-4 text-left transition ${
         active
-          ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-          : "border-border bg-card hover:border-primary/40"
+          ? "border-ac-accent bg-ac-accent/10 ring-2 ring-ac-accent/25"
+          : "border-border bg-card hover:border-ac-accent/50"
       }`}
     >
       {active && (
-        <span className="absolute right-2 top-2 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground">
+        <span className="absolute right-2.5 top-2.5 grid h-5 w-5 place-items-center rounded-full bg-ac-accent text-ac-ink">
           <Check className="h-3 w-3" />
         </span>
       )}
       <div
-        className={`mb-2 grid h-9 w-9 place-items-center rounded-md ${
-          active ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+        className={`mb-2 grid h-10 w-10 place-items-center rounded-xl ${
+          active ? "bg-ac-ink text-ac-accent" : "bg-muted text-foreground"
         }`}
       >
         {icon}
       </div>
-      <p className="text-sm font-semibold">{title}</p>
+      <p className="text-sm font-bold">{title}</p>
     </button>
   );
 }

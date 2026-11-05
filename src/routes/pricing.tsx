@@ -1,19 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  Check,
-  Sparkles,
-  Zap,
-  Building2,
-  ShieldCheck,
-  ArrowRight,
-  HelpCircle,
-  Video,
-  BarChart3,
-  Globe,
-} from "lucide-react";
+import { Check, Sparkles, Zap, Building2, ShieldCheck, ArrowRight, Car, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({ meta: [{ title: "Seller Pricing & Subscription Plans — AutoConnect" }] }),
@@ -58,9 +47,9 @@ const TIERS = [
     popular: true,
     features: [
       "Unlimited active vehicle listings",
-      "✨ 'Featured' badge & top search placement",
-      "📹 60-Second Walk-Around Video Uploads",
-      "📊 Advanced lead & inquiry analytics",
+      "'Featured' badge & top search placement",
+      "60-Second Walk-Around Video Uploads",
+      "Advanced lead & inquiry analytics",
       "Verified Seller green trust badge",
       "Priority customer concierge support",
     ],
@@ -76,16 +65,18 @@ const TIERS = [
     popular: false,
     features: [
       "Everything included in Pro Dealer",
-      "🏢 Dedicated Car Yard Showroom page (/yards/slug)",
-      "🚢 Direct Japan & Global Import Tracking for customers",
-      "📁 Bulk CSV inventory inventory import & sync",
-      "⚡ Custom API integration & CRM webhooks",
+      "Dedicated Car Yard Showroom page (/yards/slug)",
+      "Direct Japan & Global Import Tracking for customers",
+      "Bulk CSV inventory import & sync",
+      "Custom API integration & CRM webhooks",
       "Dedicated account manager & yard branding",
     ],
     cta: "Contact Enterprise Sales",
     badge: "Maximum Visibility",
   },
 ];
+
+const TIER_ICONS = { free: Car, pro: Zap, enterprise: Building2 } as const;
 
 function PricingPage() {
   const { formatPrice } = useCurrency();
@@ -110,89 +101,136 @@ function PricingPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6 space-y-12">
-      {/* Top Hero Section */}
-      <div className="text-center space-y-3 max-w-2xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/10 text-teal-400 border border-teal-500/20 text-xs font-mono font-bold">
-          <Zap className="h-3.5 w-3.5" /> SELLER MONETIZATION & DEALER PLANS
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">
-          Sell More Cars with <span className="text-teal-500">AutoConnect Pro</span>
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Transparent, high-ROI plans built for private sellers, independent auto brokers, and
-          premier car dealerships across Kenya and global import markets.
-        </p>
-      </div>
+    <main className="bg-background text-foreground">
+      <div className="mx-auto max-w-[1360px] px-4 py-14 sm:px-6 sm:py-20">
+        {/* Header */}
+        <header className="mx-auto max-w-3xl text-center">
+          <p className="brand-kicker text-muted-foreground">Seller monetization & dealer plans</p>
+          <h1 className="font-brand mt-4 text-4xl sm:text-6xl">
+            Sell more cars with <span className="text-ac-accent">AutoConnect Pro.</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            Transparent, high-ROI plans built for private sellers, independent auto brokers, and
+            premier car dealerships across Kenya and global import markets.
+          </p>
+        </header>
 
-      {/* 3 Pricing Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-        {TIERS.map((tier) => (
-          <div
-            key={tier.id}
-            className={`relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 ${
-              tier.popular
-                ? "border-2 border-teal-500 bg-gradient-to-b from-slate-900 via-slate-900 to-teal-950/40 shadow-2xl shadow-teal-500/10 scale-105"
-                : "border border-border bg-card shadow-sm hover:border-teal-500/40"
-            }`}
-          >
-            {tier.popular && (
-              <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <Badge className="bg-teal-500 text-slate-950 font-black text-xs px-3 py-0.5 shadow-md">
-                  ★ MOST POPULAR FOR DEALERS
-                </Badge>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-bold text-foreground">{tier.name}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{tier.tagline}</p>
-              </div>
-
-              {/* Price display */}
-              <div className="pt-2">
-                {tier.priceKES === 0 ? (
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-foreground">Free</span>
-                    <span className="text-xs text-muted-foreground">forever</span>
-                  </div>
-                ) : (
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-black text-teal-400 font-mono">
-                      {formatPrice(tier.priceKES)}
-                    </span>
-                    <span className="text-xs text-muted-foreground">/ month</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Features List */}
-              <ul className="space-y-2.5 pt-3 border-t border-border/80 text-xs">
-                {tier.features.map((f, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-slate-300">
-                    <Check className="h-4 w-4 text-teal-400 shrink-0 mt-0.5" />
-                    <span>{f}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="pt-6">
-              <Button
-                onClick={() => handleUpgradeClick(tier)}
-                className={`w-full h-11 rounded-xl font-bold text-xs gap-1.5 shadow-md ${
+        {/* Plan cards */}
+        <div className="mt-12 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:items-stretch">
+          {TIERS.map((tier) => {
+            const Icon = TIER_ICONS[tier.id as keyof typeof TIER_ICONS];
+            return (
+              <article
+                key={tier.id}
+                aria-label={tier.name}
+                className={cn(
+                  "relative flex flex-col rounded-[28px] p-6 sm:p-8",
                   tier.popular
-                    ? "bg-teal-500 text-slate-950 hover:bg-teal-400"
-                    : "bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white"
-                }`}
+                    ? "bg-ac-ink text-white shadow-2xl ring-2 ring-ac-accent lg:-my-3 lg:py-11"
+                    : "border border-border bg-card text-foreground",
+                )}
               >
-                <span>{tier.cta}</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        ))}
+                <div className="flex items-start justify-between gap-3">
+                  <span
+                    className={cn(
+                      "grid h-12 w-12 place-items-center rounded-2xl",
+                      tier.popular ? "bg-ac-accent text-ac-ink" : "bg-muted text-foreground",
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-bold",
+                      tier.popular
+                        ? "bg-ac-accent text-ac-ink"
+                        : "border border-border text-muted-foreground",
+                    )}
+                  >
+                    {tier.popular ? "★ Most popular for dealers" : tier.badge}
+                  </span>
+                </div>
+
+                <h2 className="mt-6 text-2xl font-extrabold tracking-tight">{tier.name}</h2>
+                <p className={cn("mt-1 text-sm", tier.popular ? "text-white/65" : "text-muted-foreground")}>
+                  {tier.tagline}
+                </p>
+
+                <div className="mt-6 flex items-baseline gap-2">
+                  {tier.priceKES === 0 ? (
+                    <>
+                      <span className="font-brand text-5xl">Free</span>
+                      <span className={cn("text-sm", tier.popular ? "text-white/60" : "text-muted-foreground")}>
+                        forever
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-brand text-4xl sm:text-5xl">{formatPrice(tier.priceKES)}</span>
+                      <span className={cn("text-sm", tier.popular ? "text-white/60" : "text-muted-foreground")}>
+                        / month
+                      </span>
+                    </>
+                  )}
+                </div>
+
+                <Button
+                  onClick={() => handleUpgradeClick(tier)}
+                  className={cn(
+                    "mt-6 h-12 w-full gap-2 rounded-full text-sm font-extrabold",
+                    tier.popular
+                      ? "bg-ac-accent text-ac-ink hover:bg-ac-accent hover:brightness-110"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90",
+                  )}
+                >
+                  {tier.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+
+                <ul
+                  className={cn(
+                    "mt-7 space-y-3 border-t pt-6 text-sm",
+                    tier.popular ? "border-white/15" : "border-border",
+                  )}
+                >
+                  {tier.features.map((f) => (
+                    <li key={f} className="flex items-start gap-3">
+                      <span
+                        className={cn(
+                          "mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full",
+                          tier.popular ? "bg-ac-accent/20 text-ac-accent" : "bg-muted text-foreground",
+                        )}
+                      >
+                        <Check className="h-3 w-3" />
+                      </span>
+                      <span className={tier.popular ? "text-white/85" : "text-foreground/85"}>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            );
+          })}
+        </div>
+
+        {/* Reassurance links */}
+        <div className="mx-auto mt-14 grid max-w-3xl gap-3 sm:grid-cols-2">
+          <Link
+            to="/how-payments-work"
+            className="flex min-h-14 items-center gap-3 rounded-full border border-border bg-card px-5 text-sm font-semibold hover:border-foreground/40"
+          >
+            <ShieldCheck className="h-4 w-4 text-ac-accent" />
+            How buyer payments work
+            <ArrowRight className="ml-auto h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            to="/support"
+            className="flex min-h-14 items-center gap-3 rounded-full border border-border bg-card px-5 text-sm font-semibold hover:border-foreground/40"
+          >
+            <LifeBuoy className="h-4 w-4 text-ac-accent" />
+            Questions about a plan? Get support
+            <ArrowRight className="ml-auto h-4 w-4 text-muted-foreground" />
+          </Link>
+        </div>
       </div>
 
       {/* Upgrade Request Dialog */}
@@ -200,41 +238,43 @@ function PricingPage() {
         <DialogContent className="max-w-md rounded-3xl border-border">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-teal-400" />
+              <Zap className="h-5 w-5 text-ac-accent" />
               Upgrade to {selectedTier.name}
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription>
               Fill in your dealership details to activate your seller privileges.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleUpgradeSubmit} className="space-y-3.5 py-2">
+          <form onSubmit={handleUpgradeSubmit} className="space-y-4 py-2">
             <div className="space-y-1.5">
-              <Label className="text-xs">Dealership / Business Name</Label>
+              <Label htmlFor="upgrade-business">Dealership / Business Name</Label>
               <Input
+                id="upgrade-business"
                 value={dealershipName}
                 onChange={(e) => setDealershipName(e.target.value)}
                 placeholder="e.g. Apex Auto Hub Nairobi"
-                className="h-11 rounded-xl text-xs"
+                className="h-11 rounded-xl"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">Phone Number (WhatsApp)</Label>
+              <Label htmlFor="upgrade-phone">Phone Number (WhatsApp)</Label>
               <Input
+                id="upgrade-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+254 7XX XXX XXX"
-                className="h-11 rounded-xl text-xs font-mono"
+                className="h-11 rounded-xl font-mono"
                 required
               />
             </div>
 
-            <div className="p-3 rounded-2xl bg-teal-500/10 border border-teal-500/20 text-xs text-muted-foreground">
-              <p className="font-bold text-teal-400">Selected Plan: {selectedTier.name}</p>
-              <p className="text-[11px] mt-0.5">
+            <div className="rounded-2xl border border-border bg-muted/50 p-4 text-sm">
+              <p className="font-bold text-foreground">Selected Plan: {selectedTier.name}</p>
+              <p className="mt-0.5 text-muted-foreground">
                 Monthly investment:{" "}
                 {selectedTier.priceKES === 0 ? "Free" : formatPrice(selectedTier.priceKES)}
               </p>
@@ -242,13 +282,13 @@ function PricingPage() {
 
             <Button
               type="submit"
-              className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
+              className="h-12 w-full gap-2 rounded-full bg-ac-accent font-extrabold text-ac-ink hover:bg-ac-accent hover:brightness-110"
             >
               Submit Upgrade Application
             </Button>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </main>
   );
 }

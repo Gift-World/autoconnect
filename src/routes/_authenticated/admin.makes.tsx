@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, RefreshCw, Trash2, Download, ChevronDown, ChevronRight } from "lucide-react";
+import { Plus, RefreshCw, Trash2, Download, ChevronDown, ChevronRight, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -17,6 +16,18 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { getAllMakes, getModelsForMake } from "@/lib/nhtsa";
+import { PageHeader } from "@/components/layout/PageHeader";
+import {
+  AdminPage,
+  AdminPanel,
+  AdminToolbar,
+  QueueEmpty,
+  QueueError,
+  QueueSkeleton,
+  StatTile,
+  TAP,
+  TAP_ICON,
+} from "@/components/admin/AdminUI";
 
 export const Route = createFileRoute("/_authenticated/admin/makes")({
   head: () => ({ meta: [{ title: "Makes & Models — Admin — AutoConnect" }] }),
@@ -159,113 +170,145 @@ function AdminMakesPage() {
   const filteredMakes = term ? makes.filter((m) => m.name.toLowerCase().includes(term)) : makes;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">Makes &amp; models</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage the vehicle catalog. Sync from NHTSA vPIC to bulk-import.
-          </p>
-        </div>
-        <Dialog open={syncOpen} onOpenChange={setSyncOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Sync from NHTSA
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Sync makes from NHTSA vPIC</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              Imports up to 200 vehicle makes from the NHTSA public API. Existing makes are kept;
-              duplicates are skipped.
-            </p>
-            {syncProgress && <p className="text-sm">{syncProgress}</p>}
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSyncOpen(false)} disabled={syncing}>
-                Cancel
+    <AdminPage>
+      <PageHeader
+        eyebrow="Catalog"
+        title="Makes & models"
+        description="Manage the vehicle catalog. Sync from NHTSA vPIC to bulk-import."
+        actions={
+          <Dialog open={syncOpen} onOpenChange={setSyncOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" className={TAP}>
+                <Download className="h-4 w-4" /> Sync from NHTSA
               </Button>
-              <Button onClick={syncAllMakesFromNhtsa} disabled={syncing}>
-                {syncing ? "Syncing…" : "Sync now"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </header>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Sync makes from NHTSA vPIC</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Imports up to 200 vehicle makes from the NHTSA public API. Existing makes are kept;
+                duplicates are skipped.
+              </p>
+              {syncProgress && <p className="text-sm">{syncProgress}</p>}
+              <DialogFooter className="gap-2">
+                <Button
+                  variant="outline"
+                  className={TAP}
+                  onClick={() => setSyncOpen(false)}
+                  disabled={syncing}
+                >
+                  Cancel
+                </Button>
+                <Button className={TAP} onClick={syncAllMakesFromNhtsa} disabled={syncing}>
+                  {syncing ? "Syncing…" : "Sync now"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-3">
-        <Input
-          placeholder="Search makes…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="w-full sm:max-w-sm"
-        />
-        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-          <Input
-            placeholder="New make name"
-            value={newMake}
-            onChange={(e) => setNewMake(e.target.value)}
-            className="w-full sm:w-56"
-          />
-          <Button onClick={addMake} className="w-full sm:w-auto">
-            <Plus className="mr-1 h-4 w-4" /> Add
-          </Button>
-        </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatTile label="Makes" value={makes.length} loading={makesQuery.isLoading} />
+        <StatTile label="Models" value={models.length} loading={modelsQuery.isLoading} />
       </div>
 
-      <div className="rounded-lg border bg-card shadow-sm overflow-hidden">
+      <AdminToolbar
+        filters={
+          <form
+            className="flex min-w-0 flex-col gap-2 sm:flex-row"
+            onSubmit={(e) => {
+              e.preventDefault();
+              void addMake();
+            }}
+          >
+            <Input
+              aria-label="New make name"
+              placeholder="New make name"
+              value={newMake}
+              onChange={(e) => setNewMake(e.target.value)}
+              className="h-11 w-full rounded-full sm:w-56 lg:h-9 lg:pointer-coarse:h-11"
+            />
+            <Button type="submit" className={TAP}>
+              <Plus className="h-4 w-4" /> Add make
+            </Button>
+          </form>
+        }
+        search={q}
+        onSearch={setQ}
+        searchPlaceholder="Search makes…"
+      />
+
+      {makesQuery.isError && (
+        <QueueError>The catalog could not load. This is not an empty result.</QueueError>
+      )}
+
+      <AdminPanel>
         {makesQuery.isLoading ? (
-          <div className="p-6 text-muted-foreground">Loading…</div>
+          <QueueSkeleton rows={6} />
         ) : filteredMakes.length === 0 ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">No makes.</div>
+          <QueueEmpty
+            icon={<Tags />}
+            title="No makes"
+            description={
+              term
+                ? "No makes match your search."
+                : "Add a make above or sync the catalog from NHTSA."
+            }
+          />
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-border">
             {filteredMakes.map((m) => {
               const isOpen = !!expanded[m.id];
               const myModels = models.filter((mod) => mod.make_id === m.id);
               return (
                 <li key={m.id}>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3">
+                  <div className="flex items-center justify-between gap-2 px-2 py-1 sm:px-4">
                     <button
                       type="button"
+                      aria-expanded={isOpen}
                       onClick={() => setExpanded((e) => ({ ...e, [m.id]: !e[m.id] }))}
-                      className="flex flex-1 flex-wrap items-center gap-2 text-left hover:text-primary"
+                      className="flex min-h-12 min-w-0 flex-1 flex-wrap items-center gap-2 rounded-2xl px-2 text-left transition hover:text-primary"
                     >
                       {isOpen ? (
                         <ChevronDown className="h-4 w-4 shrink-0" />
                       ) : (
                         <ChevronRight className="h-4 w-4 shrink-0" />
                       )}
-                      <span className="font-medium">{m.name}</span>
-                      <Badge variant="outline" className="text-[10px] sm:text-xs">
+                      <span className="font-semibold">{m.name}</span>
+                      <Badge variant="outline" className="rounded-full text-[10px] sm:text-xs">
                         {m.api_source}
                       </Badge>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      <span className="whitespace-nowrap text-xs text-muted-foreground">
                         {myModels.length} models
                       </span>
                     </button>
-                    <div className="flex gap-1 self-end sm:self-auto shrink-0">
+                    <div className="flex shrink-0 gap-1">
                       <Button
                         size="sm"
                         variant="ghost"
+                        className={TAP_ICON}
                         onClick={() => syncModelsForMake(m)}
                         title="Sync models from NHTSA"
+                        aria-label={`Sync models for ${m.name} from NHTSA`}
                       >
                         <RefreshCw className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
+                        className={TAP_ICON}
                         onClick={() => deleteMake(m)}
                         title="Delete make"
+                        aria-label={`Delete ${m.name}`}
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
                   </div>
                   {isOpen && (
-                    <div className="border-t bg-muted/30 px-6 py-3">
+                    <div className="border-t border-border bg-muted/30 px-4 py-4 sm:px-6">
                       {myModels.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
                           No models yet. Use the sync button to fetch from NHTSA.
@@ -275,12 +318,15 @@ function AdminMakesPage() {
                           {myModels.map((mod) => (
                             <span
                               key={mod.id}
-                              className="group inline-flex items-center gap-1 rounded-full border bg-card px-3 py-1 text-xs"
+                              className="group inline-flex items-center gap-1 rounded-full border border-border bg-card py-1 pl-3 pr-1 text-xs"
                             >
                               {mod.name}
                               <button
+                                type="button"
                                 onClick={() => deleteModel(mod)}
-                                className="ml-1 opacity-0 transition-opacity group-hover:opacity-100"
+                                aria-label={`Remove ${mod.name}`}
+                                title="Remove model"
+                                className="grid h-7 w-7 place-items-center rounded-full opacity-70 transition hover:bg-destructive/10 focus-visible:opacity-100 group-hover:opacity-100 lg:opacity-0 lg:pointer-coarse:opacity-70"
                               >
                                 <Trash2 className="h-3 w-3 text-destructive" />
                               </button>
@@ -295,7 +341,7 @@ function AdminMakesPage() {
             })}
           </ul>
         )}
-      </div>
-    </div>
+      </AdminPanel>
+    </AdminPage>
   );
 }

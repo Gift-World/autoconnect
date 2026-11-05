@@ -1,20 +1,12 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import {
-  Star,
-  Gauge,
-  Fuel,
-  Settings2,
-  Eye,
-  ChevronLeft,
-  ChevronRight,
-  Scale,
-  Check,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, MapPin, Plane, Scale, Star } from "lucide-react";
 import { countryByCode } from "@/lib/countries";
 import { VehicleImage } from "@/components/VehicleImage";
+import { FavoriteButton } from "@/components/FavoriteButton";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import { useVehicleComparison } from "@/contexts/ComparisonContext";
+import { cn } from "@/lib/utils";
 
 export type CarCardData = {
   id: string;
@@ -34,30 +26,31 @@ export type CarCardData = {
   make_name?: string | null;
   model_name?: string | null;
   body_type?: string | null;
+  condition?: string | null;
+  is_sample?: boolean | null;
   car_images?: { image_url: string; is_primary?: boolean; sort_order?: number }[];
 };
 
-function formatPrice(price: number | string, currency: string) {
-  const n = typeof price === "string" ? Number(price) : price;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(n);
-  } catch {
-    return `${currency} ${n.toLocaleString()}`;
-  }
+function shortMileage(mileage: number, unit?: string | null) {
+  const n = Number(mileage);
+  const label = n >= 1000 ? `${Math.round(n / 1000).toLocaleString()}k` : n.toLocaleString();
+  return `${label} ${unit ?? "km"}`;
 }
 
+/**
+ * Airbnb-style listing card: big photo in a fixed 4:3 box, heart on the photo,
+ * title + 2–3 key facts, prominent price. Compare and quick view stay one tap away.
+ */
 export function CarCard({
   car,
   distanceKm,
   onQuickView,
+  priority = false,
 }: {
   car: CarCardData;
   distanceKm?: number;
   onQuickView?: (car: CarCardData) => void;
+  priority?: boolean;
 }) {
   const { formatPrice } = useCurrency();
   const { toggleCompare, isInComparison } = useVehicleComparison();
@@ -106,10 +99,24 @@ export function CarCard({
     });
   };
 
+  const facts = [
+    String(car.year),
+    car.mileage != null ? shortMileage(car.mileage, car.mileage_unit) : null,
+    car.transmission || car.fuel_type || null,
+  ].filter(Boolean) as string[];
+
+  const place = car.location_display || country?.name || car.country;
+
   return (
-    <div className="group relative block overflow-hidden rounded-2xl border border-border/80 bg-card shadow-card card-lift transition-[border-color,box-shadow,transform] duration-300 hover:border-teal-400/50 hover:shadow-xl">
-      <Link to="/cars/$id" params={{ id: car.id }} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-slate-900">
+    <article className="group relative min-w-0">
+      {/* Photo */}
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-muted">
+        <Link
+          to="/cars/$id"
+          params={{ id: car.id }}
+          className="absolute inset-0 block"
+          aria-label={`View ${car.title}`}
+        >
           <VehicleImage
             src={activeImg}
             alt={car.title}
@@ -117,159 +124,136 @@ export function CarCard({
             model={car.model_name}
             year={car.year}
             bodyType={car.body_type}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
           />
-          {/* gradient overlay */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+        </Link>
 
-          {/* top left: location pill */}
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10">
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur">
-              <span>{country?.flag ?? "🌐"}</span>
-              <span className="max-w-[120px] truncate">
-                {car.location_display || country?.name || car.country}
-              </span>
+        {/* Badges */}
+        <div className="pointer-events-none absolute left-3 top-3 z-10 flex flex-wrap gap-1.5">
+          {car.is_sample ? (
+            <span className="inline-flex items-center rounded-full bg-ac-ink/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm backdrop-blur">
+              Sample listing
             </span>
-            {car.available_for_export ? (
-              <span
-                className="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
-                style={{ background: "var(--export)" }}
-              >
-                Export
-              </span>
-            ) : null}
-          </div>
+          ) : null}
+          {car.featured ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-ac-accent px-2.5 py-1 text-[11px] font-bold text-ac-ink shadow-sm">
+              <Star className="h-3 w-3 fill-current" /> Featured
+            </span>
+          ) : null}
+          {car.available_for_export ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-ac-ink shadow-sm">
+              <Plane className="h-3 w-3" /> Export
+            </span>
+          ) : null}
+        </div>
 
-          {/* top right: featured star & compare button */}
-          <div className="absolute right-3 top-3 z-10 flex items-center gap-1.5">
+        {/* Heart */}
+        <FavoriteButton carId={car.id} className="absolute right-2 top-2 z-20" />
+
+        {/* Photo carousel controls (hover on desktop) */}
+        {images.length > 1 && (
+          <>
             <button
               type="button"
-              onClick={handleCompareClick}
-              className={`p-1.5 rounded-full backdrop-blur-md transition-all shadow-sm ${
-                isCompared
-                  ? "bg-accent text-accent-foreground font-bold ring-2 ring-accent"
-                  : "bg-black/60 hover:bg-black text-white/90 border border-white/20"
-              }`}
-              title={isCompared ? "Remove from comparison" : "Add to comparison"}
+              onClick={handlePrev}
+              className="absolute left-2 top-1/2 z-20 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-ac-ink opacity-0 shadow-sm transition group-hover:opacity-100 sm:grid"
+              aria-label="Previous photo"
             >
-              <Scale className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
-
-            {car.featured ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-[11px] font-bold text-accent-foreground shadow-sm">
-                <Star className="h-3 w-3 fill-current" /> Featured
-              </span>
-            ) : null}
-          </div>
-
-          {/* Multi-Photo Carousel Controls on Hover */}
-          {images.length > 1 && (
-            <div className="absolute inset-y-0 inset-x-2 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity z-20">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="p-1.5 rounded-full bg-black/75 hover:bg-black text-white border border-white/20 backdrop-blur-sm transition-transform active:scale-90"
-                aria-label="Previous photo"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="p-1.5 rounded-full bg-black/75 hover:bg-black text-white border border-white/20 backdrop-blur-sm transition-transform active:scale-90"
-                aria-label="Next photo"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          {/* Dot Indicator */}
-          {images.length > 1 && (
-            <div className="absolute bottom-11 left-1/2 -translate-x-1/2 flex items-center gap-1 z-10">
+            <button
+              type="button"
+              onClick={handleNext}
+              className="absolute right-2 top-1/2 z-20 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-ac-ink opacity-0 shadow-sm transition group-hover:opacity-100 sm:grid"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+            <div className="pointer-events-none absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1">
               {images.slice(0, 5).map((_, idx) => (
                 <span
                   key={idx}
-                  className={`h-1 rounded-full transition-all ${
-                    idx === imgIndex ? "w-3 bg-teal-400" : "w-1 bg-white/50"
-                  }`}
+                  className={cn(
+                    "h-1.5 rounded-full transition-all",
+                    idx === imgIndex ? "w-4 bg-white" : "w-1.5 bg-white/60",
+                  )}
                 />
               ))}
             </div>
-          )}
+          </>
+        )}
+      </div>
 
-          {/* bottom: price on image */}
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-3 text-white z-10">
-            <div className="min-w-0">
-              <p className="truncate text-base font-bold tabular drop-shadow-sm sm:text-lg">
-                {formatPrice(numericPrice)}
-              </p>
-              <p className="mt-0.5 truncate text-[11px] font-medium text-white/85">
-                {car.year} · {car.right_hand_drive ? "RHD" : "LHD"}
-                {typeof distanceKm === "number" && (
-                  <> · {distanceKm < 1 ? "<1" : Math.round(distanceKm)} km away</>
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Details */}
+      <div className="mt-3 flex items-start gap-2">
+        <Link to="/cars/$id" params={{ id: car.id }} className="min-w-0 flex-1">
+          <h3 className="line-clamp-1 text-[15px] font-bold text-foreground">{car.title}</h3>
+          <p className="mt-0.5 flex items-center gap-1 truncate text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">
+              {country?.flag ? `${country.flag} ` : ""}
+              {place}
+              {typeof distanceKm === "number" && (
+                <> · {distanceKm < 1 ? "<1" : Math.round(distanceKm)} km away</>
+              )}
+            </span>
+          </p>
+          <p className="mt-0.5 truncate text-sm capitalize text-muted-foreground">
+            {facts.join(" · ")}
+            {car.right_hand_drive != null && <> · {car.right_hand_drive ? "RHD" : "LHD"}</>}
+          </p>
+          <p className="mt-1.5 text-lg font-extrabold tabular-nums text-foreground">
+            {formatPrice(numericPrice)}
+          </p>
+        </Link>
 
-        <div className="p-4 sm:p-[18px]">
-          <h3 className="line-clamp-1 text-sm font-bold text-foreground">{car.title}</h3>
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-            {car.mileage != null && (
-              <span className="inline-flex items-center gap-1">
-                <Gauge className="h-3 w-3" />
-                <span className="tabular">
-                  {Number(car.mileage).toLocaleString()} {car.mileage_unit ?? "km"}
-                </span>
-              </span>
-            )}
-            {car.transmission && (
-              <span className="inline-flex items-center gap-1 capitalize">
-                <Settings2 className="h-3 w-3" />
-                {car.transmission}
-              </span>
-            )}
-            {car.fuel_type && (
-              <span className="inline-flex items-center gap-1 capitalize">
-                <Fuel className="h-3 w-3" />
-                {car.fuel_type}
-              </span>
-            )}
-          </div>
-        </div>
-      </Link>
-
-      {/* Quick View Button Footer Trigger */}
-      {onQuickView && (
-        <div className="px-4 pb-3 sm:px-[18px]">
+        <div className="flex shrink-0 flex-col gap-1">
           <button
             type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              onQuickView(car);
-            }}
-            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg bg-secondary/80 hover:bg-teal-500 hover:text-slate-950 text-xs font-semibold text-muted-foreground transition-all duration-200 border border-border"
+            onClick={handleCompareClick}
+            aria-pressed={isCompared}
+            className={cn(
+              "grid h-11 w-11 place-items-center rounded-full border transition",
+              isCompared
+                ? "border-ac-accent bg-ac-accent text-ac-ink"
+                : "border-border bg-card text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+            )}
+            title={isCompared ? "Remove from comparison" : "Add to comparison"}
+            aria-label={isCompared ? "Remove from comparison" : "Add to comparison"}
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Quick Specs & Inquiry</span>
+            <Scale className="h-4 w-4" />
           </button>
+          {onQuickView && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(car);
+              }}
+              className="grid h-11 w-11 place-items-center rounded-full border border-border bg-card text-muted-foreground transition hover:border-foreground/40 hover:text-foreground"
+              title="Quick specs & inquiry"
+              aria-label="Quick specs and inquiry"
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+    </article>
   );
 }
 
 /** Skeleton matching CarCard dimensions */
 export function CarCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-      <div className="aspect-[4/3] animate-pulse bg-muted" />
-      <div className="space-y-2 p-4">
-        <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+    <div aria-hidden>
+      <div className="aspect-[4/3] animate-pulse rounded-2xl bg-muted" />
+      <div className="mt-3 space-y-2">
+        <div className="h-4 w-3/4 animate-pulse rounded-full bg-muted" />
+        <div className="h-3 w-1/2 animate-pulse rounded-full bg-muted" />
+        <div className="h-5 w-1/3 animate-pulse rounded-full bg-muted" />
       </div>
     </div>
   );

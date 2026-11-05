@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 export function EmptyState({
   icon,
@@ -16,20 +16,21 @@ export function EmptyState({
   actionTo?: string;
 }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card/60 p-12 text-center">
-      <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full border border-border bg-muted text-muted-foreground [&_svg]:h-6 [&_svg]:w-6">
+    <div className="rounded-3xl border border-dashed border-border bg-card px-6 py-12 text-center sm:px-12">
+      <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-ac-cream text-ac-ink [&_svg]:h-6 [&_svg]:w-6">
         {icon}
       </div>
-      <p className="font-display text-base text-foreground">{title}</p>
+      <p className="text-lg font-extrabold tracking-tight text-foreground">{title}</p>
       {description && (
-        <p className="mx-auto mt-1.5 max-w-md text-sm leading-relaxed text-muted-foreground">
-          {description}
-        </p>
+        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
       )}
       {actionLabel && actionTo && (
-        <Button asChild className="mt-5">
-          <Link to={actionTo}>{actionLabel}</Link>
-        </Button>
+        <Link
+          to={actionTo}
+          className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-ac-ink px-5 text-sm font-bold text-white transition hover:gap-3 dark:bg-ac-accent dark:text-ac-ink"
+        >
+          {actionLabel} <ArrowRight className="h-4 w-4" />
+        </Link>
       )}
     </div>
   );

@@ -1,15 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Receipt, Printer, ShieldCheck, QrCode } from "lucide-react";
+import { Car, CheckCircle2, Clock, Receipt, Search, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DigitalReceiptModal,
   type TransactionReceiptData,
 } from "@/components/payments/DigitalReceiptModal";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/EmptyState";
+import { StatusPill } from "@/components/StatusPill";
+import { VehicleImage } from "@/components/VehicleImage";
+import {
+  ListSkeleton,
+  SectionHeading,
+  StatRow,
+  StatTile,
+} from "@/components/account/DashboardKit";
+import { primaryButton, formatMoney } from "@/components/account/dashboard-utils";
 
 export const Route = createFileRoute("/_authenticated/account/purchases")({
   component: Purchases,
@@ -24,17 +32,8 @@ type Row = {
   cars: { title: string; car_images: { image_url: string; is_primary: boolean }[] } | null;
 };
 
-function fmt(a: number, c: string) {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: c,
-      maximumFractionDigits: 0,
-    }).format(a);
-  } catch {
-    return `${c} ${a.toLocaleString()}`;
-  }
-}
+const fmt = formatMoney;
+const DONE = ["completed", "escrow_released", "funds_released", "released"];
 
 function Purchases() {
   const { user, profile } = useAuth();
@@ -108,109 +107,136 @@ function Purchases() {
     });
   };
 
+  const list = rows ?? [];
+  const inProgress = list.filter((r) => !DONE.includes(r.status));
+  const done = list.filter((r) => DONE.includes(r.status));
+
+  const renderRow = (r: Row) => {
+    const img =
+      r.cars?.car_images.find((i) => i.is_primary)?.image_url ?? r.cars?.car_images[0]?.image_url;
+    return (
+      <li
+        key={r.id}
+        className="overflow-hidden rounded-3xl border border-border bg-card transition hover:border-ac-accent/40"
+      >
+        <div className="grid gap-0 md:grid-cols-[220px_minmax(0,1fr)]">
+          <div className="aspect-[16/10] bg-muted md:aspect-auto md:h-full">
+            <VehicleImage src={img} alt={r.cars?.title ?? "Purchased vehicle"} />
+          </div>
+          <div className="flex min-w-0 flex-col gap-4 p-4 sm:p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-base font-bold text-foreground">{r.cars?.title}</p>
+                <p className="mt-0.5 break-all font-mono text-xs text-muted-foreground">
+                  Ref: {r.id} · {new Date(r.initiated_at).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="text-left sm:text-right">
+                <p className="font-brand text-2xl">
+                  {fmt(Number(r.display_total), r.display_currency)}
+                </p>
+                <StatusPill
+                  status={r.status}
+                  label={r.status.replace("_", " ")}
+                  className="mt-1 capitalize"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="mb-2 flex justify-between text-xs">
+                <span className="font-semibold text-foreground">Transaction progress</span>
+                <span className="text-muted-foreground">Vehicle handover</span>
+              </div>
+              <div className="h-2 w-full rounded-full bg-muted">
+                <div
+                  className="h-2 rounded-full bg-ac-accent"
+                  style={{ width: r.status === "escrow_secured" ? "30%" : "100%" }}
+                ></div>
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                <ShieldCheck className="mr-1 inline h-3 w-3 text-ac-accent" />
+                Status is shown from the transaction record. Payment protection terms are confirmed
+                only where evidence is available.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 border-t border-border pt-4">
+              <Link
+                to="/transactions/$id"
+                params={{ id: r.id }}
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ac-ink px-4 text-sm font-bold text-white transition hover:bg-ac-ink-soft sm:flex-none dark:bg-white dark:text-ac-ink"
+              >
+                Track payment
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleOpenReceipt(r)}
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted sm:flex-none"
+              >
+                <Receipt className="h-4 w-4" />
+                <span>Digital Receipt</span>
+              </button>
+              {["completed", "escrow_released", "escrow_secured"].includes(r.status) && (
+                <Link
+                  to="/garage"
+                  className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted sm:flex-none"
+                >
+                  <Car className="h-4 w-4" />
+                  <span>View in Garage</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
         eyebrow="Ownership records"
         title="Purchases & receipts"
         description="Track confirmed transaction records and keep your ownership paperwork in one place."
+        actions={
+          <Link to="/cars" className={primaryButton}>
+            <Search className="h-4 w-4" /> Browse Verified Cars
+          </Link>
+        }
       />
 
+      <StatRow className="lg:grid-cols-3">
+        <StatTile label="In progress" value={inProgress.length} icon={<Clock />} tone="ink" loading={rows === null} />
+        <StatTile label="Completed" value={done.length} icon={<CheckCircle2 />} loading={rows === null} />
+        <StatTile label="Receipts on file" value={list.length} icon={<Receipt />} loading={rows === null} />
+      </StatRow>
+
       {rows === null ? (
-        <p className="text-sm text-muted-foreground">Loading…</p>
+        <ListSkeleton rows={2} className="h-56" />
       ) : rows.length === 0 ? (
-        <div className="rounded-3xl border bg-card p-10 text-center space-y-2">
-          <Receipt className="mx-auto h-10 w-10 text-muted-foreground" />
-          <p className="text-sm font-semibold">You don't have any confirmed purchases yet.</p>
-          <Link to="/cars" className="inline-block text-xs font-bold text-primary hover:underline">
-            Browse Verified Cars →
-          </Link>
-        </div>
+        <EmptyState
+          icon={<Receipt className="h-5 w-5" />}
+          title="You don't have any confirmed purchases yet."
+          description="When you pay for a car through AutoConnect, the payment timeline and receipt live here."
+          actionLabel="Browse Verified Cars"
+          actionTo="/cars"
+        />
       ) : (
-        <ul className="grid gap-3">
-          {rows.map((r) => {
-            const img =
-              r.cars?.car_images.find((i) => i.is_primary)?.image_url ??
-              r.cars?.car_images[0]?.image_url;
-            return (
-              <li
-                key={r.id}
-                className="app-surface flex flex-col gap-4 p-4 transition-all hover:shadow-card-hover sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="h-16 w-24 overflow-hidden rounded-xl bg-muted shrink-0 border border-border">
-                    {img && (
-                      <img src={img} alt={r.cars?.title} className="h-full w-full object-cover" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-bold text-foreground text-sm">{r.cars?.title}</p>
-                    <p className="text-xs text-muted-foreground font-mono">
-                      Ref: {r.id} · {new Date(r.initiated_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 border-t border-border/80 w-full mt-4">
-                  <div className="flex-1 w-full max-w-xl">
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="font-semibold text-primary">Transaction progress</span>
-                      <span className="text-muted-foreground">Vehicle handover</span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className="bg-primary h-2 rounded-full"
-                        style={{ width: r.status === "escrow_secured" ? "30%" : "100%" }}
-                      ></div>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-2">
-                      <ShieldCheck className="mr-1 inline h-3 w-3 text-primary" />
-                      Status is shown from the transaction record. Payment protection terms are
-                      confirmed only where evidence is available.
-                    </p>
-                  </div>
-
-                  <div className="text-left sm:text-right shrink-0">
-                    <p className="font-mono font-bold text-primary">
-                      {fmt(Number(r.display_total), r.display_currency)}
-                    </p>
-                    <Badge
-                      variant="outline"
-                      className="border-primary/20 bg-primary/10 text-[10px] text-primary"
-                    >
-                      {r.status.replace("_", " ")}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    {["completed", "escrow_released", "escrow_secured"].includes(r.status) && (
-                      <Button
-                        type="button"
-                        size="sm"
-                        asChild
-                        className="h-9 rounded-xl text-xs gap-1.5 shrink-0"
-                      >
-                        <Link to="/garage">
-                          <span>View in Garage</span>
-                        </Link>
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleOpenReceipt(r)}
-                      className="h-9 shrink-0 gap-1.5 rounded-xl border-primary/30 text-xs text-primary hover:bg-primary/10"
-                    >
-                      <Receipt className="h-3.5 w-3.5" />
-                      <span>Digital Receipt</span>
-                    </Button>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          {inProgress.length > 0 && (
+            <section>
+              <SectionHeading kicker="Happening now" title="In progress" />
+              <ul className="grid gap-3">{inProgress.map(renderRow)}</ul>
+            </section>
+          )}
+          {done.length > 0 && (
+            <section>
+              <SectionHeading kicker="History" title="Completed purchases" />
+              <ul className="grid gap-3">{done.map(renderRow)}</ul>
+            </section>
+          )}
+        </>
       )}
 
       {selectedReceipt && (

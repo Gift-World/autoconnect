@@ -59,11 +59,13 @@ interface CurrencyContextType {
   setCurrency: (code: CurrencyCode) => void;
   currencies: Record<CurrencyCode, CurrencyConfig>;
   currentConfig: CurrencyConfig;
+  /** Pass the listing's currency code as the second argument when it is known; otherwise it is inferred. */
   formatPrice: (
-    amountInKes: number | null | undefined,
+    amount: number | null | undefined,
+    baseCurrencyOrOptions?: string | { compact?: boolean; hidePrefix?: boolean },
     options?: { compact?: boolean; hidePrefix?: boolean },
   ) => string;
-  convertPrice: (amountInKes: number | null | undefined) => number;
+  convertPrice: (amount: number | null | undefined, baseCurrency?: string) => number;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);

@@ -181,7 +181,7 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-background text-foreground border border-border">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl font-bold">
-            <PlusCircle className="w-5 h-5 text-teal-500" />
+            <PlusCircle className="w-5 h-5 text-foreground" />
             <span>List a Vehicle on AutoConnect</span>
           </DialogTitle>
           <DialogDescription>
@@ -340,7 +340,7 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
           {/* 4. Showroom Photo Presets */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold flex items-center gap-1">
-              <ImageIcon className="w-3.5 h-3.5 text-teal-500" />
+              <ImageIcon className="w-3.5 h-3.5 text-foreground" />
               <span>Select High-Res Demo Showroom Photo</span>
             </Label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -367,7 +367,7 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
           {/* 5. Popular Features */}
           <div className="space-y-2">
             <Label className="text-xs font-semibold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-teal-500" />
+              <Sparkles className="w-3.5 h-3.5 text-foreground" />
               <span>Installed Features & Options</span>
             </Label>
             <div className="flex flex-wrap gap-1.5">
@@ -380,11 +380,11 @@ export function QuickListingModal({ isOpen, onClose, onListingCreated }: QuickLi
                     onClick={() => toggleFeature(feat)}
                     className={`text-xs px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
                       isSelected
-                        ? "border-teal-500 bg-teal-500/15 text-teal-600 dark:text-teal-300 font-bold"
+                        ? "border-transparent bg-ac-accent text-ac-ink font-bold"
                         : "border-border bg-secondary/50 text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {isSelected && <Check className="w-3 h-3 text-teal-500" />}
+                    {isSelected && <Check className="w-3 h-3" />}
                     <span>{feat}</span>
                   </button>
                 );

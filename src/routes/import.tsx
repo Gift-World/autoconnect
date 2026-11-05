@@ -1,10 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Search, FileText, Handshake, Ship, CheckCircle2, Globe2, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Calculator,
+  Search,
+  FileText,
+  Handshake,
+  Ship,
+  CheckCircle2,
+  Globe2,
+  ShieldCheck,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -20,6 +30,8 @@ import {
 } from "@/components/ui/select";
 import { COUNTRIES } from "@/lib/countries";
 import { KraCrspCalculator } from "@/components/import/KraCrspCalculator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StackPanels, type StackPanel } from "@/components/motion/StackPanels";
 
 const CURRENCIES = [
   "USD",
@@ -153,369 +165,508 @@ function ImportPage() {
     reset();
   };
 
+  const panels: StackPanel[] = IMPORT_STEPS.map((step) => ({
+    id: step.id,
+    label: step.label,
+    color: step.color,
+    content: (
+      <div className="grid h-full gap-6 lg:grid-cols-2 lg:items-center">
+        <div>
+          <span className="grid h-14 w-14 place-items-center rounded-2xl bg-ac-ink text-ac-accent [&_svg]:h-6 [&_svg]:w-6">
+            {step.icon}
+          </span>
+          <h3 className="font-brand mt-6 text-4xl sm:text-6xl lg:text-7xl">{step.title}</h3>
+          <p className="mt-5 max-w-md text-base leading-7 text-ac-ink/75 sm:text-lg">
+            {step.body}
+          </p>
+        </div>
+        <div className="relative hidden h-full max-h-[440px] overflow-hidden rounded-3xl sm:block">
+          <img src={step.image} alt="" loading="lazy" className="h-full w-full object-cover" />
+        </div>
+      </div>
+    ),
+  }));
+
   return (
-    <div className="bg-muted/30">
+    <main className="overflow-x-clip bg-background text-foreground">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary to-primary/80 py-16 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm">
-            <Globe2 className="h-4 w-4" /> Worldwide import network
-          </div>
-          <h1 className="mt-4 text-4xl font-bold md:text-5xl">Import the exact car you want</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-white/80">
-            Tell us your specs and budget. We'll match you with verified exporters in Japan, UK,
-            UAE, Germany, USA, and more.
-          </p>
-        </div>
-      </section>
-
-      <div className="container mx-auto grid gap-10 px-4 py-12 lg:grid-cols-[1fr_360px]">
-        {/* Form */}
-        <div className="rounded-lg border bg-card p-6 md:p-8 shadow-sm">
-          <h2 className="text-2xl font-semibold">Submit import request</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            All fields marked * are required. We share approved requests only with verified
-            exporters.
-          </p>
-
-          {submitted ? (
-            <div className="mt-8 rounded-md border border-success/30 bg-success/10 p-6 text-center">
-              <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
-              <h3 className="mt-3 text-xl font-semibold">Request received</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Verified exporters will be notified. Our import specialists typically respond within
-                24-48 hours.
+      <section className="px-3 pt-3 sm:px-5 sm:pt-5">
+        <div className="relative isolate overflow-hidden rounded-[28px] bg-ac-ink text-white sm:rounded-[36px]">
+          <img
+            src="/images/hero-driving-crossover.jpg"
+            alt=""
+            className="absolute inset-0 -z-10 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(11,19,36,.92),rgba(11,19,36,.55)_60%,rgba(11,19,36,.7))]" />
+          <div className="flex min-h-[560px] flex-col justify-end gap-8 p-6 sm:min-h-[640px] sm:p-10 lg:p-14">
+            <div className="max-w-4xl">
+              <p className="brand-kicker inline-flex items-center gap-2 text-ac-accent">
+                <Globe2 className="h-4 w-4" /> Worldwide import network
               </p>
-              <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <Button variant="outline" onClick={() => setSubmitted(false)}>
-                  Submit another
-                </Button>
-                <Link to="/account/import-requests">
-                  <Button variant="outline">Track your request</Button>
-                </Link>
-                <Link to="/cars">
-                  <Button>Browse cars</Button>
-                </Link>
-              </div>
+              <h1 className="font-brand mt-5 text-4xl sm:text-6xl lg:text-7xl">
+                Import the exact car you want.{" "}
+                <span className="text-ac-accent">Watch it come home.</span>
+              </h1>
+              <p className="mt-6 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
+                Tell us your specs and budget. We&apos;ll match you with verified exporters in Japan,
+                UK, UAE, Germany, USA, and more.
+              </p>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
-              <section className="space-y-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Your details
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="buyer_name">Full name *</Label>
-                    <Input id="buyer_name" {...register("buyer_name")} />
-                    {errors.buyer_name && (
-                      <p className="mt-1 text-xs text-destructive">{errors.buyer_name.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="buyer_email">Email *</Label>
-                    <Input id="buyer_email" type="email" {...register("buyer_email")} />
-                    {errors.buyer_email && (
-                      <p className="mt-1 text-xs text-destructive">{errors.buyer_email.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="buyer_phone">Phone (with country code)</Label>
-                    <Input
-                      id="buyer_phone"
-                      placeholder="+254 712 345 678"
-                      {...register("buyer_phone")}
-                    />
-                  </div>
-                  <div>
-                    <Label>Destination country *</Label>
-                    <Select
-                      value={watch("buyer_country") || undefined}
-                      onValueChange={(v) => setValue("buyer_country", v, { shouldValidate: true })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Where to deliver" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>
-                            {c.flag} {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.buyer_country && (
-                      <p className="mt-1 text-xs text-destructive">
-                        {errors.buyer_country.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Vehicle specs
-                </h3>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="make_name">Make *</Label>
-                    <Input id="make_name" placeholder="Toyota" {...register("make_name")} />
-                    {errors.make_name && (
-                      <p className="mt-1 text-xs text-destructive">{errors.make_name.message}</p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="model_name">Model</Label>
-                    <Input id="model_name" placeholder="Land Cruiser" {...register("model_name")} />
-                  </div>
-                  <div>
-                    <Label htmlFor="year_from">Year from</Label>
-                    <Input
-                      id="year_from"
-                      type="number"
-                      min={1950}
-                      max={2030}
-                      {...register("year_from")}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="year_to">Year to</Label>
-                    <Input
-                      id="year_to"
-                      type="number"
-                      min={1950}
-                      max={2030}
-                      {...register("year_to")}
-                    />
-                  </div>
-                  <div>
-                    <Label>Condition</Label>
-                    <Select
-                      value={watch("preferred_condition")}
-                      onValueChange={(v) =>
-                        setValue("preferred_condition", v as FormValues["preferred_condition"])
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any</SelectItem>
-                        <SelectItem value="new">New</SelectItem>
-                        <SelectItem value="foreign-used">Foreign-used</SelectItem>
-                        <SelectItem value="locally-used">Locally-used</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Preferred source country</Label>
-                    <Select
-                      value={watch("preferred_source_country") || undefined}
-                      onValueChange={(v) => setValue("preferred_source_country", v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="No preference" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {COUNTRIES.map((c) => (
-                          <SelectItem key={c.code} value={c.code}>
-                            {c.flag} {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Transmission</Label>
-                    <Select
-                      value={watch("transmission_preference") || undefined}
-                      onValueChange={(v) => setValue("transmission_preference", v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Any" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="automatic">Automatic</SelectItem>
-                        <SelectItem value="manual">Manual</SelectItem>
-                        <SelectItem value="cvt">CVT</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Fuel</Label>
-                    <Select
-                      value={watch("fuel_preference") || undefined}
-                      onValueChange={(v) => setValue("fuel_preference", v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Any" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="petrol">Petrol</SelectItem>
-                        <SelectItem value="diesel">Diesel</SelectItem>
-                        <SelectItem value="hybrid">Hybrid</SelectItem>
-                        <SelectItem value="electric">Electric</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </section>
-
-              <section className="space-y-4">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                  Budget
-                </h3>
-                <div className="grid gap-4 md:grid-cols-[1fr_1fr_140px]">
-                  <div>
-                    <Label htmlFor="budget_min">Min</Label>
-                    <Input id="budget_min" type="number" min={0} {...register("budget_min")} />
-                  </div>
-                  <div>
-                    <Label htmlFor="budget_max">Max</Label>
-                    <Input id="budget_max" type="number" min={0} {...register("budget_max")} />
-                  </div>
-                  <div>
-                    <Label>Currency</Label>
-                    <Select
-                      value={watch("budget_currency")}
-                      onValueChange={(v) => setValue("budget_currency", v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CURRENCIES.map((c) => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </section>
-
-              <section>
-                <Label htmlFor="additional_notes">Additional notes</Label>
-                <Textarea
-                  id="additional_notes"
-                  rows={4}
-                  placeholder="Color preferences, must-have features, timeline, port of delivery, etc."
-                  {...register("additional_notes")}
-                />
-              </section>
-
-              <Button type="submit" size="lg" disabled={submitting} className="w-full md:w-auto">
-                {submitting ? "Submitting…" : "Submit import request"}
-              </Button>
-            </form>
-          )}
-        </div>
-
-        {/* Sidebar */}
-        <aside className="space-y-6">
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
-              <ShieldCheck className="h-5 w-5 text-success" /> Why use AutoConnect?
-            </h3>
-            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-              <li>✓ Verified exporters only</li>
-              <li>✓ Free to submit — no obligation</li>
-              <li>✓ Multiple quotes, side by side</li>
-              <li>✓ Shipping &amp; duty guidance included</li>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="#request"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full bg-ac-accent px-6 text-sm font-extrabold text-ac-ink transition hover:gap-3 hover:brightness-110"
+              >
+                Start your import request <ArrowRight className="h-4 w-4" />
+              </a>
+              <Link
+                to="/import-tracker"
+                className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 px-5 text-sm font-semibold text-white/85 transition hover:border-white/50 hover:text-white"
+              >
+                <Ship className="h-4 w-4" /> Track an existing order
+              </Link>
+            </div>
+            <ul className="grid gap-2 text-sm text-white/80 sm:grid-cols-2 lg:grid-cols-4">
+              {WHY.map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-ac-accent" /> {item}
+                </li>
+              ))}
             </ul>
           </div>
-          <div className="rounded-lg border bg-card p-6 shadow-sm">
-            <h3 className="text-lg font-semibold">Already know what you want?</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Browse live listings marked "Available for export".
-            </p>
-            <Link to="/cars" search={{ exportOnly: true }}>
-              <Button variant="outline" className="mt-3 w-full">
-                Browse exportable cars
-              </Button>
-            </Link>
-          </div>
-        </aside>
-      </div>
-
-      {/* Duty Calculator Section */}
-      <section className="border-t bg-muted/10 py-16">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold">Calculate Your Import Duty</h2>
-            <p className="mt-2 text-muted-foreground">
-              Use our built-in KRA CRSP calculator to estimate the total duty payable for your
-              imported vehicle based on current rates.
-            </p>
-          </div>
-          <KraCrspCalculator />
         </div>
       </section>
 
       {/* How importing works */}
-      <section className="border-t bg-background py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold">How importing works</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
-              From request to delivery, a transparent 4-step process.
+      <section className="pt-20 sm:pt-28">
+        <div className="mx-auto mb-10 max-w-[1360px] px-4 sm:px-6">
+          <p className="brand-kicker text-muted-foreground">How importing works</p>
+          <h2 className="font-brand mt-4 max-w-3xl text-4xl sm:text-6xl">
+            From request to delivery, four clear steps.
+          </h2>
+        </div>
+        <StackPanels panels={panels} />
+      </section>
+
+      {/* Request + duty estimate */}
+      <section id="request" className="scroll-mt-20 py-16 sm:py-24">
+        <div className="mx-auto max-w-[1360px] px-4 sm:px-6">
+          <div className="max-w-3xl">
+            <p className="brand-kicker text-muted-foreground">Your request</p>
+            <h2 className="font-brand mt-4 text-3xl sm:text-5xl">
+              Describe the car. We do the matching.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">
+              All fields marked * are required. We share approved requests only with verified
+              exporters. Want to know the landed cost first? Open the duty estimate tab.
             </p>
           </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-4">
-            <Step
-              n={1}
-              icon={<FileText className="h-6 w-6" />}
-              title="Submit request"
-              desc="Tell us the make, model, year range, and budget."
-            />
-            <Step
-              n={2}
-              icon={<Search className="h-6 w-6" />}
-              title="Get matched"
-              desc="Verified exporters review and send proposals with photos."
-            />
-            <Step
-              n={3}
-              icon={<Handshake className="h-6 w-6" />}
-              title="Choose &amp; pay"
-              desc="Compare offers, agree terms, and pay the exporter directly."
-            />
-            <Step
-              n={4}
-              icon={<Ship className="h-6 w-6" />}
-              title="Ship &amp; receive"
-              desc="Track shipment to your port. We help with duty estimates."
-            />
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-8">
+            <Tabs defaultValue="request" className="min-w-0">
+              <TabsList className="h-auto w-full justify-start gap-1 rounded-full bg-muted p-1 sm:w-auto">
+                <TabsTrigger value="request" className="min-h-11 flex-1 rounded-full px-4 sm:flex-none">
+                  <FileText className="mr-2 h-4 w-4" /> Request a car
+                </TabsTrigger>
+                <TabsTrigger value="duty" className="min-h-11 flex-1 rounded-full px-4 sm:flex-none">
+                  <Calculator className="mr-2 h-4 w-4" /> Estimate duty
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="request" forceMount className="mt-5 data-[state=inactive]:hidden">
+                <div className="rounded-[28px] border border-border bg-card p-5 shadow-sm sm:rounded-[36px] sm:p-8">
+                  {submitted ? (
+                    <div className="py-6 text-center sm:py-10">
+                      <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-success/15">
+                        <CheckCircle2 className="h-9 w-9 text-success" />
+                      </span>
+                      <h3 className="font-brand mt-5 text-3xl">Request received</h3>
+                      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-muted-foreground">
+                        Verified exporters will be notified. Our import specialists typically
+                        respond within 24-48 hours.
+                      </p>
+                      <div className="mt-7 flex flex-wrap justify-center gap-3">
+                        <Link
+                          to="/account/import-requests"
+                          className="inline-flex min-h-11 items-center gap-2 rounded-full bg-ac-accent px-5 text-sm font-extrabold text-ac-ink"
+                        >
+                          Track your request <ArrowRight className="h-4 w-4" />
+                        </Link>
+                        <Button
+                          variant="outline"
+                          className="min-h-11 rounded-full"
+                          onClick={() => setSubmitted(false)}
+                        >
+                          Submit another
+                        </Button>
+                        <Button asChild variant="ghost" className="min-h-11 rounded-full">
+                          <Link to="/cars">Browse cars</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                      <FormGroup n="01" title="Your details">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div>
+                            <Label htmlFor="buyer_name">Full name *</Label>
+                            <Input id="buyer_name" className="mt-1.5 h-11" {...register("buyer_name")} />
+                            {errors.buyer_name && <FieldError>{errors.buyer_name.message}</FieldError>}
+                          </div>
+                          <div>
+                            <Label htmlFor="buyer_email">Email *</Label>
+                            <Input
+                              id="buyer_email"
+                              type="email"
+                              className="mt-1.5 h-11"
+                              {...register("buyer_email")}
+                            />
+                            {errors.buyer_email && (
+                              <FieldError>{errors.buyer_email.message}</FieldError>
+                            )}
+                          </div>
+                          <div>
+                            <Label htmlFor="buyer_phone">Phone (with country code)</Label>
+                            <Input
+                              id="buyer_phone"
+                              placeholder="+254 712 345 678"
+                              className="mt-1.5 h-11"
+                              {...register("buyer_phone")}
+                            />
+                          </div>
+                          <div>
+                            <Label>Destination country *</Label>
+                            <Select
+                              value={watch("buyer_country") || undefined}
+                              onValueChange={(v) =>
+                                setValue("buyer_country", v, { shouldValidate: true })
+                              }
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue placeholder="Where to deliver" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COUNTRIES.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {errors.buyer_country && (
+                              <FieldError>{errors.buyer_country.message}</FieldError>
+                            )}
+                          </div>
+                        </div>
+                      </FormGroup>
+
+                      <FormGroup n="02" title="Vehicle specs">
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <div>
+                            <Label htmlFor="make_name">Make *</Label>
+                            <Input
+                              id="make_name"
+                              placeholder="Toyota"
+                              className="mt-1.5 h-11"
+                              {...register("make_name")}
+                            />
+                            {errors.make_name && <FieldError>{errors.make_name.message}</FieldError>}
+                          </div>
+                          <div>
+                            <Label htmlFor="model_name">Model</Label>
+                            <Input
+                              id="model_name"
+                              placeholder="Land Cruiser"
+                              className="mt-1.5 h-11"
+                              {...register("model_name")}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="year_from">Year from</Label>
+                            <Input
+                              id="year_from"
+                              type="number"
+                              min={1950}
+                              max={2030}
+                              className="mt-1.5 h-11"
+                              {...register("year_from")}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="year_to">Year to</Label>
+                            <Input
+                              id="year_to"
+                              type="number"
+                              min={1950}
+                              max={2030}
+                              className="mt-1.5 h-11"
+                              {...register("year_to")}
+                            />
+                          </div>
+                          <div>
+                            <Label>Condition</Label>
+                            <Select
+                              value={watch("preferred_condition")}
+                              onValueChange={(v) =>
+                                setValue("preferred_condition", v as FormValues["preferred_condition"])
+                              }
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="any">Any</SelectItem>
+                                <SelectItem value="new">New</SelectItem>
+                                <SelectItem value="foreign-used">Foreign-used</SelectItem>
+                                <SelectItem value="locally-used">Locally-used</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Preferred source country</Label>
+                            <Select
+                              value={watch("preferred_source_country") || undefined}
+                              onValueChange={(v) => setValue("preferred_source_country", v)}
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue placeholder="No preference" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {COUNTRIES.map((c) => (
+                                  <SelectItem key={c.code} value={c.code}>
+                                    {c.flag} {c.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Transmission</Label>
+                            <Select
+                              value={watch("transmission_preference") || undefined}
+                              onValueChange={(v) => setValue("transmission_preference", v)}
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue placeholder="Any" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="automatic">Automatic</SelectItem>
+                                <SelectItem value="manual">Manual</SelectItem>
+                                <SelectItem value="cvt">CVT</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label>Fuel</Label>
+                            <Select
+                              value={watch("fuel_preference") || undefined}
+                              onValueChange={(v) => setValue("fuel_preference", v)}
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue placeholder="Any" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="petrol">Petrol</SelectItem>
+                                <SelectItem value="diesel">Diesel</SelectItem>
+                                <SelectItem value="hybrid">Hybrid</SelectItem>
+                                <SelectItem value="electric">Electric</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </FormGroup>
+
+                      <FormGroup n="03" title="Budget">
+                        <div className="grid gap-4 sm:grid-cols-[1fr_1fr_140px]">
+                          <div>
+                            <Label htmlFor="budget_min">Min</Label>
+                            <Input
+                              id="budget_min"
+                              type="number"
+                              min={0}
+                              className="mt-1.5 h-11"
+                              {...register("budget_min")}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="budget_max">Max</Label>
+                            <Input
+                              id="budget_max"
+                              type="number"
+                              min={0}
+                              className="mt-1.5 h-11"
+                              {...register("budget_max")}
+                            />
+                          </div>
+                          <div>
+                            <Label>Currency</Label>
+                            <Select
+                              value={watch("budget_currency")}
+                              onValueChange={(v) => setValue("budget_currency", v)}
+                            >
+                              <SelectTrigger className="mt-1.5 h-11">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CURRENCIES.map((c) => (
+                                  <SelectItem key={c} value={c}>
+                                    {c}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </FormGroup>
+
+                      <FormGroup n="04" title="Anything else">
+                        <Label htmlFor="additional_notes">Additional notes</Label>
+                        <Textarea
+                          id="additional_notes"
+                          rows={4}
+                          className="mt-1.5"
+                          placeholder="Color preferences, must-have features, timeline, port of delivery, etc."
+                          {...register("additional_notes")}
+                        />
+                      </FormGroup>
+
+                      <div className="flex flex-col gap-3 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs leading-5 text-muted-foreground">
+                          Free to submit — no obligation.
+                        </p>
+                        <button
+                          type="submit"
+                          disabled={submitting}
+                          className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-ac-accent px-7 text-sm font-extrabold text-ac-ink transition hover:brightness-110 disabled:opacity-60 sm:w-auto"
+                        >
+                          {submitting ? "Submitting…" : "Submit import request"}
+                          {!submitting && <ArrowRight className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="duty" forceMount className="mt-5 data-[state=inactive]:hidden">
+                <div className="mb-4 rounded-2xl bg-ac-powder p-5 text-ac-ink">
+                  <p className="font-brand text-2xl">Calculate your import duty</p>
+                  <p className="mt-1 text-sm leading-6 text-ac-ink/75">
+                    Use our built-in KRA CRSP calculator to estimate the total duty payable for your
+                    imported vehicle based on current rates.
+                  </p>
+                </div>
+                <KraCrspCalculator />
+              </TabsContent>
+            </Tabs>
+
+            {/* Sidebar */}
+            <aside className="space-y-4 lg:pt-16">
+              <div className="rounded-3xl bg-ac-ink p-6 text-white">
+                <p className="brand-kicker inline-flex items-center gap-2 text-ac-accent">
+                  <ShieldCheck className="h-4 w-4" /> Why use AutoConnect?
+                </p>
+                <ul className="mt-4 space-y-3 text-sm text-white/80">
+                  {WHY.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ac-accent" /> {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-3xl bg-ac-cream p-6 text-ac-ink">
+                <h3 className="font-brand text-2xl">Already know what you want?</h3>
+                <p className="mt-2 text-sm leading-6 text-ac-ink/75">
+                  Browse live listings marked &quot;Available for export&quot;.
+                </p>
+                <Link
+                  to="/cars"
+                  search={{ exportOnly: true }}
+                  className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-ac-ink/20 px-5 text-sm font-bold transition hover:border-ac-ink"
+                >
+                  Browse exportable cars <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+              <div className="rounded-3xl border border-border bg-card p-6">
+                <h3 className="font-semibold text-foreground">Already ordered?</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Follow milestones, documents and ETA for your import order.
+                </p>
+                <Link
+                  to="/import-tracker"
+                  className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground underline-offset-4 hover:underline"
+                >
+                  Open the order tracker <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </aside>
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
 
-function Step({
-  n,
-  icon,
-  title,
-  desc,
-}: {
-  n: number;
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) {
+const WHY = [
+  "Verified exporters only",
+  "Free to submit — no obligation",
+  "Multiple quotes, side by side",
+  "Shipping & duty guidance included",
+] as const;
+
+const IMPORT_STEPS = [
+  {
+    id: "submit",
+    label: "Submit request",
+    color: "var(--color-ac-cream)",
+    icon: <FileText />,
+    title: "Tell us the car.",
+    body: "Tell us the make, model, year range, and budget.",
+    image: "/images/hero-driving-suv.jpg",
+  },
+  {
+    id: "match",
+    label: "Get matched",
+    color: "var(--color-ac-powder)",
+    icon: <Search />,
+    title: "Get matched.",
+    body: "Verified exporters review and send proposals with photos.",
+    image: "/images/providers/nairobi-vehicle-inspection.jpg",
+  },
+  {
+    id: "choose",
+    label: "Choose & pay",
+    color: "var(--color-ac-apricot)",
+    icon: <Handshake />,
+    title: "Choose & pay.",
+    body: "Compare offers, agree terms, and pay the exporter directly.",
+    image: "/images/hero-driving-sedan.jpg",
+  },
+  {
+    id: "ship",
+    label: "Ship & receive",
+    color: "var(--color-ac-stone)",
+    icon: <Ship />,
+    title: "Ship & receive.",
+    body: "Track shipment to your port. We help with duty estimates.",
+    image: "/images/hero-driving-crossover.jpg",
+  },
+];
+
+function FormGroup({ n, title, children }: { n: string; title: string; children: ReactNode }) {
   return (
-    <div className="relative rounded-lg border bg-card p-6 shadow-sm">
-      <div className="absolute -top-3 -left-3 flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
-        {n}
-      </div>
-      <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary">
-        {icon}
-      </div>
-      <h3 className="mt-4 font-semibold">{title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
-    </div>
+    <fieldset className="space-y-4">
+      <legend className="mb-4 flex items-center gap-3">
+        <span className="grid h-9 w-9 place-items-center rounded-full border border-border text-[11px] font-bold text-muted-foreground">
+          {n}
+        </span>
+        <span className="font-brand text-xl text-foreground">{title}</span>
+      </legend>
+      {children}
+    </fieldset>
   );
+}
+
+function FieldError({ children }: { children: ReactNode }) {
+  return <p className="mt-1 text-xs text-destructive">{children}</p>;
 }

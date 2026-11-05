@@ -124,19 +124,19 @@ export function WhatsAppConcierge({
   return (
     <>
       {/* Floating Action Pill */}
-      <div className={`fixed bottom-6 right-6 z-40 flex items-center ${className}`}>
+      <div className={`fixed bottom-4 right-4 z-40 flex items-center sm:bottom-6 sm:right-6 ${className}`}>
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            className="group relative flex items-center gap-2.5 bg-[#25D366] hover:bg-[#20BD5A] text-slate-950 px-4 py-3 rounded-full shadow-2xl shadow-[#25D366]/30 border-2 border-white/20 transition-all duration-300 hover:scale-105 hover:shadow-[#25D366]/50"
+            className="group relative flex h-12 w-12 items-center justify-center gap-2.5 rounded-full bg-[#25D366] text-slate-950 shadow-xl shadow-[#25D366]/30 transition-all duration-300 hover:scale-105 hover:bg-[#20BD5A] sm:h-auto sm:w-auto sm:px-4 sm:py-3"
             aria-label="Open WhatsApp Concierge"
           >
-            <span className="relative flex h-3 w-3">
+            <span className="relative hidden h-3 w-3 sm:flex">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-950 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-950"></span>
             </span>
             <MessageCircle className="h-5 w-5 fill-current transition-transform group-hover:rotate-12" />
-            <span className="text-xs font-bold tracking-tight">
+            <span className="hidden text-xs font-bold tracking-tight sm:inline">
               {car ? "WhatsApp Seller" : "VIP Concierge"}
             </span>
           </button>

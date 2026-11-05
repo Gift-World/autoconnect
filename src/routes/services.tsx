@@ -1,14 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { BadgeCheck, CalendarPlus, CarFront, ClipboardCheck, MapPin, Wrench } from "lucide-react";
+import {
+  ArrowRight,
+  BadgeCheck,
+  CalendarPlus,
+  CarFront,
+  ClipboardCheck,
+  MapPin,
+  Sparkles,
+  Wrench,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { trackProductEvent } from "@/lib/product-analytics";
 
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/EmptyState";
+import { StoryEmpty, QuietLink } from "@/components/yard/StoryEmpty";
+import { FloatingStack, type FloatingCard } from "@/components/motion/FloatingStack";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -81,136 +91,199 @@ function ServicesPage() {
       ) ?? [],
     [activeType, providers.data],
   );
+  const careCards: FloatingCard[] = [
+    {
+      eyebrow: "Start here",
+      title: "Open My Garage.",
+      body: "Add the vehicle once. Every request, receipt and reminder attaches to it.",
+      color: "var(--color-ac-cream)",
+      to: "/garage",
+    },
+    {
+      eyebrow: "Need a part?",
+      title: "Find parts.",
+      body: "Search approved suppliers and link a quote to the same car.",
+      color: "var(--color-ac-powder)",
+      to: "/parts",
+    },
+    {
+      eyebrow: "Already booked",
+      title: "Manage service requests.",
+      body: "Follow quotes, confirmations and the work record for each booking.",
+      color: "var(--color-ac-apricot)",
+      to: "/service-bookings",
+    },
+  ];
+
   return (
-    <main className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-teal-50 via-card to-white p-7 shadow-card sm:p-10">
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-700">
-          Car care network
-        </p>
-        <h1 className="mt-3 max-w-2xl text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-          Care that stays connected to your car.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-          One directory for workshops, individual mechanics and independent inspections. Choose a
-          provider, attach the vehicle from My Garage, then keep the request and work record
-          together.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link to="/garage">Open My Garage</Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="border-border bg-background text-foreground hover:bg-muted"
-          >
-            <Link to="/parts">Find parts</Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="border-border bg-background text-foreground hover:bg-muted"
-          >
-            <Link to="/service-bookings">Manage service requests</Link>
-          </Button>
-        </div>
-      </section>
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
-        <CareExplainer
-          icon={<CarFront className="h-5 w-5" />}
-          title="Garage or workshop"
-          description="A physical place with bays, equipment and usually a team."
-        />
-        <CareExplainer
-          icon={<Wrench className="h-5 w-5" />}
-          title="Mechanic"
-          description="An individual or mobile specialist for focused work and diagnostics."
-        />
-        <CareExplainer
-          icon={<ClipboardCheck className="h-5 w-5" />}
-          title="Inspection"
-          description="An independent condition check before you decide to buy."
-        />
-      </section>
-      {providers.isLoading ? (
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <Skeleton className="h-60 rounded-2xl" key={i} />
-          ))}
-        </div>
-      ) : providers.isError ? (
-        <EmptyState
-          icon={<Wrench />}
-          title="Service directory is unavailable"
-          description="Please refresh and try again."
-        />
-      ) : providers.data?.length ? (
-        <section className="mt-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[.16em] text-primary">
-                Choose your next step
-              </p>
-              <h2 className="mt-1 font-display text-2xl font-bold">Car-care providers</h2>
-            </div>
-            <div className="flex flex-wrap gap-2" aria-label="Filter car-care providers">
-              {careTypes.map((type) => (
-                <Button
-                  key={type}
-                  type="button"
-                  size="sm"
-                  variant={activeType === type ? "default" : "outline"}
-                  onClick={() => setActiveType(type)}
-                >
-                  {type === "all" ? "All care" : labels[type]}
-                </Button>
-              ))}
-            </div>
+    <main className="bg-background text-foreground">
+      {/* Hero */}
+      <section className="px-3 pt-3 sm:px-5 sm:pt-5">
+        <div className="relative isolate overflow-hidden rounded-[28px] bg-ac-ink text-white sm:rounded-[36px]">
+          <img
+            src="/images/providers/nairobi-hybrid-workshop.jpg"
+            alt=""
+            className="absolute inset-0 -z-10 h-full w-full object-cover opacity-55"
+          />
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(100deg,rgba(11,19,36,.94),rgba(11,19,36,.55)_60%,rgba(11,19,36,.4))]" />
+          <div className="mx-auto max-w-[1360px] px-5 py-14 sm:px-10 sm:py-20 lg:py-28">
+            <p className="brand-kicker text-ac-accent">Car care network</p>
+            <h1 className="font-brand mt-5 max-w-4xl text-4xl sm:text-6xl lg:text-7xl">
+              Care that stays <span className="text-ac-accent">connected to your car.</span>
+            </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
+              One directory for workshops, individual mechanics and independent inspections. Choose
+              a provider, attach the vehicle from My Garage, then keep the request and work record
+              together.
+            </p>
+            <a
+              href="#providers"
+              className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-ac-accent px-6 text-sm font-extrabold text-ac-ink transition hover:gap-3 hover:brightness-110"
+            >
+              Find a provider <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
-          {visibleProviders.length ? (
-            <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {visibleProviders.map((provider) => (
-                <ProviderCard key={provider.id} provider={provider} />
+        </div>
+      </section>
+
+      {/* Directory */}
+      <section id="providers" className="mx-auto max-w-[1360px] scroll-mt-20 px-4 py-16 sm:px-6 sm:py-24">
+        <p className="brand-kicker text-muted-foreground">Choose your next step</p>
+        <h2 className="font-brand mt-3 text-3xl sm:text-5xl">Car-care providers</h2>
+
+        {/* Care type tiles double as the filter */}
+        <div
+          className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+          role="group"
+          aria-label="Filter car-care providers"
+        >
+          {careTypes.map((type) => {
+            const meta = CARE_META[type];
+            const active = activeType === type;
+            return (
+              <button
+                key={type}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setActiveType(type)}
+                className={`flex min-h-11 items-start gap-3 rounded-3xl border p-4 text-left transition ${
+                  active
+                    ? "border-ac-ink bg-ac-ink text-white dark:border-ac-accent"
+                    : "border-border bg-card text-foreground hover:border-foreground/30"
+                }`}
+              >
+                <span
+                  className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
+                    active ? "bg-ac-accent text-ac-ink" : "bg-muted text-ac-accent"
+                  }`}
+                >
+                  {meta.icon}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold">{meta.title}</span>
+                  <span
+                    className={`mt-0.5 block text-sm leading-5 ${active ? "text-white/70" : "text-muted-foreground"}`}
+                  >
+                    {meta.description}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-10">
+          {providers.isLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="aspect-[4/3] w-full rounded-3xl" />
+                  <Skeleton className="h-5 w-2/3 rounded-full" />
+                  <Skeleton className="h-4 w-1/2 rounded-full" />
+                </div>
               ))}
             </div>
-          ) : (
-            <EmptyState
+          ) : providers.isError ? (
+            <StoryEmpty
+              tone="warning"
               icon={<Wrench />}
-              title="No matching providers"
-              description="Try another care category."
+              kicker="Connection issue"
+              title="Service directory is unavailable"
+              description="Please refresh and try again."
+              actionLabel="Open My Garage"
+              actionTo="/garage"
+            />
+          ) : providers.data?.length ? (
+            visibleProviders.length ? (
+              <div className="grid gap-x-6 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
+                {visibleProviders.map((provider) => (
+                  <ProviderCard key={provider.id} provider={provider} />
+                ))}
+              </div>
+            ) : (
+              <StoryEmpty
+                icon={<Wrench />}
+                title="No matching providers"
+                description="Try another care category."
+                actionLabel="Show all care"
+                onAction={() => setActiveType("all")}
+              />
+            )
+          ) : (
+            <StoryEmpty
+              icon={<Wrench />}
+              kicker="Network growing"
+              title="No service providers yet"
+              description="Approved mechanics and garages will appear here. Add your car to My Garage now so it is ready when you book."
+              actionLabel="Open My Garage"
+              actionTo="/garage"
+              secondary={<QuietLink to="/parts">Find parts</QuietLink>}
             />
           )}
-        </section>
-      ) : (
-        <EmptyState
-          icon={<Wrench />}
-          title="No service providers yet"
-          description="Approved mechanics and garages will appear here."
+        </div>
+      </section>
+
+      {/* How care stays connected */}
+      <section className="pb-16 sm:pb-24">
+        <FloatingStack
+          image="/images/providers/nairobi-garage-workshop.jpg"
+          imageAlt="A mechanic working on a car in a Nairobi workshop"
+          heading={
+            <>
+              One car.
+              <br />
+              <span className="text-ac-accent">One record.</span>
+            </>
+          }
+          cards={careCards}
         />
-      )}
+      </section>
     </main>
   );
 }
 
-function CareExplainer({
-  icon,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-}) {
-  return (
-    <article className="rounded-2xl border bg-card p-4 shadow-sm">
-      <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
-        {icon}
-      </span>
-      <h2 className="mt-3 font-display font-bold">{title}</h2>
-      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{description}</p>
-    </article>
-  );
-}
+const CARE_META: Record<CareType, { icon: ReactNode; title: string; description: string }> = {
+  all: {
+    icon: <Sparkles className="h-5 w-5" />,
+    title: "All care",
+    description: "Every approved provider in the network.",
+  },
+  garage: {
+    icon: <CarFront className="h-5 w-5" />,
+    title: "Garage or workshop",
+    description: "A physical place with bays, equipment and usually a team.",
+  },
+  mechanic: {
+    icon: <Wrench className="h-5 w-5" />,
+    title: "Mechanic",
+    description: "An individual or mobile specialist for focused work and diagnostics.",
+  },
+  inspection: {
+    icon: <ClipboardCheck className="h-5 w-5" />,
+    title: "Inspection",
+    description: "An independent condition check before you decide to buy.",
+  },
+};
 
 function ProviderCard({ provider }: { provider: Provider }) {
   const { user, session } = useAuth();
@@ -262,46 +335,46 @@ function ProviderCard({ provider }: { provider: Provider }) {
   const description =
     provider.description?.replace(/^Sample\s+/i, "") ?? "Listed car-care provider.";
   return (
-    <article className="group flex overflow-hidden rounded-2xl border bg-card shadow-sm transition-shadow hover:shadow-lg">
-      <div className="flex min-h-[390px] w-full flex-col">
-        <div className="relative aspect-[16/9] overflow-hidden bg-slate-900">
+    <article className="group flex flex-col">
+      <div className="flex w-full flex-1 flex-col">
+        <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-muted">
           <img
             src={providerImage(provider)}
             alt="Representative service environment"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-          <div className="absolute inset-x-4 bottom-3 flex items-end justify-between gap-3">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-900">
-              <Icon className="h-3.5 w-3.5 text-primary" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+          <div className="absolute inset-x-3 top-3 flex items-start justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-ac-ink">
+              <Icon className="h-3.5 w-3.5 text-ac-accent" />
               {labels[provider.provider_type] ?? provider.provider_type}
             </span>
             {provider.is_preview && (
-              <span className="rounded-full bg-slate-950/80 px-2.5 py-1 text-[10px] font-semibold text-white">
+              <span className="rounded-full bg-ac-ink/85 px-2.5 py-1 text-[10px] font-semibold text-white">
                 Preview listing
               </span>
             )}
           </div>
         </div>
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col px-1 pt-4">
           <div className="flex items-start justify-between gap-3">
-            <h2 className="font-display text-lg font-bold">{provider.name}</h2>
+            <h3 className="font-brand text-xl">{provider.name}</h3>
             {provider.is_verified && (
               <BadgeCheck
-                className="h-5 w-5 shrink-0 text-teal-600"
+                className="mt-1 h-5 w-5 shrink-0 text-ac-accent"
                 aria-label="Verified provider"
               />
             )}
           </div>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
-          <p className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 text-primary" />
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5" />
             {provider.city ? `${provider.city}, ` : ""}
             {provider.country}
           </p>
+          <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{description}</p>
           {provider.is_verified ? (
-            <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-teal-700">
+            <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-success">
               <BadgeCheck className="h-3.5 w-3.5" />
               Account and business reviewed
             </p>
@@ -310,13 +383,13 @@ function ProviderCard({ provider }: { provider: Provider }) {
               Representative image · provider details will be confirmed before launch.
             </p>
           )}
-
+          <div className="mt-auto" />
           {!user || !session ? (
             <Button
               onClick={() =>
                 toast.info("Sign in with a test or customer account to request an appointment.")
               }
-              className="mt-5 w-full"
+              className="mt-5 min-h-11 w-full rounded-full"
               size="sm"
             >
               <CalendarPlus className="mr-2 h-4 w-4" /> Request appointment
@@ -324,7 +397,7 @@ function ProviderCard({ provider }: { provider: Provider }) {
           ) : (
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-5 w-full" size="sm">
+                <Button className="mt-5 min-h-11 w-full rounded-full" size="sm">
                   <CalendarPlus className="mr-2 h-4 w-4" /> Choose service time
                 </Button>
               </DialogTrigger>

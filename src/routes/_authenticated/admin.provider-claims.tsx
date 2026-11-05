@@ -1,10 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Check, ShieldCheck, X } from "lucide-react";
+import { Check, ShieldCheck, Wrench, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/EmptyState";
+import {
+  AdminPage,
+  AdminPanel,
+  QueueEmpty,
+  QueueError,
+  QueueSkeleton,
+  TAP,
+  ageOf,
+} from "@/components/admin/AdminUI";
 
 export const Route = createFileRoute("/_authenticated/admin/provider-claims")({
   head: () => ({ meta: [{ title: "Provider claims — Admin — AutoConnect" }] }),
@@ -44,36 +52,86 @@ function ProviderClaimsPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["admin-service-provider-claims"] }),
   });
 
+  const count = claims.data?.length ?? 0;
+
   return (
-    <div className="space-y-6">
+    <AdminPage>
       <PageHeader
         eyebrow="Provider activation"
         title="Link real businesses safely"
         description="Approve a claim only after checking that the account holder represents the mechanic or garage. Approval unlocks that provider's booking inbox."
       />
       {claims.isError ? (
-        <p className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">The provider claims queue could not be loaded.</p>
-      ) : claims.data?.length ? (
-        <div className="grid gap-3">
-          {claims.data.map((claim) => (
-            <article key={claim.id} className="app-surface flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-primary">Ownership request</p>
-                <h2 className="mt-1 font-display text-lg font-bold">{claim.service_providers?.name ?? "Provider"}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{claim.service_providers?.city ? `${claim.service_providers.city}, ` : ""}{claim.service_providers?.country}</p>
-                <p className="mt-3 rounded-lg bg-muted/60 p-3 text-sm">{claim.note || "No verification note supplied."}</p>
-                <p className="mt-2 text-xs text-muted-foreground">Account ID: {claim.claimant_id} · requested {new Date(claim.created_at).toLocaleString()}</p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" disabled={resolve.isPending} onClick={() => resolve.mutate({ id: claim.id, approve: false })}><X className="mr-2 h-4 w-4" />Reject</Button>
-                <Button disabled={resolve.isPending} onClick={() => resolve.mutate({ id: claim.id, approve: true })}><Check className="mr-2 h-4 w-4" />Link account</Button>
-              </div>
-            </article>
-          ))}
-        </div>
+        <QueueError>The provider claims queue could not be loaded.</QueueError>
       ) : (
-        <EmptyState icon={<ShieldCheck className="h-5 w-5" />} title="No provider claims awaiting review" description="A real mechanic or garage can request ownership from the service workspace." />
+        <AdminPanel
+          kicker="Ownership requests"
+          title={claims.isLoading ? "Loading…" : `${count} waiting`}
+          description="Oldest request first."
+        >
+          {claims.isLoading ? (
+            <QueueSkeleton rows={3} />
+          ) : count ? (
+            <ul className="divide-y divide-border">
+              {claims.data!.map((claim) => (
+                <li
+                  key={claim.id}
+                  className="flex flex-col gap-4 p-4 sm:px-6 lg:flex-row lg:items-start lg:justify-between"
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ac-cream text-ac-ink">
+                      <Wrench className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="brand-kicker text-muted-foreground">Ownership request</p>
+                      <h2 className="font-brand mt-1 text-xl">
+                        {claim.service_providers?.name ?? "Provider"}
+                      </h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {claim.service_providers?.city ? `${claim.service_providers.city}, ` : ""}
+                        {claim.service_providers?.country}
+                      </p>
+                      <p className="mt-3 rounded-2xl bg-muted/60 p-3 text-sm">
+                        {claim.note || "No verification note supplied."}
+                      </p>
+                      <p className="mt-2 break-all text-xs text-muted-foreground">
+                        Account ID: {claim.claimant_id} · requested{" "}
+                        {new Date(claim.created_at).toLocaleString()} ({ageOf(claim.created_at)}{" "}
+                        ago)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 lg:shrink-0 lg:justify-end">
+                    <Button
+                      variant="outline"
+                      className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+                      disabled={resolve.isPending}
+                      onClick={() => resolve.mutate({ id: claim.id, approve: false })}
+                    >
+                      <X className="h-4 w-4" />
+                      Reject
+                    </Button>
+                    <Button
+                      className={TAP}
+                      disabled={resolve.isPending}
+                      onClick={() => resolve.mutate({ id: claim.id, approve: true })}
+                    >
+                      <Check className="h-4 w-4" />
+                      Link account
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <QueueEmpty
+              icon={<ShieldCheck />}
+              title="No provider claims awaiting review"
+              description="A real mechanic or garage can request ownership from the service workspace."
+            />
+          )}
+        </AdminPanel>
       )}
-    </div>
+    </AdminPage>
   );
 }

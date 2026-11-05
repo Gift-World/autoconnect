@@ -249,7 +249,7 @@ export function PhoneAuthForm({
           <Button
             type="submit"
             disabled={submitting || !phoneNumber.trim() || (mode === "register" && !acceptedTerms)}
-            className="w-full h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
+            className="h-12 w-full gap-2 rounded-full bg-ac-accent font-extrabold text-ac-ink shadow-none hover:bg-ac-accent hover:brightness-110"
           >
             {submitting ? (
               <>
@@ -269,7 +269,7 @@ export function PhoneAuthForm({
           <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-3.5 text-xs text-muted-foreground flex items-center justify-between">
             <div>
               <p className="font-bold text-foreground">Verification Code Sent</p>
-              <p className="font-mono text-teal-400 text-xs mt-0.5">{getFullPhone()}</p>
+              <p className="font-mono text-foreground text-xs mt-0.5">{getFullPhone()}</p>
             </div>
             <button
               type="button"
@@ -292,7 +292,7 @@ export function PhoneAuthForm({
                   type="button"
                   onClick={handleSendOtp}
                   disabled={submitting}
-                  className="text-[11px] font-semibold text-teal-400 hover:underline"
+                  className="-my-2 inline-flex min-h-9 items-center text-[11px] font-semibold text-foreground underline-offset-4 hover:underline"
                 >
                   Resend Code
                 </button>
@@ -317,14 +317,14 @@ export function PhoneAuthForm({
               type="button"
               variant="outline"
               onClick={() => setStep("phone")}
-              className="h-11 px-3.5 rounded-xl text-xs"
+              className="h-12 rounded-full px-4 text-xs"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
               type="submit"
               disabled={submitting || otpCode.length < 4}
-              className="flex-1 h-11 rounded-xl bg-teal-500 text-slate-950 font-bold hover:bg-teal-400 shadow-md gap-2"
+              className="h-12 flex-1 gap-2 rounded-full bg-ac-accent font-extrabold text-ac-ink shadow-none hover:bg-ac-accent hover:brightness-110"
             >
               {submitting ? (
                 <>

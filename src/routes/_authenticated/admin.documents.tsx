@@ -5,6 +5,17 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { aiDocGuidance } from "@/lib/ai.functions";
 import { QueueToolbar } from "@/components/admin/QueueToolbar";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  AdminPage,
+  AdminPanel,
+  AiSuggestion,
+  QueueEmpty,
+  QueueSkeleton,
+  TAP,
+  ageOf,
+  oldestFirst,
+} from "@/components/admin/AdminUI";
 import { REQUIRED_DOC_KINDS, DOC_LABELS, missingDocKinds } from "@/lib/listing-checklist";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -195,19 +206,23 @@ function AdminDocuments() {
     window.open(data.signedUrl, "_blank", "noopener,noreferrer");
   }
 
-  const visible = rows.filter((r) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (
-      (r.car?.title ?? "").toLowerCase().includes(q) ||
-      r.kind.toLowerCase().includes(q) ||
-      (r.seller?.display_name ?? "").toLowerCase().includes(q)
-    );
-  });
+  const visible = oldestFirstIfPending(
+    rows.filter((r) => {
+      const q = search.trim().toLowerCase();
+      if (!q) return true;
+      return (
+        (r.car?.title ?? "").toLowerCase().includes(q) ||
+        r.kind.toLowerCase().includes(q) ||
+        (r.seller?.display_name ?? "").toLowerCase().includes(q)
+      );
+    }),
+    tab,
+  );
 
   return (
-    <div className="space-y-6">
+    <AdminPage>
       <QueueToolbar
+        eyebrow="Trust operations"
         title="Document verification"
         description="Review seller-uploaded documents. Verified docs surface as trust badges on listings."
         counts={[
@@ -222,114 +237,144 @@ function AdminDocuments() {
         searchPlaceholder="Search listing, seller or type…"
       />
 
-      {loading ? (
-        <div className="flex items-center justify-center py-10 text-sm text-muted-foreground">
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading…
-        </div>
-      ) : visible.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card p-12 text-center">
-          <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-500" />
-          <p className="mt-3 text-base font-semibold">Nothing in this queue</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            All caught up — sellers will receive a notification as soon as you act.
-          </p>
-        </div>
-      ) : (
-        <ul className="space-y-3">
-          {visible.map((r) => (
-            <li key={r.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-3">
-                <div className="min-w-0">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground">
-                    {r.car?.title ?? "Listing"}
-                  </p>
-                  <p className="mt-0.5 truncate text-base font-semibold">
-                    {r.kind.replace("_", " ")}
-                    {r.label ? ` — ${r.label}` : ""}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    by {r.seller?.display_name ?? r.seller?.email ?? "Seller"} ·{" "}
-                    {new Date(r.created_at).toLocaleString()}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => void runGuidance(r)}
-                    disabled={guidance[r.id] === "loading"}
-                  >
-                    {guidance[r.id] === "loading" ? (
-                      <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="mr-1.5 h-4 w-4" />
-                    )}
-                    Review guidance
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => void openDoc(r)}>
-                    <FileText className="mr-1.5 h-4 w-4" /> Open
-                    <ExternalLink className="ml-1 h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-
-              {guidance[r.id] && guidance[r.id] !== "loading" && (
-                <div className="mt-3 rounded-lg border bg-muted/30 p-3 text-xs">
-                  <p className="font-medium">{(guidance[r.id] as Guidance).summary}</p>
-                  <ul className="mt-1.5 list-disc space-y-0.5 pl-4 text-muted-foreground">
-                    {(guidance[r.id] as Guidance).focus.map((f) => (
-                      <li key={f}>{f}</li>
-                    ))}
-                    {(guidance[r.id] as Guidance).questions_for_seller.map((f) => (
-                      <li key={f}>Ask seller: {f}</li>
-                    ))}
-                  </ul>
-                  <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    AI guidance only — {REQUIRED_DOC_KINDS.length} document types are required per
-                    listing.
-                  </p>
-                </div>
-              )}
-
-              {tab === "pending" ? (
-                <div className="mt-3 space-y-3">
-                  <Textarea
-                    placeholder="Optional note (required if rejecting)…"
-                    value={notes[r.id] ?? ""}
-                    onChange={(e) => setNotes((cur) => ({ ...cur, [r.id]: e.target.value }))}
-                    rows={2}
-                  />
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => void decide(r, "verified")}
-                      disabled={working === r.id}
-                      className="bg-emerald-600 text-white hover:bg-emerald-700"
-                    >
-                      <CheckCircle2 className="mr-1.5 h-4 w-4" /> Verify
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void decide(r, "rejected")}
-                      disabled={working === r.id}
-                      className="border-destructive/40 text-destructive hover:bg-destructive/10"
-                    >
-                      <XCircle className="mr-1.5 h-4 w-4" /> Reject
-                    </Button>
+      <AdminPanel>
+        {loading ? (
+          <QueueSkeleton rows={3} />
+        ) : visible.length === 0 ? (
+          <QueueEmpty
+            icon={<CheckCircle2 />}
+            title="Nothing in this queue"
+            description="All caught up — sellers will receive a notification as soon as you act."
+          />
+        ) : (
+          <ul className="divide-y divide-border">
+            {visible.map((r) => {
+              const g = guidance[r.id];
+              return (
+                <li key={r.id} className="p-4 sm:p-6">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="flex min-w-0 items-start gap-3">
+                      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-ac-cream text-ac-ink">
+                        <FileText className="h-5 w-5" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="brand-kicker truncate text-muted-foreground">
+                          {r.car?.title ?? "Listing"}
+                        </p>
+                        <p className="mt-1 text-base font-semibold capitalize">
+                          {r.kind.replace("_", " ")}
+                          <span className="normal-case">{r.label ? ` — ${r.label}` : ""}</span>
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          by {r.seller?.display_name ?? r.seller?.email ?? "Seller"} ·{" "}
+                          {new Date(r.created_at).toLocaleString()}
+                          {tab === "pending" && ` · waiting ${ageOf(r.created_at)}`}
+                        </p>
+                        <div className="mt-2">
+                          <StatusPill
+                            status={r.status}
+                            label={
+                              r.status === "verified"
+                                ? "Verified"
+                                : r.status === "pending"
+                                  ? "Waiting for review"
+                                  : undefined
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 lg:justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={TAP}
+                        onClick={() => void runGuidance(r)}
+                        disabled={g === "loading"}
+                      >
+                        {g === "loading" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4" />
+                        )}
+                        AI review guidance
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={TAP}
+                        onClick={() => void openDoc(r)}
+                      >
+                        <FileText className="h-4 w-4" /> Open
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                r.review_notes && (
-                  <p className="mt-3 rounded-md bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-                    {r.review_notes}
-                  </p>
-                )
-              )}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+
+                  {g && g !== "loading" && (
+                    <AiSuggestion
+                      className="mt-4"
+                      title={(g as Guidance).summary}
+                      footnote={`AI guidance only — ${REQUIRED_DOC_KINDS.length} document types are required per listing. Check the file yourself before you decide.`}
+                    >
+                      <ul className="list-disc space-y-0.5 pl-4 text-muted-foreground">
+                        {(g as Guidance).focus.map((f) => (
+                          <li key={f}>{f}</li>
+                        ))}
+                        {(g as Guidance).questions_for_seller.map((f) => (
+                          <li key={f}>Ask seller: {f}</li>
+                        ))}
+                      </ul>
+                    </AiSuggestion>
+                  )}
+
+                  {tab === "pending" ? (
+                    <div className="mt-4 space-y-3 rounded-2xl bg-muted/40 p-3 sm:p-4">
+                      <Textarea
+                        aria-label="Review note"
+                        placeholder="Optional note (required if rejecting)…"
+                        value={notes[r.id] ?? ""}
+                        onChange={(e) => setNotes((cur) => ({ ...cur, [r.id]: e.target.value }))}
+                        rows={2}
+                        className="bg-card"
+                      />
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => void decide(r, "rejected")}
+                          disabled={working === r.id}
+                          className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+                        >
+                          <XCircle className="h-4 w-4" /> Reject
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => void decide(r, "verified")}
+                          disabled={working === r.id}
+                          className={`${TAP} bg-emerald-600 text-white hover:bg-emerald-700`}
+                        >
+                          <CheckCircle2 className="h-4 w-4" /> Verify
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    r.review_notes && (
+                      <p className="mt-4 rounded-2xl bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+                        {r.review_notes}
+                      </p>
+                    )
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </AdminPanel>
+    </AdminPage>
   );
+}
+
+function oldestFirstIfPending<T extends { created_at: string }>(rows: T[], tab: string) {
+  return tab === "pending" ? oldestFirst(rows, (r) => r.created_at) : rows;
 }

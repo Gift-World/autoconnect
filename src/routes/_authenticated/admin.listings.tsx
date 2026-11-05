@@ -12,13 +12,14 @@ import {
   FileCheck2,
   BadgeCheck,
   Wrench,
+  Car,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { aiFraudCheck } from "@/lib/ai.functions";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,21 @@ import { countryByCode } from "@/lib/countries";
 import { ListingChecklist } from "@/components/ListingChecklist";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusPill } from "@/components/StatusPill";
+import {
+  AdminPage,
+  AdminPanel,
+  AdminToolbar,
+  AiSuggestion,
+  FilterChips,
+  QueueEmpty,
+  QueueError,
+  QueueSkeleton,
+  TAP,
+  ageOf,
+  oldestFirst,
+} from "@/components/admin/AdminUI";
+import { DetailSheet } from "@/components/admin/DetailSheet";
 
 export const Route = createFileRoute("/_authenticated/admin/listings")({
   head: () => ({ meta: [{ title: "Listings — Admin — AutoConnect" }] }),
@@ -66,6 +82,8 @@ type FraudResult = {
   summary: string;
 };
 
+type Flag = "documents_verified" | "ntsa_verified" | "inspection_verified";
+
 function AdminListingsPage() {
   const qc = useQueryClient();
   const [tab, setTab] = useState("pending");
@@ -73,6 +91,7 @@ function AdminListingsPage() {
   const [rejecting, setRejecting] = useState<CarRow | null>(null);
   const [reason, setReason] = useState("");
   const [scans, setScans] = useState<Record<string, FraudResult | "loading">>({});
+  const [openId, setOpenId] = useState<string | null>(null);
 
   async function runScan(c: CarRow) {
     setScans((s) => ({ ...s, [c.id]: "loading" }));
@@ -114,7 +133,7 @@ function AdminListingsPage() {
       const { data, error } = await supabase
         .from("cars")
         .select(
-          "id, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)",
+          "id, is_sample, title, make_name, model_name, year, price, currency, country, status, featured, views, rejection_reason, created_at, documents_verified, ntsa_verified, inspection_verified, car_images(image_url, is_primary)",
         )
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -152,10 +171,7 @@ function AdminListingsPage() {
     toast.success(c.featured ? "Removed from featured" : "Marked as featured");
     refresh();
   }
-  async function toggleFlag(
-    c: CarRow,
-    field: "documents_verified" | "ntsa_verified" | "inspection_verified",
-  ) {
+  async function toggleFlag(c: CarRow, field: Flag) {
     const next = !c[field];
     const { error } = await supabase
       .from("cars")
@@ -190,78 +206,136 @@ function AdminListingsPage() {
         )
       : rows;
 
-  const pending = filter(all.filter((c) => c.status === "pending"));
+  // Pending is a queue: oldest submission first.
+  const pending = oldestFirst(
+    filter(all.filter((c) => c.status === "pending")),
+    (c) => c.created_at,
+  );
   const approved = filter(all.filter((c) => c.status === "approved"));
   const rejected = filter(all.filter((c) => c.status === "rejected"));
   const sold = filter(all.filter((c) => c.status === "sold"));
 
+  const groups: Record<string, CarRow[]> = { pending, approved, rejected, sold };
+  const rows = groups[tab] ?? pending;
+  const openCar = all.find((c) => c.id === openId) ?? null;
+
+  const startReject = (c: CarRow) => {
+    setOpenId(null);
+    setRejecting(c);
+  };
+
   return (
-    <div className="space-y-6">
+    <AdminPage>
       <PageHeader
         eyebrow="Listing quality queue"
         title="Review with evidence"
         description="Approve, reject or feature listings based on the details and documents actually provided."
       />
 
-      <Input
-        placeholder="Search by title, make, or model…"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        className="max-w-md rounded-xl"
+      <AdminToolbar
+        filters={
+          <FilterChips
+            label="Listing status"
+            active={tab}
+            onSelect={setTab}
+            options={[
+              { key: "pending", label: "Pending", count: pending.length },
+              { key: "approved", label: "Approved", count: approved.length },
+              { key: "rejected", label: "Rejected", count: rejected.length },
+              { key: "sold", label: "Sold", count: sold.length },
+            ]}
+          />
+        }
+        search={q}
+        onSearch={setQ}
+        searchPlaceholder="Search by title, make, or model…"
       />
 
-      <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
-          <TabsTrigger value="pending">Pending ({pending.length})</TabsTrigger>
-          <TabsTrigger value="approved">Approved ({approved.length})</TabsTrigger>
-          <TabsTrigger value="rejected">Rejected ({rejected.length})</TabsTrigger>
-          <TabsTrigger value="sold">Sold ({sold.length})</TabsTrigger>
-        </TabsList>
-        <TabsContent value="pending" className="mt-4">
-          <CarsList
-            rows={pending}
-            scans={scans}
-            onScan={runScan}
-            onApprove={approve}
-            onReject={(c) => setRejecting(c)}
-            onFeature={toggleFeatured}
-            onToggleFlag={toggleFlag}
+      {carsQuery.isError && (
+        <QueueError>
+          Listings could not load. This is not an empty result — refresh to retry.
+        </QueueError>
+      )}
+
+      <AdminPanel>
+        {carsQuery.isLoading ? (
+          <QueueSkeleton rows={5} media />
+        ) : rows.length === 0 ? (
+          <QueueEmpty
+            icon={<Car />}
+            title={tab === "pending" ? "No listings waiting" : "No listings in this group"}
+            description={
+              tab === "pending"
+                ? "New submissions appear here in real time, oldest first."
+                : "Try another status or clear the search."
+            }
           />
-        </TabsContent>
-        <TabsContent value="approved" className="mt-4">
-          <CarsList
-            rows={approved}
-            scans={scans}
-            onScan={runScan}
-            onApprove={approve}
-            onReject={(c) => setRejecting(c)}
-            onFeature={toggleFeatured}
-            onToggleFlag={toggleFlag}
+        ) : (
+          <ul className="divide-y divide-border">
+            {rows.map((c) => (
+              <ListingRow
+                key={c.id}
+                c={c}
+                scan={scans[c.id]}
+                onOpen={() => setOpenId(c.id)}
+                onApprove={() => approve(c)}
+                onReject={() => startReject(c)}
+              />
+            ))}
+          </ul>
+        )}
+      </AdminPanel>
+
+      {/* Review sheet */}
+      <DetailSheet
+        open={!!openCar}
+        onOpenChange={(o) => !o && setOpenId(null)}
+        kicker="Listing review"
+        title={openCar?.title ?? "Listing"}
+        footer={
+          openCar && (
+            <>
+              {openCar.status === "approved" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={TAP}
+                  onClick={() => toggleFeatured(openCar)}
+                >
+                  <Star
+                    className={`h-4 w-4 ${openCar.featured ? "fill-accent text-accent" : ""}`}
+                  />
+                  {openCar.featured ? "Unfeature" : "Feature"}
+                </Button>
+              )}
+              {openCar.status !== "rejected" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+                  onClick={() => startReject(openCar)}
+                >
+                  <XCircle className="h-4 w-4" /> Reject
+                </Button>
+              )}
+              {openCar.status !== "approved" && (
+                <Button size="sm" className={TAP} onClick={() => approve(openCar)}>
+                  <CheckCircle2 className="h-4 w-4" /> Approve
+                </Button>
+              )}
+            </>
+          )
+        }
+      >
+        {openCar && (
+          <ListingDetail
+            c={openCar}
+            scan={scans[openCar.id]}
+            onScan={() => runScan(openCar)}
+            onToggleFlag={(f) => toggleFlag(openCar, f)}
           />
-        </TabsContent>
-        <TabsContent value="rejected" className="mt-4">
-          <CarsList
-            rows={rejected}
-            scans={scans}
-            onScan={runScan}
-            onApprove={approve}
-            onReject={(c) => setRejecting(c)}
-            onFeature={toggleFeatured}
-            onToggleFlag={toggleFlag}
-          />
-        </TabsContent>
-        <TabsContent value="sold" className="mt-4">
-          <CarsList
-            rows={sold}
-            scans={scans}
-            onScan={runScan}
-            onApprove={approve}
-            onReject={(c) => setRejecting(c)}
-            onFeature={toggleFeatured}
-            onToggleFlag={toggleFlag}
-          />
-        </TabsContent>
-      </Tabs>
+        )}
+      </DetailSheet>
 
       <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>
@@ -276,17 +350,137 @@ function AdminListingsPage() {
             onChange={(e) => setReason(e.target.value)}
             placeholder="Why is this listing being rejected?"
           />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRejecting(null)}>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className={TAP} onClick={() => setRejecting(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={submitReject}>
+            <Button variant="destructive" className={TAP} onClick={submitReject}>
               Reject
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AdminPage>
+  );
+}
+
+function primaryImage(c: CarRow) {
+  return c.car_images.find((i) => i.is_primary) ?? c.car_images[0];
+}
+
+function ListingRow({
+  c,
+  scan,
+  onOpen,
+  onApprove,
+  onReject,
+}: {
+  c: CarRow;
+  scan: FraudResult | "loading" | undefined;
+  onOpen: () => void;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  const primary = primaryImage(c);
+  const country = countryByCode(c.country);
+  const checks = [c.documents_verified, c.ntsa_verified, c.inspection_verified].filter(
+    Boolean,
+  ).length;
+  return (
+    <li className="flex flex-col gap-3 p-4 transition hover:bg-muted/30 sm:flex-row sm:items-center sm:px-6">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="flex min-w-0 flex-1 items-center gap-4 text-left"
+      >
+        <div className="aspect-[4/3] w-24 shrink-0 overflow-hidden rounded-xl bg-muted sm:w-28">
+          {primary ? (
+            <img
+              src={primary.image_url}
+              alt={c.title}
+              loading="lazy"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="grid h-full place-items-center text-xs text-muted-foreground">
+              No photo
+            </div>
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-semibold">{c.title}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {c.year} · {c.make_name} {c.model_name} · {country?.flag} {country?.name ?? c.country}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+            <StatusPill status={c.status} />
+            {c.featured && <Badge className="bg-accent text-accent-foreground">Featured</Badge>}
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+              {checks}/3 checks
+            </span>
+            {scan && scan !== "loading" && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  scan.risk === "high"
+                    ? "bg-destructive/10 text-destructive"
+                    : scan.risk === "medium"
+                      ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      : "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                }`}
+              >
+                AI risk: {scan.risk}
+              </span>
+            )}
+            {c.status === "pending" && (
+              <span className="text-[11px] text-muted-foreground">
+                waiting {ageOf(c.created_at)}
+              </span>
+            )}
+          </div>
+          {c.rejection_reason && (
+            <p className="mt-2 line-clamp-1 text-xs text-destructive">
+              Rejected: {c.rejection_reason}
+            </p>
+          )}
+        </div>
+        <div className="hidden shrink-0 text-right md:block">
+          <div className="font-semibold tabular-nums">
+            {c.currency} {c.price.toLocaleString()}
+          </div>
+          <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
+            <Eye className="h-3 w-3" /> {c.views}
+          </div>
+        </div>
+        <ChevronRight className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+      </button>
+      <div className="flex items-center justify-between gap-2 sm:justify-end">
+        <span className="font-semibold tabular-nums md:hidden">
+          {c.currency} {c.price.toLocaleString()}
+        </span>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className={TAP} onClick={onOpen}>
+            Review
+          </Button>
+          {c.status === "pending" && (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className={`${TAP} border-destructive/40 text-destructive hover:bg-destructive/10`}
+                onClick={onReject}
+                aria-label={`Reject ${c.title}`}
+              >
+                <XCircle className="h-4 w-4" />
+                <span className="hidden lg:inline">Reject</span>
+              </Button>
+              <Button size="sm" className={TAP} onClick={onApprove}>
+                <CheckCircle2 className="h-4 w-4" /> Approve
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </li>
   );
 }
 
@@ -302,181 +496,155 @@ function FlagButton({
   onClick: () => void;
 }) {
   return (
-    <Button
-      size="sm"
-      variant={on ? "default" : "outline"}
-      className={on ? "bg-emerald-600 hover:bg-emerald-600/90" : ""}
+    <button
+      type="button"
       onClick={onClick}
+      aria-pressed={on}
+      className={`flex min-h-11 items-center justify-between gap-2 rounded-2xl border px-3 py-2 text-left text-sm transition ${
+        on
+          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300"
+          : "border-border bg-card hover:border-foreground/30"
+      }`}
     >
-      {icon}
-      {label}: {on ? "Checked" : "Mark checked"}
-    </Button>
+      <span className="flex items-center gap-2 font-semibold [&_svg]:h-4 [&_svg]:w-4">
+        {icon}
+        {label}
+      </span>
+      <span className="text-xs">{on ? "Checked" : "Mark checked"}</span>
+    </button>
   );
 }
 
-function CarsList({
-  rows,
-  scans,
+function ListingDetail({
+  c,
+  scan,
   onScan,
-  onApprove,
-  onReject,
-  onFeature,
   onToggleFlag,
 }: {
-  rows: CarRow[];
-  scans: Record<string, FraudResult | "loading">;
-  onScan: (c: CarRow) => void;
-  onApprove: (c: CarRow) => void;
-  onReject: (c: CarRow) => void;
-  onFeature: (c: CarRow) => void;
-  onToggleFlag: (
-    c: CarRow,
-    field: "documents_verified" | "ntsa_verified" | "inspection_verified",
-  ) => void;
+  c: CarRow;
+  scan: FraudResult | "loading" | undefined;
+  onScan: () => void;
+  onToggleFlag: (f: Flag) => void;
 }) {
-  if (rows.length === 0) {
-    return (
-      <div className="rounded-lg border bg-card p-10 text-center text-sm text-muted-foreground">
-        No listings in this group.
-      </div>
-    );
-  }
+  const primary = primaryImage(c);
+  const country = countryByCode(c.country);
   return (
-    <div className="space-y-3">
-      {rows.map((c) => {
-        const primary = c.car_images.find((i) => i.is_primary) ?? c.car_images[0];
-        const country = countryByCode(c.country);
-        return (
-          <div key={c.id} className="flex flex-wrap gap-4 rounded-lg border bg-card p-4 shadow-sm">
-            <div className="h-24 w-32 flex-shrink-0 overflow-hidden rounded-md bg-muted">
-              {primary ? (
-                <img src={primary.image_url} alt={c.title} className="h-full w-full object-cover" />
-              ) : (
-                <div className="grid h-full place-items-center text-xs text-muted-foreground">
-                  No photo
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h3 className="font-semibold">{c.title}</h3>
-                  <div className="text-xs text-muted-foreground">
-                    {c.year} · {c.make_name} {c.model_name} · {country?.flag}{" "}
-                    {country?.name ?? c.country}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">
-                    {c.currency} {c.price.toLocaleString()}
-                  </div>
-                  <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
-                    <Eye className="h-3 w-3" /> {c.views}
-                  </div>
-                </div>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1">
-                <Badge variant="outline">{c.status}</Badge>
-                {c.featured && <Badge className="bg-accent text-accent-foreground">Featured</Badge>}
-              </div>
-              {c.rejection_reason && (
-                <div className="mt-2 rounded-md bg-destructive/10 px-2 py-1 text-xs text-destructive">
-                  Rejected: {c.rejection_reason}
-                </div>
-              )}
-              <div className="mt-3">
-                <ListingChecklist carId={c.id} variant="admin" />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <FlagButton
-                  on={c.documents_verified}
-                  icon={<FileCheck2 className="mr-1 h-4 w-4" />}
-                  label="Logbook"
-                  onClick={() => onToggleFlag(c, "documents_verified")}
-                />
-                <FlagButton
-                  on={c.ntsa_verified}
-                  icon={<BadgeCheck className="mr-1 h-4 w-4" />}
-                  label="NTSA"
-                  onClick={() => onToggleFlag(c, "ntsa_verified")}
-                />
-                <FlagButton
-                  on={c.inspection_verified}
-                  icon={<Wrench className="mr-1 h-4 w-4" />}
-                  label="Inspection"
-                  onClick={() => onToggleFlag(c, "inspection_verified")}
-                />
-              </div>
-              {scans[c.id] &&
-                scans[c.id] !== "loading" &&
-                (() => {
-                  const r = scans[c.id] as FraudResult;
-                  const tone =
-                    r.risk === "high"
-                      ? "border-destructive/30 bg-destructive/10 text-destructive"
-                      : r.risk === "medium"
-                        ? "border-amber-300 bg-amber-50 text-amber-900"
-                        : "border-emerald-300 bg-emerald-50 text-emerald-900";
-                  return (
-                    <div className={`mt-2 rounded-md border px-3 py-2 text-xs ${tone}`}>
-                      <div className="flex items-center gap-1.5 font-semibold">
-                        <ShieldAlert className="h-3.5 w-3.5" />
-                        AI risk: {r.risk.toUpperCase()} · score {r.score}/100 · recommend{" "}
-                        {r.recommendation}
-                      </div>
-                      <p className="mt-1">{r.summary}</p>
-                      {r.signals.length > 0 && (
-                        <ul className="mt-1 list-inside list-disc">
-                          {r.signals.map((s, i) => (
-                            <li key={i}>{s}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  );
-                })()}
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Link to="/cars/$id" params={{ id: c.id }}>
-                  <Button size="sm" variant="outline">
-                    View
-                  </Button>
-                </Link>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={scans[c.id] === "loading"}
-                  onClick={() => onScan(c)}
-                >
-                  {scans[c.id] === "loading" ? (
-                    <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="mr-1 h-4 w-4 text-accent" />
-                  )}
-                  AI scan
-                </Button>
-                {c.status !== "approved" && (
-                  <Button size="sm" onClick={() => onApprove(c)}>
-                    <CheckCircle2 className="mr-1 h-4 w-4" /> Approve
-                  </Button>
-                )}
-                {c.status !== "rejected" && (
-                  <Button size="sm" variant="destructive" onClick={() => onReject(c)}>
-                    <XCircle className="mr-1 h-4 w-4" /> Reject
-                  </Button>
-                )}
-                {c.status === "approved" && (
-                  <Button size="sm" variant="outline" onClick={() => onFeature(c)}>
-                    <Star
-                      className={`mr-1 h-4 w-4 ${c.featured ? "fill-accent text-accent" : ""}`}
-                    />
-                    {c.featured ? "Unfeature" : "Feature"}
-                  </Button>
-                )}
-              </div>
-            </div>
+    <div className="space-y-5">
+      <div className="aspect-[16/10] overflow-hidden rounded-2xl bg-muted">
+        {primary ? (
+          <img src={primary.image_url} alt={c.title} className="h-full w-full object-cover" />
+        ) : (
+          <div className="grid h-full place-items-center text-sm text-muted-foreground">
+            No photo
           </div>
-        );
-      })}
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm text-muted-foreground">
+            {c.year} · {c.make_name} {c.model_name} · {country?.flag} {country?.name ?? c.country}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <StatusPill status={c.status} />
+            {c.featured && <Badge className="bg-accent text-accent-foreground">Featured</Badge>}
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="font-brand text-2xl tabular-nums">
+            {c.currency} {c.price.toLocaleString()}
+          </div>
+          <div className="flex items-center justify-end gap-1 text-xs text-muted-foreground">
+            <Eye className="h-3 w-3" /> {c.views} views · submitted {ageOf(c.created_at)} ago
+          </div>
+        </div>
+      </div>
+
+      {c.rejection_reason && (
+        <div className="rounded-2xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          Rejected: {c.rejection_reason}
+        </div>
+      )}
+
+      <Button size="sm" variant="outline" asChild className={TAP}>
+        <Link to="/cars/$id" params={{ id: c.id }}>
+          <ExternalLink className="h-4 w-4" /> View public listing
+        </Link>
+      </Button>
+
+      <section>
+        <p className="brand-kicker mb-2 text-muted-foreground">Evidence checks</p>
+        <div className="grid gap-2">
+          <FlagButton
+            on={c.documents_verified}
+            icon={<FileCheck2 />}
+            label="Logbook"
+            onClick={() => onToggleFlag("documents_verified")}
+          />
+          <FlagButton
+            on={c.ntsa_verified}
+            icon={<BadgeCheck />}
+            label="NTSA"
+            onClick={() => onToggleFlag("ntsa_verified")}
+          />
+          <FlagButton
+            on={c.inspection_verified}
+            icon={<Wrench />}
+            label="Inspection"
+            onClick={() => onToggleFlag("inspection_verified")}
+          />
+        </div>
+      </section>
+
+      <section>
+        <ListingChecklist carId={c.id} variant="admin" />
+      </section>
+
+      <section>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <p className="brand-kicker text-muted-foreground">Fraud check</p>
+          <Button
+            size="sm"
+            variant="outline"
+            className={TAP}
+            disabled={scan === "loading"}
+            onClick={onScan}
+          >
+            {scan === "loading" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 text-accent" />
+            )}
+            {scan && scan !== "loading" ? "Run AI scan again" : "AI scan"}
+          </Button>
+        </div>
+        {scan && scan !== "loading" ? (
+          <AiSuggestion
+            tone={scan.risk}
+            title={
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                AI risk: {scan.risk.toUpperCase()} · score {scan.score}/100 · recommend{" "}
+                {scan.recommendation}
+              </span>
+            }
+          >
+            <p>{scan.summary}</p>
+            {scan.signals.length > 0 && (
+              <ul className="mt-1 list-inside list-disc">
+                {scan.signals.map((s, i) => (
+                  <li key={i}>{s}</li>
+                ))}
+              </ul>
+            )}
+          </AiSuggestion>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Run an AI scan for price, description and photo red flags. It is a suggestion — you make
+            the decision.
+          </p>
+        )}
+      </section>
     </div>
   );
 }

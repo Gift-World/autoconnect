@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { ShieldCheck, Loader2 } from "lucide-react";
@@ -7,9 +7,9 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { QuickDemoLogin } from "@/components/QuickDemoLogin";
+import { AuthShell, authPrimaryButton } from "@/components/auth/AuthShell";
 
 const schema = z.object({
   email: z.string().trim().email("Enter a valid email"),
@@ -61,53 +61,72 @@ function AdminLoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-12rem)] w-full max-w-[480px] flex-col gap-6 px-4 py-12">
-      <QuickDemoLogin
-        title="1-Click Admin & Dev Access"
-        subtitle="Select Sarah Kimani (Super Admin) for immediate access to admin moderation."
-      />
-
-      <Card className="w-full shadow-lg">
-        <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-foreground text-background">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <CardTitle className="text-2xl">Standard Admin Login</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Staff access only. Use your admin email and password.
+    <AuthShell
+      kicker="Staff only"
+      title="Standard Admin Login"
+      subtitle="Staff access only. Use your admin email and password."
+      image="/images/hero-driving-crossover.jpg"
+      imageAlt="A crossover driving on a highway"
+      asideKicker="AutoConnect admin"
+      asideTitle={
+        <>
+          Moderation, verification <span className="text-ac-accent">and disputes.</span>
+        </>
+      }
+      asidePoints={["Escrow approvals", "Dealer KYC verification", "Dispute console"]}
+      below={
+        <>
+          <p className="mt-6 text-center text-sm text-muted-foreground">
+            Not staff?{" "}
+            <Link to="/login" className="font-bold text-foreground underline-offset-4 hover:underline">
+              Go to the regular log in
+            </Link>
           </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="admin-email">Email</Label>
-              <Input
-                id="admin-email"
-                type="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="admin-password">Password</Label>
-              <Input
-                id="admin-password"
-                type="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" disabled={submitting} className="w-full">
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign in
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="mt-6">
+            <QuickDemoLogin
+              title="1-Click Admin & Dev Access"
+              subtitle="Select Sarah Kimani (Super Admin) for immediate access to admin moderation."
+            />
+          </div>
+        </>
+      }
+    >
+      <div className="mb-5 flex items-center gap-3">
+        <span className="grid h-11 w-11 place-items-center rounded-2xl bg-ac-ink text-white">
+          <ShieldCheck className="h-5 w-5" />
+        </span>
+        <p className="text-sm font-semibold text-foreground">Admin sign in</p>
+      </div>
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="admin-email">Email</Label>
+          <Input
+            id="admin-email"
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="h-12 rounded-xl"
+            required
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="admin-password">Password</Label>
+          <Input
+            id="admin-password"
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="h-12 rounded-xl"
+            required
+          />
+        </div>
+        <Button type="submit" disabled={submitting} className={authPrimaryButton}>
+          {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Sign in
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

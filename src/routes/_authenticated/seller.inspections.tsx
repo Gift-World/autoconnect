@@ -2,10 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Wrench, Loader2, CheckCircle2, Clock } from "lucide-react";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { StatusPill } from "@/components/StatusPill";
+import { EmptyPanel, ListSkeleton, Panel, StatTile } from "@/components/seller/SellerUI";
 
 export const Route = createFileRoute("/_authenticated/seller/inspections")({
   component: SellerInspections,
@@ -86,82 +88,133 @@ function SellerInspections() {
   const requestable = cars.filter(
     (c) => !rows.some((r) => r.cars?.id === c.id && !["cancelled", "no_show"].includes(r.status)),
   );
+  const approvedCount = rows.filter((r) => r.admin_approved).length;
+  const inFlight = rows.filter((r) => !r.admin_approved && r.status !== "completed").length;
 
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight">Inspections</h1>
-        <p className="text-sm text-muted-foreground">
-          Independent mechanical inspection increases buyer trust.
-        </p>
-      </header>
+    <div className="space-y-4 sm:space-y-6">
+      <PageHeader
+        eyebrow="Trust"
+        title="Inspections"
+        description="Independent mechanical inspection increases buyer trust."
+      />
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        <StatTile
+          featured
+          icon={<Wrench />}
+          label="Ready to request"
+          value={requestable.length}
+          sub="Listings without an inspection"
+          loading={loading}
+        />
+        <StatTile
+          icon={<Clock />}
+          tone="warning"
+          label="In progress"
+          value={inFlight}
+          sub="Requested or scheduled"
+          loading={loading}
+        />
+        <div className="col-span-2 lg:col-span-1">
+          <StatTile
+            icon={<CheckCircle2 />}
+            tone="success"
+            label="Approved"
+            value={approvedCount}
+            sub="Shown to buyers"
+            loading={loading}
+          />
+        </div>
+      </div>
 
       {requestable.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Request an inspection</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <Panel
+          kicker="Needs your attention"
+          title="Request an inspection"
+          description="An admin assigns a mechanic once you request."
+          className="border-ac-accent/40"
+        >
+          <ul className="space-y-2">
             {requestable.map((c) => (
-              <div
+              <li
                 key={c.id}
-                className="flex items-center justify-between rounded-md border p-3 text-sm"
+                className="flex flex-col gap-3 rounded-2xl bg-ac-accent/10 p-4 sm:flex-row sm:items-center sm:justify-between"
               >
-                <span>{c.title}</span>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold">{c.title}</p>
+                  <div className="mt-1">
+                    <StatusPill status={c.status} />
+                  </div>
+                </div>
                 <Button
-                  size="sm"
-                  variant="secondary"
+                  className="h-11 shrink-0 rounded-full bg-ac-ink px-5 text-white hover:bg-ac-ink/90 dark:bg-ac-accent dark:text-ac-ink"
                   disabled={requesting === c.id}
                   onClick={() => requestInspection(c.id)}
                 >
                   {requesting === c.id ? (
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Wrench className="mr-1.5 h-3.5 w-3.5" />
+                    <Wrench className="h-4 w-4" />
                   )}
                   Request inspection
                 </Button>
-              </div>
+              </li>
             ))}
-          </CardContent>
-        </Card>
+          </ul>
+        </Panel>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Your inspections</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="py-6 text-center text-sm text-muted-foreground">
-              <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">No inspections yet.</p>
-          ) : (
-            <ul className="divide-y">
-              {rows.map((r) => (
-                <li key={r.id} className="flex items-center justify-between py-3 text-sm">
-                  <div>
-                    <Link
-                      to="/cars/$id"
-                      params={{ id: r.cars?.id ?? "" }}
-                      className="font-medium hover:underline"
-                    >
-                      {r.cars?.title ?? "Car"}
-                    </Link>
-                    <div className="text-xs text-muted-foreground">
-                      {r.scheduled_date ? `Scheduled ${r.scheduled_date}` : "Awaiting scheduling"}
-                      {r.mechanic_verdict && ` · Verdict: ${r.mechanic_verdict}`}
-                    </div>
+      <Panel kicker="History" title="Your inspections">
+        {loading ? (
+          <ListSkeleton rows={3} />
+        ) : rows.length === 0 ? (
+          <EmptyPanel
+            icon={<Wrench />}
+            title="No inspections yet"
+            description={
+              requestable.length > 0
+                ? "Request one above — inspected cars earn more buyer trust."
+                : "Once you have a pending or live listing, you can request an inspection here."
+            }
+            action={
+              requestable.length === 0 ? (
+                <Button asChild className="h-11 rounded-full">
+                  <Link to="/seller/listings/new" search={{ edit: undefined }}>
+                    Create a listing
+                  </Link>
+                </Button>
+              ) : undefined
+            }
+          />
+        ) : (
+          <ul className="divide-y divide-border rounded-2xl border border-border">
+            {rows.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div className="min-w-0">
+                  <Link
+                    to="/cars/$id"
+                    params={{ id: r.cars?.id ?? "" }}
+                    className="font-semibold hover:underline"
+                  >
+                    {r.cars?.title ?? "Car"}
+                  </Link>
+                  <div className="text-xs text-muted-foreground">
+                    {r.scheduled_date ? `Scheduled ${r.scheduled_date}` : "Awaiting scheduling"}
+                    {r.mechanic_verdict && ` · Verdict: ${r.mechanic_verdict}`}
                   </div>
+                </div>
+                <div className="shrink-0">
                   <StatusBadge status={r.status} approved={r.admin_approved} />
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
     </div>
   );
 }

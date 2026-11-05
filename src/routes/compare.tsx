@@ -80,27 +80,28 @@ function VehicleComparisonPage() {
 
   if (comparedVehicles.length === 0) {
     return (
-      <div className="container-page py-20 min-h-[65vh] flex flex-col items-center justify-center text-center">
-        <div className="h-20 w-20 rounded-3xl bg-accent/10 border border-accent/20 flex items-center justify-center text-accent mb-6">
+      <div className="mx-auto flex min-h-[65vh] max-w-[1360px] flex-col items-center justify-center px-4 py-16 text-center sm:px-6">
+        <div className="mb-6 grid h-20 w-20 place-items-center rounded-3xl bg-ac-cream text-ac-ink">
           <Scale className="h-10 w-10" />
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+        <p className="brand-kicker text-muted-foreground">Side-by-side decision desk</p>
+        <h1 className="font-brand mt-3 text-3xl text-foreground sm:text-5xl">
           Vehicle Comparison
         </h1>
         <p className="text-muted-foreground max-w-md mt-3 text-sm sm:text-base leading-relaxed">
           You have not added any vehicles to compare yet. Browse our inventory and click the{" "}
-          <span className="font-semibold text-accent">"Compare"</span> icon on any listing to
+          <span className="font-semibold text-foreground">"Compare"</span> icon on any listing to
           inspect them side-by-side.
         </p>
         <div className="mt-8 flex flex-wrap gap-4 justify-center">
           <Link to="/cars">
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold px-6 rounded-xl">
+            <Button className="h-11 rounded-full bg-ac-accent px-6 font-bold text-ac-ink hover:bg-ac-accent/90">
               Browse Vehicles
               <ChevronRight className="h-4 w-4 ml-1.5" />
             </Button>
           </Link>
           <Link to="/import">
-            <Button variant="outline" className="rounded-xl border-border">
+            <Button variant="outline" className="h-11 rounded-full border-border px-6">
               Explore Import Stock
             </Button>
           </Link>
@@ -110,21 +111,27 @@ function VehicleComparisonPage() {
   }
 
   // Helper to check if values differ across cars
-  const hasDifference = (getValue: (car: ComparedVehicle) => any) => {
+  const hasDifference = (getValue: (car: ComparedVehicle) => unknown) => {
     if (comparedVehicles.length <= 1) return false;
     const first = getValue(comparedVehicles[0]);
     return comparedVehicles.some((car) => getValue(car) !== first);
   };
 
+  // Label column + one column per slot. Below md the table scrolls inside its own container
+  // while the label column stays pinned.
+  const gridCols = {
+    gridTemplateColumns: `minmax(112px, 168px) repeat(${maxVehicles}, minmax(168px, 1fr))`,
+  };
+
   return (
-    <div className="container-page py-8 sm:py-12 space-y-8">
+    <div className="mx-auto max-w-[1360px] space-y-6 px-4 py-6 sm:space-y-8 sm:px-6 sm:py-10">
       <PageHeader
         eyebrow="Side-by-side decision desk"
         title="Compare what matters"
         description={`Comparing ${comparedVehicles.length} of ${maxVehicles} vehicles. Highlight differences, save the link, and review the seller-supplied facts before you contact anyone.`}
         actions={<div className="flex flex-wrap items-center gap-3">
           {/* Highlight Differences Toggle */}
-          <div className="flex items-center space-x-2 bg-card border border-border px-3 py-2 rounded-xl text-xs">
+          <div className="flex min-h-11 items-center space-x-2 rounded-full border border-border bg-card px-4 py-2 text-xs">
             <Switch id="diff-mode" checked={onlyDifferences} onCheckedChange={setOnlyDifferences} />
             <Label htmlFor="diff-mode" className="text-xs cursor-pointer select-none">
               Highlight Differences
@@ -135,7 +142,7 @@ function VehicleComparisonPage() {
             variant="outline"
             size="sm"
             onClick={handleShare}
-            className="rounded-xl border-border gap-1.5 text-xs h-9"
+            className="h-11 gap-1.5 rounded-full border-border px-4 text-xs"
           >
             <Share2 className="h-3.5 w-3.5" />
             <span>Share</span>
@@ -145,7 +152,7 @@ function VehicleComparisonPage() {
             variant="outline"
             size="sm"
             onClick={handlePrint}
-            className="rounded-xl border-border gap-1.5 text-xs h-9 hidden sm:flex"
+            className="hidden h-11 gap-1.5 rounded-full border-border px-4 text-xs sm:flex"
           >
             <Printer className="h-3.5 w-3.5" />
             <span>Print PDF</span>
@@ -155,7 +162,7 @@ function VehicleComparisonPage() {
             variant="ghost"
             size="sm"
             onClick={clearComparison}
-            className="text-xs text-muted-foreground hover:text-destructive h-9"
+            className="h-11 rounded-full text-xs text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-3.5 w-3.5 mr-1.5" />
             Clear All
@@ -164,11 +171,12 @@ function VehicleComparisonPage() {
       />
 
       {/* Comparison Grid Table */}
-      <div className="overflow-x-auto pb-6">
-        <div className="min-w-[760px] divide-y divide-border border border-border rounded-3xl bg-card shadow-xl overflow-hidden">
+      <p className="text-xs text-muted-foreground md:hidden">Swipe sideways inside the table to see every car.</p>
+      <div className="overflow-x-auto overscroll-x-contain rounded-[28px] border border-border bg-card pb-2">
+        <div className="w-max min-w-full divide-y divide-border">
           {/* Sticky Vehicle Cards Row */}
-          <div className="grid grid-cols-5 gap-4 p-4 sm:p-6 bg-muted/30">
-            <div className="col-span-1 flex flex-col justify-end p-2">
+          <div className="grid gap-3 bg-muted/30 p-3 sm:gap-4 sm:p-6" style={gridCols}>
+            <div className="sticky left-0 z-10 flex flex-col justify-end rounded-2xl bg-card/95 p-2 backdrop-blur">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Vehicle Overview
               </span>
@@ -180,7 +188,7 @@ function VehicleComparisonPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full text-xs rounded-xl border-dashed border-accent/40 text-accent hover:bg-accent/10"
+                    className="h-11 w-full rounded-full border-dashed text-xs"
                   >
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     Add Vehicle
@@ -196,13 +204,14 @@ function VehicleComparisonPage() {
               >
                 <button
                   onClick={() => removeFromCompare(car.id)}
-                  className="absolute top-2 right-2 z-10 h-7 w-7 rounded-full bg-background/80 hover:bg-destructive hover:text-destructive-foreground backdrop-blur-md flex items-center justify-center text-muted-foreground transition-colors shadow-sm"
+                  aria-label="Remove from comparison"
+                  className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-background/80 hover:bg-destructive hover:text-destructive-foreground backdrop-blur-md flex items-center justify-center text-muted-foreground transition-colors shadow-sm"
                   title="Remove"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
 
-                <div className="aspect-[16/10] rounded-xl overflow-hidden bg-muted relative">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
                   {car.image_url ? (
                     <img
                       src={car.image_url}
@@ -226,7 +235,7 @@ function VehicleComparisonPage() {
                   <h3 className="font-bold text-sm leading-tight text-foreground line-clamp-1">
                     {car.year} {car.make} {car.model}
                   </h3>
-                  <div className="text-base font-extrabold text-accent mt-1 font-mono">
+                  <div className="mt-1 text-base font-extrabold tabular-nums text-foreground">
                     {formatPrice(car.price)}
                   </div>
                   <div className="text-[11px] text-muted-foreground mt-0.5 truncate">
@@ -238,13 +247,13 @@ function VehicleComparisonPage() {
                   <Link to="/cars/$id" params={{ id: car.id }}>
                     <Button
                       size="sm"
-                      className="w-full h-8 text-xs rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90"
+                      className="h-11 w-full rounded-full bg-ac-accent text-xs font-bold text-ac-ink hover:bg-ac-accent/90"
                     >
                       View Details
                       <ArrowRight className="h-3 w-3 ml-1" />
                     </Button>
                   </Link>
-                  <WhatsAppConcierge car={car} compact className="w-full h-8 text-xs rounded-xl" />
+                  <WhatsAppConcierge car={car} compact className="h-11 w-full rounded-full text-xs" />
                 </div>
               </div>
             ))}
@@ -258,7 +267,7 @@ function VehicleComparisonPage() {
                 <Car className="h-8 w-8 opacity-30" />
                 <p className="text-xs font-medium">Slot Available</p>
                 <Link to="/cars">
-                  <Button variant="ghost" size="sm" className="text-xs text-accent">
+                  <Button variant="ghost" size="sm" className="h-11 rounded-full text-xs">
                     + Add Car
                   </Button>
                 </Link>
@@ -268,7 +277,7 @@ function VehicleComparisonPage() {
 
           {/* Section: Key Specifications */}
           <div className="p-4 sm:p-6 space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
+            <h4 className="sticky left-0 flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
               <Gauge className="h-4 w-4" />
               Core Specifications
             </h4>
@@ -278,11 +287,15 @@ function VehicleComparisonPage() {
               values={comparedVehicles.map((c) => formatPrice(c.price))}
               highlight={onlyDifferences && hasDifference((c) => c.price)}
               accent
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Year of Manufacture"
               values={comparedVehicles.map((c) => c.year.toString())}
               highlight={onlyDifferences && hasDifference((c) => c.year)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Mileage"
@@ -290,6 +303,8 @@ function VehicleComparisonPage() {
                 c.mileage ? `${c.mileage.toLocaleString()} km` : "Undisclosed",
               )}
               highlight={onlyDifferences && hasDifference((c) => c.mileage)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Engine Capacity"
@@ -297,42 +312,56 @@ function VehicleComparisonPage() {
                 c.engine_size_cc ? `${c.engine_size_cc.toLocaleString()} cc` : "N/A",
               )}
               highlight={onlyDifferences && hasDifference((c) => c.engine_size_cc)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Transmission"
               values={comparedVehicles.map((c) => c.transmission || "Automatic")}
               highlight={onlyDifferences && hasDifference((c) => c.transmission)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Fuel Type"
               values={comparedVehicles.map((c) => c.fuel_type || "Petrol")}
               highlight={onlyDifferences && hasDifference((c) => c.fuel_type)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Drivetrain"
               values={comparedVehicles.map((c) => c.drivetrain || "AWD / 4WD")}
               highlight={onlyDifferences && hasDifference((c) => c.drivetrain)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Steering Configuration"
               values={comparedVehicles.map((c) => c.steering || "Right Hand Drive (RHD)")}
               highlight={onlyDifferences && hasDifference((c) => c.steering)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Condition"
               values={comparedVehicles.map((c) => c.condition || "Foreign Used")}
               highlight={onlyDifferences && hasDifference((c) => c.condition)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Location"
               values={comparedVehicles.map((c) => `${c.city || "Nairobi"}, ${c.country || "KE"}`)}
               highlight={onlyDifferences && hasDifference((c) => `${c.city}-${c.country}`)}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
           </div>
 
           {/* Section: Trust, Escrow & History */}
           <div className="p-4 sm:p-6 space-y-4 bg-muted/20">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
+            <h4 className="sticky left-0 flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
               <ShieldCheck className="h-4 w-4" />
               Trust & Verification Passport
             </h4>
@@ -341,25 +370,33 @@ function VehicleComparisonPage() {
               label="Listing status"
               values={comparedVehicles.map((c) => (c.verified ? "Seller verified" : "Review listing details"))}
               icon={<ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Inspection evidence"
               values={comparedVehicles.map(() => "Ask seller or arrange inspection")}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Mileage evidence"
               values={comparedVehicles.map(() => "Confirm with seller")}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
             <SpecRow
               label="Ownership documents"
               values={comparedVehicles.map(() => "Request before purchase")}
+              gridStyle={gridCols}
+              slots={maxVehicles}
             />
           </div>
 
           {/* Section: Features & Equipment Matrix */}
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-accent flex items-center gap-2">
+              <h4 className="sticky left-0 flex w-fit items-center gap-2 text-xs font-bold uppercase tracking-wider text-foreground">
                 <Sparkles className="h-4 w-4" />
                 Equipment & Options Checklist
               </h4>
@@ -376,13 +413,14 @@ function VehicleComparisonPage() {
               return (
                 <div
                   key={featureName}
-                  className={`grid grid-cols-5 gap-4 py-2.5 px-3 rounded-xl items-center text-xs transition-colors ${
+                  style={gridCols}
+                  className={`grid gap-3 py-2.5 px-3 rounded-xl items-center text-xs transition-colors sm:gap-4 ${
                     onlyDifferences && hasDiff
                       ? "bg-amber-500/10 border border-amber-500/30"
                       : "hover:bg-muted/40"
                   }`}
                 >
-                  <div className="col-span-1 font-medium text-foreground">{featureName}</div>
+                  <div className="sticky left-0 z-10 rounded-lg bg-card/95 py-1 font-medium text-foreground backdrop-blur">{featureName}</div>
                   {comparedVehicles.map((car) => {
                     const hasFeature =
                       car.features?.some((f) =>
@@ -429,7 +467,11 @@ function SpecRow({
   highlight = false,
   accent = false,
   icon,
+  gridStyle,
+  slots = 4,
 }: {
+  gridStyle?: React.CSSProperties;
+  slots?: number;
   label: string;
   values: string[];
   highlight?: boolean;
@@ -438,25 +480,26 @@ function SpecRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-5 gap-4 py-2.5 px-3 rounded-xl items-center text-xs transition-colors ${
+      style={gridStyle}
+      className={`grid grid-cols-5 gap-3 py-2.5 px-3 rounded-xl items-center text-xs transition-colors sm:gap-4 ${
         highlight
           ? "bg-amber-500/10 border border-amber-500/30 text-foreground font-semibold"
           : "hover:bg-muted/40 text-muted-foreground"
       }`}
     >
-      <div className="col-span-1 font-medium text-foreground flex items-center gap-1.5">
+      <div className="sticky left-0 z-10 flex items-center gap-1.5 rounded-lg bg-card/95 py-1 font-medium text-foreground backdrop-blur">
         {icon}
         <span>{label}</span>
       </div>
       {values.map((val, idx) => (
         <div
           key={idx}
-          className={`col-span-1 ${accent ? "text-accent font-mono font-bold text-sm" : "text-foreground font-medium"}`}
+          className={`col-span-1 ${accent ? "font-mono text-sm font-bold text-foreground" : "text-foreground font-medium"}`}
         >
           {val}
         </div>
       ))}
-      {Array.from({ length: 4 - values.length }).map((_, idx) => (
+      {Array.from({ length: Math.max(0, slots - values.length) }).map((_, idx) => (
         <div key={`empty-spec-${idx}`} className="col-span-1 text-muted-foreground/40">
           —
         </div>

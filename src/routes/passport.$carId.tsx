@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { VehiclePassport } from "@/components/VehiclePassport";
+import { VehicleImage } from "@/components/VehicleImage";
 import { Link } from "@tanstack/react-router";
-import { ChevronLeft, ShieldCheck, Wrench } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronLeft, FileClock, ShieldCheck, Wrench } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/passport/$carId")({
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/passport/$carId")({
         .maybeSingle();
 
       if (!garageCar) {
-        throw new Error("Vehicle not found");
+        throw notFound();
       }
       car = garageCar;
     }
@@ -34,54 +35,75 @@ export const Route = createFileRoute("/passport/$carId")({
 function PassportPage() {
   const { car } = Route.useLoaderData();
   const { carId } = Route.useParams();
+  const name =
+    car.title || `${car.year ?? ""} ${car.make_name} ${car.model_name ?? ""}`.trim();
+  // Marketplace cars may have photos; manual garage vehicles fall back to a placeholder.
+  const photoQuery = useQuery({
+    queryKey: ["passport-photo", carId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("car_images")
+        .select("image_url,is_primary,sort_order")
+        .eq("car_id", carId)
+        .order("is_primary", { ascending: false })
+        .order("sort_order", { ascending: true })
+        .limit(1);
+      return (data?.[0]?.image_url as string | undefined) ?? null;
+    },
+  });
+  const photo = photoQuery.data ?? null;
 
   return (
-    <main className="mx-auto max-w-[1180px] px-4 py-8 sm:px-6 lg:py-12">
-      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-teal-50 via-card to-white p-6 shadow-card sm:p-9">
-        <div className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-teal-400/15 blur-3xl" />
-        <div className="relative">
-          <Button
-            asChild
-            variant="ghost"
-            size="sm"
-            className="-ml-3 mb-7 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Link to="/garage">
-              <ChevronLeft className="mr-1 h-4 w-4" />
-              Back to My Garage
-            </Link>
-          </Button>
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-teal-700">
-                Vehicle record
-              </p>
-              <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                Vehicle Passport
-              </h1>
-              <p className="mt-3 text-lg font-semibold text-foreground">
-                {car.title || `${car.year ?? ""} ${car.make_name} ${car.model_name ?? ""}`.trim()}
-              </p>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Keep ownership evidence, inspection results and the things still to check in one
-                private record for this vehicle.
-              </p>
+    <main className="mx-auto max-w-[1180px] px-4 pb-16 pt-4 text-foreground sm:px-6 sm:pt-6">
+      <Link
+        to="/garage"
+        className="inline-flex min-h-11 items-center gap-1 px-2 text-sm font-semibold text-muted-foreground hover:text-foreground"
+      >
+        <ChevronLeft className="h-4 w-4" />
+        Back to My Garage
+      </Link>
+
+      <section className="mt-3 grid gap-6 lg:grid-cols-[1.1fr_.9fr] lg:items-stretch">
+        {/* Photo first */}
+        <div className="aspect-[16/10] overflow-hidden rounded-[28px] bg-muted sm:rounded-[36px] lg:aspect-auto lg:min-h-[340px]">
+          <VehicleImage
+            src={photo}
+            alt={name}
+            make={car.make_name}
+            model={car.model_name}
+            year={car.year}
+            loading="eager"
+          />
+        </div>
+
+        {/* Passport cover */}
+        <div className="flex flex-col justify-between rounded-[28px] bg-ac-ink p-6 text-white sm:rounded-[36px] sm:p-9">
+          <div>
+            <p className="brand-kicker inline-flex items-center gap-2 text-ac-accent">
+              <FileClock className="h-4 w-4" /> Vehicle record
+            </p>
+            <h1 className="font-brand mt-4 text-4xl sm:text-5xl">Vehicle Passport</h1>
+            <p className="mt-3 text-lg font-semibold text-white">{name}</p>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/70">
+              Keep ownership evidence, inspection results and the things still to check in one
+              private record for this vehicle.
+            </p>
+          </div>
+          <div className="mt-8 grid grid-cols-2 gap-3 text-xs">
+            <div className="rounded-2xl bg-white/[0.06] p-4">
+              <ShieldCheck className="h-4 w-4 text-ac-accent" />
+              <p className="mt-2 font-semibold text-white">Evidence-led</p>
+              <p className="mt-1 text-white/60">Only completed checks count.</p>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs sm:w-[330px]">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                <ShieldCheck className="h-4 w-4 text-primary" />
-                <p className="mt-2 font-semibold text-foreground">Evidence-led</p>
-                <p className="mt-1 text-slate-400">Only completed checks count.</p>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                <Wrench className="h-4 w-4 text-primary" />
-                <p className="mt-2 font-semibold text-foreground">Care-ready</p>
-                <p className="mt-1 text-slate-400">Attach future work to this car.</p>
-              </div>
+            <div className="rounded-2xl bg-white/[0.06] p-4">
+              <Wrench className="h-4 w-4 text-ac-accent" />
+              <p className="mt-2 font-semibold text-white">Care-ready</p>
+              <p className="mt-1 text-white/60">Attach future work to this car.</p>
             </div>
           </div>
         </div>
       </section>
+
       <VehiclePassport carId={carId} />
     </main>
   );

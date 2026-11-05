@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { EmptyPanel, ListSkeleton, StatTile } from "@/components/seller/SellerUI";
 
 export const Route = createFileRoute("/_authenticated/seller/trade-ins")({
   component: SellerTradeIns,
@@ -61,94 +61,131 @@ function SellerTradeIns() {
     },
   });
 
-  if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading leads...</div>;
-  }
+  const all = requests ?? [];
+  const pendingCount = all.filter((r) => r.status === "pending").length;
+  const acceptedCount = all.filter((r) => r.status === "accepted").length;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeader
+        eyebrow="Leads"
         title="Trade-In Leads"
         description="Review and negotiate trade-in offers from buyers."
       />
 
-      {(!requests || requests.length === 0) ? (
-        <Alert>
-          <Car className="h-4 w-4" />
-          <AlertTitle>No Trade-In Requests</AlertTitle>
-          <AlertDescription>
-            You don't have any active trade-in leads yet. When a buyer estimates their car's value against one of your listings, it will appear here.
-          </AlertDescription>
-        </Alert>
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+        <StatTile
+          featured
+          icon={<Clock />}
+          label="Waiting on you"
+          value={pendingCount}
+          sub="Pending decisions"
+          loading={isLoading}
+        />
+        <StatTile
+          icon={<CheckCircle />}
+          tone="success"
+          label="Accepted"
+          value={acceptedCount}
+          loading={isLoading}
+        />
+        <div className="col-span-2 lg:col-span-1">
+          <StatTile icon={<Car />} label="All leads" value={all.length} loading={isLoading} />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <ListSkeleton rows={3} />
+      ) : !requests || requests.length === 0 ? (
+        <EmptyPanel
+          icon={<Car />}
+          title="No Trade-In Requests"
+          description="You don't have any active trade-in leads yet. When a buyer estimates their car's value against one of your listings, it will appear here."
+          action={
+            <Button asChild variant="outline" className="h-11 rounded-full">
+              <Link to="/seller">Review your listings</Link>
+            </Button>
+          }
+        />
       ) : (
         <div className="grid gap-4">
-          {requests.map((req) => (
-            <div key={req.id} className="rounded-xl border border-border bg-card p-5 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={
-                      req.status === 'accepted' ? 'border-green-500 text-green-500' :
-                      req.status === 'rejected' ? 'border-red-500 text-red-500' :
-                      'border-amber-500 text-amber-500'
-                    }>
-                      {req.status === 'pending' && <Clock className="w-3 h-3 mr-1" />}
-                      {req.status === 'accepted' && <CheckCircle className="w-3 h-3 mr-1" />}
-                      {req.status === 'rejected' && <XCircle className="w-3 h-3 mr-1" />}
-                      {req.status.toUpperCase()}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
-                    </span>
+          {[...requests]
+            .sort((a, b) => Number(b.status === "pending") - Number(a.status === "pending"))
+            .map((req) => (
+              <article
+                key={req.id}
+                className={`rounded-3xl border bg-card p-4 sm:p-6 ${
+                  req.status === "pending" ? "border-ac-accent/40" : "border-border"
+                }`}
+              >
+                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                  <div className="min-w-0">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <Badge
+                        variant="outline"
+                        className={
+                          req.status === "accepted"
+                            ? "border-green-500 text-green-600 dark:text-green-400"
+                            : req.status === "rejected"
+                              ? "border-red-500 text-red-600 dark:text-red-400"
+                              : "border-amber-500 text-amber-700 dark:text-amber-400"
+                        }
+                      >
+                        {req.status === "pending" && <Clock className="mr-1 h-3 w-3" />}
+                        {req.status === "accepted" && <CheckCircle className="mr-1 h-3 w-3" />}
+                        {req.status === "rejected" && <XCircle className="mr-1 h-3 w-3" />}
+                        {req.status.toUpperCase()}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(req.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+
+                    <h3 className="font-brand text-2xl leading-tight">
+                      {req.year} {req.make} {req.model}
+                    </h3>
+                    <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                      <span>Odometer: {req.mileage.toLocaleString()} km</span>
+                      <span>Condition: {req.condition}</span>
+                      <span>Location: {req.location}</span>
+                    </p>
                   </div>
-                  
-                  <h3 className="text-lg font-bold">
-                    {req.year} {req.make} {req.model}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mt-1 flex gap-4">
-                    <span>Odometer: {req.mileage.toLocaleString()} km</span>
-                    <span>Condition: {req.condition}</span>
-                    <span>Location: {req.location}</span>
-                  </p>
-                </div>
-                
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-right">
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground mb-1">Est. Trade-In Value</p>
-                  <p className="text-xl font-bold text-primary font-mono tracking-tight">
-                    {formatPrice(req.est_min)} - {formatPrice(req.est_max)}
-                  </p>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Target Purchase: </span>
-                  <span className="font-medium">{req.cars?.title}</span>
-                  <span className="ml-2 font-mono">{formatPrice(req.cars?.price || 0)}</span>
-                </div>
-                
-                {req.status === 'pending' && (
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => updateStatusMutation.mutate({ id: req.id, status: 'rejected' })}
-                    >
-                      Decline
-                    </Button>
-                    <Button 
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700"
-                      onClick={() => updateStatusMutation.mutate({ id: req.id, status: 'accepted' })}
-                    >
-                      Accept Trade-In
-                    </Button>
+
+                  <div className="rounded-2xl bg-ac-ink p-4 text-white sm:min-w-[220px] sm:text-right">
+                    <p className="brand-kicker mb-1 text-ac-accent">Est. Trade-In Value</p>
+                    <p className="font-brand text-xl">
+                      {formatPrice(req.est_min)} - {formatPrice(req.est_max)}
+                    </p>
                   </div>
-                )}
-              </div>
-            </div>
-          ))}
+                </div>
+
+                <div className="mt-4 flex flex-col justify-between gap-3 border-t border-border pt-4 sm:flex-row sm:items-center">
+                  <div className="min-w-0 text-sm">
+                    <span className="text-muted-foreground">Target Purchase: </span>
+                    <span className="font-semibold">{req.cars?.title}</span>
+                    <span className="ml-2 font-mono">{formatPrice(req.cars?.price || 0)}</span>
+                  </div>
+
+                  {req.status === "pending" && (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="h-11 flex-1 rounded-full border-red-200 text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:hover:bg-red-500/10 sm:flex-none"
+                        onClick={() => updateStatusMutation.mutate({ id: req.id, status: "rejected" })}
+                      >
+                        Decline
+                      </Button>
+                      <Button
+                        className="h-11 flex-1 rounded-full bg-green-600 text-white hover:bg-green-700 sm:flex-none"
+                        onClick={() => updateStatusMutation.mutate({ id: req.id, status: "accepted" })}
+                      >
+                        Accept Trade-In
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </article>
+            ))}
         </div>
       )}
     </div>

@@ -112,7 +112,7 @@ export function CinematicImport() {
 
                 <div className="mt-8">
                   <Button asChild className="w-full rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 py-6 text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-200">
-                    <Link to="/import/calculator">
+                    <Link to="/import">
                       Calculate my cost <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
